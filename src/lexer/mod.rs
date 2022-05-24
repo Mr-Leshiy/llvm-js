@@ -1,3 +1,11 @@
+use self::char_reader::CharReader;
+use thiserror::Error;
+
+mod char_reader;
+
+#[derive(Debug, Error)]
+enum Error {}
+
 enum Token {
     /// "var"
     Var,
@@ -9,6 +17,14 @@ enum Token {
     Number(f64),
     /// end of file token
     EOF,
+}
+
+impl Token {
+    fn get_next_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Self, Error> {
+        // Skip whitespaces
+
+        Ok(Self::EOF)
+    }
 }
 
 #[cfg(test)]
