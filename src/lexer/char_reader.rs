@@ -1,7 +1,7 @@
 use std::io::Read;
 use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     #[error("Read error: {0}")]
     ReadError(String),
@@ -15,7 +15,7 @@ pub struct CharReader<R: Read> {
 }
 
 impl<R: Read> CharReader<R> {
-    fn new(reader: R) -> Self {
+    pub fn new(reader: R) -> Self {
         Self { buf: [0], reader }
     }
 
@@ -48,6 +48,8 @@ mod tests {
         assert_eq!(reader.get_char(), Ok('l'));
         assert_eq!(reader.get_char(), Ok('d'));
         assert_eq!(reader.get_char(), Ok('!'));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
         assert_eq!(reader.get_char(), Err(Error::Eof));
     }
 }
