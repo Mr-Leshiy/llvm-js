@@ -6,7 +6,7 @@ pub enum Error {
     #[error("Read error: {0}")]
     ReadError(String),
     #[error("End of file")]
-    EOF,
+    Eof,
 }
 
 pub struct CharReader<R: Read> {
@@ -21,7 +21,7 @@ impl<R: Read> CharReader<R> {
 
     pub fn get_char(&mut self) -> Result<char, Error> {
         match self.reader.read(&mut self.buf) {
-            Ok(read_bytes) if read_bytes == 0 => Err(Error::EOF),
+            Ok(read_bytes) if read_bytes == 0 => Err(Error::Eof),
             Ok(_) => Ok(self.buf[0].into()),
             Err(e) => Err(Error::ReadError(e.to_string())),
         }
@@ -48,6 +48,6 @@ mod tests {
         assert_eq!(reader.get_char(), Ok('l'));
         assert_eq!(reader.get_char(), Ok('d'));
         assert_eq!(reader.get_char(), Ok('!'));
-        assert_eq!(reader.get_char(), Err(Error::EOF));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
     }
 }

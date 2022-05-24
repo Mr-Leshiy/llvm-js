@@ -16,14 +16,14 @@ enum Token {
     /// number token, e.g. 5, 6, 6.12
     Number(f64),
     /// end of file token
-    EOF,
+    Eof,
 }
 
 impl Token {
     fn get_next_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Self, Error> {
         // Skip whitespaces
 
-        Ok(Self::EOF)
+        Ok(Self::Eof)
     }
 }
 
