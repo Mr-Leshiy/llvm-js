@@ -25,12 +25,16 @@ enum Token {
     Eof,
 }
 
+fn is_skip(char: &char) -> bool {
+    char.is_ascii_whitespace() || char.eq(&';')
+}
+
 impl Token {
     fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Self, Error> {
         match reader.get_char() {
             Ok(mut char) => {
                 // Skip any whitespaces
-                while char.is_ascii_whitespace() {
+                while is_skip(&char) {
                     char = match reader.get_char() {
                         Ok(char) => char,
                         Err(e) if e == char_reader::Error::Eof => return Ok(Self::Eof),
@@ -53,6 +57,10 @@ impl Token {
                             Err(e) => return Err(Error::ReaderError(e)),
                         };
                         if !char.is_ascii_alphanumeric() {
+                            // next symbol should be skipped symbol
+                            if !is_skip(&char) {
+                                return Err(Error::UnexpectedSymbol(char));
+                            }
                             break;
                         }
 
@@ -75,6 +83,10 @@ impl Token {
                             Err(e) => return Err(Error::ReaderError(e)),
                         };
                         if !char.is_ascii_digit() && char != '.' {
+                            // next symbol should be skipped symbol
+                            if !is_skip(&char) {
+                                return Err(Error::UnexpectedSymbol(char));
+                            }
                             break;
                         }
 
@@ -131,6 +143,13 @@ mod tests {
             Ok(Token::Ident("name12name".to_string()))
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new("name^2name".as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Err(Error::UnexpectedSymbol('^'))
+        );
     }
 
     #[test]
@@ -143,6 +162,24 @@ mod tests {
         let mut reader = CharReader::new("12.145".as_bytes());
 
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(12.145)));
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new("1f2.145".as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Err(Error::UnexpectedSymbol('f'))
+        );
+    }
+
+    #[test]
+    fn token_unexpected_symbol() {
+        let mut reader = CharReader::new("^".as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Err(Error::UnexpectedSymbol('^'))
+        );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
 }
