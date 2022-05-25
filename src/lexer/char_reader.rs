@@ -1,7 +1,7 @@
 use std::io::Read;
 use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     #[error("Read error: {0}")]
     ReadError(String),
@@ -15,7 +15,7 @@ pub struct CharReader<R: Read> {
 }
 
 impl<R: Read> CharReader<R> {
-    fn new(reader: R) -> Self {
+    pub fn new(reader: R) -> Self {
         Self { buf: [0], reader }
     }
 
@@ -48,6 +48,62 @@ mod tests {
         assert_eq!(reader.get_char(), Ok('l'));
         assert_eq!(reader.get_char(), Ok('d'));
         assert_eq!(reader.get_char(), Ok('!'));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
+    }
+
+    #[test]
+    fn reader_from_file() {
+        let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+        let mut reader = CharReader::new(file);
+
+        //line: "var a = 5;"
+        assert_eq!(reader.get_char(), Ok('v'));
+        assert_eq!(reader.get_char(), Ok('a'));
+        assert_eq!(reader.get_char(), Ok('r'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('a'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('='));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('5'));
+        assert_eq!(reader.get_char(), Ok(';'));
+        assert_eq!(reader.get_char(), Ok('\n'));
+
+        //line: "var b = 6;"
+        assert_eq!(reader.get_char(), Ok('v'));
+        assert_eq!(reader.get_char(), Ok('a'));
+        assert_eq!(reader.get_char(), Ok('r'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('b'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('='));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('6'));
+        assert_eq!(reader.get_char(), Ok(';'));
+        assert_eq!(reader.get_char(), Ok('\n'));
+
+        //line: "a = b;"
+        assert_eq!(reader.get_char(), Ok('a'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('='));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('b'));
+        assert_eq!(reader.get_char(), Ok(';'));
+        assert_eq!(reader.get_char(), Ok('\n'));
+
+        //line: "b = 7;"
+        assert_eq!(reader.get_char(), Ok('b'));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('='));
+        assert_eq!(reader.get_char(), Ok(' '));
+        assert_eq!(reader.get_char(), Ok('7'));
+        assert_eq!(reader.get_char(), Ok(';'));
+        assert_eq!(reader.get_char(), Ok('\n'));
+
+        assert_eq!(reader.get_char(), Err(Error::Eof));
+        assert_eq!(reader.get_char(), Err(Error::Eof));
         assert_eq!(reader.get_char(), Err(Error::Eof));
     }
 }
