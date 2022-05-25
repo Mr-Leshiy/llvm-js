@@ -182,4 +182,47 @@ mod tests {
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
+
+    #[test]
+    fn token_from_file() {
+        let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+        let mut reader = CharReader::new(file);
+
+        //line: "var a = 5;"
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("a".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(5_f64)));
+
+        //line: "var b = 6;"
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("b".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(6_f64)));
+
+        //line: "a = b;"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("a".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("b".to_string()))
+        );
+
+        //line: "b = 7;"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("b".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(7_f64)));
+    }
 }
