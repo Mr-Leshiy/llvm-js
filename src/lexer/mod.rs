@@ -21,6 +21,8 @@ enum Token {
     Ident(String),
     /// number token, e.g. 5, 6, 6.12
     Number(f64),
+    /// string token, e.g. "hello^world!"
+    String(String),
     /// end of file token
     Eof,
 }
@@ -47,7 +49,7 @@ impl Token {
                     return Ok(Self::Assign);
                 }
 
-                // identifier: [a-zA-Z][a-zA-Z0-9]*
+                // identifier: [a-zA-Z][a-zA-Z0-9_]*
                 if char.is_ascii_alphabetic() {
                     let mut ident = char.to_string();
                     loop {
@@ -56,7 +58,7 @@ impl Token {
                             Err(e) if e == char_reader::Error::Eof => break,
                             Err(e) => return Err(Error::ReaderError(e)),
                         };
-                        if !char.is_ascii_alphanumeric() {
+                        if !char.is_ascii_alphanumeric() && char != '_' {
                             // next symbol should be skipped symbol
                             if !is_skip(&char) {
                                 return Err(Error::UnexpectedSymbol(char));
@@ -96,6 +98,34 @@ impl Token {
                     return Ok(Self::Number(
                         number.parse().expect("string should be f64 number"),
                     ));
+                }
+
+                // String: string
+                if char == '"' {
+                    let mut string = String::new();
+                    loop {
+                        char = match reader.get_char() {
+                            Ok(char) => char,
+                            Err(e) if e == char_reader::Error::Eof => break,
+                            Err(e) => return Err(Error::ReaderError(e)),
+                        };
+                        if char == '"' {
+                            char = match reader.get_char() {
+                                Ok(char) => char,
+                                Err(e) if e == char_reader::Error::Eof => break,
+                                Err(e) => return Err(Error::ReaderError(e)),
+                            };
+                            // next symbol should be skipped symbol
+                            if !is_skip(&char) {
+                                return Err(Error::UnexpectedSymbol(char));
+                            }
+                            break;
+                        }
+
+                        string.push(char);
+                    }
+
+                    return Ok(Self::String(string));
                 }
 
                 Err(Error::UnexpectedSymbol(char))
@@ -144,6 +174,14 @@ mod tests {
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
 
+        let mut reader = CharReader::new("name_1".as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("name_1".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
+
         let mut reader = CharReader::new("name^2name".as_bytes());
 
         assert_eq!(
@@ -170,6 +208,17 @@ mod tests {
             Token::get_token(&mut reader),
             Err(Error::UnexpectedSymbol('f'))
         );
+    }
+
+    #[test]
+    fn token_string() {
+        let mut reader = CharReader::new(r#""Hello World__414f$$@#!@$$!%%!""#.as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::String("Hello World__414f$$@#!@$$!%%!".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
 
     #[test]
@@ -224,5 +273,19 @@ mod tests {
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(7_f64)));
+
+        //line: "var c = "hello";"
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Ident("c".to_string()))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::String("hello".to_string()))
+        );
+
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
 }
