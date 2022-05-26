@@ -1,10 +1,10 @@
-use self::char_reader::CharReader;
+pub use self::char_reader::CharReader;
 use thiserror::Error;
 
 mod char_reader;
 
 #[derive(Debug, Error, PartialEq)]
-enum Error {
+pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
     #[error("Unected symbol: {0}")]
@@ -12,7 +12,7 @@ enum Error {
 }
 
 #[derive(Debug, PartialEq)]
-enum Token {
+pub enum Token {
     /// "var"
     Var,
     /// assign token, "="
@@ -32,7 +32,7 @@ fn is_skip(char: &char) -> bool {
 }
 
 impl Token {
-    fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Self, Error> {
+    pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Self, Error> {
         match reader.get_char() {
             Ok(mut char) => {
                 // Skip any whitespaces
