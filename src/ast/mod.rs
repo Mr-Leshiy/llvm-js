@@ -1,18 +1,18 @@
+pub use assigment_expression::AssigmentExpression;
+pub use identifier::Identifier;
+pub use literal::Literal;
+pub use right_assignment_value::RightAssigmentValue;
+pub use variable_declaration::VariableDeclaration;
+
+mod assigment_expression;
+mod identifier;
+mod literal;
+mod right_assignment_value;
+mod variable_declaration;
+
 trait Expr {}
 
-/// Literal - Expression type for numeric literals like "1.0" or string literals "hello".
-enum Literal {
-    Number(f64),
-    String(String),
-}
-
-/// Identifier - Expression type for any identifier, like "name"
-struct Identifier {
-    name: String,
-}
-
-/// VariableDeclaration - Expression type for variable declaration, like "var a = 4"
-struct VariableDeclaration {
-    id: Identifier,
-    init: Literal,
+/// Program
+struct Program {
+    body: Vec<Box<dyn Expr>>,
 }
