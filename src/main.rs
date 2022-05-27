@@ -2,6 +2,7 @@ use lexer::{CharReader, Token};
 
 mod ast;
 mod lexer;
+mod parser;
 
 fn main() {
     let file = std::fs::File::open("basic.js").unwrap();

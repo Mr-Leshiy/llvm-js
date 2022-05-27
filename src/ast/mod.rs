@@ -13,6 +13,6 @@ mod variable_declaration;
 trait Expr {}
 
 /// Program
-struct Program {
+pub struct Program {
     body: Vec<Box<dyn Expr>>,
 }

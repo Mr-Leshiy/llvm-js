@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 pub use self::char_reader::CharReader;
 use thiserror::Error;
 
@@ -25,6 +27,19 @@ pub enum Token {
     String(String),
     /// end of file token
     Eof,
+}
+
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Var => write!(f, "Var token"),
+            Self::Assign => write!(f, "Assign token"),
+            Self::Ident(val) => write!(f, "Ident token, val: {}", val),
+            Self::Number(val) => write!(f, "Number token, val: {}", val),
+            Self::String(val) => write!(f, "String token, val: {}", val),
+            Self::Eof => write!(f, "Eof token"),
+        }
+    }
 }
 
 fn is_skip(char: &char) -> bool {
