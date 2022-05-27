@@ -10,9 +10,9 @@ mod literal;
 mod right_assignment_value;
 mod variable_declaration;
 
-trait Expr {}
+pub trait Expr {}
 
 /// Program
 pub struct Program {
-    body: Vec<Box<dyn Expr>>,
+    pub body: Vec<Box<dyn Expr>>,
 }

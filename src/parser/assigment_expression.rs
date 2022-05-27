@@ -1,21 +1,20 @@
-use super::{
-    identifier::parse_identifier, right_assignment_value::parse_right_assignment_value, Error,
-};
+use super::{Error, Parser};
 use crate::{
-    ast::AssigmentExpression,
+    ast::{AssigmentExpression, Identifier, RightAssigmentValue},
     lexer::{CharReader, Token},
 };
 use std::io::Read;
 
-pub fn parse_assignment_expression<R: Read>(
-    reader: &mut CharReader<R>,
-) -> Result<AssigmentExpression, Error> {
-    let left = parse_identifier(reader)?;
-    match Token::get_token(reader)? {
-        Token::Assign => {}
-        token => return Err(Error::UnexpectedToken(token)),
-    }
+impl Parser for AssigmentExpression {
+    fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error> {
+        let left = Identifier::parse(cur_token, reader)?;
 
-    let right = parse_right_assignment_value(reader)?;
-    Ok(AssigmentExpression { left, right })
+        match Token::get_token(reader)? {
+            Token::Assign => {}
+            token => return Err(Error::UnexpectedToken(token)),
+        }
+
+        let right = RightAssigmentValue::parse(Token::get_token(reader)?, reader)?;
+        Ok(AssigmentExpression { left, right })
+    }
 }
