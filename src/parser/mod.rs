@@ -19,7 +19,7 @@ pub enum Error {
     ParseTokenError(#[from] lexer::Error),
 }
 
-trait Parser: Sized {
+pub trait Parser: Sized {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error>;
 }
 
