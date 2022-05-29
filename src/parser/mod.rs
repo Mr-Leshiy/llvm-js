@@ -1,5 +1,5 @@
 use crate::{
-    ast::{AssigmentExpression, Expr, Program, VariableDeclaration},
+    ast::{AssigmentExpression, Expression, Program, VariableDeclaration},
     lexer::{self, CharReader, Token},
 };
 use std::io::Read;
@@ -28,9 +28,13 @@ impl Parser for Program {
         let mut body = Vec::new();
 
         loop {
-            let expr: Box<dyn Expr> = match cur_token {
-                Token::Var => Box::new(VariableDeclaration::parse(cur_token, reader)?),
-                Token::Ident(_) => Box::new(AssigmentExpression::parse(cur_token, reader)?),
+            let expr = match cur_token {
+                Token::Var => {
+                    Expression::VariableDeclaration(VariableDeclaration::parse(cur_token, reader)?)
+                }
+                Token::Ident(_) => {
+                    Expression::AssigmentExpression(AssigmentExpression::parse(cur_token, reader)?)
+                }
                 Token::Eof => break,
                 token => return Err(Error::UnexpectedToken(token)),
             };
@@ -46,12 +50,68 @@ impl Parser for Program {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
 
     #[test]
     fn parse_program_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
 
-        let _ = Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap();
+        let program = Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap();
+
+        assert_eq!(program.body.len(), 5);
+        let mut iter = program.body.iter();
+        // var a = 5;
+        assert_eq!(
+            *iter.next().unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "a".to_string()
+                },
+                init: RightAssigmentValue::Literal(Literal::Number(5_f64))
+            })
+        );
+        // var b = 6;
+        assert_eq!(
+            *iter.next().unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "b".to_string()
+                },
+                init: RightAssigmentValue::Literal(Literal::Number(6_f64))
+            })
+        );
+        // a = b;
+        assert_eq!(
+            *iter.next().unwrap(),
+            Expression::AssigmentExpression(AssigmentExpression {
+                left: Identifier {
+                    name: "a".to_string()
+                },
+                right: RightAssigmentValue::Identifier(Identifier {
+                    name: "b".to_string()
+                })
+            })
+        );
+        // b = 7;
+        assert_eq!(
+            *iter.next().unwrap(),
+            Expression::AssigmentExpression(AssigmentExpression {
+                left: Identifier {
+                    name: "b".to_string()
+                },
+                right: RightAssigmentValue::Literal(Literal::Number(7_f64))
+            })
+        );
+        // var b = 6;
+        assert_eq!(
+            *iter.next().unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "c".to_string()
+                },
+                init: RightAssigmentValue::Literal(Literal::String("hello".to_string()))
+            })
+        );
     }
 }

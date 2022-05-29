@@ -1,6 +1,5 @@
-use std::fmt::Display;
-
 pub use self::char_reader::CharReader;
+use std::fmt::Display;
 use thiserror::Error;
 
 mod char_reader;
