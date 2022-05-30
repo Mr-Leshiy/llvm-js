@@ -3,6 +3,7 @@ use lexer::{CharReader, Token};
 use parser::Parser;
 
 mod ast;
+mod compiler;
 mod lexer;
 mod parser;
 
