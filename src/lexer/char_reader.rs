@@ -1,7 +1,7 @@
 use std::io::Read;
 use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     #[error("Read error: {0}")]
     ReadError(String),

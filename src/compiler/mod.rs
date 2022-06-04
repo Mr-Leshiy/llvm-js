@@ -1,12 +1,9 @@
 use crate::ast::Identifier;
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    values::{AnyValue, PointerValue},
-};
+use inkwell::{builder::Builder, context::Context, values::PointerValue};
 use std::collections::HashMap;
 use thiserror::Error;
 
+mod assigment_expression;
 mod literal;
 mod variable_declaration;
 
@@ -20,14 +17,9 @@ pub trait CompileResult {
     fn to_string(&self) -> String;
 }
 
-impl<'ctx> CompileResult for PointerValue<'ctx> {
-    fn to_string(&self) -> String {
-        self.print_to_string().to_string()
-    }
-}
-
 pub trait Compile<'ctx> {
     type Output: CompileResult;
+    // TODO: consider to the change to the 'self' instead of '&self'
     fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error>;
 }
 

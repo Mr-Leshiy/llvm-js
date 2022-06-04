@@ -1,9 +1,16 @@
-use super::{literal::CompiledLiteral, Compile, Compiler, Error};
+use super::{literal::CompiledLiteral, Compile, CompileResult, Compiler, Error};
 use crate::ast::{RightAssigmentValue, VariableDeclaration};
-use inkwell::values::PointerValue;
+use inkwell::values::{AnyValue, PointerValue};
+
+impl<'ctx> CompileResult for PointerValue<'ctx> {
+    fn to_string(&self) -> String {
+        self.print_to_string().to_string()
+    }
+}
 
 impl<'ctx> Compile<'ctx> for VariableDeclaration {
     type Output = PointerValue<'ctx>;
+
     fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error> {
         match &self.init {
             RightAssigmentValue::Identifier(identifier) => {
@@ -47,7 +54,7 @@ mod tests {
     use super::*;
     use crate::{
         ast::{Identifier, Literal},
-        compiler::{CompileResult, Compiler},
+        compiler::Compiler,
     };
     use inkwell::context::Context;
 
@@ -65,7 +72,7 @@ mod tests {
         let block = compiler.context.append_basic_block(func, "entry");
         compiler.builder.position_at_end(block);
 
-        let res = VariableDeclaration {
+        VariableDeclaration {
             id: Identifier {
                 name: "var_1".to_string(),
             },
