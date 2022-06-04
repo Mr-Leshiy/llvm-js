@@ -17,6 +17,12 @@ pub enum Expression {
     AssigmentExpression(AssigmentExpression),
 }
 
+/// Module
+pub struct Module {
+    pub name: String,
+    pub program: Program,
+}
+
 /// Program
 pub struct Program {
     pub body: Vec<Expression>,

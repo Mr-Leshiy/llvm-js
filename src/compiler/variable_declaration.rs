@@ -48,39 +48,3 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{
-        ast::{Identifier, Literal},
-        compiler::Compiler,
-    };
-    use inkwell::context::Context;
-
-    #[test]
-    fn variable_declaration_compile() {
-        let ctx = Context::create();
-        let mut compiler = Compiler::new(&ctx);
-
-        let module = compiler.context.create_module("test_module");
-        let func = module.add_function(
-            "test",
-            compiler.context.void_type().fn_type(&[], false),
-            None,
-        );
-        let block = compiler.context.append_basic_block(func, "entry");
-        compiler.builder.position_at_end(block);
-
-        VariableDeclaration {
-            id: Identifier {
-                name: "var_1".to_string(),
-            },
-            init: RightAssigmentValue::Literal(Literal::Number(64_f64)),
-        }
-        .compile(&mut compiler)
-        .unwrap();
-
-        assert_eq!(module.print_to_string().to_string(), "");
-    }
-}
