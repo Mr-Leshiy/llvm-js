@@ -20,7 +20,7 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                 CompiledLiteral::Number(number) => {
                     let pointer = compiler
                         .builder
-                        .build_alloca(compiler.context.f64_type(), "var_1");
+                        .build_alloca(compiler.context.f64_type(), self.id.name.as_str());
 
                     compiler.variables.insert(self.id.clone(), pointer);
 
@@ -47,29 +47,33 @@ mod tests {
     use super::*;
     use crate::{
         ast::{Identifier, Literal},
-        compiler::Compiler,
+        compiler::{CompileResult, Compiler},
     };
-    use inkwell::{context::Context, values::AnyValue};
+    use inkwell::context::Context;
 
     #[test]
     fn variable_declaration_compile() {
         let ctx = Context::create();
         let mut compiler = Compiler::new(&ctx);
 
-        let module = compiler.context.create_module("av");
-        let void_type = compiler.context.void_type();
-        let f32_type = compiler.context.f32_type();
-        let i32_type = compiler.context.i32_type();
-        let struct_type = compiler
-            .context
-            .struct_type(&[i32_type.into(), f32_type.into()], false);
-        let array_type = i32_type.array_type(3);
-        let fn_type = void_type.fn_type(&[], false);
-        let fn_value = module.add_function("av_fn", fn_type, None);
-        let entry = compiler.context.append_basic_block(fn_value, "entry1");
+        let module = compiler.context.create_module("test_module");
+        let func = module.add_function(
+            "test",
+            compiler.context.void_type().fn_type(&[], false),
+            None,
+        );
+        let block = compiler.context.append_basic_block(func, "entry");
+        compiler.builder.position_at_end(block);
 
-        compiler.builder.position_at_end(entry);
+        let res = VariableDeclaration {
+            id: Identifier {
+                name: "var_1".to_string(),
+            },
+            init: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+        }
+        .compile(&mut compiler)
+        .unwrap();
 
-        let array_alloca = compiler.builder.build_alloca(array_type, "array_alloca");
+        assert_eq!(module.print_to_string().to_string(), "");
     }
 }
