@@ -1,5 +1,9 @@
 use crate::ast::Identifier;
-use inkwell::{builder::Builder, context::Context, values::PointerValue};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    values::{AnyValue, PointerValue},
+};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -12,8 +16,18 @@ pub enum Error {
     UndefinedVariable(Identifier),
 }
 
+pub trait CompileResult {
+    fn to_string(&self) -> String;
+}
+
+impl<'ctx> CompileResult for PointerValue<'ctx> {
+    fn to_string(&self) -> String {
+        self.print_to_string().to_string()
+    }
+}
+
 pub trait Compile<'ctx> {
-    type Output;
+    type Output: CompileResult;
     fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error>;
 }
 
