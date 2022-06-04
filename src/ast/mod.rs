@@ -11,15 +11,11 @@ mod literal;
 mod right_assignment_value;
 mod variable_declaration;
 
-pub trait Expr: Debug + PartialEq {}
-
 #[derive(Debug, PartialEq)]
 pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     AssigmentExpression(AssigmentExpression),
 }
-
-impl Expr for Expression {}
 
 /// Program
 pub struct Program {
