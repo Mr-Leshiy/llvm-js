@@ -1,14 +1,16 @@
-use ast::Program;
-use lexer::{CharReader, Token};
-use parser::Parser;
+use ast::Module;
+use compiler::Compiler;
+use inkwell::context::Context;
 
 mod ast;
+mod compiler;
 mod lexer;
 mod parser;
 
 fn main() {
     let file = std::fs::File::open("basic.js").unwrap();
-    let mut reader = CharReader::new(file);
+    let module = Module::new("module_1".to_string(), file).unwrap();
+    let context = Context::create();
 
-    let _ = Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap();
+    let _ = Compiler::new(&context, module.name);
 }

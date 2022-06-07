@@ -4,7 +4,7 @@ use thiserror::Error;
 
 mod char_reader;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),

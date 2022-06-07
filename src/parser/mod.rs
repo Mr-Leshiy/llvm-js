@@ -1,5 +1,5 @@
 use crate::{
-    ast::{AssigmentExpression, Expression, Program, VariableDeclaration},
+    ast::{AssigmentExpression, Expression, Module, Program, VariableDeclaration},
     lexer::{self, CharReader, Token},
 };
 use std::io::Read;
@@ -17,6 +17,14 @@ pub enum Error {
     UnexpectedToken(Token),
     #[error("Parsing token error: {0}")]
     ParseTokenError(#[from] lexer::Error),
+}
+
+impl Module {
+    pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
+        let mut reader = CharReader::new(input);
+        let program = Program::parse(Token::get_token(&mut reader)?, &mut reader)?;
+        Ok(Self { name, program })
+    }
 }
 
 pub trait Parser: Sized {
@@ -55,9 +63,8 @@ mod tests {
     #[test]
     fn parse_program_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
-        let mut reader = CharReader::new(file);
-
-        let program = Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap();
+        let module = Module::new("module_1".to_string(), file).unwrap();
+        let program = module.program;
 
         assert_eq!(program.body.len(), 5);
         let mut iter = program.body.iter();

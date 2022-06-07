@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 thiserror = { version = "1.0.31" }
+inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm13-0"] }
