@@ -1,6 +1,9 @@
 use super::{literal::CompiledLiteral, Compile, CompileResult, Compiler, Error};
 use crate::ast::{RightAssigmentValue, VariableDeclaration};
-use inkwell::values::{AnyValue, PointerValue};
+use inkwell::{
+    module::Module,
+    values::{AnyValue, PointerValue},
+};
 
 impl<'ctx> CompileResult for PointerValue<'ctx> {
     fn to_string(&self) -> String {
@@ -14,7 +17,7 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
     fn compile(
         &self,
         compiler: &mut Compiler<'ctx>,
-        module_name: &String,
+        module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
         match &self.init {
             RightAssigmentValue::Identifier(identifier) => {
@@ -27,30 +30,28 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                     None => Err(Error::UndefinedVariable(identifier.clone())),
                 }
             }
-            RightAssigmentValue::Literal(literal) => {
-                match literal.compile(compiler, module_name)? {
-                    CompiledLiteral::Number(number) => {
-                        let pointer = compiler
-                            .builder
-                            .build_alloca(compiler.context.f64_type(), self.id.name.as_str());
+            RightAssigmentValue::Literal(literal) => match literal.compile(compiler, module)? {
+                CompiledLiteral::Number(number) => {
+                    let pointer = compiler
+                        .builder
+                        .build_alloca(compiler.context.f64_type(), self.id.name.as_str());
 
-                        compiler.variables.insert(self.id.clone(), pointer);
+                    compiler.variables.insert(self.id.clone(), pointer);
 
-                        compiler.builder.build_store(pointer, number);
-                        Ok(pointer)
-                    }
-                    CompiledLiteral::String(string) => {
-                        let pointer = compiler
-                            .builder
-                            .build_alloca(string.get_type(), self.id.name.as_str());
-
-                        compiler.variables.insert(self.id.clone(), pointer);
-
-                        compiler.builder.build_store(pointer, string);
-                        Ok(pointer)
-                    }
+                    compiler.builder.build_store(pointer, number);
+                    Ok(pointer)
                 }
-            }
+                CompiledLiteral::String(string) => {
+                    let pointer = compiler
+                        .builder
+                        .build_alloca(string.get_type(), self.id.name.as_str());
+
+                    compiler.variables.insert(self.id.clone(), pointer);
+
+                    compiler.builder.build_store(pointer, string);
+                    Ok(pointer)
+                }
+            },
         }
     }
 }

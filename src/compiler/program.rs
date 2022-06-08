@@ -1,5 +1,6 @@
 use super::{Compile, CompileResult, Compiler, Error};
 use crate::ast::{Expression, Program};
+use inkwell::module::Module;
 
 impl CompileResult for () {
     fn to_string(&self) -> String {
@@ -13,13 +14,9 @@ impl<'ctx> Compile<'ctx> for Program {
     fn compile(
         &self,
         compiler: &mut Compiler<'ctx>,
-        module_name: &String,
+        module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
         // create entry point main function
-        let module = compiler
-            .modules
-            .get(module_name)
-            .ok_or_else(|| Error::UndefinedModule(module_name.clone()))?;
         let func = module.add_function(
             "main",
             compiler.context.void_type().fn_type(&[], false),
@@ -31,10 +28,10 @@ impl<'ctx> Compile<'ctx> for Program {
         for expr in &self.body {
             match expr {
                 Expression::AssigmentExpression(assigment_expression) => {
-                    assigment_expression.compile(compiler, module_name)?
+                    assigment_expression.compile(compiler, module)?
                 }
                 Expression::VariableDeclaration(variable_declaration) => {
-                    variable_declaration.compile(compiler, module_name)?
+                    variable_declaration.compile(compiler, module)?
                 }
             };
         }

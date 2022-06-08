@@ -12,8 +12,6 @@ mod variable_declaration;
 pub enum Error {
     #[error("Undefined variable, {0}")]
     UndefinedVariable(Identifier),
-    #[error("Undefined module, {0}")]
-    UndefinedModule(String),
 }
 
 pub trait CompileResult {
@@ -26,7 +24,7 @@ pub trait Compile<'ctx> {
     fn compile(
         &self,
         compiler: &mut Compiler<'ctx>,
-        module_name: &String,
+        module: &Module<'ctx>,
     ) -> Result<Self::Output, Error>;
 }
 
@@ -35,7 +33,6 @@ pub struct Compiler<'ctx> {
     builder: Builder<'ctx>,
 
     variables: HashMap<Identifier, PointerValue<'ctx>>,
-    modules: HashMap<String, Module<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -45,14 +42,14 @@ impl<'ctx> Compiler<'ctx> {
             builder: context.create_builder(),
 
             variables: HashMap::new(),
-            modules: HashMap::new(),
         }
     }
 }
 
 impl ModuleUnit {
     pub fn compile_to<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), Error> {
-        Ok(())
+        let module = compiler.context.create_module(self.name.as_str());
+        self.program.compile(compiler, &module)
     }
 }
 
@@ -63,6 +60,7 @@ mod tests {
     #[test]
     fn compile_program_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+
         let module = ModuleUnit::new("module_1".to_string(), file).unwrap();
         let context = Context::create();
         let mut compiler = Compiler::new(&context);

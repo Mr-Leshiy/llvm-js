@@ -8,9 +8,12 @@ mod lexer;
 mod parser;
 
 fn main() {
-    let file = std::fs::File::open("basic.js").unwrap();
-    let _ = ModuleUnit::new("module_1".to_string(), file).unwrap();
-    let context = Context::create();
+    let file = std::fs::File::open("test_scripts/basic.js").unwrap();
 
-    let _ = Compiler::new(&context);
+    let module = ModuleUnit::new("module_1".to_string(), file).unwrap();
+
+    let context = Context::create();
+    let mut compiler = Compiler::new(&context);
+
+    module.compile_to(&mut compiler).unwrap();
 }
