@@ -5,11 +5,15 @@ use inkwell::values::PointerValue;
 impl<'ctx> Compile<'ctx> for AssigmentExpression {
     type Output = PointerValue<'ctx>;
 
-    fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error> {
+    fn compile(
+        &self,
+        compiler: &mut Compiler<'ctx>,
+        module_name: &String,
+    ) -> Result<Self::Output, Error> {
         match compiler.variables.get(&self.left).cloned() {
             Some(pointer) => match &self.right {
                 RightAssigmentValue::Literal(literal) => {
-                    match literal.compile(compiler)? {
+                    match literal.compile(compiler, module_name)? {
                         CompiledLiteral::Number(number) => {
                             compiler.builder.build_store(pointer, number)
                         }

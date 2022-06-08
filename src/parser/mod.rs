@@ -1,5 +1,5 @@
 use crate::{
-    ast::{AssigmentExpression, Expression, Module, Program, VariableDeclaration},
+    ast::{ModuleUnit, Program},
     lexer::{self, CharReader, Token},
 };
 use std::io::Read;
@@ -8,6 +8,7 @@ use thiserror::Error;
 mod assigment_expression;
 mod identifier;
 mod literal;
+mod program;
 mod right_assignment_value;
 mod variable_declaration;
 
@@ -19,7 +20,7 @@ pub enum Error {
     ParseTokenError(#[from] lexer::Error),
 }
 
-impl Module {
+impl ModuleUnit {
     pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
         let mut reader = CharReader::new(input);
         let program = Program::parse(Token::get_token(&mut reader)?, &mut reader)?;
@@ -31,39 +32,18 @@ pub trait Parser: Sized {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error>;
 }
 
-impl Parser for Program {
-    fn parse<R: Read>(mut cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error> {
-        let mut body = Vec::new();
-
-        loop {
-            let expr = match cur_token {
-                Token::Var => {
-                    Expression::VariableDeclaration(VariableDeclaration::parse(cur_token, reader)?)
-                }
-                Token::Ident(_) => {
-                    Expression::AssigmentExpression(AssigmentExpression::parse(cur_token, reader)?)
-                }
-                Token::Eof => break,
-                token => return Err(Error::UnexpectedToken(token)),
-            };
-
-            cur_token = Token::get_token(reader)?;
-            body.push(expr);
-        }
-
-        Ok(Program { body })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
+    use crate::ast::{
+        AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue,
+        VariableDeclaration,
+    };
 
     #[test]
     fn parse_program_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
-        let module = Module::new("module_1".to_string(), file).unwrap();
+        let module = ModuleUnit::new("module_1".to_string(), file).unwrap();
         let program = module.program;
 
         assert_eq!(program.body.len(), 5);

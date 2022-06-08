@@ -20,7 +20,7 @@ impl<'ctx> CompileResult for CompiledLiteral<'ctx> {
 impl<'ctx> Compile<'ctx> for Literal {
     type Output = CompiledLiteral<'ctx>;
 
-    fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error> {
+    fn compile(&self, compiler: &mut Compiler<'ctx>, _: &String) -> Result<Self::Output, Error> {
         match self {
             Literal::Number(val) => Ok(CompiledLiteral::Number(
                 compiler.context.f64_type().const_float(*val),
