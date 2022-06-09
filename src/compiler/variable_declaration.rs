@@ -1,6 +1,9 @@
 use super::{literal::CompiledLiteral, Compile, CompileResult, Compiler, Error};
 use crate::ast::{RightAssigmentValue, VariableDeclaration};
-use inkwell::values::{AnyValue, PointerValue};
+use inkwell::{
+    module::Module,
+    values::{AnyValue, PointerValue},
+};
 
 impl<'ctx> CompileResult for PointerValue<'ctx> {
     fn to_string(&self) -> String {
@@ -11,7 +14,11 @@ impl<'ctx> CompileResult for PointerValue<'ctx> {
 impl<'ctx> Compile<'ctx> for VariableDeclaration {
     type Output = PointerValue<'ctx>;
 
-    fn compile(&self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, Error> {
+    fn compile(
+        &self,
+        compiler: &mut Compiler<'ctx>,
+        module: &Module<'ctx>,
+    ) -> Result<Self::Output, Error> {
         match &self.init {
             RightAssigmentValue::Identifier(identifier) => {
                 match compiler.variables.get(identifier).cloned() {
@@ -23,7 +30,7 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                     None => Err(Error::UndefinedVariable(identifier.clone())),
                 }
             }
-            RightAssigmentValue::Literal(literal) => match literal.compile(compiler)? {
+            RightAssigmentValue::Literal(literal) => match literal.compile(compiler, module)? {
                 CompiledLiteral::Number(number) => {
                     let pointer = compiler
                         .builder
