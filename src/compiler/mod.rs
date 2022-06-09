@@ -47,7 +47,7 @@ impl<'ctx> Compiler<'ctx> {
 }
 
 impl ModuleUnit {
-    pub fn compile_to<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), Error> {
+    pub fn compile_to(self, compiler: &mut Compiler<'_>) -> Result<(), Error> {
         let module = compiler.context.create_module(self.name.as_str());
         self.program.compile(compiler, &module)
     }
