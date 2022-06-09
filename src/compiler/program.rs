@@ -35,6 +35,7 @@ impl<'ctx> Compile<'ctx> for Program {
                 }
             };
         }
+        compiler.builder.build_return(None);
 
         Ok(())
     }
