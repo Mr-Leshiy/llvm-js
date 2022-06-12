@@ -4,4 +4,5 @@ use super::{AssigmentExpression, VariableDeclaration};
 pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     AssigmentExpression(AssigmentExpression),
+    BlockStatement { body: Vec<Expression> },
 }

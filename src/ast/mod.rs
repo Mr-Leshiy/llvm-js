@@ -1,5 +1,4 @@
 pub use assigment_expression::AssigmentExpression;
-pub use block_statement::BlockStatement;
 pub use expression::Expression;
 pub use identifier::Identifier;
 pub use literal::Literal;
@@ -8,7 +7,6 @@ pub use right_assignment_value::RightAssigmentValue;
 pub use variable_declaration::VariableDeclaration;
 
 mod assigment_expression;
-mod block_statement;
 mod expression;
 mod identifier;
 mod literal;

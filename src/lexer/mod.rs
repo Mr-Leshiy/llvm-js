@@ -12,7 +12,7 @@ pub enum Error {
     UnexpectedSymbol(char),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Separator {
     /// "("
     OpenBrace,
@@ -41,7 +41,7 @@ impl Display for Separator {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Token {
     /// "var"
     Var,
@@ -345,6 +345,12 @@ mod tests {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
 
+        //line: "{"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
+
         //line: "var a = 5;"
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
         assert_eq!(
@@ -362,6 +368,12 @@ mod tests {
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(6_f64)));
+
+        //line: "{"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
 
         //line: "a = b;"
         assert_eq!(
@@ -392,6 +404,18 @@ mod tests {
         assert_eq!(
             Token::get_token(&mut reader),
             Ok(Token::String("hello".to_string()))
+        );
+
+        //line: "}"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+
+        //line: "}"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
 
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
