@@ -6,6 +6,7 @@ use std::io::Read;
 use thiserror::Error;
 
 mod assigment_expression;
+mod block_statement;
 mod identifier;
 mod literal;
 mod program;
@@ -43,7 +44,7 @@ mod tests {
     #[test]
     fn parse_program_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
-        let module = ModuleUnit::new("module_1".to_string(), file).unwrap();
+        let module = ModuleUnit::new("".to_string(), file).unwrap();
         let program = module.program;
 
         assert_eq!(program.body.len(), 5);
