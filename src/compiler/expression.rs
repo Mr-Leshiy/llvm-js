@@ -11,7 +11,7 @@ impl<'ctx> Compile<'ctx> for Expression {
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
         match self {
-            Expression::AssigmentExpression(assigment_expression) => {
+            Expression::Assigment(assigment_expression) => {
                 assigment_expression.compile(compiler, module)?;
             }
             Expression::VariableDeclaration(variable_declaration) => {

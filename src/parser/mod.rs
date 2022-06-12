@@ -47,75 +47,50 @@ mod tests {
         let module = ModuleUnit::new("".to_string(), file).unwrap();
         let program = module.program;
 
-        assert_eq!(program.body.len(), 1);
-        let mut iter = program.body.into_iter();
-
-        if let Expression::BlockStatement { body } = iter.next().unwrap() {
-            assert_eq!(body.len(), 3);
-            let mut iter = body.into_iter();
-
-            // var a = 5;
-            assert_eq!(
-                iter.next().unwrap(),
-                Expression::VariableDeclaration(VariableDeclaration {
-                    id: Identifier {
-                        name: "a".to_string()
-                    },
-                    init: RightAssigmentValue::Literal(Literal::Number(5_f64))
-                })
-            );
-            // var b = 6;
-            assert_eq!(
-                iter.next().unwrap(),
-                Expression::VariableDeclaration(VariableDeclaration {
-                    id: Identifier {
-                        name: "b".to_string()
-                    },
-                    init: RightAssigmentValue::Literal(Literal::Number(6_f64))
-                })
-            );
-
-            if let Expression::BlockStatement { body } = iter.next().unwrap() {
-                assert_eq!(body.len(), 3);
-                let mut iter = body.into_iter();
-
-                // a = b;
-                assert_eq!(
-                    iter.next().unwrap(),
-                    Expression::AssigmentExpression(AssigmentExpression {
-                        left: Identifier {
-                            name: "a".to_string()
-                        },
-                        right: RightAssigmentValue::Identifier(Identifier {
-                            name: "b".to_string()
-                        })
-                    })
-                );
-                // b = 7;
-                assert_eq!(
-                    iter.next().unwrap(),
-                    Expression::AssigmentExpression(AssigmentExpression {
-                        left: Identifier {
-                            name: "b".to_string()
-                        },
-                        right: RightAssigmentValue::Literal(Literal::Number(7_f64))
-                    })
-                );
-                // var c = "hello";
-                assert_eq!(
-                    iter.next().unwrap(),
+        assert_eq!(
+            program.body,
+            vec![Expression::BlockStatement {
+                body: vec![
                     Expression::VariableDeclaration(VariableDeclaration {
                         id: Identifier {
-                            name: "c".to_string()
+                            name: "a".to_string()
                         },
-                        init: RightAssigmentValue::Literal(Literal::String("hello".to_string()))
-                    })
-                );
-            } else {
-                assert!(false);
-            }
-        } else {
-            assert!(false);
-        }
+                        init: RightAssigmentValue::Literal(Literal::Number(5_f64))
+                    }),
+                    Expression::VariableDeclaration(VariableDeclaration {
+                        id: Identifier {
+                            name: "b".to_string()
+                        },
+                        init: RightAssigmentValue::Literal(Literal::Number(6_f64))
+                    }),
+                    Expression::BlockStatement {
+                        body: vec![
+                            Expression::Assigment(AssigmentExpression {
+                                left: Identifier {
+                                    name: "a".to_string()
+                                },
+                                right: RightAssigmentValue::Identifier(Identifier {
+                                    name: "b".to_string()
+                                })
+                            }),
+                            Expression::Assigment(AssigmentExpression {
+                                left: Identifier {
+                                    name: "b".to_string()
+                                },
+                                right: RightAssigmentValue::Literal(Literal::Number(7_f64))
+                            }),
+                            Expression::VariableDeclaration(VariableDeclaration {
+                                id: Identifier {
+                                    name: "c".to_string()
+                                },
+                                init: RightAssigmentValue::Literal(Literal::String(
+                                    "hello".to_string()
+                                ))
+                            })
+                        ]
+                    }
+                ]
+            }]
+        );
     }
 }

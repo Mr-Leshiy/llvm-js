@@ -11,7 +11,7 @@ impl Parser for Expression {
             Token::Var => Ok(Expression::VariableDeclaration(VariableDeclaration::parse(
                 cur_token, reader,
             )?)),
-            Token::Ident(_) => Ok(Expression::AssigmentExpression(AssigmentExpression::parse(
+            Token::Ident(_) => Ok(Expression::Assigment(AssigmentExpression::parse(
                 cur_token, reader,
             )?)),
             Token::Separator(Separator::OpenCurlyBrace) => {
