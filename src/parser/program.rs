@@ -1,6 +1,6 @@
 use super::{Error, Parser};
 use crate::{
-    ast::{AssigmentExpression, Expression, Program, VariableDeclaration},
+    ast::{Expression, Program},
     lexer::{CharReader, Token},
 };
 use std::io::Read;
@@ -11,14 +11,8 @@ impl Parser for Program {
 
         loop {
             let expr = match cur_token {
-                Token::Var => {
-                    Expression::VariableDeclaration(VariableDeclaration::parse(cur_token, reader)?)
-                }
-                Token::Ident(_) => {
-                    Expression::AssigmentExpression(AssigmentExpression::parse(cur_token, reader)?)
-                }
                 Token::Eof => break,
-                token => return Err(Error::UnexpectedToken(token)),
+                cur_token => Expression::parse(cur_token, reader)?,
             };
 
             cur_token = Token::get_token(reader)?;

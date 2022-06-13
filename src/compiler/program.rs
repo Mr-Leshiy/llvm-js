@@ -1,5 +1,5 @@
 use super::{Compile, CompileResult, Compiler, Error};
-use crate::ast::{Expression, Program};
+use crate::ast::Program;
 use inkwell::module::Module;
 
 impl CompileResult for () {
@@ -26,14 +26,7 @@ impl<'ctx> Compile<'ctx> for Program {
         compiler.builder.position_at_end(block);
 
         for expr in &self.body {
-            match expr {
-                Expression::AssigmentExpression(assigment_expression) => {
-                    assigment_expression.compile(compiler, module)?
-                }
-                Expression::VariableDeclaration(variable_declaration) => {
-                    variable_declaration.compile(compiler, module)?
-                }
-            };
+            expr.compile(compiler, module)?;
         }
         compiler.builder.build_return(None);
 

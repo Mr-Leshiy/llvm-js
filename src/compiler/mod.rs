@@ -4,6 +4,7 @@ use std::{collections::HashMap, io::Write};
 use thiserror::Error;
 
 mod assigment_expression;
+mod expression;
 mod literal;
 mod program;
 mod variable_declaration;

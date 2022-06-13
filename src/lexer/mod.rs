@@ -1,4 +1,4 @@
-pub use self::char_reader::CharReader;
+pub use char_reader::CharReader;
 use std::fmt::Display;
 use thiserror::Error;
 
@@ -12,7 +12,36 @@ pub enum Error {
     UnexpectedSymbol(char),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
+pub enum Separator {
+    /// "("
+    OpenBrace,
+    /// ")"
+    CloseBrace,
+    /// "{"
+    OpenCurlyBrace,
+    /// "}"
+    CloseCurlyBrace,
+    /// "["
+    OpenSquareBracket,
+    /// "]"
+    CloseSquareBracket,
+}
+
+impl Display for Separator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::OpenBrace => write!(f, r#"Separator token, "(""#),
+            Self::CloseBrace => write!(f, r#"Separator token, ")""#),
+            Self::OpenCurlyBrace => write!(f, r#"Separator token, "{{""#),
+            Self::CloseCurlyBrace => write!(f, r#"Separator token, "}}""#),
+            Self::OpenSquareBracket => write!(f, r#"Separator token, "[""#),
+            Self::CloseSquareBracket => write!(f, r#"Separator token, "]""#),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum Token {
     /// "var"
     Var,
@@ -24,6 +53,8 @@ pub enum Token {
     Number(f64),
     /// string token, e.g. "hello^world!"
     String(String),
+    /// separator token,
+    Separator(Separator),
     /// end of file token
     Eof,
 }
@@ -36,6 +67,7 @@ impl Display for Token {
             Self::Ident(val) => write!(f, "Ident token, val: {}", val),
             Self::Number(val) => write!(f, "Number token, val: {}", val),
             Self::String(val) => write!(f, "String token, val: {}", val),
+            Self::Separator(val) => val.fmt(f),
             Self::Eof => write!(f, "Eof token"),
         }
     }
@@ -61,6 +93,17 @@ impl Token {
                 // assign operator: '='
                 if char == '=' {
                     return Ok(Self::Assign);
+                }
+
+                // separator: '(',')','{','}','[',']'
+                match char {
+                    '(' => return Ok(Self::Separator(Separator::OpenBrace)),
+                    ')' => return Ok(Self::Separator(Separator::CloseBrace)),
+                    '{' => return Ok(Self::Separator(Separator::OpenCurlyBrace)),
+                    '}' => return Ok(Self::Separator(Separator::CloseCurlyBrace)),
+                    '[' => return Ok(Self::Separator(Separator::OpenSquareBracket)),
+                    ']' => return Ok(Self::Separator(Separator::CloseSquareBracket)),
+                    _ => {}
                 }
 
                 // identifier: [a-zA-Z][a-zA-Z0-9_]*
@@ -236,6 +279,57 @@ mod tests {
     }
 
     #[test]
+    fn token_separator() {
+        let mut reader = CharReader::new(r#" )({[]]  }})[] "#.as_bytes());
+
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenSquareBracket))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseBrace))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenSquareBracket))
+        );
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
+    }
+
+    #[test]
     fn token_unexpected_symbol() {
         let mut reader = CharReader::new("^".as_bytes());
 
@@ -250,6 +344,12 @@ mod tests {
     fn token_from_file() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
+
+        //line: "{"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
 
         //line: "var a = 5;"
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
@@ -268,6 +368,12 @@ mod tests {
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Assign));
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Number(6_f64)));
+
+        //line: "{"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
 
         //line: "a = b;"
         assert_eq!(
@@ -298,6 +404,18 @@ mod tests {
         assert_eq!(
             Token::get_token(&mut reader),
             Ok(Token::String("hello".to_string()))
+        );
+
+        //line: "}"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+
+        //line: "}"
+        assert_eq!(
+            Token::get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
 
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
