@@ -33,3 +33,85 @@ impl Parser for Expression {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{Identifier, Literal, RightAssigmentValue};
+
+    #[test]
+    fn expression_variable_declaration_test() {
+        let mut reader = CharReader::new("var name = 12;".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "name".to_string()
+                },
+                init: RightAssigmentValue::Literal(Literal::Number(12_f64))
+            })
+        );
+
+        let mut reader = CharReader::new(r#"var name = "12";"#.as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "name".to_string()
+                },
+                init: RightAssigmentValue::Literal(Literal::String("12".to_string()))
+            })
+        );
+
+        let mut reader = CharReader::new("var name1 = name2;".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
+                id: Identifier {
+                    name: "name1".to_string()
+                },
+                init: RightAssigmentValue::Identifier(Identifier {
+                    name: "name2".to_string()
+                })
+            })
+        );
+    }
+
+    #[test]
+    fn expression_assigment_test() {
+        let mut reader = CharReader::new("name = 12;".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::Assigment(AssigmentExpression {
+                left: Identifier {
+                    name: "name".to_string()
+                },
+                right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+            })
+        );
+
+        let mut reader = CharReader::new(r#"name = "12";"#.as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::Assigment(AssigmentExpression {
+                left: Identifier {
+                    name: "name".to_string()
+                },
+                right: RightAssigmentValue::Literal(Literal::String("12".to_string()))
+            })
+        );
+
+        let mut reader = CharReader::new("name1 = name2;".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::Assigment(AssigmentExpression {
+                left: Identifier {
+                    name: "name".to_string()
+                },
+                right: RightAssigmentValue::Identifier(Identifier {
+                    name: "name2".to_string()
+                })
+            })
+        );
+    }
+}
