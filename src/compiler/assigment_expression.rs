@@ -15,12 +15,12 @@ impl<'ctx> Compile<'ctx> for AssigmentExpression {
     type Output = PointerValue<'ctx>;
 
     fn compile(
-        &self,
+        self,
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
         match compiler.variables.get(&self.left).cloned() {
-            Some(pointer) => match &self.right {
+            Some(pointer) => match self.right {
                 RightAssigmentValue::Literal(literal) => {
                     match literal.compile(compiler, module)? {
                         CompiledLiteral::Number(number) => {
@@ -34,12 +34,12 @@ impl<'ctx> Compile<'ctx> for AssigmentExpression {
                     Ok(pointer)
                 }
                 RightAssigmentValue::Identifier(identifier) => {
-                    match compiler.variables.get(identifier).cloned() {
+                    match compiler.variables.get(&identifier).cloned() {
                         Some(pointer) => {
                             compiler.variables.insert(self.left.clone(), pointer);
                             Ok(pointer)
                         }
-                        None => Err(Error::UndefinedVariable(identifier.clone())),
+                        None => Err(Error::UndefinedVariable(identifier)),
                     }
                 }
             },

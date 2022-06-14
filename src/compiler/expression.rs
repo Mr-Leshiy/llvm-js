@@ -6,7 +6,7 @@ impl<'ctx> Compile<'ctx> for Expression {
     type Output = ();
 
     fn compile(
-        &self,
+        self,
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {

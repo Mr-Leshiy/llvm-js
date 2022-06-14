@@ -12,7 +12,7 @@ impl<'ctx> Compile<'ctx> for Program {
     type Output = ();
 
     fn compile(
-        &self,
+        self,
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
@@ -25,7 +25,7 @@ impl<'ctx> Compile<'ctx> for Program {
         let block = compiler.context.append_basic_block(func, "entry");
         compiler.builder.position_at_end(block);
 
-        for expr in &self.body {
+        for expr in self.body {
             expr.compile(compiler, module)?;
         }
         compiler.builder.build_return(None);

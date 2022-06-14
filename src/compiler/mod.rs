@@ -24,9 +24,8 @@ pub trait CompileResult {
 
 pub trait Compile<'ctx> {
     type Output: CompileResult;
-    // TODO: consider to the change to the 'self' instead of '&self'
     fn compile(
-        &self,
+        self,
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error>;
