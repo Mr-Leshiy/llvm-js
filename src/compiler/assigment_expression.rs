@@ -1,6 +1,15 @@
-use super::{literal::CompiledLiteral, Compile, Compiler, Error};
+use super::{literal::CompiledLiteral, Compile, CompileResult, Compiler, Error};
 use crate::ast::{AssigmentExpression, RightAssigmentValue};
-use inkwell::{module::Module, values::PointerValue};
+use inkwell::{
+    module::Module,
+    values::{AnyValue, PointerValue},
+};
+
+impl<'ctx> CompileResult for PointerValue<'ctx> {
+    fn to_string(&self) -> String {
+        self.print_to_string().to_string()
+    }
+}
 
 impl<'ctx> Compile<'ctx> for AssigmentExpression {
     type Output = PointerValue<'ctx>;

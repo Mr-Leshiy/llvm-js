@@ -11,7 +11,6 @@ mod identifier;
 mod literal;
 mod program;
 mod right_assignment_value;
-mod variable_declaration;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -36,10 +35,7 @@ pub trait Parser: Sized {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{
-        AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue,
-        VariableDeclaration,
-    };
+    use crate::ast::{AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue};
 
     #[test]
     fn parse_program_from_file() {
@@ -51,17 +47,17 @@ mod tests {
             program.body,
             vec![Expression::BlockStatement {
                 body: vec![
-                    Expression::VariableDeclaration(VariableDeclaration {
-                        id: Identifier {
+                    Expression::VariableDeclaration(AssigmentExpression {
+                        left: Identifier {
                             name: "a".to_string()
                         },
-                        init: RightAssigmentValue::Literal(Literal::Number(5_f64))
+                        right: RightAssigmentValue::Literal(Literal::Number(5_f64))
                     }),
-                    Expression::VariableDeclaration(VariableDeclaration {
-                        id: Identifier {
+                    Expression::VariableDeclaration(AssigmentExpression {
+                        left: Identifier {
                             name: "b".to_string()
                         },
-                        init: RightAssigmentValue::Literal(Literal::Number(6_f64))
+                        right: RightAssigmentValue::Literal(Literal::Number(6_f64))
                     }),
                     Expression::BlockStatement {
                         body: vec![
@@ -79,11 +75,11 @@ mod tests {
                                 },
                                 right: RightAssigmentValue::Literal(Literal::Number(7_f64))
                             }),
-                            Expression::VariableDeclaration(VariableDeclaration {
-                                id: Identifier {
+                            Expression::VariableDeclaration(AssigmentExpression {
+                                left: Identifier {
                                     name: "c".to_string()
                                 },
-                                init: RightAssigmentValue::Literal(Literal::String(
+                                right: RightAssigmentValue::Literal(Literal::String(
                                     "hello".to_string()
                                 ))
                             })
