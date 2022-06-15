@@ -35,7 +35,10 @@ pub trait Parser: Sized {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue};
+    use crate::ast::{
+        AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue,
+        VariableDeclaration,
+    };
 
     #[test]
     fn parse_program_from_file() {
@@ -47,18 +50,18 @@ mod tests {
             program.body,
             vec![Expression::BlockStatement {
                 body: vec![
-                    Expression::VariableDeclaration(AssigmentExpression {
+                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
                         left: Identifier {
                             name: "a".to_string()
                         },
                         right: RightAssigmentValue::Literal(Literal::Number(5_f64))
-                    }),
-                    Expression::VariableDeclaration(AssigmentExpression {
+                    })),
+                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
                         left: Identifier {
                             name: "b".to_string()
                         },
                         right: RightAssigmentValue::Literal(Literal::Number(6_f64))
-                    }),
+                    })),
                     Expression::BlockStatement {
                         body: vec![
                             Expression::Assigment(AssigmentExpression {
@@ -75,14 +78,16 @@ mod tests {
                                 },
                                 right: RightAssigmentValue::Literal(Literal::Number(7_f64))
                             }),
-                            Expression::VariableDeclaration(AssigmentExpression {
-                                left: Identifier {
-                                    name: "c".to_string()
-                                },
-                                right: RightAssigmentValue::Literal(Literal::String(
-                                    "hello".to_string()
-                                ))
-                            })
+                            Expression::VariableDeclaration(VariableDeclaration(
+                                AssigmentExpression {
+                                    left: Identifier {
+                                        name: "c".to_string()
+                                    },
+                                    right: RightAssigmentValue::Literal(Literal::String(
+                                        "hello".to_string()
+                                    ))
+                                }
+                            ))
                         ]
                     }
                 ]

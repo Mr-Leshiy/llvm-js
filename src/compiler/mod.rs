@@ -12,6 +12,8 @@ mod program;
 pub enum Error {
     #[error("Undefined variable, {0}")]
     UndefinedVariable(Identifier),
+    #[error("This name is already used, {0}")]
+    IndentifierDuplicate(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]

@@ -30,11 +30,11 @@ mod tests {
 
     #[test]
     fn program_test() {
-        let mut reader = CharReader::new("var name = 12;".as_bytes());
+        let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
             Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Program {
-                body: vec![Expression::VariableDeclaration(AssigmentExpression {
+                body: vec![Expression::Assigment(AssigmentExpression {
                     left: Identifier {
                         name: "name".to_string()
                     },

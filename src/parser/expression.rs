@@ -1,6 +1,6 @@
 use super::{Error, Parser};
 use crate::{
-    ast::{AssigmentExpression, Expression},
+    ast::{AssigmentExpression, Expression, VariableDeclaration},
     lexer::{CharReader, Separator, Token},
 };
 use std::io::Read;
@@ -8,10 +8,9 @@ use std::io::Read;
 impl Parser for Expression {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error> {
         match cur_token {
-            Token::Var => Ok(Expression::VariableDeclaration(AssigmentExpression::parse(
-                Token::get_token(reader)?,
-                reader,
-            )?)),
+            Token::Var => Ok(Expression::VariableDeclaration(VariableDeclaration(
+                AssigmentExpression::parse(Token::get_token(reader)?, reader)?,
+            ))),
             Token::Ident(_) => Ok(Expression::Assigment(AssigmentExpression::parse(
                 cur_token, reader,
             )?)),
@@ -45,12 +44,12 @@ mod tests {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(AssigmentExpression {
+            Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
                 left: Identifier {
                     name: "name".to_string()
                 },
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
-            })
+            }))
         );
     }
 

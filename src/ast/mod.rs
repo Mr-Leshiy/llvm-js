@@ -1,4 +1,4 @@
-pub use assigment_expression::AssigmentExpression;
+pub use assigment_expression::{AssigmentExpression, VariableDeclaration};
 pub use expression::Expression;
 pub use identifier::Identifier;
 pub use literal::Literal;

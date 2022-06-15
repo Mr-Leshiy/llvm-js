@@ -1,8 +1,8 @@
-use super::AssigmentExpression;
+use super::{AssigmentExpression, VariableDeclaration};
 
 #[derive(Debug, PartialEq)]
 pub enum Expression {
-    VariableDeclaration(AssigmentExpression),
+    VariableDeclaration(VariableDeclaration),
     Assigment(AssigmentExpression),
     BlockStatement { body: Vec<Expression> },
 }

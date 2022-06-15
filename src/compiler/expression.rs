@@ -15,14 +15,6 @@ impl<'ctx> Compile<'ctx> for Expression {
                 assigment_expression.compile(compiler, module)?;
             }
             Expression::VariableDeclaration(variable_declaration) => {
-                let pointer = compiler.builder.build_alloca(
-                    compiler.context.f64_type(),
-                    variable_declaration.left.name.as_str(),
-                );
-                compiler
-                    .variables
-                    .insert(variable_declaration.left.clone(), pointer);
-
                 variable_declaration.compile(compiler, module)?;
             }
             Expression::BlockStatement { body } => {
