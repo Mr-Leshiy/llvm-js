@@ -115,4 +115,67 @@ mod tests {
             })
         );
     }
+
+    #[test]
+    fn expression_block_statement_test() {
+        let mut reader = CharReader::new("{ }".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::BlockStatement { body: vec![] }
+        );
+
+        let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::BlockStatement {
+                body: vec![Expression::Assigment(AssigmentExpression {
+                    left: Identifier {
+                        name: "name1".to_string()
+                    },
+                    right: RightAssigmentValue::Identifier(Identifier {
+                        name: "name2".to_string()
+                    })
+                })]
+            }
+        );
+
+        let mut reader =
+            CharReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
+
+        assert_eq!(
+            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::BlockStatement {
+                body: vec![
+                    Expression::Assigment(AssigmentExpression {
+                        left: Identifier {
+                            name: "name1".to_string()
+                        },
+                        right: RightAssigmentValue::Identifier(Identifier {
+                            name: "name2".to_string()
+                        })
+                    }),
+                    Expression::BlockStatement {
+                        body: vec![
+                            Expression::Assigment(AssigmentExpression {
+                                left: Identifier {
+                                    name: "name1".to_string()
+                                },
+                                right: RightAssigmentValue::Identifier(Identifier {
+                                    name: "name2".to_string()
+                                })
+                            }),
+                            Expression::Assigment(AssigmentExpression {
+                                left: Identifier {
+                                    name: "name1".to_string()
+                                },
+                                right: RightAssigmentValue::Identifier(Identifier {
+                                    name: "name2".to_string()
+                                })
+                            }),
+                        ]
+                    }
+                ]
+            }
+        );
+    }
 }
