@@ -52,30 +52,6 @@ mod tests {
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
             })
         );
-
-        let mut reader = CharReader::new(r#"var name = "12";"#.as_bytes());
-        assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(AssigmentExpression {
-                left: Identifier {
-                    name: "name".to_string()
-                },
-                right: RightAssigmentValue::Literal(Literal::String("12".to_string()))
-            })
-        );
-
-        let mut reader = CharReader::new("var name1 = name2;".as_bytes());
-        assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(AssigmentExpression {
-                left: Identifier {
-                    name: "name1".to_string()
-                },
-                right: RightAssigmentValue::Identifier(Identifier {
-                    name: "name2".to_string()
-                })
-            })
-        );
     }
 
     #[test]
@@ -88,30 +64,6 @@ mod tests {
                     name: "name".to_string()
                 },
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
-            })
-        );
-
-        let mut reader = CharReader::new(r#"name = "12";"#.as_bytes());
-        assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::Assigment(AssigmentExpression {
-                left: Identifier {
-                    name: "name".to_string()
-                },
-                right: RightAssigmentValue::Literal(Literal::String("12".to_string()))
-            })
-        );
-
-        let mut reader = CharReader::new("name1 = name2;".as_bytes());
-        assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::Assigment(AssigmentExpression {
-                left: Identifier {
-                    name: "name1".to_string()
-                },
-                right: RightAssigmentValue::Identifier(Identifier {
-                    name: "name2".to_string()
-                })
             })
         );
     }
