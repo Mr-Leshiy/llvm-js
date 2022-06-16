@@ -1,15 +1,17 @@
 pub use char_reader::CharReader;
+pub use position::Position;
 use std::fmt::Display;
 use thiserror::Error;
 
 mod char_reader;
+mod position;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
-    #[error("Unected symbol: {0}")]
-    UnexpectedSymbol(char),
+    #[error("Unected symbol: {0}, position: {1}")]
+    UnexpectedSymbol(char, Position),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -118,7 +120,10 @@ impl Token {
                         if !char.is_ascii_alphanumeric() && char != '_' {
                             // next symbol should be skipped symbol
                             if !is_skip(&char) {
-                                return Err(Error::UnexpectedSymbol(char));
+                                return Err(Error::UnexpectedSymbol(
+                                    char,
+                                    reader.get_position().clone(),
+                                ));
                             }
                             break;
                         }
@@ -144,7 +149,10 @@ impl Token {
                         if !char.is_ascii_digit() && char != '.' {
                             // next symbol should be skipped symbol
                             if !is_skip(&char) {
-                                return Err(Error::UnexpectedSymbol(char));
+                                return Err(Error::UnexpectedSymbol(
+                                    char,
+                                    reader.get_position().clone(),
+                                ));
                             }
                             break;
                         }
@@ -174,7 +182,10 @@ impl Token {
                             };
                             // next symbol should be skipped symbol
                             if !is_skip(&char) {
-                                return Err(Error::UnexpectedSymbol(char));
+                                return Err(Error::UnexpectedSymbol(
+                                    char,
+                                    reader.get_position().clone(),
+                                ));
                             }
                             break;
                         }
@@ -185,7 +196,7 @@ impl Token {
                     return Ok(Self::String(string));
                 }
 
-                Err(Error::UnexpectedSymbol(char))
+                Err(Error::UnexpectedSymbol(char, reader.get_position().clone()))
             }
             Err(e) if e == char_reader::Error::Eof => Ok(Self::Eof),
             Err(e) => Err(Error::ReaderError(e)),
@@ -243,7 +254,10 @@ mod tests {
 
         assert_eq!(
             Token::get_token(&mut reader),
-            Err(Error::UnexpectedSymbol('^'))
+            Err(Error::UnexpectedSymbol(
+                '^',
+                Position { line: 5, column: 0 }
+            ))
         );
     }
 
@@ -263,7 +277,10 @@ mod tests {
 
         assert_eq!(
             Token::get_token(&mut reader),
-            Err(Error::UnexpectedSymbol('f'))
+            Err(Error::UnexpectedSymbol(
+                'f',
+                Position { line: 2, column: 0 }
+            ))
         );
     }
 
@@ -335,7 +352,10 @@ mod tests {
 
         assert_eq!(
             Token::get_token(&mut reader),
-            Err(Error::UnexpectedSymbol('^'))
+            Err(Error::UnexpectedSymbol(
+                '^',
+                Position { line: 1, column: 0 }
+            ))
         );
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
