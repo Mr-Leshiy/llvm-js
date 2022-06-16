@@ -11,7 +11,6 @@ mod identifier;
 mod literal;
 mod program;
 mod right_assignment_value;
-mod variable_declaration;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -51,18 +50,18 @@ mod tests {
             program.body,
             vec![Expression::BlockStatement {
                 body: vec![
-                    Expression::VariableDeclaration(VariableDeclaration {
-                        id: Identifier {
+                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                        left: Identifier {
                             name: "a".to_string()
                         },
-                        init: RightAssigmentValue::Literal(Literal::Number(5_f64))
-                    }),
-                    Expression::VariableDeclaration(VariableDeclaration {
-                        id: Identifier {
+                        right: RightAssigmentValue::Literal(Literal::Number(5_f64))
+                    })),
+                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                        left: Identifier {
                             name: "b".to_string()
                         },
-                        init: RightAssigmentValue::Literal(Literal::Number(6_f64))
-                    }),
+                        right: RightAssigmentValue::Literal(Literal::Number(6_f64))
+                    })),
                     Expression::BlockStatement {
                         body: vec![
                             Expression::Assigment(AssigmentExpression {
@@ -79,14 +78,16 @@ mod tests {
                                 },
                                 right: RightAssigmentValue::Literal(Literal::Number(7_f64))
                             }),
-                            Expression::VariableDeclaration(VariableDeclaration {
-                                id: Identifier {
-                                    name: "c".to_string()
-                                },
-                                init: RightAssigmentValue::Literal(Literal::String(
-                                    "hello".to_string()
-                                ))
-                            })
+                            Expression::VariableDeclaration(VariableDeclaration(
+                                AssigmentExpression {
+                                    left: Identifier {
+                                        name: "c".to_string()
+                                    },
+                                    right: RightAssigmentValue::Literal(Literal::String(
+                                        "hello".to_string()
+                                    ))
+                                }
+                            ))
                         ]
                     }
                 ]

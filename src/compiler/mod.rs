@@ -7,12 +7,13 @@ mod assigment_expression;
 mod expression;
 mod literal;
 mod program;
-mod variable_declaration;
 
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Undefined variable, {0}")]
     UndefinedVariable(Identifier),
+    #[error("This name is already used, {0}")]
+    IndentifierDuplicate(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
@@ -25,9 +26,8 @@ pub trait CompileResult {
 
 pub trait Compile<'ctx> {
     type Output: CompileResult;
-    // TODO: consider to the change to the 'self' instead of '&self'
     fn compile(
-        &self,
+        self,
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error>;

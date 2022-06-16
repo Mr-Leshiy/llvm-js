@@ -23,10 +23,10 @@ impl<'ctx> CompileResult for CompiledLiteral<'ctx> {
 impl<'ctx> Compile<'ctx> for Literal {
     type Output = CompiledLiteral<'ctx>;
 
-    fn compile(&self, compiler: &mut Compiler<'ctx>, _: &Module) -> Result<Self::Output, Error> {
+    fn compile(self, compiler: &mut Compiler<'ctx>, _: &Module) -> Result<Self::Output, Error> {
         match self {
             Literal::Number(val) => Ok(CompiledLiteral::Number(
-                compiler.context.f64_type().const_float(*val),
+                compiler.context.f64_type().const_float(val),
             )),
             Literal::String(val) => Ok(CompiledLiteral::String(
                 compiler.context.const_string(val.as_bytes(), false),

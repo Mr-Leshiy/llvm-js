@@ -22,3 +22,25 @@ impl Parser for Program {
         Ok(Program { body })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
+
+    #[test]
+    fn program_test() {
+        let mut reader = CharReader::new("name = 12;".as_bytes());
+        assert_eq!(
+            Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Program {
+                body: vec![Expression::Assigment(AssigmentExpression {
+                    left: Identifier {
+                        name: "name".to_string()
+                    },
+                    right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+                })]
+            }
+        );
+    }
+}
