@@ -36,7 +36,7 @@ pub trait Parser: Sized {
 mod tests {
     use super::*;
     use crate::ast::{
-        AssigmentExpression, Expression, Identifier, Literal, RightAssigmentValue,
+        AssigmentExpression, BlockStatement, Expression, Identifier, Literal, RightAssigmentValue,
         VariableDeclaration,
     };
 
@@ -48,7 +48,7 @@ mod tests {
 
         assert_eq!(
             program.body,
-            vec![Expression::BlockStatement {
+            vec![Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
                         left: Identifier {
@@ -62,7 +62,7 @@ mod tests {
                         },
                         right: RightAssigmentValue::Literal(Literal::Number(6_f64))
                     })),
-                    Expression::BlockStatement {
+                    Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::Assigment(AssigmentExpression {
                                 left: Identifier {
@@ -89,9 +89,9 @@ mod tests {
                                 }
                             ))
                         ]
-                    }
+                    })
                 ]
-            }]
+            })]
         );
     }
 }

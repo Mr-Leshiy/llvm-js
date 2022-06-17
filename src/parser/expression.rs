@@ -1,6 +1,6 @@
 use super::{Error, Parser};
 use crate::{
-    ast::{AssigmentExpression, Expression, VariableDeclaration},
+    ast::{AssigmentExpression, BlockStatement, Expression, VariableDeclaration},
     lexer::{CharReader, Separator, Token},
 };
 use std::io::Read;
@@ -27,7 +27,7 @@ impl Parser for Expression {
                     body.push(expr);
                 }
 
-                Ok(Expression::BlockStatement { body })
+                Ok(Expression::BlockStatement(BlockStatement { body }))
             }
             token => Err(Error::UnexpectedToken(token)),
         }
@@ -72,13 +72,13 @@ mod tests {
         let mut reader = CharReader::new("{ }".as_bytes());
         assert_eq!(
             Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::BlockStatement { body: vec![] }
+            Expression::BlockStatement(BlockStatement { body: vec![] })
         );
 
         let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
             Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::BlockStatement {
+            Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::Assigment(AssigmentExpression {
                     left: Identifier {
                         name: "name1".to_string()
@@ -87,7 +87,7 @@ mod tests {
                         name: "name2".to_string()
                     })
                 })]
-            }
+            })
         );
 
         let mut reader =
@@ -95,7 +95,7 @@ mod tests {
 
         assert_eq!(
             Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::BlockStatement {
+            Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::Assigment(AssigmentExpression {
                         left: Identifier {
@@ -105,7 +105,7 @@ mod tests {
                             name: "name2".to_string()
                         })
                     }),
-                    Expression::BlockStatement {
+                    Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::Assigment(AssigmentExpression {
                                 left: Identifier {
@@ -124,9 +124,9 @@ mod tests {
                                 })
                             }),
                         ]
-                    }
+                    })
                 ]
-            }
+            })
         );
     }
 }

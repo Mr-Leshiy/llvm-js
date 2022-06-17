@@ -1,5 +1,5 @@
 use super::{Compile, Compiler, Error};
-use crate::ast::Expression;
+use crate::ast::{BlockStatement, Expression};
 use inkwell::module::Module;
 
 impl<'ctx> Compile<'ctx> for Expression {
@@ -17,7 +17,7 @@ impl<'ctx> Compile<'ctx> for Expression {
             Expression::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, module)?;
             }
-            Expression::BlockStatement { body } => {
+            Expression::BlockStatement(BlockStatement { body }) => {
                 // TODO: update LLVM IR compilation, need to handle variables allocation/dealocation for the BlockStatement case
                 let variables_count = compiler.variables.len();
                 for expr in body {
