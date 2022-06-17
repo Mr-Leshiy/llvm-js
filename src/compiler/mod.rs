@@ -13,10 +13,10 @@ mod program;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Undefined variable, {0}")]
+    #[error("Undefined variable identifier {0}")]
     UndefinedVariable(Identifier),
-    #[error("This name is already used, {0}")]
-    IndentifierDuplicate(Identifier),
+    #[error("Variable with this identifier {0} already declared")]
+    AlreadyDeclaredVariable(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]

@@ -5,6 +5,8 @@ use thiserror::Error;
 pub enum Error<K> {
     #[error("map already contains value by the corresponding key: {0}")]
     AlreadyKnownKey(K),
+    #[error("map does not contain key: {0}")]
+    UnknownKey(K),
 }
 
 pub struct Map<K, V> {
@@ -27,6 +29,15 @@ impl<K: Clone + Eq + Hash + Display, V> Map<K, V> {
             Ok(())
         } else {
             Err(Error::AlreadyKnownKey(key))
+        }
+    }
+
+    pub fn update(&mut self, key: K, value: V) -> Result<(), Error<K>> {
+        if self.hash_map.contains_key(&key) {
+            self.hash_map.insert(key, value);
+            Ok(())
+        } else {
+            Err(Error::UnknownKey(key))
         }
     }
 
@@ -76,6 +87,10 @@ mod tests {
 
         assert_eq!(map.get(&5), Some(&"value"));
         assert_eq!(map.get(&6), None);
+        assert_eq!(map.len(), 1);
+
+        map.update(5, "new value").unwrap();
+        assert_eq!(map.update(6, "new_value"), Err(Error::UnknownKey(6)));
         assert_eq!(map.len(), 1);
 
         map.remove_last_added(3);
