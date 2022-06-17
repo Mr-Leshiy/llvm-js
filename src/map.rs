@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt::Display, hash::Hash};
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    fmt::Display,
+    hash::Hash,
+};
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq)]
@@ -23,9 +27,9 @@ impl<K: Clone + Eq + Hash + Display, V> Map<K, V> {
     }
 
     pub fn insert(&mut self, key: K, value: V) -> Result<(), Error<K>> {
-        if !self.hash_map.contains_key(&key) {
-            self.stack.push(key.clone());
-            self.hash_map.insert(key, value);
+        if let Entry::Vacant(e) = self.hash_map.entry(key.clone()) {
+            self.stack.push(key);
+            e.insert(value);
             Ok(())
         } else {
             Err(Error::AlreadyKnownKey(key))
@@ -33,8 +37,8 @@ impl<K: Clone + Eq + Hash + Display, V> Map<K, V> {
     }
 
     pub fn update(&mut self, key: K, value: V) -> Result<(), Error<K>> {
-        if self.hash_map.contains_key(&key) {
-            self.hash_map.insert(key, value);
+        if let Entry::Occupied(mut e) = self.hash_map.entry(key.clone()) {
+            e.insert(value);
             Ok(())
         } else {
             Err(Error::UnknownKey(key))
@@ -48,9 +52,9 @@ impl<K: Clone + Eq + Hash + Display, V> Map<K, V> {
     pub fn remove_last_added(&mut self, mut size: usize) {
         while size > 0 {
             match self.stack.pop() {
-                Some(key) => self.hash_map.remove(&key).expect(
-                    format!("HashMap must contains the corresponding key: {0}", key).as_str(),
-                ),
+                Some(key) => self.hash_map.remove(&key).unwrap_or_else(|| {
+                    panic!("HashMap must contains the corresponding key: {0}", key)
+                }),
                 None => break,
             };
             size -= 1;
