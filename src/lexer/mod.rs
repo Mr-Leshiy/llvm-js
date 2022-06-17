@@ -47,6 +47,8 @@ impl Display for Separator {
 pub enum Token {
     /// "var"
     Var,
+    /// "function"
+    Function,
     /// assign token, "="
     Assign,
     /// ident token, e.g. "val1", "car_type"
@@ -65,6 +67,7 @@ impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Var => write!(f, "Var token"),
+            Self::Function => write!(f, "Function token"),
             Self::Assign => write!(f, "Assign token"),
             Self::Ident(val) => write!(f, "Ident token, val: {}", val),
             Self::Number(val) => write!(f, "Number token, val: {}", val),
@@ -134,6 +137,11 @@ impl Token {
                     if ident == "var" {
                         return Ok(Self::Var);
                     }
+
+                    if ident == "function" {
+                        return Ok(Self::Function);
+                    }
+
                     return Ok(Self::Ident(ident));
                 }
 
@@ -213,6 +221,14 @@ mod tests {
         let mut reader = CharReader::new("var".as_bytes());
 
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Var));
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn token_function() {
+        let mut reader = CharReader::new("function".as_bytes());
+
+        assert_eq!(Token::get_token(&mut reader), Ok(Token::Function));
         assert_eq!(Token::get_token(&mut reader), Ok(Token::Eof));
     }
 
