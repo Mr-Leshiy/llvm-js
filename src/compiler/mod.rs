@@ -1,6 +1,8 @@
-use self::variables_storage::VariablesStorage;
-use crate::ast::{Identifier, ModuleUnit};
-use inkwell::{builder::Builder, context::Context, module::Module};
+use crate::{
+    ast::{Identifier, ModuleUnit},
+    map::Map,
+};
+use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
 use std::io::Write;
 use thiserror::Error;
 
@@ -8,7 +10,6 @@ mod assigment_expression;
 mod expression;
 mod literal;
 mod program;
-mod variables_storage;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -39,7 +40,7 @@ pub struct Compiler<'ctx> {
     context: &'ctx Context,
     builder: Builder<'ctx>,
 
-    variables: VariablesStorage<'ctx>,
+    variables: Map<Identifier, PointerValue<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -48,7 +49,7 @@ impl<'ctx> Compiler<'ctx> {
             context,
             builder: context.create_builder(),
 
-            variables: VariablesStorage::new(),
+            variables: Map::new(),
         }
     }
 }
