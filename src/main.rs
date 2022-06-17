@@ -5,6 +5,7 @@ use inkwell::context::Context;
 mod ast;
 mod compiler;
 mod lexer;
+mod map;
 mod parser;
 
 fn main() {

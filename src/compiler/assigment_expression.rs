@@ -36,7 +36,10 @@ impl<'ctx> Compile<'ctx> for AssigmentExpression {
                 RightAssigmentValue::Identifier(identifier) => {
                     match compiler.variables.get(&identifier).cloned() {
                         Some(pointer) => {
-                            compiler.variables.insert(self.left.clone(), pointer);
+                            compiler
+                                .variables
+                                .update(self.left.clone(), pointer)
+                                .unwrap();
                             Ok(pointer)
                         }
                         None => Err(Error::UndefinedVariable(identifier)),
@@ -56,42 +59,45 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
         compiler: &mut Compiler<'ctx>,
         module: &Module<'ctx>,
     ) -> Result<Self::Output, Error> {
-        match compiler.variables.get(&self.0.left).cloned() {
-            Some(_) => Err(Error::IndentifierDuplicate(self.0.left)),
-            None => match self.0.right {
-                RightAssigmentValue::Literal(literal) => {
-                    match literal.compile(compiler, module)? {
-                        CompiledLiteral::Number(number) => {
-                            let pointer = compiler.builder.build_alloca(
-                                compiler.context.f64_type(),
-                                self.0.left.name.as_str(),
-                            );
-                            compiler.variables.insert(self.0.left, pointer);
-                            compiler.builder.build_store(pointer, number);
-                            Ok(pointer)
-                        }
-                        CompiledLiteral::String(string) => {
-                            let pointer = compiler
-                                .builder
-                                .build_alloca(string.get_type(), self.0.left.name.as_str());
-
-                            compiler.variables.insert(self.0.left, pointer);
-
-                            compiler.builder.build_store(pointer, string);
-                            Ok(pointer)
-                        }
-                    }
+        match self.0.right {
+            RightAssigmentValue::Literal(literal) => match literal.compile(compiler, module)? {
+                CompiledLiteral::Number(number) => {
+                    let pointer = compiler
+                        .builder
+                        .build_alloca(compiler.context.f64_type(), self.0.left.name.as_str());
+                    compiler
+                        .variables
+                        .insert(self.0.left.clone(), pointer)
+                        .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
+                    compiler.builder.build_store(pointer, number);
+                    Ok(pointer)
                 }
-                RightAssigmentValue::Identifier(identifier) => {
-                    match compiler.variables.get(&identifier).cloned() {
-                        Some(pointer) => {
-                            compiler.variables.insert(self.0.left.clone(), pointer);
-                            Ok(pointer)
-                        }
-                        None => Err(Error::UndefinedVariable(identifier)),
-                    }
+                CompiledLiteral::String(string) => {
+                    let pointer = compiler
+                        .builder
+                        .build_alloca(string.get_type(), self.0.left.name.as_str());
+
+                    compiler
+                        .variables
+                        .insert(self.0.left.clone(), pointer)
+                        .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
+
+                    compiler.builder.build_store(pointer, string);
+                    Ok(pointer)
                 }
             },
+            RightAssigmentValue::Identifier(identifier) => {
+                match compiler.variables.get(&identifier).cloned() {
+                    Some(pointer) => {
+                        compiler
+                            .variables
+                            .insert(self.0.left.clone(), pointer)
+                            .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
+                        Ok(pointer)
+                    }
+                    None => Err(Error::UndefinedVariable(identifier)),
+                }
+            }
         }
     }
 }

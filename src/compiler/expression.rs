@@ -18,9 +18,12 @@ impl<'ctx> Compile<'ctx> for Expression {
                 variable_declaration.compile(compiler, module)?;
             }
             Expression::BlockStatement { body } => {
+                // TODO: update LLVM IR compilation, need to handle variables allocation/dealocation for the BlockStatement case
+                let variables_count = compiler.variables.len();
                 for expr in body {
                     expr.compile(compiler, module)?;
                 }
+                compiler.variables.remove_last_added(variables_count);
             }
         };
         Ok(())

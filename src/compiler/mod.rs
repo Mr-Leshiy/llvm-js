@@ -1,6 +1,9 @@
-use crate::ast::{Identifier, ModuleUnit};
+use crate::{
+    ast::{Identifier, ModuleUnit},
+    map::Map,
+};
 use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
-use std::{collections::HashMap, io::Write};
+use std::io::Write;
 use thiserror::Error;
 
 mod assigment_expression;
@@ -10,10 +13,10 @@ mod program;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Undefined variable, {0}")]
+    #[error("Undefined variable identifier {0}")]
     UndefinedVariable(Identifier),
-    #[error("This name is already used, {0}")]
-    IndentifierDuplicate(Identifier),
+    #[error("Variable with this identifier {0} already declared")]
+    AlreadyDeclaredVariable(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
@@ -37,7 +40,7 @@ pub struct Compiler<'ctx> {
     context: &'ctx Context,
     builder: Builder<'ctx>,
 
-    variables: HashMap<Identifier, PointerValue<'ctx>>,
+    variables: Map<Identifier, PointerValue<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -46,7 +49,7 @@ impl<'ctx> Compiler<'ctx> {
             context,
             builder: context.create_builder(),
 
-            variables: HashMap::new(),
+            variables: Map::new(),
         }
     }
 }
