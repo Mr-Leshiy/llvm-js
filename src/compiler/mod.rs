@@ -10,6 +10,7 @@ mod assigment_expression;
 mod expression;
 mod literal;
 mod program;
+mod variable_declaration;
 
 #[derive(Debug, Error)]
 pub enum Error {
