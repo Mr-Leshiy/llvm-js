@@ -1,4 +1,8 @@
-use std::fmt::Display;
+use crate::{
+    lexer::{CharReader, Token},
+    parser::{self, Parser},
+};
+use std::{fmt::Display, io::Read};
 
 /// Identifier - Expression type for any identifier, like "name"
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -9,5 +13,30 @@ pub struct Identifier {
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "name: {}", self.name)
+    }
+}
+
+impl Parser for Identifier {
+    fn parse<R: Read>(cur_token: Token, _: &mut CharReader<R>) -> Result<Self, parser::Error> {
+        match cur_token {
+            Token::Ident(name) => Ok(Self { name }),
+            token => Err(parser::Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn indetifier_test() {
+        let mut reader = CharReader::new("name".as_bytes());
+        assert_eq!(
+            Identifier::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Identifier {
+                name: "name".to_string()
+            }
+        );
     }
 }

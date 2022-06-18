@@ -5,13 +5,6 @@ use crate::{
 use std::io::Read;
 use thiserror::Error;
 
-mod assigment_expression;
-mod expression;
-mod identifier;
-mod literal;
-mod program;
-mod right_assignment_value;
-
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Unexpected token provided: {0}")]
