@@ -1,6 +1,6 @@
 use super::{AssigmentExpression, BlockStatement, VariableDeclaration};
 use crate::{
-    lexer::{CharReader, Separator, Token},
+    lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -15,9 +15,9 @@ pub enum Expression {
 impl Parser for Expression {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
-            Token::Var => Ok(Self::VariableDeclaration(VariableDeclaration::parse(
-                cur_token, reader,
-            )?)),
+            Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
+                VariableDeclaration::parse(cur_token, reader)?,
+            )),
             Token::Ident(_) => Ok(Self::Assigment(AssigmentExpression::parse(
                 cur_token, reader,
             )?)),
@@ -32,13 +32,16 @@ impl Parser for Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{Identifier, Literal, RightAssigmentValue};
+    use crate::{
+        ast::{Identifier, Literal, RightAssigmentValue},
+        lexer,
+    };
 
     #[test]
     fn expression_variable_declaration_test() {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
                 left: Identifier {
                     name: "name".to_string()
@@ -52,7 +55,7 @@ mod tests {
     fn expression_assigment_test() {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::Assigment(AssigmentExpression {
                 left: Identifier {
                     name: "name".to_string()
@@ -66,13 +69,13 @@ mod tests {
     fn expression_block_statement_test() {
         let mut reader = CharReader::new("{ }".as_bytes());
         assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement { body: vec![] })
         );
 
         let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::Assigment(AssigmentExpression {
                     left: Identifier {
@@ -89,7 +92,7 @@ mod tests {
             CharReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
 
         assert_eq!(
-            Expression::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::Assigment(AssigmentExpression {

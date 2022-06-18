@@ -1,6 +1,6 @@
 use super::AssigmentExpression;
 use crate::{
-    lexer::{CharReader, Token},
+    lexer::{self, CharReader, Keyword, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -12,8 +12,8 @@ pub struct VariableDeclaration(pub AssigmentExpression);
 impl Parser for VariableDeclaration {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
-            Token::Var => Ok(Self(AssigmentExpression::parse(
-                Token::get_token(reader)?,
+            Token::Keyword(Keyword::Var) => Ok(Self(AssigmentExpression::parse(
+                lexer::get_token(reader)?,
                 reader,
             )?)),
             token => Err(parser::Error::UnexpectedToken(token)),
@@ -30,7 +30,7 @@ mod tests {
     fn variable_declaration_test() {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(Token::get_token(&mut reader).unwrap(), &mut reader)
+            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
             VariableDeclaration(AssigmentExpression {
                 left: Identifier {
@@ -42,7 +42,7 @@ mod tests {
 
         let mut reader = CharReader::new("var name1 = name2;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(Token::get_token(&mut reader).unwrap(), &mut reader)
+            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
             VariableDeclaration(AssigmentExpression {
                 left: Identifier {

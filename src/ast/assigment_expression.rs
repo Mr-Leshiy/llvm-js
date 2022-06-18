@@ -1,6 +1,6 @@
 use super::{Identifier, RightAssigmentValue};
 use crate::{
-    lexer::{CharReader, Token},
+    lexer::{self, CharReader, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -16,12 +16,12 @@ impl Parser for AssigmentExpression {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         let left = Identifier::parse(cur_token, reader)?;
 
-        match Token::get_token(reader)? {
+        match lexer::get_token(reader)? {
             Token::Assign => {}
             token => return Err(parser::Error::UnexpectedToken(token)),
         }
 
-        let right = RightAssigmentValue::parse(Token::get_token(reader)?, reader)?;
+        let right = RightAssigmentValue::parse(lexer::get_token(reader)?, reader)?;
         Ok(Self { left, right })
     }
 }
@@ -35,7 +35,7 @@ mod tests {
     fn assigment_expression_test() {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
-            AssigmentExpression::parse(Token::get_token(&mut reader).unwrap(), &mut reader)
+            AssigmentExpression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
             AssigmentExpression {
                 left: Identifier {
@@ -47,7 +47,7 @@ mod tests {
 
         let mut reader = CharReader::new("name1 = name2;".as_bytes());
         assert_eq!(
-            AssigmentExpression::parse(Token::get_token(&mut reader).unwrap(), &mut reader)
+            AssigmentExpression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
             AssigmentExpression {
                 left: Identifier {

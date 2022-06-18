@@ -1,6 +1,6 @@
 use super::Expression;
 use crate::{
-    lexer::{CharReader, Separator, Token},
+    lexer::{self, CharReader, Separator, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -15,14 +15,14 @@ impl Parser for BlockStatement {
         match cur_token {
             Token::Separator(Separator::OpenCurlyBrace) => {
                 let mut body = Vec::new();
-                let mut cur_token = Token::get_token(reader)?;
+                let mut cur_token = lexer::get_token(reader)?;
                 loop {
                     let expr = match cur_token {
                         Token::Separator(Separator::CloseCurlyBrace) => break,
                         cur_token => Expression::parse(cur_token, reader)?,
                     };
 
-                    cur_token = Token::get_token(reader)?;
+                    cur_token = lexer::get_token(reader)?;
                     body.push(expr);
                 }
 
@@ -42,13 +42,13 @@ mod tests {
     fn block_statement_test() {
         let mut reader = CharReader::new("{ }".as_bytes());
         assert_eq!(
-            BlockStatement::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             BlockStatement { body: vec![] }
         );
 
         let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
-            BlockStatement::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             BlockStatement {
                 body: vec![Expression::Assigment(AssigmentExpression {
                     left: Identifier {
@@ -65,7 +65,7 @@ mod tests {
             CharReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
 
         assert_eq!(
-            BlockStatement::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             BlockStatement {
                 body: vec![
                     Expression::Assigment(AssigmentExpression {

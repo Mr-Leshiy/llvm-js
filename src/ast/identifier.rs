@@ -28,12 +28,13 @@ impl Parser for Identifier {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lexer;
 
     #[test]
     fn indetifier_test() {
         let mut reader = CharReader::new("name".as_bytes());
         assert_eq!(
-            Identifier::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Identifier::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Identifier {
                 name: "name".to_string()
             }
