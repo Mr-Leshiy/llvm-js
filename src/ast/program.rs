@@ -1,6 +1,6 @@
 use super::Expression;
 use crate::{
-    lexer::{CharReader, Token},
+    lexer::{self, CharReader, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -24,7 +24,7 @@ impl Parser for Program {
                 cur_token => Expression::parse(cur_token, reader)?,
             };
 
-            cur_token = Token::get_token(reader)?;
+            cur_token = lexer::get_token(reader)?;
             body.push(expr);
         }
 
@@ -41,7 +41,7 @@ mod tests {
     fn program_test() {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
-            Program::parse(Token::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Program::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Program {
                 body: vec![Expression::Assigment(AssigmentExpression {
                     left: Identifier {

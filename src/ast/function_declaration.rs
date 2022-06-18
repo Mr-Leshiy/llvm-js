@@ -1,6 +1,6 @@
 use super::{BlockStatement, Identifier};
 use crate::{
-    lexer::{CharReader, Separator, Token},
+    lexer::{self, CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -18,22 +18,22 @@ impl Parser for FunctionDeclaration {
         reader: &mut CharReader<R>,
     ) -> Result<Self, parser::Error> {
         match cur_token {
-            Token::Function => {
+            Token::Keyword(Keyword::Function) => {
                 // parse function name
-                let name = Identifier::parse(Token::get_token(reader)?, reader)?;
+                let name = Identifier::parse(lexer::get_token(reader)?, reader)?;
 
                 // parse function args
-                let args = match Token::get_token(reader)? {
+                let args = match lexer::get_token(reader)? {
                     Token::Separator(Separator::OpenBrace) => {
                         let mut args = Vec::new();
-                        cur_token = Token::get_token(reader)?;
+                        cur_token = lexer::get_token(reader)?;
                         loop {
                             let arg = match cur_token {
                                 Token::Separator(Separator::CloseBrace) => break,
                                 cur_token => Identifier::parse(cur_token, reader)?,
                             };
 
-                            cur_token = Token::get_token(reader)?;
+                            cur_token = lexer::get_token(reader)?;
                             args.push(arg);
                         }
                         Ok(args)
@@ -42,7 +42,7 @@ impl Parser for FunctionDeclaration {
                 }?;
 
                 // parse function body
-                let body = BlockStatement::parse(Token::get_token(reader)?, reader)?;
+                let body = BlockStatement::parse(lexer::get_token(reader)?, reader)?;
 
                 Ok(Self { name, args, body })
             }
@@ -59,7 +59,7 @@ mod tests {
     fn function_declaration_test() {
         let mut reader = CharReader::new("function foo () {}".as_bytes());
         assert_eq!(
-            FunctionDeclaration::parse(Token::get_token(&mut reader).unwrap(), &mut reader)
+            FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
             FunctionDeclaration {
                 name: Identifier {

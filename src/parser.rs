@@ -16,7 +16,7 @@ pub enum Error {
 impl ModuleUnit {
     pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
         let mut reader = CharReader::new(input);
-        let program = Program::parse(Token::get_token(&mut reader)?, &mut reader)?;
+        let program = Program::parse(lexer::get_token(&mut reader)?, &mut reader)?;
         Ok(Self { name, program })
     }
 }
@@ -34,7 +34,7 @@ mod tests {
     };
 
     #[test]
-    fn parse_program_from_file() {
+    fn parse_program_from_file_test() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let module = ModuleUnit::new("".to_string(), file).unwrap();
         let program = module.program;

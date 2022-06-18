@@ -76,7 +76,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn compile_program_from_file() {
+    fn compile_program_from_file_test() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
 
         let module = ModuleUnit::new("module_1".to_string(), file).unwrap();
