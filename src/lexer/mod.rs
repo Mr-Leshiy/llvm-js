@@ -19,6 +19,17 @@ fn is_skip(char: &char) -> bool {
     char.is_ascii_whitespace() || char.eq(&';')
 }
 
+fn can_stop(char: &char) -> bool {
+    is_skip(char)
+        || char.eq(&'=')
+        || char.eq(&'(')
+        || char.eq(&')')
+        || char.eq(&'{')
+        || char.eq(&'}')
+        || char.eq(&'[')
+        || char.eq(&']')
+}
+
 pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, Error> {
     match reader.get_char() {
         Ok(mut char) => {
@@ -31,22 +42,6 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                 };
             }
 
-            // assign operator: '='
-            if char == '=' {
-                return Ok(Token::Assign);
-            }
-
-            // separator: '(',')','{','}','[',']'
-            match char {
-                '(' => return Ok(Token::Separator(Separator::OpenBrace)),
-                ')' => return Ok(Token::Separator(Separator::CloseBrace)),
-                '{' => return Ok(Token::Separator(Separator::OpenCurlyBrace)),
-                '}' => return Ok(Token::Separator(Separator::CloseCurlyBrace)),
-                '[' => return Ok(Token::Separator(Separator::OpenSquareBracket)),
-                ']' => return Ok(Token::Separator(Separator::CloseSquareBracket)),
-                _ => {}
-            }
-
             // identifier: [a-zA-Z][a-zA-Z0-9_]*
             if char.is_ascii_alphabetic() {
                 let mut ident = char.to_string();
@@ -57,13 +52,13 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                         Err(e) => return Err(Error::ReaderError(e)),
                     };
                     if !char.is_ascii_alphanumeric() && char != '_' {
-                        // next symbol should be skipped symbol
-                        if !is_skip(&char) {
+                        if !can_stop(&char) {
                             return Err(Error::UnexpectedSymbol(
                                 char,
                                 reader.get_position().clone(),
                             ));
                         }
+                        reader.save(char);
                         break;
                     }
 
@@ -91,13 +86,13 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                         Err(e) => return Err(Error::ReaderError(e)),
                     };
                     if !char.is_ascii_digit() && char != '.' {
-                        // next symbol should be skipped symbol
-                        if !is_skip(&char) {
+                        if !can_stop(&char) {
                             return Err(Error::UnexpectedSymbol(
                                 char,
                                 reader.get_position().clone(),
                             ));
                         }
+                        reader.save(char);
                         break;
                     }
 
@@ -107,6 +102,22 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                 return Ok(Token::Literal(Literal::Number(
                     number.parse().expect("string should be f64 number"),
                 )));
+            }
+
+            // assign operator: '='
+            if char == '=' {
+                return Ok(Token::Assign);
+            }
+
+            // separator: '(',')','{','}','[',']'
+            match char {
+                '(' => return Ok(Token::Separator(Separator::OpenBrace)),
+                ')' => return Ok(Token::Separator(Separator::CloseBrace)),
+                '{' => return Ok(Token::Separator(Separator::OpenCurlyBrace)),
+                '}' => return Ok(Token::Separator(Separator::CloseCurlyBrace)),
+                '[' => return Ok(Token::Separator(Separator::OpenSquareBracket)),
+                ']' => return Ok(Token::Separator(Separator::CloseSquareBracket)),
+                _ => {}
             }
 
             // String: string
@@ -125,12 +136,13 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                             Err(e) => return Err(Error::ReaderError(e)),
                         };
                         // next symbol should be skipped symbol
-                        if !is_skip(&char) {
+                        if !can_stop(&char) {
                             return Err(Error::UnexpectedSymbol(
                                 char,
                                 reader.get_position().clone(),
                             ));
                         }
+                        reader.save(char);
                         break;
                     }
 
@@ -152,17 +164,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn token_assign() {
-        let mut reader = CharReader::new("=".as_bytes());
-
-        assert_eq!(get_token(&mut reader), Ok(Token::Assign));
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
-    }
-
-    #[test]
-    fn token_ident() {
+    fn token_ident_test() {
         let mut reader = CharReader::new("name1".as_bytes());
-
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Ident("name1".to_string()))
@@ -170,7 +173,6 @@ mod tests {
         assert_eq!(get_token(&mut reader), Ok(Token::Eof));
 
         let mut reader = CharReader::new("name12name".as_bytes());
-
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Ident("name12name".to_string()))
@@ -178,7 +180,6 @@ mod tests {
         assert_eq!(get_token(&mut reader), Ok(Token::Eof));
 
         let mut reader = CharReader::new("name_1".as_bytes());
-
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Ident("name_1".to_string()))
@@ -186,7 +187,6 @@ mod tests {
         assert_eq!(get_token(&mut reader), Ok(Token::Eof));
 
         let mut reader = CharReader::new("name^2name".as_bytes());
-
         assert_eq!(
             get_token(&mut reader),
             Err(Error::UnexpectedSymbol(
@@ -197,7 +197,27 @@ mod tests {
     }
 
     #[test]
-    fn token_unexpected_symbol() {
+    fn token_assign_test() {
+        let mut reader = CharReader::new("=".as_bytes());
+
+        assert_eq!(get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new("name_1=name_2".as_bytes());
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Ident("name_1".to_string()))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Assign));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Ident("name_2".to_string()))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn token_unexpected_symbol_test() {
         let mut reader = CharReader::new("^".as_bytes());
 
         assert_eq!(
@@ -211,7 +231,7 @@ mod tests {
     }
 
     #[test]
-    fn token_from_file() {
+    fn token_from_file_test() {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
 

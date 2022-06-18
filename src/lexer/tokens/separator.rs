@@ -35,7 +35,7 @@ mod tests {
     use crate::lexer::{get_token, CharReader, Token};
 
     #[test]
-    fn separator_test() {
+    fn separator_test_1() {
         let mut reader = CharReader::new(r#" )({[]]  }})[] "#.as_bytes());
 
         assert_eq!(
@@ -74,6 +74,45 @@ mod tests {
             get_token(&mut reader),
             Ok(Token::Separator(Separator::CloseBrace))
         );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenSquareBracket))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn separator_test_2() {
+        let mut reader = CharReader::new(r#"name()"#.as_bytes());
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseBrace))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new(r#"name{}"#.as_bytes());
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new(r#"name[]"#.as_bytes());
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Separator(Separator::OpenSquareBracket))

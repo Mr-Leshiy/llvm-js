@@ -57,7 +57,7 @@ mod tests {
 
     #[test]
     fn function_declaration_test() {
-        let mut reader = CharReader::new("function foo () {}".as_bytes());
+        let mut reader = CharReader::new("function foo() {}".as_bytes());
         assert_eq!(
             FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
