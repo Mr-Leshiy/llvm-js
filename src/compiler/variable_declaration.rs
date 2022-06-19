@@ -1,18 +1,13 @@
-use super::{literal::CompiledLiteral, Compile, Compiler, Error};
-use crate::ast::{RightAssigmentValue, VariableDeclaration};
-use inkwell::{module::Module, values::PointerValue};
+use super::{Compile, Compiler, Error};
+use crate::ast::{Literal, RightAssigmentValue, VariableDeclaration};
+use inkwell::module::Module;
 
 impl<'ctx> Compile<'ctx> for VariableDeclaration {
-    type Output = PointerValue<'ctx>;
-
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<Self::Output, Error> {
+    fn compile(self, compiler: &mut Compiler<'ctx>, _: &Module<'ctx>) -> Result<(), Error> {
         match self.0.right {
-            RightAssigmentValue::Literal(literal) => match literal.compile(compiler, module)? {
-                CompiledLiteral::Number(number) => {
+            RightAssigmentValue::Literal(literal) => match literal {
+                Literal::Number(number) => {
+                    let number = compiler.context.f64_type().const_float(number);
                     let pointer = compiler
                         .builder
                         .build_alloca(compiler.context.f64_type(), self.0.left.name.as_str());
@@ -21,9 +16,10 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                         .insert(self.0.left.clone(), pointer)
                         .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
                     compiler.builder.build_store(pointer, number);
-                    Ok(pointer)
+                    Ok(())
                 }
-                CompiledLiteral::String(string) => {
+                Literal::String(string) => {
+                    let string = compiler.context.const_string(string.as_bytes(), false);
                     let pointer = compiler
                         .builder
                         .build_alloca(string.get_type(), self.0.left.name.as_str());
@@ -34,7 +30,7 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                         .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
 
                     compiler.builder.build_store(pointer, string);
-                    Ok(pointer)
+                    Ok(())
                 }
             },
             RightAssigmentValue::Identifier(identifier) => {
@@ -44,7 +40,7 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                             .variables
                             .insert(self.0.left.clone(), pointer)
                             .map_err(|_| Error::AlreadyDeclaredVariable(self.0.left))?;
-                        Ok(pointer)
+                        Ok(())
                     }
                     None => Err(Error::UndefinedVariable(identifier)),
                 }

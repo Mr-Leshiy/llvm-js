@@ -8,7 +8,6 @@ use thiserror::Error;
 
 mod assigment_expression;
 mod expression;
-mod literal;
 mod program;
 mod variable_declaration;
 
@@ -24,17 +23,8 @@ pub enum Error {
     CannotWriteModule(#[from] std::io::Error),
 }
 
-pub trait CompileResult {
-    fn to_string(&self) -> String;
-}
-
 pub trait Compile<'ctx> {
-    type Output: CompileResult;
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<Self::Output, Error>;
+    fn compile(self, compiler: &mut Compiler<'ctx>, module: &Module<'ctx>) -> Result<(), Error>;
 }
 
 pub struct Compiler<'ctx> {

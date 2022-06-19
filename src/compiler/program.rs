@@ -1,21 +1,9 @@
-use super::{Compile, CompileResult, Compiler, Error};
+use super::{Compile, Compiler, Error};
 use crate::ast::Program;
 use inkwell::module::Module;
 
-impl CompileResult for () {
-    fn to_string(&self) -> String {
-        "".to_string()
-    }
-}
-
 impl<'ctx> Compile<'ctx> for Program {
-    type Output = ();
-
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<Self::Output, Error> {
+    fn compile(self, compiler: &mut Compiler<'ctx>, module: &Module<'ctx>) -> Result<(), Error> {
         // create entry point main function
         let func = module.add_function(
             "main",

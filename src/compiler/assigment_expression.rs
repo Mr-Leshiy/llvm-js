@@ -1,37 +1,23 @@
-use super::{literal::CompiledLiteral, Compile, CompileResult, Compiler, Error};
-use crate::ast::{AssigmentExpression, RightAssigmentValue};
-use inkwell::{
-    module::Module,
-    values::{AnyValue, PointerValue},
-};
-
-impl<'ctx> CompileResult for PointerValue<'ctx> {
-    fn to_string(&self) -> String {
-        self.print_to_string().to_string()
-    }
-}
+use super::{Compile, Compiler, Error};
+use crate::ast::{AssigmentExpression, Literal, RightAssigmentValue};
+use inkwell::module::Module;
 
 impl<'ctx> Compile<'ctx> for AssigmentExpression {
-    type Output = PointerValue<'ctx>;
-
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<Self::Output, Error> {
+    fn compile(self, compiler: &mut Compiler<'ctx>, _: &Module<'ctx>) -> Result<(), Error> {
         match compiler.variables.get(&self.left).cloned() {
             Some(pointer) => match self.right {
                 RightAssigmentValue::Literal(literal) => {
-                    match literal.compile(compiler, module)? {
-                        CompiledLiteral::Number(number) => {
+                    match literal {
+                        Literal::Number(number) => {
+                            let number = compiler.context.f64_type().const_float(number);
                             compiler.builder.build_store(pointer, number)
                         }
-                        CompiledLiteral::String(string) => {
+                        Literal::String(string) => {
+                            let string = compiler.context.const_string(string.as_bytes(), false);
                             compiler.builder.build_store(pointer, string)
                         }
                     };
-
-                    Ok(pointer)
+                    Ok(())
                 }
                 RightAssigmentValue::Identifier(identifier) => {
                     match compiler.variables.get(&identifier).cloned() {
@@ -40,7 +26,7 @@ impl<'ctx> Compile<'ctx> for AssigmentExpression {
                                 .variables
                                 .update(self.left.clone(), pointer)
                                 .unwrap();
-                            Ok(pointer)
+                            Ok(())
                         }
                         None => Err(Error::UndefinedVariable(identifier)),
                     }

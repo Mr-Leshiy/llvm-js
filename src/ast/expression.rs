@@ -1,4 +1,4 @@
-use super::{AssigmentExpression, BlockStatement, VariableDeclaration};
+use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
 use crate::{
     lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
@@ -7,6 +7,7 @@ use std::io::Read;
 
 #[derive(Debug, PartialEq)]
 pub enum Expression {
+    FunctionDeclaration(FunctionDeclaration),
     VariableDeclaration(VariableDeclaration),
     Assigment(AssigmentExpression),
     BlockStatement(BlockStatement),
