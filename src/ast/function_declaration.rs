@@ -1,8 +1,10 @@
 use super::{BlockStatement, Identifier};
 use crate::{
+    compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
 };
+use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
@@ -48,6 +50,12 @@ impl Parser for FunctionDeclaration {
             }
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl<'ctx> Compile<'ctx> for FunctionDeclaration {
+    fn compile(self, _: &mut Compiler<'ctx>, _: &Module<'ctx>) -> Result<(), compiler::Error> {
+        Ok(())
     }
 }
 

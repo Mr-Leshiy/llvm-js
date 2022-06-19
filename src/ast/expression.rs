@@ -1,4 +1,4 @@
-use super::{AssigmentExpression, BlockStatement, VariableDeclaration, FunctionDeclaration};
+use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
 use crate::{
     compiler::{self, Compile, Compiler},
     lexer::{CharReader, Keyword, Separator, Token},
@@ -18,6 +18,9 @@ pub enum Expression {
 impl Parser for Expression {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
+            Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
+                FunctionDeclaration::parse(cur_token, reader)?,
+            )),
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
@@ -39,7 +42,9 @@ impl<'ctx> Compile<'ctx> for Expression {
         module: &Module<'ctx>,
     ) -> Result<(), compiler::Error> {
         match self {
-            Expression::FunctionDeclaration(function_declaration) => Ok(()),
+            Expression::FunctionDeclaration(function_declaration) => {
+                function_declaration.compile(compiler, module)
+            }
             Expression::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, module)
             }

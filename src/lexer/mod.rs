@@ -235,6 +235,29 @@ mod tests {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
 
+        // line: "function foo() {}"
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Keyword(Keyword::Function))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("foo".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseBrace))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenCurlyBrace))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+
         //line: "{"
         assert_eq!(
             get_token(&mut reader),
