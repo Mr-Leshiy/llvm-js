@@ -1,4 +1,4 @@
-use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
+use super::{AssigmentExpression, BlockStatement, VariableDeclaration, FunctionDeclaration};
 use crate::{
     compiler::{self, Compile, Compiler},
     lexer::{CharReader, Keyword, Separator, Token},
@@ -46,14 +46,8 @@ impl<'ctx> Compile<'ctx> for Expression {
             Expression::Assigment(assigment_expression) => {
                 assigment_expression.compile(compiler, module)
             }
-            Expression::BlockStatement(BlockStatement { body }) => {
-                // TODO: update LLVM IR compilation, need to handle variables allocation/dealocation for the BlockStatement case
-                let variables_count = compiler.variables.len();
-                for expr in body {
-                    expr.compile(compiler, module)?;
-                }
-                compiler.variables.remove_last_added(variables_count);
-                Ok(())
+            Expression::BlockStatement(block_statement) => {
+                block_statement.compile(compiler, module)
             }
         }
     }
