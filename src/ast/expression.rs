@@ -1,12 +1,15 @@
-use super::{AssigmentExpression, BlockStatement, VariableDeclaration};
+use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
 use crate::{
+    compiler::{self, Compile, Compiler},
     lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
 };
+use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
 pub enum Expression {
+    FunctionDeclaration(FunctionDeclaration),
     VariableDeclaration(VariableDeclaration),
     Assigment(AssigmentExpression),
     BlockStatement(BlockStatement),
@@ -15,6 +18,9 @@ pub enum Expression {
 impl Parser for Expression {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
+            Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
+                FunctionDeclaration::parse(cur_token, reader)?,
+            )),
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
@@ -25,6 +31,29 @@ impl Parser for Expression {
                 BlockStatement::parse(cur_token, reader)?,
             )),
             token => Err(parser::Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+impl<'ctx> Compile<'ctx> for Expression {
+    fn compile(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        module: &Module<'ctx>,
+    ) -> Result<(), compiler::Error> {
+        match self {
+            Expression::FunctionDeclaration(function_declaration) => {
+                function_declaration.compile(compiler, module)
+            }
+            Expression::VariableDeclaration(variable_declaration) => {
+                variable_declaration.compile(compiler, module)
+            }
+            Expression::Assigment(assigment_expression) => {
+                assigment_expression.compile(compiler, module)
+            }
+            Expression::BlockStatement(block_statement) => {
+                block_statement.compile(compiler, module)
+            }
         }
     }
 }

@@ -29,8 +29,8 @@ pub trait Parser: Sized {
 mod tests {
     use super::*;
     use crate::ast::{
-        AssigmentExpression, BlockStatement, Expression, Identifier, Literal, RightAssigmentValue,
-        VariableDeclaration,
+        AssigmentExpression, BlockStatement, Expression, FunctionDeclaration, Identifier, Literal,
+        RightAssigmentValue, VariableDeclaration,
     };
 
     #[test]
@@ -41,50 +41,59 @@ mod tests {
 
         assert_eq!(
             program.body,
-            vec![Expression::BlockStatement(BlockStatement {
-                body: vec![
-                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
-                        left: Identifier {
-                            name: "a".to_string()
-                        },
-                        right: RightAssigmentValue::Literal(Literal::Number(5_f64))
-                    })),
-                    Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
-                        left: Identifier {
-                            name: "b".to_string()
-                        },
-                        right: RightAssigmentValue::Literal(Literal::Number(6_f64))
-                    })),
-                    Expression::BlockStatement(BlockStatement {
-                        body: vec![
-                            Expression::Assigment(AssigmentExpression {
-                                left: Identifier {
-                                    name: "a".to_string()
-                                },
-                                right: RightAssigmentValue::Identifier(Identifier {
-                                    name: "b".to_string()
-                                })
-                            }),
-                            Expression::Assigment(AssigmentExpression {
-                                left: Identifier {
-                                    name: "b".to_string()
-                                },
-                                right: RightAssigmentValue::Literal(Literal::Number(7_f64))
-                            }),
-                            Expression::VariableDeclaration(VariableDeclaration(
-                                AssigmentExpression {
+            vec![
+                Expression::FunctionDeclaration(FunctionDeclaration {
+                    name: Identifier {
+                        name: "foo".to_string()
+                    },
+                    args: vec![],
+                    body: BlockStatement { body: vec![] }
+                }),
+                Expression::BlockStatement(BlockStatement {
+                    body: vec![
+                        Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                            left: Identifier {
+                                name: "a".to_string()
+                            },
+                            right: RightAssigmentValue::Literal(Literal::Number(5_f64))
+                        })),
+                        Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                            left: Identifier {
+                                name: "b".to_string()
+                            },
+                            right: RightAssigmentValue::Literal(Literal::Number(6_f64))
+                        })),
+                        Expression::BlockStatement(BlockStatement {
+                            body: vec![
+                                Expression::Assigment(AssigmentExpression {
                                     left: Identifier {
-                                        name: "c".to_string()
+                                        name: "a".to_string()
                                     },
-                                    right: RightAssigmentValue::Literal(Literal::String(
-                                        "hello".to_string()
-                                    ))
-                                }
-                            ))
-                        ]
-                    })
-                ]
-            })]
+                                    right: RightAssigmentValue::Identifier(Identifier {
+                                        name: "b".to_string()
+                                    })
+                                }),
+                                Expression::Assigment(AssigmentExpression {
+                                    left: Identifier {
+                                        name: "b".to_string()
+                                    },
+                                    right: RightAssigmentValue::Literal(Literal::Number(7_f64))
+                                }),
+                                Expression::VariableDeclaration(VariableDeclaration(
+                                    AssigmentExpression {
+                                        left: Identifier {
+                                            name: "c".to_string()
+                                        },
+                                        right: RightAssigmentValue::Literal(Literal::String(
+                                            "hello".to_string()
+                                        ))
+                                    }
+                                ))
+                            ]
+                        })
+                    ]
+                })
+            ]
         );
     }
 }

@@ -1,6 +1,7 @@
 pub use assigment_expression::AssigmentExpression;
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
+pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use literal::Literal;
 pub use program::Program;

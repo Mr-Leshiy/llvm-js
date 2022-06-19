@@ -6,12 +6,6 @@ use inkwell::{builder::Builder, context::Context, module::Module, values::Pointe
 use std::io::Write;
 use thiserror::Error;
 
-mod assigment_expression;
-mod expression;
-mod literal;
-mod program;
-mod variable_declaration;
-
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Undefined variable identifier {0}")]
@@ -24,24 +18,15 @@ pub enum Error {
     CannotWriteModule(#[from] std::io::Error),
 }
 
-pub trait CompileResult {
-    fn to_string(&self) -> String;
-}
-
 pub trait Compile<'ctx> {
-    type Output: CompileResult;
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<Self::Output, Error>;
+    fn compile(self, compiler: &mut Compiler<'ctx>, module: &Module<'ctx>) -> Result<(), Error>;
 }
 
 pub struct Compiler<'ctx> {
-    context: &'ctx Context,
-    builder: Builder<'ctx>,
+    pub context: &'ctx Context,
+    pub builder: Builder<'ctx>,
 
-    variables: Map<Identifier, PointerValue<'ctx>>,
+    pub variables: Map<Identifier, PointerValue<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
