@@ -28,6 +28,7 @@ fn can_stop(char: &char) -> bool {
         || char.eq(&'}')
         || char.eq(&'[')
         || char.eq(&']')
+        || char.eq(&',')
 }
 
 pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, Error> {
@@ -117,6 +118,7 @@ pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, 
                 '}' => return Ok(Token::Separator(Separator::CloseCurlyBrace)),
                 '[' => return Ok(Token::Separator(Separator::OpenSquareBracket)),
                 ']' => return Ok(Token::Separator(Separator::CloseSquareBracket)),
+                ',' => return Ok(Token::Separator(Separator::Comma)),
                 _ => {}
             }
 
@@ -235,7 +237,7 @@ mod tests {
         let file = std::fs::File::open("test_scripts/basic.js").unwrap();
         let mut reader = CharReader::new(file);
 
-        // line: "function foo() {}"
+        // line: "function foo(arg1, arg2) {}"
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Keyword(Keyword::Function))
@@ -245,6 +247,12 @@ mod tests {
             get_token(&mut reader),
             Ok(Token::Separator(Separator::OpenBrace))
         );
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("arg1".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("arg2".to_string())));
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Separator(Separator::CloseBrace))
