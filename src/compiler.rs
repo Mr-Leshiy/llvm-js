@@ -17,8 +17,8 @@ pub enum Error {
     UndefinedVariable(Identifier),
     #[error("Variable with this identifier {0} already declared")]
     AlreadyDeclaredVariable(Identifier),
-    #[error("Function with this identifier {0} already declared")]
-    AlreadyDeclaredFunction(Identifier),
+    // #[error("Function with this identifier {0} already declared")]
+    // AlreadyDeclaredFunction(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
