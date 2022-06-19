@@ -1,8 +1,10 @@
-use super::{Identifier, RightAssigmentValue};
+use super::{Identifier, Literal, RightAssigmentValue};
 use crate::{
+    compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Token},
     parser::{self, Parser},
 };
+use inkwell::module::Module;
 use std::io::Read;
 
 /// AssigmentExpression - Expression type for variable assigment, like "a = 4"
@@ -23,6 +25,45 @@ impl Parser for AssigmentExpression {
 
         let right = RightAssigmentValue::parse(lexer::get_token(reader)?, reader)?;
         Ok(Self { left, right })
+    }
+}
+
+impl<'ctx> Compile<'ctx> for AssigmentExpression {
+    fn compile(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        _: &Module<'ctx>,
+    ) -> Result<(), compiler::Error> {
+        match compiler.variables.get(&self.left).cloned() {
+            Some(pointer) => match self.right {
+                RightAssigmentValue::Literal(literal) => {
+                    match literal {
+                        Literal::Number(number) => {
+                            let number = compiler.context.f64_type().const_float(number);
+                            compiler.builder.build_store(pointer, number)
+                        }
+                        Literal::String(string) => {
+                            let string = compiler.context.const_string(string.as_bytes(), false);
+                            compiler.builder.build_store(pointer, string)
+                        }
+                    };
+                    Ok(())
+                }
+                RightAssigmentValue::Identifier(identifier) => {
+                    match compiler.variables.get(&identifier).cloned() {
+                        Some(pointer) => {
+                            compiler
+                                .variables
+                                .update(self.left.clone(), pointer)
+                                .unwrap();
+                            Ok(())
+                        }
+                        None => Err(compiler::Error::UndefinedVariable(identifier)),
+                    }
+                }
+            },
+            None => Err(compiler::Error::UndefinedVariable(self.left.clone())),
+        }
     }
 }
 

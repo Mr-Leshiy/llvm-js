@@ -6,11 +6,6 @@ use inkwell::{builder::Builder, context::Context, module::Module, values::Pointe
 use std::io::Write;
 use thiserror::Error;
 
-mod assigment_expression;
-mod expression;
-mod program;
-mod variable_declaration;
-
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Undefined variable identifier {0}")]
@@ -28,10 +23,10 @@ pub trait Compile<'ctx> {
 }
 
 pub struct Compiler<'ctx> {
-    context: &'ctx Context,
-    builder: Builder<'ctx>,
+    pub context: &'ctx Context,
+    pub builder: Builder<'ctx>,
 
-    variables: Map<Identifier, PointerValue<'ctx>>,
+    pub variables: Map<Identifier, PointerValue<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {

@@ -1,8 +1,10 @@
 use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
 use crate::{
+    compiler::{self, Compile, Compiler},
     lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
 };
+use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
@@ -26,6 +28,33 @@ impl Parser for Expression {
                 BlockStatement::parse(cur_token, reader)?,
             )),
             token => Err(parser::Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+impl<'ctx> Compile<'ctx> for Expression {
+    fn compile(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        module: &Module<'ctx>,
+    ) -> Result<(), compiler::Error> {
+        match self {
+            Expression::FunctionDeclaration(function_declaration) => Ok(()),
+            Expression::VariableDeclaration(variable_declaration) => {
+                variable_declaration.compile(compiler, module)
+            }
+            Expression::Assigment(assigment_expression) => {
+                assigment_expression.compile(compiler, module)
+            }
+            Expression::BlockStatement(BlockStatement { body }) => {
+                // TODO: update LLVM IR compilation, need to handle variables allocation/dealocation for the BlockStatement case
+                let variables_count = compiler.variables.len();
+                for expr in body {
+                    expr.compile(compiler, module)?;
+                }
+                compiler.variables.remove_last_added(variables_count);
+                Ok(())
+            }
         }
     }
 }
