@@ -14,6 +14,8 @@ pub enum Separator {
     OpenSquareBracket,
     /// "]"
     CloseSquareBracket,
+    /// ","
+    Comma,
 }
 
 impl Display for Separator {
@@ -25,6 +27,7 @@ impl Display for Separator {
             Self::CloseCurlyBrace => write!(f, r#"Separator token, "}}""#),
             Self::OpenSquareBracket => write!(f, r#"Separator token, "[""#),
             Self::CloseSquareBracket => write!(f, r#"Separator token, "]""#),
+            Self::Comma => write!(f, r#"Separator token, ",""#),
         }
     }
 }
@@ -36,7 +39,7 @@ mod tests {
 
     #[test]
     fn separator_test_1() {
-        let mut reader = CharReader::new(r#" )({[]]  }})[] "#.as_bytes());
+        let mut reader = CharReader::new(r#" )({[]]  }})[],,, "#.as_bytes());
 
         assert_eq!(
             get_token(&mut reader),
@@ -81,6 +84,18 @@ mod tests {
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
+        );
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
         );
         assert_eq!(get_token(&mut reader), Ok(Token::Eof));
     }
@@ -120,6 +135,14 @@ mod tests {
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Separator(Separator::CloseSquareBracket))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+
+        let mut reader = CharReader::new(r#"name,"#.as_bytes());
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
         );
         assert_eq!(get_token(&mut reader), Ok(Token::Eof));
     }

@@ -34,9 +34,13 @@ impl Parser for FunctionDeclaration {
                                 Token::Separator(Separator::CloseBrace) => break,
                                 cur_token => Identifier::parse(cur_token, reader)?,
                             };
-
-                            cur_token = lexer::get_token(reader)?;
                             args.push(arg);
+
+                            cur_token = match lexer::get_token(reader)? {
+                                Token::Separator(Separator::CloseBrace) => break,
+                                Token::Separator(Separator::Comma) => lexer::get_token(reader)?,
+                                token => return Err(parser::Error::UnexpectedToken(token)),
+                            };
                         }
                         Ok(args)
                     }

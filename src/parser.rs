@@ -46,7 +46,14 @@ mod tests {
                     name: Identifier {
                         name: "foo".to_string()
                     },
-                    args: vec![],
+                    args: vec![
+                        Identifier {
+                            name: "arg1".to_string()
+                        },
+                        Identifier {
+                            name: "arg2".to_string()
+                        }
+                    ],
                     body: BlockStatement { body: vec![] }
                 }),
                 Expression::BlockStatement(BlockStatement {

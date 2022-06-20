@@ -2,7 +2,12 @@ use crate::{
     ast::{Identifier, ModuleUnit},
     map::Map,
 };
-use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    module::Module,
+    values::{FunctionValue, PointerValue},
+};
 use std::io::Write;
 use thiserror::Error;
 
@@ -12,6 +17,8 @@ pub enum Error {
     UndefinedVariable(Identifier),
     #[error("Variable with this identifier {0} already declared")]
     AlreadyDeclaredVariable(Identifier),
+    // #[error("Function with this identifier {0} already declared")]
+    // AlreadyDeclaredFunction(Identifier),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
@@ -27,6 +34,7 @@ pub struct Compiler<'ctx> {
     pub builder: Builder<'ctx>,
 
     pub variables: Map<Identifier, PointerValue<'ctx>>,
+    pub functions: Map<Identifier, FunctionValue<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -36,6 +44,7 @@ impl<'ctx> Compiler<'ctx> {
             builder: context.create_builder(),
 
             variables: Map::new(),
+            functions: Map::new(),
         }
     }
 }

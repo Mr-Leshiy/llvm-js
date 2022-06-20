@@ -36,26 +36,22 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                     let pointer = compiler
                         .builder
                         .build_alloca(compiler.context.f64_type(), self.0.left.name.as_str());
+                    compiler.builder.build_store(pointer, number);
                     compiler
                         .variables
                         .insert(self.0.left.clone(), pointer)
-                        .map_err(|_| compiler::Error::AlreadyDeclaredVariable(self.0.left))?;
-                    compiler.builder.build_store(pointer, number);
-                    Ok(())
+                        .map_err(|_| compiler::Error::AlreadyDeclaredVariable(self.0.left))
                 }
                 Literal::String(string) => {
                     let string = compiler.context.const_string(string.as_bytes(), false);
                     let pointer = compiler
                         .builder
                         .build_alloca(string.get_type(), self.0.left.name.as_str());
-
+                    compiler.builder.build_store(pointer, string);
                     compiler
                         .variables
                         .insert(self.0.left.clone(), pointer)
-                        .map_err(|_| compiler::Error::AlreadyDeclaredVariable(self.0.left))?;
-
-                    compiler.builder.build_store(pointer, string);
-                    Ok(())
+                        .map_err(|_| compiler::Error::AlreadyDeclaredVariable(self.0.left))
                 }
             },
             RightAssigmentValue::Identifier(identifier) => {
