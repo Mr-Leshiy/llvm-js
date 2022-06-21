@@ -34,7 +34,10 @@ impl Parser for Program {
 }
 
 impl Precompile for Program {
-    fn precompile(&self, _: &mut Precompiler) -> Result<(), precompiler::Error> {
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        for expr in self.body {
+            expr.precompile(precompiler)?;
+        }
         Ok(())
     }
 }

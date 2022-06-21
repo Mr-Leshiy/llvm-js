@@ -2,6 +2,7 @@ use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDe
 use crate::{
     lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -29,6 +30,21 @@ impl Parser for Expression {
                 BlockStatement::parse(cur_token, reader)?,
             )),
             token => Err(parser::Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+impl Precompile for Expression {
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        match self {
+            Expression::FunctionDeclaration(function_declaration) => {
+                function_declaration.precompile(precompiler)
+            }
+            Expression::Assigment(assigment) => assigment.precompile(precompiler),
+            Expression::VariableDeclaration(variable_declaration) => {
+                variable_declaration.precompile(precompiler)
+            }
+            Expression::BlockStatement(block_statement) => block_statement.precompile(precompiler),
         }
     }
 }

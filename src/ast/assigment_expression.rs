@@ -2,6 +2,7 @@ use super::{Identifier, RightAssigmentValue};
 use crate::{
     lexer::{self, CharReader, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -23,6 +24,12 @@ impl Parser for AssigmentExpression {
 
         let right = RightAssigmentValue::parse(lexer::get_token(reader)?, reader)?;
         Ok(Self { left, right })
+    }
+}
+
+impl Precompile for AssigmentExpression {
+    fn precompile(self, _precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 

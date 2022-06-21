@@ -2,6 +2,7 @@ use super::{BlockStatement, Identifier};
 use crate::{
     lexer::{self, CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -52,6 +53,12 @@ impl Parser for FunctionDeclaration {
             }
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl Precompile for FunctionDeclaration {
+    fn precompile(self, _precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 

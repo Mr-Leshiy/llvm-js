@@ -2,6 +2,7 @@ use super::AssigmentExpression;
 use crate::{
     lexer::{self, CharReader, Keyword, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -18,6 +19,12 @@ impl Parser for VariableDeclaration {
             )?)),
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl Precompile for VariableDeclaration {
+    fn precompile(self, _precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 
