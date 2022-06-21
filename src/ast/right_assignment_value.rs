@@ -29,7 +29,7 @@ mod tests {
     use crate::lexer;
 
     #[test]
-    fn right_assigment_value_test() {
+    fn parse_right_assigment_value_test() {
         let mut reader = CharReader::new("12".as_bytes());
         assert_eq!(
             RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)

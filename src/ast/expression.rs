@@ -1,11 +1,8 @@
 use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
 use crate::{
-    compiler::{self, Compile, Compiler},
     lexer::{CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
-use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
@@ -36,46 +33,6 @@ impl Parser for Expression {
     }
 }
 
-impl Precompile for Expression {
-    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
-        match self {
-            Expression::FunctionDeclaration(function_declaration) => {
-                function_declaration.precompile(precompiler)
-            }
-            Expression::VariableDeclaration(variable_declaration) => {
-                variable_declaration.precompile(precompiler)
-            }
-            Expression::Assigment(assigment_expression) => {
-                assigment_expression.precompile(precompiler)
-            }
-            Expression::BlockStatement(block_statement) => block_statement.precompile(precompiler),
-        }
-    }
-}
-
-impl<'ctx> Compile<'ctx> for Expression {
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<(), compiler::Error> {
-        match self {
-            Expression::FunctionDeclaration(function_declaration) => {
-                function_declaration.compile(compiler, module)
-            }
-            Expression::VariableDeclaration(variable_declaration) => {
-                variable_declaration.compile(compiler, module)
-            }
-            Expression::Assigment(assigment_expression) => {
-                assigment_expression.compile(compiler, module)
-            }
-            Expression::BlockStatement(block_statement) => {
-                block_statement.compile(compiler, module)
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -85,7 +42,7 @@ mod tests {
     };
 
     #[test]
-    fn expression_variable_declaration_test() {
+    fn parse_expression_variable_declaration_test() {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),

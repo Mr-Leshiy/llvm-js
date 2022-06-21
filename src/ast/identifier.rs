@@ -31,7 +31,7 @@ mod tests {
     use crate::lexer;
 
     #[test]
-    fn indetifier_test() {
+    fn parse_indetifier_test() {
         let mut reader = CharReader::new("name".as_bytes());
         assert_eq!(
             Identifier::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),

@@ -1,11 +1,8 @@
-use super::{Identifier, Literal, RightAssigmentValue};
+use super::{Identifier, RightAssigmentValue};
 use crate::{
-    compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Token},
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
-use inkwell::module::Module;
 use std::io::Read;
 
 /// AssigmentExpression - Expression type for variable assigment, like "a = 4"
@@ -29,58 +26,13 @@ impl Parser for AssigmentExpression {
     }
 }
 
-impl Precompile for AssigmentExpression {
-    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
-        Ok(())
-    }
-}
-
-impl<'ctx> Compile<'ctx> for AssigmentExpression {
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        _: &Module<'ctx>,
-    ) -> Result<(), compiler::Error> {
-        match compiler.variables.get(&self.left).cloned() {
-            Some(pointer) => match self.right {
-                RightAssigmentValue::Literal(literal) => {
-                    match literal {
-                        Literal::Number(number) => {
-                            let number = compiler.context.f64_type().const_float(number);
-                            compiler.builder.build_store(pointer, number)
-                        }
-                        Literal::String(string) => {
-                            let string = compiler.context.const_string(string.as_bytes(), false);
-                            compiler.builder.build_store(pointer, string)
-                        }
-                    };
-                    Ok(())
-                }
-                RightAssigmentValue::Identifier(identifier) => {
-                    match compiler.variables.get(&identifier).cloned() {
-                        Some(pointer) => {
-                            compiler
-                                .variables
-                                .update(self.left.clone(), pointer)
-                                .unwrap();
-                            Ok(())
-                        }
-                        None => Err(compiler::Error::UndefinedVariable(identifier)),
-                    }
-                }
-            },
-            None => Err(compiler::Error::UndefinedVariable(self.left.clone())),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::ast::{Identifier, Literal, RightAssigmentValue};
 
     #[test]
-    fn assigment_expression_test() {
+    fn parse_assigment_expression_test() {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
             AssigmentExpression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)

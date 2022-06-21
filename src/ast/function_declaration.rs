@@ -1,11 +1,8 @@
 use super::{BlockStatement, Identifier};
 use crate::{
-    compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
-use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
@@ -58,24 +55,12 @@ impl Parser for FunctionDeclaration {
     }
 }
 
-impl Precompile for FunctionDeclaration {
-    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
-        Ok(())
-    }
-}
-
-impl<'ctx> Compile<'ctx> for FunctionDeclaration {
-    fn compile(self, _: &mut Compiler<'ctx>, _: &Module<'ctx>) -> Result<(), compiler::Error> {
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn function_declaration_test() {
+    fn parse_function_declaration_test() {
         let mut reader = CharReader::new("function foo() {}".as_bytes());
         assert_eq!(
             FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
