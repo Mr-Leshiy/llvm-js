@@ -1,14 +1,10 @@
-use crate::{
-    ast::{Identifier, ModuleUnit},
-    map::Map,
-};
+use crate::{ast::Identifier, map::Map};
 use inkwell::{
     builder::Builder,
     context::Context,
     module::Module,
     values::{FunctionValue, PointerValue},
 };
-use std::io::Write;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -49,25 +45,10 @@ impl<'ctx> Compiler<'ctx> {
     }
 }
 
-impl ModuleUnit {
-    pub fn compile_to<W: Write>(
-        self,
-        compiler: &mut Compiler<'_>,
-        writer: &mut W,
-    ) -> Result<(), Error> {
-        let module = compiler.context.create_module(self.name.as_str());
-        self.program.compile(compiler, &module)?;
-        module
-            .verify()
-            .map_err(|e| Error::InvalidModule(e.to_string()))?;
-        writer.write_all(module.print_to_string().to_bytes())?;
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ModuleUnit;
 
     #[test]
     fn compile_program_from_file_test() {

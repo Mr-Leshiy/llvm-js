@@ -3,6 +3,7 @@ use crate::{
     compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Keyword, Separator, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use inkwell::module::Module;
 use std::io::Read;
@@ -54,6 +55,12 @@ impl Parser for FunctionDeclaration {
             }
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl Precompile for FunctionDeclaration {
+    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 

@@ -3,6 +3,7 @@ use crate::{
     compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Separator, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use inkwell::module::Module;
 use std::io::Read;
@@ -32,6 +33,12 @@ impl Parser for BlockStatement {
             }
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl Precompile for BlockStatement {
+    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 

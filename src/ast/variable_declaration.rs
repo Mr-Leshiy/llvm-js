@@ -3,6 +3,7 @@ use crate::{
     compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Keyword, Token},
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use inkwell::module::Module;
 use std::io::Read;
@@ -20,6 +21,12 @@ impl Parser for VariableDeclaration {
             )?)),
             token => Err(parser::Error::UnexpectedToken(token)),
         }
+    }
+}
+
+impl Precompile for VariableDeclaration {
+    fn precompile(&self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+        Ok(())
     }
 }
 
