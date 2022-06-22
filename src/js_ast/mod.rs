@@ -2,7 +2,7 @@ use crate::{
     lexer::{self, CharReader},
     parser,
     parser::Parser,
-    precompiler::{self, Precompile, Precompiler},
+    precompiler::{self, Precompiler},
 };
 pub use assigment_expression::AssigmentExpression;
 pub use block_statement::BlockStatement;
@@ -39,8 +39,8 @@ impl Module {
     }
 
     pub fn precompile(self) -> Result<Precompiler, precompiler::Error> {
-        let mut precompiler = Precompiler::new();
-        self.program.precompile(&mut precompiler)?;
+        let precompiler = Precompiler::new();
+        // self.program.precompile(&mut precompiler)?;
         Ok(precompiler)
     }
 }
@@ -48,7 +48,7 @@ impl Module {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{
+    use crate::js_ast::{
         AssigmentExpression, BlockStatement, Expression, FunctionDeclaration, Identifier, Literal,
         RightAssigmentValue, VariableDeclaration,
     };

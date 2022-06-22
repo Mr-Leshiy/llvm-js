@@ -57,7 +57,11 @@ impl Parser for FunctionDeclaration {
 }
 
 impl Precompile for FunctionDeclaration {
-    fn precompile(self, _precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
+    type Output = ();
+    fn precompile(
+        self,
+        _precompiler: &mut Precompiler,
+    ) -> Result<Self::Output, precompiler::Error> {
         Ok(())
     }
 }

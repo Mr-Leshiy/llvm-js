@@ -2,7 +2,6 @@ use super::Expression;
 use crate::{
     lexer::{self, CharReader, Token},
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -33,19 +32,10 @@ impl Parser for Program {
     }
 }
 
-impl Precompile for Program {
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
-        for expr in self.body {
-            expr.precompile(precompiler)?;
-        }
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
+    use crate::js_ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
 
     #[test]
     fn parse_program_test() {

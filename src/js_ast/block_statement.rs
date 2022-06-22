@@ -2,7 +2,6 @@ use super::Expression;
 use crate::{
     lexer::{self, CharReader, Separator, Token},
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -31,15 +30,6 @@ impl Parser for BlockStatement {
             }
             token => Err(parser::Error::UnexpectedToken(token)),
         }
-    }
-}
-
-impl Precompile for BlockStatement {
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<(), precompiler::Error> {
-        for expr in self.body {
-            expr.precompile(precompiler)?;
-        }
-        Ok(())
     }
 }
 
