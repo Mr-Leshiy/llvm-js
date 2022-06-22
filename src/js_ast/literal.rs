@@ -27,7 +27,7 @@ mod tests {
     use crate::lexer;
 
     #[test]
-    fn assigment_expression_test() {
+    fn parse_literal_test() {
         let mut reader = CharReader::new("12;".as_bytes());
         assert_eq!(
             Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),

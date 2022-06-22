@@ -1,10 +1,8 @@
 use super::Expression;
 use crate::{
-    compiler::{self, Compile, Compiler},
     lexer::{self, CharReader, Separator, Token},
     parser::{self, Parser},
 };
-use inkwell::module::Module;
 use std::io::Read;
 
 #[derive(Debug, PartialEq)]
@@ -35,29 +33,13 @@ impl Parser for BlockStatement {
     }
 }
 
-impl<'ctx> Compile<'ctx> for BlockStatement {
-    fn compile(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        module: &Module<'ctx>,
-    ) -> Result<(), compiler::Error> {
-        // TODO: update LLVM IR compilation, need to handle variables allocation/dealocation for the BlockStatement case
-        let variables_count = compiler.variables.len();
-        for expr in self.body {
-            expr.compile(compiler, module)?;
-        }
-        compiler.variables.remove_last_added(variables_count);
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{AssigmentExpression, Identifier, RightAssigmentValue};
+    use crate::js_ast::{AssigmentExpression, Identifier, RightAssigmentValue};
 
     #[test]
-    fn block_statement_test() {
+    fn parse_block_statement_test() {
         let mut reader = CharReader::new("{ }".as_bytes());
         assert_eq!(
             BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
