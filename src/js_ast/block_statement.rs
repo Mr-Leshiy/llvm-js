@@ -46,7 +46,7 @@ impl Precompile for BlockStatement {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{AssigmentExpression, Identifier, RightAssigmentValue};
+    use crate::js_ast::{AssigmentExpression, Identifier, RightAssigmentValue};
 
     #[test]
     fn parse_block_statement_test() {

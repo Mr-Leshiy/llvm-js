@@ -1,6 +1,6 @@
-use ast::Module;
+use js_ast::Module;
 
-mod ast;
+mod js_ast;
 mod lexer;
 // mod map;
 mod parser;

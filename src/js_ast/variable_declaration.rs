@@ -31,7 +31,7 @@ impl Precompile for VariableDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{Identifier, Literal, RightAssigmentValue};
+    use crate::js_ast::{Identifier, Literal, RightAssigmentValue};
 
     #[test]
     fn parse_variable_declaration_test() {

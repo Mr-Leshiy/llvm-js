@@ -53,7 +53,7 @@ impl Precompile for Expression {
 mod tests {
     use super::*;
     use crate::{
-        ast::{Identifier, Literal, RightAssigmentValue},
+        js_ast::{Identifier, Literal, RightAssigmentValue},
         lexer,
     };
 
