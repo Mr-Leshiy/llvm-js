@@ -1,13 +1,3 @@
-#[derive(Debug, Clone, PartialEq)]
-pub enum VariableValue {
-    FloatNumber(f64),
-    String(String),
-}
+pub use variable::{VariableDeclaration, VariableName, VariableValue};
 
-pub type VariableName = String;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct VariableDeclaration {
-    pub name: VariableName,
-    pub value: VariableValue,
-}
+mod variable;
