@@ -6,7 +6,7 @@ use crate::{
 use std::io::Read;
 
 /// RightAssigmentValue
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum RightAssigmentValue {
     Literal(Literal),
     Identifier(Identifier),

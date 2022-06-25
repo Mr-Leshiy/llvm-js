@@ -1,11 +1,13 @@
 use super::Expression;
 use crate::{
     lexer::{self, CharReader, Separator, Token},
+    llvm_ast,
     parser::{self, Parser},
+    precompiler::Precompile,
 };
 use std::io::Read;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BlockStatement {
     pub body: Vec<Expression>,
 }
@@ -33,10 +35,34 @@ impl Parser for BlockStatement {
     }
 }
 
+impl Precompile for BlockStatement {
+    type Output = Vec<llvm_ast::Expression>;
+    fn precompile(
+        self,
+        precompiler: &mut crate::precompiler::Precompiler,
+    ) -> Result<Self::Output, crate::precompiler::Error> {
+        let mut res = Vec::with_capacity(self.body.len());
+        let variables_len = precompiler.variables.len();
+        let functions_len = precompiler.functions.len();
+        for expr in self.body {
+            expr.precompile(precompiler)?
+                .into_iter()
+                .for_each(|expr| res.push(expr))
+        }
+        precompiler
+            .variables
+            .remove_last_added(precompiler.variables.len() - variables_len);
+        precompiler
+            .functions
+            .remove_last_added(precompiler.functions.len() - functions_len);
+        Ok(res)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{AssigmentExpression, Identifier, RightAssigmentValue};
+    use crate::js_ast::{Identifier, RightAssigmentValue, VariableAssigment};
 
     #[test]
     fn parse_block_statement_test() {
@@ -50,7 +76,7 @@ mod tests {
         assert_eq!(
             BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             BlockStatement {
-                body: vec![Expression::Assigment(AssigmentExpression {
+                body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
                         name: "name1".to_string()
                     },
@@ -68,7 +94,7 @@ mod tests {
             BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             BlockStatement {
                 body: vec![
-                    Expression::Assigment(AssigmentExpression {
+                    Expression::VariableAssigment(VariableAssigment {
                         left: Identifier {
                             name: "name1".to_string()
                         },
@@ -78,7 +104,7 @@ mod tests {
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
-                            Expression::Assigment(AssigmentExpression {
+                            Expression::VariableAssigment(VariableAssigment {
                                 left: Identifier {
                                     name: "name1".to_string()
                                 },
@@ -86,7 +112,7 @@ mod tests {
                                     name: "name2".to_string()
                                 })
                             }),
-                            Expression::Assigment(AssigmentExpression {
+                            Expression::VariableAssigment(VariableAssigment {
                                 left: Identifier {
                                     name: "name1".to_string()
                                 },

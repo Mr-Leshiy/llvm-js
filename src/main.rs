@@ -1,17 +1,19 @@
 use js_ast::Module;
 
+mod compiler;
 mod js_ast;
 mod lexer;
 mod llvm_ast;
-mod map;
 mod parser;
 mod precompiler;
+mod set;
 
 fn main() {
     let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();
-    let _ = std::fs::File::create("test_scripts/basic.ll").unwrap();
+    let mut out_file = std::fs::File::create("test_scripts/basic.ll").unwrap();
 
-    let module = Module::new("module_1".to_string(), in_file).unwrap();
+    let js_module = Module::new("module_1".to_string(), in_file).unwrap();
+    let llvm_module = js_module.precompile().unwrap();
 
-    let _ = module.precompile();
+    llvm_module.compile_to(&mut out_file).unwrap()
 }

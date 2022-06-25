@@ -1,12 +1,13 @@
 use super::{BlockStatement, Identifier};
 use crate::{
     lexer::{self, CharReader, Keyword, Separator, Token},
+    llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FunctionDeclaration {
     pub name: Identifier,
     pub args: Vec<Identifier>,
@@ -57,12 +58,16 @@ impl Parser for FunctionDeclaration {
 }
 
 impl Precompile for FunctionDeclaration {
-    type Output = ();
-    fn precompile(
-        self,
-        _precompiler: &mut Precompiler,
-    ) -> Result<Self::Output, precompiler::Error> {
-        Ok(())
+    type Output = llvm_ast::FunctionDeclaration;
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+        precompiler
+            .functions
+            .insert(self.name.clone())
+            .map_err(|_| precompiler::Error::AlreadyDeclaredFunction(self.name.clone()))?;
+        Ok(llvm_ast::FunctionDeclaration {
+            name: self.name.name,
+            body: self.body.precompile(precompiler)?,
+        })
     }
 }
 
@@ -83,6 +88,56 @@ mod tests {
                 args: vec![],
                 body: BlockStatement { body: vec![] }
             }
+        );
+    }
+
+    #[test]
+    fn precompile_function_declaration_test() {
+        let mut precompiler = Precompiler::new();
+
+        let function_declaration = FunctionDeclaration {
+            name: Identifier {
+                name: "name_1".to_string(),
+            },
+            args: vec![],
+            body: BlockStatement { body: vec![] },
+        };
+
+        assert_eq!(
+            function_declaration.precompile(&mut precompiler),
+            Ok(llvm_ast::FunctionDeclaration {
+                name: "name_1".to_string(),
+                body: vec![]
+            })
+        );
+        assert!(precompiler.functions.contains(&Identifier {
+            name: "name_1".to_string(),
+        }));
+    }
+
+    #[test]
+    fn precompile_function_declaration_error_test() {
+        let mut precompiler = Precompiler::new();
+        precompiler
+            .functions
+            .insert(Identifier {
+                name: "name_1".to_string(),
+            })
+            .unwrap();
+
+        let function_declaration = FunctionDeclaration {
+            name: Identifier {
+                name: "name_1".to_string(),
+            },
+            args: vec![],
+            body: BlockStatement { body: vec![] },
+        };
+
+        assert_eq!(
+            function_declaration.precompile(&mut precompiler),
+            Err(precompiler::Error::AlreadyDeclaredFunction(Identifier {
+                name: "name_1".to_string(),
+            }))
         );
     }
 }
