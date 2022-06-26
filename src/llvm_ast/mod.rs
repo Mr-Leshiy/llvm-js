@@ -22,6 +22,9 @@ impl Module {
     pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error> {
         let context = Context::create();
         let mut compiler = Compiler::new(&context, self.name.as_str());
+
+        compiler.declare_prinf();
+
         self.program.compile(&mut compiler)?;
         compiler.verify()?;
         writer

@@ -10,6 +10,7 @@ impl Compile for VariableDeclaration {
         let pointer = match variable.value {
             VariableValue::FloatNumber(value) => {
                 let value = compiler.context.f64_type().const_float(value);
+                compiler.print_number(value);
                 let pointer = compiler
                     .builder
                     .build_alloca(value.get_type(), variable.name.as_str());
