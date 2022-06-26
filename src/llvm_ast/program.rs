@@ -8,10 +8,11 @@ pub struct Program {
 
 impl Compile for Program {
     fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
-        for _func in self.functions {}
+        for func in self.functions {
+            func.compile(compiler)?;
+        }
 
         // define main function
-
         let function_type = compiler.context.void_type().fn_type(&[], false);
         let function = compiler.module.add_function("main", function_type, None);
         let basic_block = compiler.context.append_basic_block(function, "entry");

@@ -49,7 +49,7 @@ mod tests {
     use inkwell::{context::Context, AddressSpace};
 
     #[test]
-    fn compiler_test() {
+    fn tmp_test() {
         let context = Context::create();
         let module = context.create_module("module");
         let builder = context.create_builder();
