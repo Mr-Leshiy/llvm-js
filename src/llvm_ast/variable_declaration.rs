@@ -1,23 +1,28 @@
 use super::{VariableAssigment, VariableValue};
-use crate::compiler::{self, Compile, Compiler, ModuleUnit};
+use crate::compiler::{self, Compile, Compiler};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
-impl<'ctx> Compile<'ctx> for VariableDeclaration {
-    fn compile(self, compiler: &mut Compiler, _: &ModuleUnit<'ctx>) -> Result<(), compiler::Error> {
-        let builder = compiler.context.create_builder();
+impl Compile for VariableDeclaration {
+    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
         let variable = self.0;
-        match variable.value {
+        let pointer = match variable.value {
             VariableValue::FloatNumber(value) => {
                 let value = compiler.context.f64_type().const_float(value);
-                let pointer = builder.build_alloca(value.get_type(), variable.name.as_str());
-                builder.build_store(pointer, value);
+                let pointer = compiler
+                    .builder
+                    .build_alloca(value.get_type(), variable.name.as_str());
+                compiler.builder.build_store(pointer, value);
+                pointer
             }
             VariableValue::String(value) => {
                 let value = compiler.context.const_string(value.as_bytes(), false);
-                let pointer = builder.build_alloca(value.get_type(), variable.name.as_str());
-                builder.build_store(pointer, value);
+                let pointer = compiler
+                    .builder
+                    .build_alloca(value.get_type(), variable.name.as_str());
+                compiler.builder.build_store(pointer, value);
+                pointer
             }
             VariableValue::Identifier(name) => {
                 let value = compiler
@@ -25,11 +30,17 @@ impl<'ctx> Compile<'ctx> for VariableDeclaration {
                     .get(&name)
                     .ok_or_else(|| compiler::Error::UndefinedVariable(name.clone()))?;
 
-                let value = builder.build_load(*value, name.as_str());
-                let pointer = builder.build_alloca(value.get_type(), variable.name.as_str());
-                builder.build_store(pointer, value);
+                let value = compiler.builder.build_load(*value, name.as_str());
+                let pointer = compiler
+                    .builder
+                    .build_alloca(value.get_type(), variable.name.as_str());
+                compiler.builder.build_store(pointer, value);
+                pointer
             }
         };
-        Ok(())
+        match compiler.variables.insert(variable.name.clone(), pointer) {
+            None => Ok(()),
+            Some(_) => Err(compiler::Error::AlreadyDeclaredVariable(variable.name)),
+        }
     }
 }

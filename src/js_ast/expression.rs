@@ -40,6 +40,7 @@ impl Precompile for Expression {
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         match self {
             Expression::FunctionDeclaration(function_declaration) => {
+                let function_declaration = function_declaration.precompile(precompiler)?;
                 precompiler.function_declarations.push(function_declaration);
                 Ok(Vec::new())
             }

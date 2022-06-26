@@ -40,10 +40,20 @@ impl Module {
 
     pub fn precompile(self) -> Result<llvm_ast::Module, precompiler::Error> {
         let mut precompiler = Precompiler::new();
-        let program = self.program.precompile(&mut precompiler)?;
+
+        let mut body = Vec::new();
+        for expr in self.program.body {
+            expr.precompile(&mut precompiler)?
+                .into_iter()
+                .for_each(|expr| body.push(expr));
+        }
+
         Ok(llvm_ast::Module {
             name: self.name,
-            program,
+            program: llvm_ast::Program {
+                functions: precompiler.function_declarations,
+                body,
+            },
         })
     }
 }

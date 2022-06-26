@@ -1,7 +1,4 @@
-use crate::{
-    js_ast::{FunctionDeclaration, Identifier},
-    set::Set,
-};
+use crate::{js_ast::Identifier, llvm_ast::FunctionDeclaration, set::Set};
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq)]

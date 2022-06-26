@@ -1,9 +1,7 @@
 use super::Expression;
 use crate::{
     lexer::{self, CharReader, Token},
-    llvm_ast,
     parser::{self, Parser},
-    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -31,27 +29,6 @@ impl Parser for Program {
         }
 
         Ok(Self { body })
-    }
-}
-
-impl Precompile for Program {
-    type Output = llvm_ast::Program;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        // first need to precompile program body
-        let mut body = Vec::new();
-        for expr in self.body {
-            expr.precompile(precompiler)?
-                .into_iter()
-                .for_each(|expr| body.push(expr));
-        }
-
-        let mut functions = Vec::new();
-        // TODO: need to optimize
-        for func in precompiler.function_declarations.clone() {
-            functions.push(func.precompile(precompiler)?);
-        }
-
-        Ok(llvm_ast::Program { functions, body })
     }
 }
 

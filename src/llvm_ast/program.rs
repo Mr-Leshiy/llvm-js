@@ -1,22 +1,28 @@
 use super::{expression::Expression, FunctionDeclaration};
-use crate::compiler::{self, Compile, Compiler, ModuleUnit};
+use crate::compiler::{self, Compile, Compiler};
 
 pub struct Program {
     pub functions: Vec<FunctionDeclaration>,
     pub body: Vec<Expression>,
 }
 
-impl<'ctx> Compile<'ctx> for Program {
-    fn compile(
-        self,
-        _compiler: &'ctx mut Compiler,
-        _module: &ModuleUnit<'ctx>,
-    ) -> Result<(), compiler::Error> {
+impl Compile for Program {
+    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
         for _func in self.functions {}
 
-        for _expr in self.body {
-            // expr.compile(compiler, module)?;
+        // define main function
+
+        let function_type = compiler.context.void_type().fn_type(&[], false);
+        let function = compiler.module.add_function("main", function_type, None);
+        let basic_block = compiler.context.append_basic_block(function, "entry");
+        compiler.builder.position_at_end(basic_block);
+
+        for expr in self.body {
+            expr.compile(compiler)?;
         }
+
+        compiler.builder.build_return(None);
+
         Ok(())
     }
 }

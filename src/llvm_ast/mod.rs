@@ -1,6 +1,7 @@
-use crate::compiler::{self, Compiler};
+use crate::compiler::{self, Compile, Compiler};
 pub use expression::Expression;
 pub use function_declaration::{FunctionDeclaration, FunctionName};
+use inkwell::context::Context;
 pub use program::Program;
 use std::io::Write;
 pub use variable_assigment::{VariableAssigment, VariableName, VariableValue};
@@ -18,11 +19,15 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn compile_to<W: Write>(self, _writer: &mut W) -> Result<(), compiler::Error> {
-        let compiler = Compiler::new();
-        let module = compiler.create_module(self.name.as_str());
-        // self.program.compile(&mut compiler, &module)?;
-        module.verify()
+    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error> {
+        let context = Context::create();
+        let mut compiler = Compiler::new(&context, self.name.as_str());
+        self.program.compile(&mut compiler)?;
+        compiler.verify()?;
+        writer
+            .write(compiler.module.print_to_string().to_bytes())
+            .map_err(|e| compiler::Error::CannotWriteModule(e.to_string()))?;
+        Ok(())
     }
 }
 
