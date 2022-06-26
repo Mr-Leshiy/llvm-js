@@ -16,7 +16,8 @@ impl Compile for FunctionDeclaration {
             .module
             .add_function(self.name.as_str(), function_type, None);
 
-        compiler.context.append_basic_block(function, "entry");
+        let basic_block = compiler.context.append_basic_block(function, "entry");
+        compiler.builder.position_at_end(basic_block);
         for expr in self.body {
             expr.compile(compiler)?;
         }
