@@ -8,7 +8,7 @@ pub enum Expression {
 }
 
 impl Compile for Expression {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler)

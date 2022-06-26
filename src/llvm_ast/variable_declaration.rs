@@ -5,7 +5,7 @@ use crate::compiler::{self, Compile, Compiler};
 pub struct VariableDeclaration(pub VariableAssigment);
 
 impl Compile for VariableDeclaration {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         let variable = self.0;
         let pointer = match variable.value {
             VariableValue::FloatNumber(value) => {

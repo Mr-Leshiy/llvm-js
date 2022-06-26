@@ -10,7 +10,7 @@ pub struct FunctionDeclaration {
 }
 
 impl Compile for FunctionDeclaration {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         let function_type = compiler.context.void_type().fn_type(&[], false);
         let function = compiler
             .module

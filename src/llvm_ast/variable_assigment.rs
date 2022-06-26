@@ -16,7 +16,7 @@ pub struct VariableAssigment {
 }
 
 impl Compile for VariableAssigment {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         match compiler.variables.get(&self.name).cloned() {
             Some(pointer) => match self.value {
                 VariableValue::FloatNumber(value) => {

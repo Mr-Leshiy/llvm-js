@@ -16,7 +16,7 @@ pub enum Error {
 }
 
 pub trait Compile {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), Error>;
+    fn compile(self, compiler: &mut Compiler) -> Result<(), Error>;
 }
 
 pub struct Compiler<'ctx> {

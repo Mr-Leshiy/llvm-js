@@ -7,7 +7,7 @@ pub struct Program {
 }
 
 impl Compile for Program {
-    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         for func in self.functions {
             func.compile(compiler)?;
         }
