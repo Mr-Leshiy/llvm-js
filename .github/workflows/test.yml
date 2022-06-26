@@ -30,7 +30,7 @@ jobs:
     - name: Install LLVM
       uses: KyleMayes/install-llvm-action@v1
       with:
-        version: "13.0"
+        version: "14.0"
 
     - name: Build
       uses: actions-rs/cargo@v1
@@ -72,7 +72,7 @@ jobs:
       - name: Install LLVM
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "13.0"
+          version: "14.0"
 
       - uses: actions-rs/toolchain@v1
         with:

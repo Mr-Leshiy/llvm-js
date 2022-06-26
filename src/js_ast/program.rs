@@ -35,7 +35,7 @@ impl Parser for Program {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{AssigmentExpression, Identifier, Literal, RightAssigmentValue};
+    use crate::js_ast::{Identifier, Literal, RightAssigmentValue, VariableAssigment};
 
     #[test]
     fn parse_program_test() {
@@ -43,7 +43,7 @@ mod tests {
         assert_eq!(
             Program::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Program {
-                body: vec![Expression::Assigment(AssigmentExpression {
+                body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
                         name: "name".to_string()
                     },

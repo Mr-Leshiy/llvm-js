@@ -1,15 +1,17 @@
-use super::{AssigmentExpression, BlockStatement, FunctionDeclaration, VariableDeclaration};
+use super::{BlockStatement, FunctionDeclaration, VariableAssigment, VariableDeclaration};
 use crate::{
     lexer::{CharReader, Keyword, Separator, Token},
+    llvm_ast,
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
     FunctionDeclaration(FunctionDeclaration),
     VariableDeclaration(VariableDeclaration),
-    Assigment(AssigmentExpression),
+    VariableAssigment(VariableAssigment),
     BlockStatement(BlockStatement),
 }
 
@@ -22,13 +24,37 @@ impl Parser for Expression {
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Ident(_) => Ok(Self::Assigment(AssigmentExpression::parse(
+            Token::Ident(_) => Ok(Self::VariableAssigment(VariableAssigment::parse(
                 cur_token, reader,
             )?)),
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
             token => Err(parser::Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+impl Precompile for Expression {
+    type Output = Vec<llvm_ast::Expression>;
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+        match self {
+            Expression::FunctionDeclaration(function_declaration) => {
+                let function_declaration = function_declaration.precompile(precompiler)?;
+                precompiler.function_declarations.push(function_declaration);
+                Ok(Vec::new())
+            }
+            Expression::VariableDeclaration(variable_declaration) => {
+                Ok(vec![llvm_ast::Expression::VariableDeclaration(
+                    variable_declaration.precompile(precompiler)?,
+                )])
+            }
+            Expression::VariableAssigment(variable_assigment) => {
+                Ok(vec![llvm_ast::Expression::VariableAssigment(
+                    variable_assigment.precompile(precompiler)?,
+                )])
+            }
+            Expression::BlockStatement(block_statement) => block_statement.precompile(precompiler),
         }
     }
 }
@@ -46,7 +72,7 @@ mod tests {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+            Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
                 },
@@ -60,7 +86,7 @@ mod tests {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::Assigment(AssigmentExpression {
+            Expression::VariableAssigment(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
                 },
@@ -81,7 +107,7 @@ mod tests {
         assert_eq!(
             Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
-                body: vec![Expression::Assigment(AssigmentExpression {
+                body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
                         name: "name1".to_string()
                     },
@@ -99,7 +125,7 @@ mod tests {
             Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![
-                    Expression::Assigment(AssigmentExpression {
+                    Expression::VariableAssigment(VariableAssigment {
                         left: Identifier {
                             name: "name1".to_string()
                         },
@@ -109,7 +135,7 @@ mod tests {
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
-                            Expression::Assigment(AssigmentExpression {
+                            Expression::VariableAssigment(VariableAssigment {
                                 left: Identifier {
                                     name: "name1".to_string()
                                 },
@@ -117,7 +143,7 @@ mod tests {
                                     name: "name2".to_string()
                                 })
                             }),
-                            Expression::Assigment(AssigmentExpression {
+                            Expression::VariableAssigment(VariableAssigment {
                                 left: Identifier {
                                     name: "name1".to_string()
                                 },

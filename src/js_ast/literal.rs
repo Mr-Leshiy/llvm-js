@@ -5,7 +5,7 @@ use crate::{
 use std::io::Read;
 
 /// Literal - Expression type for numeric literals like "1.0" or string literals "hello".
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Literal {
     Number(f64),
     String(String),

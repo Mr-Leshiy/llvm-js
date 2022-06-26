@@ -1,10 +1,9 @@
 use crate::{
     lexer::{self, CharReader},
-    parser,
+    llvm_ast, parser,
     parser::Parser,
-    precompiler::{self, Precompiler},
+    precompiler::{self, Precompile, Precompiler},
 };
-pub use assigment_expression::AssigmentExpression;
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
 pub use function_declaration::FunctionDeclaration;
@@ -13,9 +12,9 @@ pub use literal::Literal;
 pub use program::Program;
 pub use right_assignment_value::RightAssigmentValue;
 use std::io::Read;
+pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 
-mod assigment_expression;
 mod block_statement;
 mod expression;
 mod function_declaration;
@@ -23,6 +22,7 @@ mod identifier;
 mod literal;
 mod program;
 mod right_assignment_value;
+mod variable_assigment;
 mod variable_declaration;
 
 /// Module
@@ -38,10 +38,23 @@ impl Module {
         Ok(Self { name, program })
     }
 
-    pub fn precompile(self) -> Result<Precompiler, precompiler::Error> {
-        let precompiler = Precompiler::new();
-        // self.program.precompile(&mut precompiler)?;
-        Ok(precompiler)
+    pub fn precompile(self) -> Result<llvm_ast::Module, precompiler::Error> {
+        let mut precompiler = Precompiler::new();
+
+        let mut body = Vec::new();
+        for expr in self.program.body {
+            expr.precompile(&mut precompiler)?
+                .into_iter()
+                .for_each(|expr| body.push(expr));
+        }
+
+        Ok(llvm_ast::Module {
+            name: self.name,
+            program: llvm_ast::Program {
+                functions: precompiler.function_declarations,
+                body,
+            },
+        })
     }
 }
 
@@ -49,8 +62,8 @@ impl Module {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        AssigmentExpression, BlockStatement, Expression, FunctionDeclaration, Identifier, Literal,
-        RightAssigmentValue, VariableDeclaration,
+        BlockStatement, Expression, FunctionDeclaration, Identifier, Literal, RightAssigmentValue,
+        VariableAssigment, VariableDeclaration,
     };
 
     #[test]
@@ -78,13 +91,13 @@ mod tests {
                 }),
                 Expression::BlockStatement(BlockStatement {
                     body: vec![
-                        Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                        Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: Identifier {
                                 name: "a".to_string()
                             },
                             right: RightAssigmentValue::Literal(Literal::Number(5_f64))
                         })),
-                        Expression::VariableDeclaration(VariableDeclaration(AssigmentExpression {
+                        Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: Identifier {
                                 name: "b".to_string()
                             },
@@ -92,7 +105,7 @@ mod tests {
                         })),
                         Expression::BlockStatement(BlockStatement {
                             body: vec![
-                                Expression::Assigment(AssigmentExpression {
+                                Expression::VariableAssigment(VariableAssigment {
                                     left: Identifier {
                                         name: "a".to_string()
                                     },
@@ -100,14 +113,14 @@ mod tests {
                                         name: "b".to_string()
                                     })
                                 }),
-                                Expression::Assigment(AssigmentExpression {
+                                Expression::VariableAssigment(VariableAssigment {
                                     left: Identifier {
                                         name: "b".to_string()
                                     },
                                     right: RightAssigmentValue::Literal(Literal::Number(7_f64))
                                 }),
                                 Expression::VariableDeclaration(VariableDeclaration(
-                                    AssigmentExpression {
+                                    VariableAssigment {
                                         left: Identifier {
                                             name: "c".to_string()
                                         },

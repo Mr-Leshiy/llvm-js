@@ -1,4 +1,4 @@
-use super::{AssigmentExpression, Literal, RightAssigmentValue};
+use super::{Literal, RightAssigmentValue, VariableAssigment};
 use crate::{
     lexer::{self, CharReader, Keyword, Token},
     llvm_ast,
@@ -8,13 +8,13 @@ use crate::{
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"
-#[derive(Debug, PartialEq)]
-pub struct VariableDeclaration(pub AssigmentExpression);
+#[derive(Clone, Debug, PartialEq)]
+pub struct VariableDeclaration(pub VariableAssigment);
 
 impl Parser for VariableDeclaration {
     fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
-            Token::Keyword(Keyword::Var) => Ok(Self(AssigmentExpression::parse(
+            Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
                 lexer::get_token(reader)?,
                 reader,
             )?)),
@@ -26,39 +26,34 @@ impl Parser for VariableDeclaration {
 impl Precompile for VariableDeclaration {
     type Output = llvm_ast::VariableDeclaration;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        let variable_declaration = match self.0.right {
+        let res = match self.0.right {
             RightAssigmentValue::Literal(literal) => match literal {
-                Literal::Number(value) => Self::Output {
-                    name: self.0.left.name,
+                Literal::Number(value) => llvm_ast::VariableAssigment {
+                    name: self.0.left.name.clone(),
                     value: llvm_ast::VariableValue::FloatNumber(value),
                 },
-                Literal::String(value) => Self::Output {
-                    name: self.0.left.name,
+                Literal::String(value) => llvm_ast::VariableAssigment {
+                    name: self.0.left.name.clone(),
                     value: llvm_ast::VariableValue::String(value),
                 },
             },
             RightAssigmentValue::Identifier(identifier) => {
-                let value = precompiler
+                precompiler
                     .variables
-                    .get(&identifier.name)
-                    .ok_or(precompiler::Error::UndefinedVariable(identifier.name))?
-                    .clone();
-                Self::Output {
-                    name: self.0.left.name,
-                    value,
+                    .contains(&identifier)
+                    .then(|| ())
+                    .ok_or_else(|| precompiler::Error::UndefinedVariable(identifier.clone()))?;
+                llvm_ast::VariableAssigment {
+                    name: self.0.left.name.clone(),
+                    value: llvm_ast::VariableValue::Identifier(identifier.name),
                 }
             }
         };
         precompiler
             .variables
-            .insert(
-                variable_declaration.name.clone(),
-                variable_declaration.value.clone(),
-            )
-            .map_err(|_| {
-                precompiler::Error::AlreadyDeclaredVariable(variable_declaration.name.clone())
-            })?;
-        Ok(variable_declaration)
+            .insert(self.0.left.clone())
+            .map_err(|_| precompiler::Error::AlreadyDeclaredVariable(self.0.left))?;
+        Ok(llvm_ast::VariableDeclaration(res))
     }
 }
 
@@ -73,7 +68,7 @@ mod tests {
         assert_eq!(
             VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
-            VariableDeclaration(AssigmentExpression {
+            VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
                 },
@@ -85,7 +80,7 @@ mod tests {
         assert_eq!(
             VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
                 .unwrap(),
-            VariableDeclaration(AssigmentExpression {
+            VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name1".to_string()
                 },
@@ -97,10 +92,10 @@ mod tests {
     }
 
     #[test]
-    fn precompile_variable_declaration_test() {
+    fn precompile_variable_declaration_test_1() {
         let mut precompiler = Precompiler::new();
 
-        let variable_declaration = VariableDeclaration(AssigmentExpression {
+        let variable_declaration = VariableDeclaration(VariableAssigment {
             left: Identifier {
                 name: "name_1".to_string(),
             },
@@ -109,29 +104,27 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableDeclaration {
+            Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                 name: "name_1".to_string(),
-                value: llvm_ast::VariableValue::FloatNumber(64_f64)
-            })
+                value: llvm_ast::VariableValue::FloatNumber(64_f64),
+            }))
         );
-        assert_eq!(
-            precompiler.variables.get(&"name_1".to_string()),
-            Some(&llvm_ast::VariableValue::FloatNumber(64_f64))
-        );
+        assert!(precompiler.variables.contains(&Identifier {
+            name: "name_1".to_string(),
+        }));
     }
 
     #[test]
-    fn precompile_variable_declaration_test_1() {
+    fn precompile_variable_declaration_test_2() {
         let mut precompiler = Precompiler::new();
         precompiler
             .variables
-            .insert(
-                "name_2".to_string(),
-                llvm_ast::VariableValue::FloatNumber(64_f64),
-            )
+            .insert(Identifier {
+                name: "name_2".to_string(),
+            })
             .unwrap();
 
-        let variable_declaration = VariableDeclaration(AssigmentExpression {
+        let variable_declaration = VariableDeclaration(VariableAssigment {
             left: Identifier {
                 name: "name_1".to_string(),
             },
@@ -142,15 +135,14 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableDeclaration {
+            Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                 name: "name_1".to_string(),
-                value: llvm_ast::VariableValue::FloatNumber(64_f64)
-            })
+                value: llvm_ast::VariableValue::Identifier("name_2".to_string()),
+            }))
         );
-        assert_eq!(
-            precompiler.variables.get(&"name_1".to_string()),
-            Some(&llvm_ast::VariableValue::FloatNumber(64_f64))
-        );
+        assert!(precompiler.variables.contains(&Identifier {
+            name: "name_1".to_string(),
+        }));
     }
 
     #[test]
@@ -158,13 +150,12 @@ mod tests {
         let mut precompiler = Precompiler::new();
         precompiler
             .variables
-            .insert(
-                "name_1".to_string(),
-                llvm_ast::VariableValue::FloatNumber(64_f64),
-            )
+            .insert(Identifier {
+                name: "name_1".to_string(),
+            })
             .unwrap();
 
-        let variable_declaration = VariableDeclaration(AssigmentExpression {
+        let variable_declaration = VariableDeclaration(VariableAssigment {
             left: Identifier {
                 name: "name_1".to_string(),
             },
@@ -173,9 +164,9 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::AlreadyDeclaredVariable(
-                "name_1".to_string()
-            ))
+            Err(precompiler::Error::AlreadyDeclaredVariable(Identifier {
+                name: "name_1".to_string(),
+            }))
         );
     }
 
@@ -183,7 +174,7 @@ mod tests {
     fn precompile_variable_declaration_error_test_2() {
         let mut precompiler = Precompiler::new();
 
-        let variable_declaration = VariableDeclaration(AssigmentExpression {
+        let variable_declaration = VariableDeclaration(VariableAssigment {
             left: Identifier {
                 name: "name_1".to_string(),
             },
@@ -194,7 +185,9 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable("name_2".to_string()))
+            Err(precompiler::Error::UndefinedVariable(Identifier {
+                name: "name_2".to_string(),
+            }))
         );
     }
 }
