@@ -1,7 +1,10 @@
 use crate::llvm_ast::VariableName;
+use extern_functions::PrintfFn;
 use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
 use std::collections::HashMap;
 use thiserror::Error;
+
+mod extern_functions;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -13,6 +16,10 @@ pub enum Error {
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
     CannotWriteModule(String),
+    #[error("Undeclared function: {0}")]
+    UndeclaredFunction(String),
+    #[error("InvalidType")]
+    InvalidType,
 }
 
 pub trait Compile {
@@ -25,6 +32,8 @@ pub struct Compiler<'ctx> {
     pub builder: Builder<'ctx>,
 
     pub variables: HashMap<VariableName, PointerValue<'ctx>>,
+
+    pub printf: Option<PrintfFn<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -34,8 +43,20 @@ impl<'ctx> Compiler<'ctx> {
             module: context.create_module(module_name),
             builder: context.create_builder(),
             variables: HashMap::new(),
+            printf: None,
         }
     }
+
+    pub fn declare_prinf(&mut self) {
+        self.printf = Some(PrintfFn::declare(self));
+    }
+
+    pub fn get_printf(&self) -> Result<PrintfFn<'ctx>, Error> {
+        self.printf
+            .clone()
+            .ok_or_else(|| Error::UndeclaredFunction("printf".to_string()))
+    }
+
     pub fn verify(&self) -> Result<(), Error> {
         self.module
             .verify()
@@ -46,7 +67,7 @@ impl<'ctx> Compiler<'ctx> {
 
 #[cfg(test)]
 mod tests {
-    use inkwell::{context::Context, AddressSpace};
+    use inkwell::context::Context;
 
     #[test]
     fn tmp_test() {
@@ -54,20 +75,16 @@ mod tests {
         let module = context.create_module("module");
         let builder = context.create_builder();
 
-        let function_type = context.void_type().fn_type(
-            &[context.f64_type().ptr_type(AddressSpace::Generic).into()],
-            false,
-        );
+        let function_type = context.void_type().fn_type(&[], false);
+
         let function = module.add_function("main", function_type, None);
         let basic_block = context.append_basic_block(function, "entry");
-        let arg_1 = function.get_first_param().unwrap().into_pointer_value();
-
         builder.position_at_end(basic_block);
 
         let pointer_1 = builder.build_alloca(context.f64_type(), "a1");
         let pointer_2 = builder.build_alloca(context.f64_type(), "a2");
         builder.build_store(pointer_1, context.f64_type().const_float(64_f64));
-        let value = builder.build_load(arg_1, "load");
+        let value = builder.build_load(pointer_1, "load");
         builder.build_store(pointer_2, value);
 
         builder.build_return(None);
