@@ -10,11 +10,11 @@ impl Compile for VariableDeclaration {
         let pointer = match variable.value {
             VariableValue::FloatNumber(value) => {
                 let value = compiler.context.f64_type().const_float(value);
-                compiler.print_number(value);
                 let pointer = compiler
                     .builder
                     .build_alloca(value.get_type(), variable.name.as_str());
                 compiler.builder.build_store(pointer, value);
+                compiler.get_printf()?.print(compiler, pointer)?;
                 pointer
             }
             VariableValue::String(value) => {
@@ -22,7 +22,9 @@ impl Compile for VariableDeclaration {
                 let pointer = compiler
                     .builder
                     .build_alloca(value.get_type(), variable.name.as_str());
+
                 compiler.builder.build_store(pointer, value);
+                compiler.get_printf()?.print(compiler, pointer)?;
                 pointer
             }
             VariableValue::Identifier(name) => {

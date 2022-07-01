@@ -1,13 +1,10 @@
 use crate::llvm_ast::VariableName;
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    module::{Linkage, Module},
-    values::{FloatValue, FunctionValue, GlobalValue, PointerValue},
-    AddressSpace,
-};
+use extern_functions::PrintfFn;
+use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
 use std::collections::HashMap;
 use thiserror::Error;
+
+mod extern_functions;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -19,6 +16,10 @@ pub enum Error {
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
     CannotWriteModule(String),
+    #[error("Undeclared function: {0}")]
+    UndeclaredFunction(String),
+    #[error("InvalidType")]
+    InvalidType,
 }
 
 pub trait Compile {
@@ -32,9 +33,7 @@ pub struct Compiler<'ctx> {
 
     pub variables: HashMap<VariableName, PointerValue<'ctx>>,
 
-    pub printf: Option<FunctionValue<'ctx>>,
-
-    pub p_f64_fmt: Option<GlobalValue<'ctx>>,
+    pub printf: Option<PrintfFn<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -45,49 +44,17 @@ impl<'ctx> Compiler<'ctx> {
             builder: context.create_builder(),
             variables: HashMap::new(),
             printf: None,
-            p_f64_fmt: None,
         }
     }
 
     pub fn declare_prinf(&mut self) {
-        let s1 = self.context.const_string(b"%f\n", true);
-        let global1 = self.module.add_global(s1.get_type(), None, "p_f64_fmt");
-        global1.set_constant(true);
-        global1.set_externally_initialized(false);
-        global1.set_initializer(&s1);
-
-        self.p_f64_fmt = Some(global1);
-
-        let function_type = self.context.i32_type().fn_type(
-            &[self
-                .context
-                .i8_type()
-                .ptr_type(AddressSpace::Generic)
-                .into()],
-            true,
-        );
-        let printf_function =
-            self.module
-                .add_function("printf", function_type, Some(Linkage::External));
-        self.printf = Some(printf_function);
+        self.printf = Some(PrintfFn::declare(self));
     }
 
-    pub fn print_number(&self, val: FloatValue<'ctx>) {
-        self.p_f64_fmt.unwrap().get_unnamed_address();
-        self.builder.build_call(
-            self.printf.unwrap(),
-            &[
-                self.builder
-                    .build_pointer_cast(
-                        self.p_f64_fmt.unwrap().as_pointer_value(),
-                        self.context.i8_type().ptr_type(AddressSpace::Generic),
-                        "cast",
-                    )
-                    .into(),
-                val.into(),
-            ],
-            "call",
-        );
+    pub fn get_printf(&self) -> Result<PrintfFn<'ctx>, Error> {
+        self.printf
+            .clone()
+            .ok_or(Error::UndeclaredFunction("printf".to_string()))
     }
 
     pub fn verify(&self) -> Result<(), Error> {
