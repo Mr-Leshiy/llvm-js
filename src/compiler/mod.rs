@@ -54,7 +54,7 @@ impl<'ctx> Compiler<'ctx> {
     pub fn get_printf(&self) -> Result<PrintfFn<'ctx>, Error> {
         self.printf
             .clone()
-            .ok_or(Error::UndeclaredFunction("printf".to_string()))
+            .ok_or_else(|| Error::UndeclaredFunction("printf".to_string()))
     }
 
     pub fn verify(&self) -> Result<(), Error> {
