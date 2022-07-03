@@ -8,5 +8,4 @@ function foo(arg1, arg2) {}
         b = 7;
         var c = "hello";
     }
-    foo(a, b);
 }
