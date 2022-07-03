@@ -17,6 +17,7 @@ pub use variable_declaration::VariableDeclaration;
 
 mod block_statement;
 mod expression;
+mod function_call;
 mod function_declaration;
 mod identifier;
 mod literal;
