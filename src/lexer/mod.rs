@@ -61,13 +61,11 @@ impl<R: Read> TokenReader<R> {
             let token = self.read_token()?;
             self.saved_tokens.push(token.clone());
             Ok(token)
+        } else if self.saved_tokens.is_empty() {
+            self.read_token()
         } else {
-            if self.saved_tokens.is_empty() {
-                self.read_token()
-            } else {
-                // remove first element
-                Ok(self.saved_tokens.remove(0))
-            }
+            // remove first element
+            Ok(self.saved_tokens.remove(0))
         }
     }
 
