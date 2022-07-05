@@ -1,6 +1,8 @@
-use super::{BlockStatement, FunctionDeclaration, VariableAssigment, VariableDeclaration};
+use super::{
+    BlockStatement, FunctionCall, FunctionDeclaration, VariableAssigment, VariableDeclaration,
+};
 use crate::{
-    lexer::{CharReader, Keyword, Separator, Token},
+    lexer::{Keyword, Separator, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
@@ -10,13 +12,17 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
     FunctionDeclaration(FunctionDeclaration),
+    FunctionCall(FunctionCall),
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
     BlockStatement(BlockStatement),
 }
 
 impl Parser for Expression {
-    fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, parser::Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,
@@ -24,9 +30,18 @@ impl Parser for Expression {
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Ident(_) => Ok(Self::VariableAssigment(VariableAssigment::parse(
-                cur_token, reader,
-            )?)),
+            Token::Ident(_) => {
+                reader.start_saving();
+                match FunctionCall::parse(cur_token.clone(), reader) {
+                    Ok(res) => Ok(Self::FunctionCall(res)),
+                    Err(_) => {
+                        reader.stop_saving();
+                        Ok(Self::VariableAssigment(VariableAssigment::parse(
+                            cur_token, reader,
+                        )?))
+                    }
+                }
+            }
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
@@ -44,6 +59,7 @@ impl Precompile for Expression {
                 precompiler.function_declarations.push(function_declaration);
                 Ok(Vec::new())
             }
+            Expression::FunctionCall(_function_call) => Ok(Vec::new()),
             Expression::VariableDeclaration(variable_declaration) => {
                 Ok(vec![llvm_ast::Expression::VariableDeclaration(
                     variable_declaration.precompile(precompiler)?,
@@ -62,30 +78,29 @@ impl Precompile for Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        js_ast::{Identifier, Literal, RightAssigmentValue},
-        lexer,
-    };
+    use crate::js_ast::{Identifier, Literal, RightAssigmentValue};
 
     #[test]
     fn parse_expression_variable_declaration_test() {
-        let mut reader = CharReader::new("var name = 12;".as_bytes());
+        let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
-                left: Identifier {
-                    name: "name".to_string()
-                },
-                right: RightAssigmentValue::Literal(Literal::Number(12_f64))
-            }))
+            Expression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Expression::VariableDeclaration(VariableDeclaration(
+                VariableAssigment {
+                    left: Identifier {
+                        name: "name".to_string()
+                    },
+                    right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+                }
+            )))
         );
     }
 
     #[test]
     fn expression_assigment_test() {
-        let mut reader = CharReader::new("name = 12;".as_bytes());
+        let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
@@ -97,15 +112,15 @@ mod tests {
 
     #[test]
     fn expression_block_statement_test() {
-        let mut reader = CharReader::new("{ }".as_bytes());
+        let mut reader = TokenReader::new("{ }".as_bytes());
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement { body: vec![] })
         );
 
-        let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
+        let mut reader = TokenReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
@@ -119,10 +134,10 @@ mod tests {
         );
 
         let mut reader =
-            CharReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
+            TokenReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
 
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {

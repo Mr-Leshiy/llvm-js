@@ -20,24 +20,21 @@ impl Display for Keyword {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{get_token, CharReader, Token};
+    use crate::lexer::{Token, TokenReader};
 
     #[test]
     fn token_var() {
-        let mut reader = CharReader::new("var".as_bytes());
+        let mut reader = TokenReader::new("var".as_bytes());
 
-        assert_eq!(get_token(&mut reader), Ok(Token::Keyword(Keyword::Var)));
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Var)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
     fn token_function() {
-        let mut reader = CharReader::new("function".as_bytes());
+        let mut reader = TokenReader::new("function".as_bytes());
 
-        assert_eq!(
-            get_token(&mut reader),
-            Ok(Token::Keyword(Keyword::Function))
-        );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Function)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }

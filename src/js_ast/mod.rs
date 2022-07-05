@@ -1,11 +1,12 @@
 use crate::{
-    lexer::{self, CharReader},
+    lexer::TokenReader,
     llvm_ast, parser,
     parser::Parser,
     precompiler::{self, Precompile, Precompiler},
 };
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
+pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use literal::Literal;
@@ -34,8 +35,8 @@ pub struct Module {
 
 impl Module {
     pub fn new<R: Read>(name: String, input: R) -> Result<Self, parser::Error> {
-        let mut reader = CharReader::new(input);
-        let program = Program::parse(lexer::get_token(&mut reader)?, &mut reader)?;
+        let mut reader = TokenReader::new(input);
+        let program = Program::parse(reader.next_token()?, &mut reader)?;
         Ok(Self { name, program })
     }
 
@@ -130,6 +131,19 @@ mod tests {
                                         ))
                                     }
                                 ))
+                            ]
+                        }),
+                        Expression::FunctionCall(FunctionCall {
+                            name: Identifier {
+                                name: "foo".to_string()
+                            },
+                            args: vec![
+                                Identifier {
+                                    name: "a".to_string()
+                                },
+                                Identifier {
+                                    name: "b".to_string()
+                                }
                             ]
                         })
                     ]

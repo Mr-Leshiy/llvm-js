@@ -1,6 +1,6 @@
 use super::{BlockStatement, Identifier};
 use crate::{
-    lexer::{self, CharReader, Keyword, Separator, Token},
+    lexer::{Keyword, Separator, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
@@ -17,18 +17,18 @@ pub struct FunctionDeclaration {
 impl Parser for FunctionDeclaration {
     fn parse<R: Read>(
         mut cur_token: Token,
-        reader: &mut CharReader<R>,
+        reader: &mut TokenReader<R>,
     ) -> Result<Self, parser::Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => {
                 // parse function name
-                let name = Identifier::parse(lexer::get_token(reader)?, reader)?;
+                let name = Identifier::parse(reader.next_token()?, reader)?;
 
                 // parse function args
-                let args = match lexer::get_token(reader)? {
+                let args = match reader.next_token()? {
                     Token::Separator(Separator::OpenBrace) => {
                         let mut args = Vec::new();
-                        cur_token = lexer::get_token(reader)?;
+                        cur_token = reader.next_token()?;
                         loop {
                             let arg = match cur_token {
                                 Token::Separator(Separator::CloseBrace) => break,
@@ -36,9 +36,9 @@ impl Parser for FunctionDeclaration {
                             };
                             args.push(arg);
 
-                            cur_token = match lexer::get_token(reader)? {
+                            cur_token = match reader.next_token()? {
                                 Token::Separator(Separator::CloseBrace) => break,
-                                Token::Separator(Separator::Comma) => lexer::get_token(reader)?,
+                                Token::Separator(Separator::Comma) => reader.next_token()?,
                                 token => return Err(parser::Error::UnexpectedToken(token)),
                             };
                         }
@@ -48,7 +48,7 @@ impl Parser for FunctionDeclaration {
                 }?;
 
                 // parse function body
-                let body = BlockStatement::parse(lexer::get_token(reader)?, reader)?;
+                let body = BlockStatement::parse(reader.next_token()?, reader)?;
 
                 Ok(Self { name, args, body })
             }
@@ -77,17 +77,23 @@ mod tests {
 
     #[test]
     fn parse_function_declaration_test() {
-        let mut reader = CharReader::new("function foo() {}".as_bytes());
+        let mut reader = TokenReader::new("function foo(a, b) {}".as_bytes());
         assert_eq!(
-            FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            FunctionDeclaration {
+            FunctionDeclaration::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(FunctionDeclaration {
                 name: Identifier {
                     name: "foo".to_string()
                 },
-                args: vec![],
+                args: vec![
+                    Identifier {
+                        name: "a".to_string()
+                    },
+                    Identifier {
+                        name: "b".to_string()
+                    }
+                ],
                 body: BlockStatement { body: vec![] }
-            }
+            })
         );
     }
 

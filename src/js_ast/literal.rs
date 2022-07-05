@@ -1,5 +1,5 @@
 use crate::{
-    lexer::{CharReader, Literal as LiteralToken, Token},
+    lexer::{Literal as LiteralToken, Token, TokenReader},
     parser::{self, Parser},
 };
 use std::io::Read;
@@ -12,7 +12,7 @@ pub enum Literal {
 }
 
 impl Parser for Literal {
-    fn parse<R: Read>(cur_token: Token, _: &mut CharReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
             Token::Literal(LiteralToken::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(LiteralToken::String(val)) => Ok(Self::String(val)),
@@ -24,20 +24,19 @@ impl Parser for Literal {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer;
 
     #[test]
     fn parse_literal_test() {
-        let mut reader = CharReader::new("12;".as_bytes());
+        let mut reader = TokenReader::new("12;".as_bytes());
         assert_eq!(
-            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Literal::Number(12_f64)
+            Literal::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Literal::Number(12_f64))
         );
 
-        let mut reader = CharReader::new(r#""name""#.as_bytes());
+        let mut reader = TokenReader::new(r#""name""#.as_bytes());
         assert_eq!(
-            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Literal::String("name".to_string())
+            Literal::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Literal::String("name".to_string()))
         );
     }
 }
