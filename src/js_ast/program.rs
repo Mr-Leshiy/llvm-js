@@ -41,15 +41,15 @@ mod tests {
     fn parse_program_test() {
         let mut reader = CharReader::new("name = 12;".as_bytes());
         assert_eq!(
-            Program::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Program {
+            Program::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(Program {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
                         name: "name".to_string()
                     },
                     right: RightAssigmentValue::Literal(Literal::Number(12_f64))
                 })]
-            }
+            })
         );
     }
 }

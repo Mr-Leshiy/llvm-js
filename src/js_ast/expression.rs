@@ -1,4 +1,6 @@
-use super::{BlockStatement, FunctionDeclaration, VariableAssigment, VariableDeclaration};
+use super::{
+    BlockStatement, FunctionCall, FunctionDeclaration, VariableAssigment, VariableDeclaration,
+};
 use crate::{
     lexer::{CharReader, Keyword, Separator, Token},
     llvm_ast,
@@ -10,6 +12,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
     FunctionDeclaration(FunctionDeclaration),
+    FunctionCall(FunctionCall),
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
     BlockStatement(BlockStatement),
@@ -44,6 +47,7 @@ impl Precompile for Expression {
                 precompiler.function_declarations.push(function_declaration);
                 Ok(Vec::new())
             }
+            Expression::FunctionCall(function_call) => Ok(Vec::new()),
             Expression::VariableDeclaration(variable_declaration) => {
                 Ok(vec![llvm_ast::Expression::VariableDeclaration(
                     variable_declaration.precompile(precompiler)?,
@@ -71,13 +75,15 @@ mod tests {
     fn parse_expression_variable_declaration_test() {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
-                left: Identifier {
-                    name: "name".to_string()
-                },
-                right: RightAssigmentValue::Literal(Literal::Number(12_f64))
-            }))
+            Expression::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(Expression::VariableDeclaration(VariableDeclaration(
+                VariableAssigment {
+                    left: Identifier {
+                        name: "name".to_string()
+                    },
+                    right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+                }
+            )))
         );
     }
 

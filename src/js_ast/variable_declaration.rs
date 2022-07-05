@@ -66,28 +66,26 @@ mod tests {
     fn parse_variable_declaration_test() {
         let mut reader = CharReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            VariableDeclaration(VariableAssigment {
+            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
                 },
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
-            })
+            }))
         );
 
         let mut reader = CharReader::new("var name1 = name2;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            VariableDeclaration(VariableAssigment {
+            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name1".to_string()
                 },
                 right: RightAssigmentValue::Identifier(Identifier {
                     name: "name2".to_string()
                 })
-            })
+            }))
         );
     }
 

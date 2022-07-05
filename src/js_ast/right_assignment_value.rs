@@ -32,25 +32,24 @@ mod tests {
     fn parse_right_assigment_value_test() {
         let mut reader = CharReader::new("12".as_bytes());
         assert_eq!(
-            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            RightAssigmentValue::Literal(Literal::Number(12_f64)),
+            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(RightAssigmentValue::Literal(Literal::Number(12_f64))),
         );
 
         let mut reader = CharReader::new(r#""name""#.as_bytes());
         assert_eq!(
-            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            RightAssigmentValue::Literal(Literal::String("name".to_string())),
+            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(RightAssigmentValue::Literal(Literal::String(
+                "name".to_string()
+            ))),
         );
 
         let mut reader = CharReader::new("name".as_bytes());
         assert_eq!(
-            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            RightAssigmentValue::Identifier(Identifier {
+            RightAssigmentValue::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(RightAssigmentValue::Identifier(Identifier {
                 name: "name".to_string()
-            }),
+            })),
         );
     }
 }

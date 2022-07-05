@@ -6,6 +6,7 @@ use crate::{
 };
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
+pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use literal::Literal;

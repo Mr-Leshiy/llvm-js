@@ -6,7 +6,7 @@ use crate::{
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
-struct FunctionCall {
+pub struct FunctionCall {
     pub name: Identifier,
     pub args: Vec<Identifier>,
 }
@@ -53,8 +53,8 @@ mod tests {
     fn parse_function_call_test() {
         let mut reader = CharReader::new("foo(a, b)".as_bytes());
         assert_eq!(
-            FunctionCall::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            FunctionCall {
+            FunctionCall::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(FunctionCall {
                 name: Identifier {
                     name: "foo".to_string()
                 },
@@ -66,7 +66,7 @@ mod tests {
                         name: "b".to_string()
                     }
                 ]
-            }
+            })
         );
     }
 }

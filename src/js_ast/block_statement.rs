@@ -68,14 +68,14 @@ mod tests {
     fn parse_block_statement_test() {
         let mut reader = CharReader::new("{ }".as_bytes());
         assert_eq!(
-            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            BlockStatement { body: vec![] }
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(BlockStatement { body: vec![] })
         );
 
         let mut reader = CharReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
-            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            BlockStatement {
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: Identifier {
                         name: "name1".to_string()
@@ -84,15 +84,15 @@ mod tests {
                         name: "name2".to_string()
                     })
                 })]
-            }
+            })
         );
 
         let mut reader =
             CharReader::new("{ name1 = name2; { name1 = name2; name1 = name2; } }".as_bytes());
 
         assert_eq!(
-            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            BlockStatement {
+            BlockStatement::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: Identifier {
@@ -123,7 +123,7 @@ mod tests {
                         ]
                     })
                 ]
-            }
+            })
         );
     }
 

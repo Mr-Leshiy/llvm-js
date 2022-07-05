@@ -1,5 +1,6 @@
 pub use char_reader::CharReader;
 pub use position::Position;
+use std::io::Read;
 use thiserror::Error;
 pub use tokens::{Keyword, Literal, Separator, Token};
 
@@ -31,7 +32,7 @@ fn can_stop(char: &char) -> bool {
         || char.eq(&',')
 }
 
-pub fn get_token<R: std::io::Read>(reader: &mut CharReader<R>) -> Result<Token, Error> {
+pub fn get_token<R: Read>(reader: &mut CharReader<R>) -> Result<Token, Error> {
     match reader.get_char() {
         Ok(mut char) => {
             // Skip any whitespaces
@@ -322,6 +323,23 @@ mod tests {
         assert_eq!(
             get_token(&mut reader),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
+        );
+
+        //line: "foo(a, b);"
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("foo".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("a".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::Comma))
+        );
+        assert_eq!(get_token(&mut reader), Ok(Token::Ident("b".to_string())));
+        assert_eq!(
+            get_token(&mut reader),
+            Ok(Token::Separator(Separator::CloseBrace))
         );
 
         //line: "}"

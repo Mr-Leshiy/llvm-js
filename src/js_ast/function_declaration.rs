@@ -77,17 +77,23 @@ mod tests {
 
     #[test]
     fn parse_function_declaration_test() {
-        let mut reader = CharReader::new("function foo() {}".as_bytes());
+        let mut reader = CharReader::new("function foo(a, b) {}".as_bytes());
         assert_eq!(
-            FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader)
-                .unwrap(),
-            FunctionDeclaration {
+            FunctionDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(FunctionDeclaration {
                 name: Identifier {
                     name: "foo".to_string()
                 },
-                args: vec![],
+                args: vec![
+                    Identifier {
+                        name: "a".to_string()
+                    },
+                    Identifier {
+                        name: "b".to_string()
+                    }
+                ],
                 body: BlockStatement { body: vec![] }
-            }
+            })
         );
     }
 

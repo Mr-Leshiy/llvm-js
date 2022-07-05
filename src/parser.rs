@@ -2,7 +2,7 @@ use crate::lexer::{self, CharReader, Token};
 use std::io::Read;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     #[error("Unexpected token provided: {0}")]
     UnexpectedToken(Token),

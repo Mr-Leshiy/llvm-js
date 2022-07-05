@@ -30,14 +30,14 @@ mod tests {
     fn parse_literal_test() {
         let mut reader = CharReader::new("12;".as_bytes());
         assert_eq!(
-            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Literal::Number(12_f64)
+            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(Literal::Number(12_f64))
         );
 
         let mut reader = CharReader::new(r#""name""#.as_bytes());
         assert_eq!(
-            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Literal::String("name".to_string())
+            Literal::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(Literal::String("name".to_string()))
         );
     }
 }

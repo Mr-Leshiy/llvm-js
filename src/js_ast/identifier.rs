@@ -34,10 +34,10 @@ mod tests {
     fn parse_indetifier_test() {
         let mut reader = CharReader::new("name".as_bytes());
         assert_eq!(
-            Identifier::parse(lexer::get_token(&mut reader).unwrap(), &mut reader).unwrap(),
-            Identifier {
+            Identifier::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Ok(Identifier {
                 name: "name".to_string()
-            }
+            })
         );
     }
 }
