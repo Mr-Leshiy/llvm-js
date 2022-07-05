@@ -1,6 +1,6 @@
 use super::{Literal, RightAssigmentValue, VariableAssigment};
 use crate::{
-    lexer::{self, CharReader, Keyword, Token},
+    lexer::{Keyword, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
@@ -12,10 +12,13 @@ use std::io::Read;
 pub struct VariableDeclaration(pub VariableAssigment);
 
 impl Parser for VariableDeclaration {
-    fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, parser::Error> {
         match cur_token {
             Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
-                lexer::get_token(reader)?,
+                reader.next_token()?,
                 reader,
             )?)),
             token => Err(parser::Error::UnexpectedToken(token)),
@@ -64,9 +67,9 @@ mod tests {
 
     #[test]
     fn parse_variable_declaration_test() {
-        let mut reader = CharReader::new("var name = 12;".as_bytes());
+        let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
@@ -75,9 +78,9 @@ mod tests {
             }))
         );
 
-        let mut reader = CharReader::new("var name1 = name2;".as_bytes());
+        let mut reader = TokenReader::new("var name1 = name2;".as_bytes());
         assert_eq!(
-            VariableDeclaration::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: Identifier {
                     name: "name1".to_string()

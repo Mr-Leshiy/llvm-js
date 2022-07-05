@@ -1,5 +1,5 @@
 use crate::{
-    lexer::{CharReader, Token},
+    lexer::{Token, TokenReader},
     parser::{self, Parser},
 };
 use std::{fmt::Display, io::Read};
@@ -17,7 +17,7 @@ impl Display for Identifier {
 }
 
 impl Parser for Identifier {
-    fn parse<R: Read>(cur_token: Token, _: &mut CharReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
             Token::Ident(name) => Ok(Self { name }),
             token => Err(parser::Error::UnexpectedToken(token)),
@@ -28,13 +28,12 @@ impl Parser for Identifier {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer;
 
     #[test]
     fn parse_indetifier_test() {
-        let mut reader = CharReader::new("name".as_bytes());
+        let mut reader = TokenReader::new("name".as_bytes());
         assert_eq!(
-            Identifier::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            Identifier::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Identifier {
                 name: "name".to_string()
             })

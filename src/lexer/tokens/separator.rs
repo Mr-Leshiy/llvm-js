@@ -35,115 +35,103 @@ impl Display for Separator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{get_token, CharReader, Token};
+    use crate::lexer::{Token, TokenReader};
 
     #[test]
     fn separator_test_1() {
-        let mut reader = CharReader::new(r#" )({[]]  }})[],,, "#.as_bytes());
+        let mut reader = TokenReader::new(r#" )({[]]  }})[],,, "#.as_bytes());
 
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenCurlyBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenSquareBracket))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenSquareBracket))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
-        assert_eq!(
-            get_token(&mut reader),
-            Ok(Token::Separator(Separator::Comma))
-        );
-        assert_eq!(
-            get_token(&mut reader),
-            Ok(Token::Separator(Separator::Comma))
-        );
-        assert_eq!(
-            get_token(&mut reader),
-            Ok(Token::Separator(Separator::Comma))
-        );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
     fn separator_test_2() {
-        let mut reader = CharReader::new(r#"name()"#.as_bytes());
-        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        let mut reader = TokenReader::new(r#"name()"#.as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseBrace))
         );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
 
-        let mut reader = CharReader::new(r#"name{}"#.as_bytes());
-        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        let mut reader = TokenReader::new(r#"name{}"#.as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenCurlyBrace))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
 
-        let mut reader = CharReader::new(r#"name[]"#.as_bytes());
-        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
+        let mut reader = TokenReader::new(r#"name[]"#.as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::OpenSquareBracket))
         );
         assert_eq!(
-            get_token(&mut reader),
+            reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
 
-        let mut reader = CharReader::new(r#"name,"#.as_bytes());
-        assert_eq!(get_token(&mut reader), Ok(Token::Ident("name".to_string())));
-        assert_eq!(
-            get_token(&mut reader),
-            Ok(Token::Separator(Separator::Comma))
-        );
-        assert_eq!(get_token(&mut reader), Ok(Token::Eof));
+        let mut reader = TokenReader::new(r#"name,"#.as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }

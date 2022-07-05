@@ -1,6 +1,6 @@
 use super::{Identifier, Literal, RightAssigmentValue};
 use crate::{
-    lexer::{self, CharReader, Token},
+    lexer::{Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
@@ -15,15 +15,18 @@ pub struct VariableAssigment {
 }
 
 impl Parser for VariableAssigment {
-    fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, parser::Error> {
         let left = Identifier::parse(cur_token, reader)?;
 
-        match lexer::get_token(reader)? {
+        match reader.next_token()? {
             Token::Assign => {}
             token => return Err(parser::Error::UnexpectedToken(token)),
         }
 
-        let right = RightAssigmentValue::parse(lexer::get_token(reader)?, reader)?;
+        let right = RightAssigmentValue::parse(reader.next_token()?, reader)?;
         Ok(Self { left, right })
     }
 }
@@ -68,9 +71,9 @@ mod tests {
 
     #[test]
     fn parse_assigment_expression_test() {
-        let mut reader = CharReader::new("name = 12;".as_bytes());
+        let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: Identifier {
                     name: "name".to_string()
@@ -79,9 +82,9 @@ mod tests {
             })
         );
 
-        let mut reader = CharReader::new("name1 = name2;".as_bytes());
+        let mut reader = TokenReader::new("name1 = name2;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(lexer::get_token(&mut reader).unwrap(), &mut reader),
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: Identifier {
                     name: "name1".to_string()

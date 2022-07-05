@@ -1,4 +1,4 @@
-use crate::lexer::{self, CharReader, Token};
+use crate::lexer::{self, Token, TokenReader};
 use std::io::Read;
 use thiserror::Error;
 
@@ -11,5 +11,5 @@ pub enum Error {
 }
 
 pub trait Parser: Sized {
-    fn parse<R: Read>(cur_token: Token, reader: &mut CharReader<R>) -> Result<Self, Error>;
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error>;
 }
