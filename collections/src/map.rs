@@ -13,6 +13,7 @@ pub enum Error<K> {
     UnknownKey(K),
 }
 
+#[derive(Default)]
 pub struct Map<K: Clone + Eq + Hash + Display, V> {
     stack: Vec<K>,
     hash_map: HashMap<K, V>,
@@ -68,6 +69,11 @@ impl<K: Clone + Eq + Hash + Display + Debug, V> Map<K, V> {
     pub fn len(&self) -> usize {
         assert!(self.hash_map.len() == self.stack.len());
         self.stack.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        assert!(self.hash_map.len() == self.stack.len());
+        self.stack.is_empty()
     }
 }
 

@@ -11,6 +11,7 @@ pub enum Error<V> {
     AlreadyKnownValue(V),
 }
 
+#[derive(Default)]
 pub struct Set<V: Clone + Eq + Hash + Display> {
     stack: Vec<V>,
     hash_set: HashSet<V>,
@@ -58,6 +59,11 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
     pub fn len(&self) -> usize {
         assert!(self.hash_set.len() == self.stack.len());
         self.stack.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        assert!(self.hash_set.len() == self.stack.len());
+        self.stack.is_empty()
     }
 }
 

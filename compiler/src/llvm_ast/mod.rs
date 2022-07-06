@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn compile_module_from_file_test() {
-        let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+        let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
         let module = js_ast::Module::new("".to_string(), file).unwrap();
         let module = module.precompile().unwrap();
         let mut out = Vec::new();

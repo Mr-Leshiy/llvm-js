@@ -285,7 +285,7 @@ mod tests {
 
     #[test]
     fn token_from_file_test() {
-        let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+        let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
         let mut reader = TokenReader::new(file);
 
         // line: "function foo(arg1, arg2) {}"
