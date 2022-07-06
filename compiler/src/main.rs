@@ -6,7 +6,6 @@ mod lexer;
 mod llvm_ast;
 mod parser;
 mod precompiler;
-mod set;
 
 fn main() {
     let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();

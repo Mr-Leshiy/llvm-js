@@ -66,7 +66,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn variables_storage_test() {
+    fn set_test() {
         let mut map = Set::new();
 
         map.remove_last_added(10);
