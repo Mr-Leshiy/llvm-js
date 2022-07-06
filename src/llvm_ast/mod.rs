@@ -1,5 +1,6 @@
 use crate::compiler::{self, Compile, Compiler};
 pub use expression::Expression;
+pub use function_call::FunctionCall;
 pub use function_declaration::{FunctionDeclaration, FunctionName};
 use inkwell::context::Context;
 pub use program::Program;
@@ -8,6 +9,7 @@ pub use variable_assigment::{VariableAssigment, VariableName, VariableValue};
 pub use variable_declaration::VariableDeclaration;
 
 mod expression;
+mod function_call;
 mod function_declaration;
 mod program;
 mod variable_assigment;

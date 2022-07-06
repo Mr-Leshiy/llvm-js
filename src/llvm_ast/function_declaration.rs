@@ -6,6 +6,7 @@ pub type FunctionName = String;
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
     pub name: FunctionName,
+    // TODO: add args field
     pub body: Vec<Expression>,
 }
 

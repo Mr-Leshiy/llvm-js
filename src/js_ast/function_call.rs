@@ -1,7 +1,9 @@
 use super::Identifier;
 use crate::{
     lexer::{Separator, Token, TokenReader},
+    llvm_ast,
     parser::{self, Parser},
+    precompiler::{self, Precompile, Precompiler},
 };
 use std::io::Read;
 
@@ -45,6 +47,19 @@ impl Parser for FunctionCall {
     }
 }
 
+impl Precompile for FunctionCall {
+    type Output = llvm_ast::FunctionCall;
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+        if precompiler.functions.contains(&self.name) {
+            Ok(llvm_ast::FunctionCall {
+                name: self.name.name,
+            })
+        } else {
+            Err(precompiler::Error::UndefinedFunction(self.name))
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -67,6 +82,50 @@ mod tests {
                     }
                 ]
             })
+        );
+    }
+
+    #[test]
+    fn precompile_function_call_test() {
+        let mut precompiler = Precompiler::new();
+        precompiler
+            .functions
+            .insert(Identifier {
+                name: "name_1".to_string(),
+            })
+            .unwrap();
+
+        let function_call = FunctionCall {
+            name: Identifier {
+                name: "name_1".to_string(),
+            },
+            args: vec![],
+        };
+
+        assert_eq!(
+            function_call.precompile(&mut precompiler),
+            Ok(llvm_ast::FunctionCall {
+                name: "name_1".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn precompile_function_call_error() {
+        let mut precompiler = Precompiler::new();
+
+        let function_call = FunctionCall {
+            name: Identifier {
+                name: "name_1".to_string(),
+            },
+            args: vec![],
+        };
+
+        assert_eq!(
+            function_call.precompile(&mut precompiler),
+            Err(precompiler::Error::UndefinedFunction(Identifier {
+                name: "name_1".to_string(),
+            }))
         );
     }
 }

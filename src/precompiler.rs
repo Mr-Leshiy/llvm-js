@@ -9,6 +9,8 @@ pub enum Error {
     AlreadyDeclaredVariable(Identifier),
     #[error("Function with this identifier {0} already declared")]
     AlreadyDeclaredFunction(Identifier),
+    #[error("Undefined function identifier {0}")]
+    UndefinedFunction(Identifier),
 }
 
 pub trait Precompile: Sized {
