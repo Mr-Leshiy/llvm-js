@@ -11,6 +11,7 @@ pub enum Error<V> {
     AlreadyKnownValue(V),
 }
 
+#[derive(Default)]
 pub struct Set<V: Clone + Eq + Hash + Display> {
     stack: Vec<V>,
     hash_set: HashSet<V>,
@@ -59,6 +60,11 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
         assert!(self.hash_set.len() == self.stack.len());
         self.stack.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        assert!(self.hash_set.len() == self.stack.len());
+        self.stack.is_empty()
+    }
 }
 
 #[cfg(test)]
@@ -66,7 +72,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn variables_storage_test() {
+    fn set_test() {
         let mut map = Set::new();
 
         map.remove_last_added(10);

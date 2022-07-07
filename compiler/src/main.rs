@@ -6,11 +6,10 @@ mod lexer;
 mod llvm_ast;
 mod parser;
 mod precompiler;
-mod set;
 
 fn main() {
-    let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();
-    let mut out_file = std::fs::File::create("test_scripts/basic.ll").unwrap();
+    let in_file = std::fs::File::open("../test_scripts/basic.js").unwrap();
+    let mut out_file = std::fs::File::create("../test_scripts/basic.ll").unwrap();
     let js_module = Module::new("module_1".to_string(), in_file).unwrap();
     let llvm_module = js_module.precompile().unwrap();
 

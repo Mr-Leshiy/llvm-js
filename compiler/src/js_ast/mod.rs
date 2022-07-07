@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn parse_module_from_file_test() {
-        let file = std::fs::File::open("test_scripts/basic.js").unwrap();
+        let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
         let module = Module::new("".to_string(), file).unwrap();
         let program = module.program;
 
