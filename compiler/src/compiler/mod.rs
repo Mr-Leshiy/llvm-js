@@ -21,6 +21,8 @@ pub enum Error {
     UndefinedFunction(FunctionName),
     #[error("Function with this identifier {0} already declared")]
     AlreadyDeclaredFunction(FunctionName),
+    #[error("Not enough arguments")]
+    NotEnoughArguments,
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]

@@ -14,7 +14,6 @@ impl Compile for VariableDeclaration {
                     .builder
                     .build_alloca(value.get_type(), variable.name.as_str());
                 compiler.builder.build_store(pointer, value);
-                compiler.get_printf()?.print(compiler, pointer)?;
                 pointer
             }
             VariableValue::String(value) => {
@@ -24,7 +23,6 @@ impl Compile for VariableDeclaration {
                     .build_alloca(value.get_type(), variable.name.as_str());
 
                 compiler.builder.build_store(pointer, value);
-                compiler.get_printf()?.print(compiler, pointer)?;
                 pointer
             }
             VariableValue::Identifier(name) => {
