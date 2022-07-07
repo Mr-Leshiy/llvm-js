@@ -1,10 +1,11 @@
-use super::{VariableAssigment, VariableDeclaration};
+use super::{FunctionCall, VariableAssigment, VariableDeclaration};
 use crate::compiler::{self, Compile, Compiler};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
+    FunctionCall(FunctionCall),
 }
 
 impl Compile for Expression {
@@ -14,6 +15,7 @@ impl Compile for Expression {
                 variable_declaration.compile(compiler)
             }
             Self::VariableAssigment(variable_assigment) => variable_assigment.compile(compiler),
+            Self::FunctionCall(function_call) => function_call.compile(compiler),
         }
     }
 }

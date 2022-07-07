@@ -1,6 +1,11 @@
-use crate::llvm_ast::VariableName;
+use crate::llvm_ast::{FunctionName, VariableName};
 use extern_functions::PrintfFn;
-use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    module::Module,
+    values::{FunctionValue, PointerValue},
+};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -12,6 +17,10 @@ pub enum Error {
     UndefinedVariable(VariableName),
     #[error("Variable with this identifier {0} already declared")]
     AlreadyDeclaredVariable(VariableName),
+    #[error("Undefined function identifier {0}")]
+    UndefinedFunction(FunctionName),
+    #[error("Function with this identifier {0} already declared")]
+    AlreadyDeclaredFunction(FunctionName),
     #[error("Invalid compiled module, {0}")]
     InvalidModule(String),
     #[error("Cannot write module, {0}")]
@@ -32,8 +41,9 @@ pub struct Compiler<'ctx> {
     pub builder: Builder<'ctx>,
 
     pub variables: HashMap<VariableName, PointerValue<'ctx>>,
+    pub functions: HashMap<FunctionName, FunctionValue<'ctx>>,
 
-    pub printf: Option<PrintfFn<'ctx>>,
+    printf: Option<PrintfFn<'ctx>>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -43,6 +53,7 @@ impl<'ctx> Compiler<'ctx> {
             module: context.create_module(module_name),
             builder: context.create_builder(),
             variables: HashMap::new(),
+            functions: HashMap::new(),
             printf: None,
         }
     }
