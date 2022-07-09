@@ -51,6 +51,13 @@ impl Precompile for FunctionCall {
     type Output = llvm_ast::FunctionCall;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         if precompiler.functions.contains(&self.name) {
+            // check if arguments exist
+            for arg in &self.args {
+                if !precompiler.variables.contains(arg) {
+                    return Err(precompiler::Error::UndefinedVariable(arg.clone()));
+                }
+            }
+
             Ok(llvm_ast::FunctionCall {
                 name: self.name.name,
                 args: self.args.into_iter().map(|name| name.name).collect(),
@@ -93,6 +100,18 @@ mod tests {
             .functions
             .insert(Identifier {
                 name: "name_1".to_string(),
+            })
+            .unwrap();
+        precompiler
+            .variables
+            .insert(Identifier {
+                name: "a".to_string(),
+            })
+            .unwrap();
+        precompiler
+            .variables
+            .insert(Identifier {
+                name: "b".to_string(),
             })
             .unwrap();
 
