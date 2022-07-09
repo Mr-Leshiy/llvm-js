@@ -81,17 +81,8 @@ mod tests {
         assert_eq!(
             FunctionDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(FunctionDeclaration {
-                name: Identifier {
-                    name: "foo".to_string()
-                },
-                args: vec![
-                    Identifier {
-                        name: "a".to_string()
-                    },
-                    Identifier {
-                        name: "b".to_string()
-                    }
-                ],
+                name: "foo".to_string().into(),
+                args: vec!["a".to_string().into(), "b".to_string().into()],
                 body: BlockStatement { body: vec![] }
             })
         );
@@ -99,12 +90,10 @@ mod tests {
 
     #[test]
     fn precompile_function_declaration_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let function_declaration = FunctionDeclaration {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
+            name: "name_1".to_string().into(),
             args: vec![],
             body: BlockStatement { body: vec![] },
         };
@@ -116,34 +105,31 @@ mod tests {
                 body: vec![]
             })
         );
-        assert!(precompiler.functions.contains(&Identifier {
-            name: "name_1".to_string(),
-        }));
+        assert!(precompiler
+            .functions
+            .contains(&"name_1".to_string().into(),));
     }
 
     #[test]
     fn precompile_function_declaration_error_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .functions
-            .insert(Identifier {
-                name: "name_1".to_string(),
-            })
+            .insert("name_1".to_string().into())
             .unwrap();
 
         let function_declaration = FunctionDeclaration {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
+            name: "name_1".to_string().into(),
+
             args: vec![],
             body: BlockStatement { body: vec![] },
         };
 
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::AlreadyDeclaredFunction(Identifier {
-                name: "name_1".to_string(),
-            }))
+            Err(precompiler::Error::AlreadyDeclaredFunction(
+                "name_1".to_string().into(),
+            ))
         );
     }
 }

@@ -40,8 +40,14 @@ impl Module {
         Ok(Self { name, program })
     }
 
-    pub fn precompile(self) -> Result<llvm_ast::Module, precompiler::Error> {
-        let mut precompiler = Precompiler::new();
+    pub fn precompile<Iter>(
+        self,
+        predefined_functions: Iter,
+    ) -> Result<llvm_ast::Module, precompiler::Error>
+    where
+        Iter: Iterator<Item = Identifier>,
+    {
+        let mut precompiler = Precompiler::new(predefined_functions);
 
         let mut body = Vec::new();
         for expr in self.program.body {
@@ -64,7 +70,7 @@ impl Module {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BlockStatement, Expression, FunctionDeclaration, Identifier, Literal, RightAssigmentValue,
+        BlockStatement, Expression, FunctionDeclaration, Literal, RightAssigmentValue,
         VariableAssigment, VariableDeclaration,
     };
 
@@ -78,54 +84,33 @@ mod tests {
             program.body,
             vec![
                 Expression::FunctionDeclaration(FunctionDeclaration {
-                    name: Identifier {
-                        name: "foo".to_string()
-                    },
-                    args: vec![
-                        Identifier {
-                            name: "arg1".to_string()
-                        },
-                        Identifier {
-                            name: "arg2".to_string()
-                        }
-                    ],
+                    name: "foo".to_string().into(),
+                    args: vec!["arg1".to_string().into(), "arg2".to_string().into()],
                     body: BlockStatement { body: vec![] }
                 }),
                 Expression::BlockStatement(BlockStatement {
                     body: vec![
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
-                            left: Identifier {
-                                name: "a".to_string()
-                            },
+                            left: "a".to_string().into(),
                             right: RightAssigmentValue::Literal(Literal::Number(5_f64))
                         })),
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
-                            left: Identifier {
-                                name: "b".to_string()
-                            },
+                            left: "b".to_string().into(),
                             right: RightAssigmentValue::Literal(Literal::Number(6_f64))
                         })),
                         Expression::BlockStatement(BlockStatement {
                             body: vec![
                                 Expression::VariableAssigment(VariableAssigment {
-                                    left: Identifier {
-                                        name: "a".to_string()
-                                    },
-                                    right: RightAssigmentValue::Identifier(Identifier {
-                                        name: "b".to_string()
-                                    })
+                                    left: "a".to_string().into(),
+                                    right: RightAssigmentValue::Identifier("b".to_string().into())
                                 }),
                                 Expression::VariableAssigment(VariableAssigment {
-                                    left: Identifier {
-                                        name: "b".to_string()
-                                    },
+                                    left: "b".to_string().into(),
                                     right: RightAssigmentValue::Literal(Literal::Number(7_f64))
                                 }),
                                 Expression::VariableDeclaration(VariableDeclaration(
                                     VariableAssigment {
-                                        left: Identifier {
-                                            name: "c".to_string()
-                                        },
+                                        left: "c".to_string().into(),
                                         right: RightAssigmentValue::Literal(Literal::String(
                                             "hello".to_string()
                                         ))
@@ -134,17 +119,8 @@ mod tests {
                             ]
                         }),
                         Expression::FunctionCall(FunctionCall {
-                            name: Identifier {
-                                name: "foo".to_string()
-                            },
-                            args: vec![
-                                Identifier {
-                                    name: "a".to_string()
-                                },
-                                Identifier {
-                                    name: "b".to_string()
-                                }
-                            ]
+                            name: "foo".to_string().into(),
+                            args: vec!["a".to_string().into(), "b".to_string().into()]
                         })
                     ]
                 })

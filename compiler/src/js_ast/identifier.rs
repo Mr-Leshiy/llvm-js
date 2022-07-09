@@ -14,6 +14,12 @@ impl Display for Identifier {
     }
 }
 
+impl From<String> for Identifier {
+    fn from(name: String) -> Self {
+        Self { name }
+    }
+}
+
 impl Parser for Identifier {
     fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
         match cur_token {
@@ -32,9 +38,7 @@ mod tests {
         let mut reader = TokenReader::new("name".as_bytes());
         assert_eq!(
             Identifier::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Identifier {
-                name: "name".to_string()
-            })
+            Ok("name".to_string().into())
         );
     }
 }

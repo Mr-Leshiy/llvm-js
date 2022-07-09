@@ -63,7 +63,7 @@ impl Precompile for VariableDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Identifier, Literal, RightAssigmentValue};
+    use crate::js_ast::{Literal, RightAssigmentValue};
 
     #[test]
     fn parse_variable_declaration_test() {
@@ -71,9 +71,7 @@ mod tests {
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
-                left: Identifier {
-                    name: "name".to_string()
-                },
+                left: "name".to_string().into(),
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
             }))
         );
@@ -82,24 +80,18 @@ mod tests {
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
-                left: Identifier {
-                    name: "name1".to_string()
-                },
-                right: RightAssigmentValue::Identifier(Identifier {
-                    name: "name2".to_string()
-                })
+                left: "name1".to_string().into(),
+                right: RightAssigmentValue::Identifier("name2".to_string().into())
             }))
         );
     }
 
     #[test]
     fn precompile_variable_declaration_test_1() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: Identifier {
-                name: "name_1".to_string(),
-            },
+            left: "name_1".to_string().into(),
             right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
         });
 
@@ -110,28 +102,22 @@ mod tests {
                 value: llvm_ast::VariableValue::FloatNumber(64_f64),
             }))
         );
-        assert!(precompiler.variables.contains(&Identifier {
-            name: "name_1".to_string(),
-        }));
+        assert!(precompiler
+            .variables
+            .contains(&"name_1".to_string().into(),));
     }
 
     #[test]
     fn precompile_variable_declaration_test_2() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .variables
-            .insert(Identifier {
-                name: "name_2".to_string(),
-            })
+            .insert("name_2".to_string().into())
             .unwrap();
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: Identifier {
-                name: "name_1".to_string(),
-            },
-            right: RightAssigmentValue::Identifier(Identifier {
-                name: "name_2".to_string(),
-            }),
+            left: "name_1".to_string().into(),
+            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
         });
 
         assert_eq!(
@@ -141,54 +127,44 @@ mod tests {
                 value: llvm_ast::VariableValue::Identifier("name_2".to_string()),
             }))
         );
-        assert!(precompiler.variables.contains(&Identifier {
-            name: "name_1".to_string(),
-        }));
+        assert!(precompiler.variables.contains(&"name_1".to_string().into()));
     }
 
     #[test]
     fn precompile_variable_declaration_error_test_1() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .variables
-            .insert(Identifier {
-                name: "name_1".to_string(),
-            })
+            .insert("name_1".to_string().into())
             .unwrap();
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: Identifier {
-                name: "name_1".to_string(),
-            },
+            left: "name_1".to_string().into(),
             right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
         });
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::AlreadyDeclaredVariable(Identifier {
-                name: "name_1".to_string(),
-            }))
+            Err(precompiler::Error::AlreadyDeclaredVariable(
+                "name_1".to_string().into(),
+            ))
         );
     }
 
     #[test]
     fn precompile_variable_declaration_error_test_2() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: Identifier {
-                name: "name_1".to_string(),
-            },
-            right: RightAssigmentValue::Identifier(Identifier {
-                name: "name_2".to_string(),
-            }),
+            left: "name_1".to_string().into(),
+            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
         });
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable(Identifier {
-                name: "name_2".to_string(),
-            }))
+            Err(precompiler::Error::UndefinedVariable(
+                "name_2".to_string().into(),
+            ))
         );
     }
 }

@@ -51,6 +51,13 @@ impl Precompile for FunctionCall {
     type Output = llvm_ast::FunctionCall;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         if precompiler.functions.contains(&self.name) {
+            // check if arguments exist
+            for arg in &self.args {
+                if !precompiler.variables.contains(arg) {
+                    return Err(precompiler::Error::UndefinedVariable(arg.clone()));
+                }
+            }
+
             Ok(llvm_ast::FunctionCall {
                 name: self.name.name,
                 args: self.args.into_iter().map(|name| name.name).collect(),
@@ -71,43 +78,32 @@ mod tests {
         assert_eq!(
             FunctionCall::parse(reader.next_token().unwrap(), &mut reader),
             Ok(FunctionCall {
-                name: Identifier {
-                    name: "foo".to_string()
-                },
-                args: vec![
-                    Identifier {
-                        name: "a".to_string()
-                    },
-                    Identifier {
-                        name: "b".to_string()
-                    }
-                ]
+                name: "foo".to_string().into(),
+                args: vec!["a".to_string().into(), "b".to_string().into()]
             })
         );
     }
 
     #[test]
     fn precompile_function_call_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .functions
-            .insert(Identifier {
-                name: "name_1".to_string(),
-            })
+            .insert("name_1".to_string().into())
+            .unwrap();
+        precompiler
+            .variables
+            .insert("a".to_string().into())
+            .unwrap();
+        precompiler
+            .variables
+            .insert("b".to_string().into())
             .unwrap();
 
         let function_call = FunctionCall {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
-            args: vec![
-                Identifier {
-                    name: "a".to_string(),
-                },
-                Identifier {
-                    name: "b".to_string(),
-                },
-            ],
+            name: "name_1".to_string().into(),
+
+            args: vec!["a".to_string().into(), "b".to_string().into()],
         };
 
         assert_eq!(
@@ -121,20 +117,19 @@ mod tests {
 
     #[test]
     fn precompile_function_call_error() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let function_call = FunctionCall {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
+            name: "name_1".to_string().into(),
+
             args: vec![],
         };
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction(Identifier {
-                name: "name_1".to_string(),
-            }))
+            Err(precompiler::Error::UndefinedFunction(
+                "name_1".to_string().into()
+            ))
         );
     }
 }

@@ -28,10 +28,13 @@ pub struct Precompiler {
 }
 
 impl Precompiler {
-    pub fn new() -> Self {
+    pub fn new<Iter>(functions_iter: Iter) -> Self
+    where
+        Iter: Iterator<Item = Identifier>,
+    {
         Self {
             variables: Set::new(),
-            functions: Set::new(),
+            functions: functions_iter.collect(),
 
             function_declarations: Vec::new(),
         }
