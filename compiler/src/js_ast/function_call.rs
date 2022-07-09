@@ -88,7 +88,7 @@ mod tests {
 
     #[test]
     fn precompile_function_call_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .functions
             .insert(Identifier {
@@ -121,7 +121,7 @@ mod tests {
 
     #[test]
     fn precompile_function_call_error() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let function_call = FunctionCall {
             name: Identifier {

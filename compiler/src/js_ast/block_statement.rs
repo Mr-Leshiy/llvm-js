@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn precompile_block_statement_test_1() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         assert_eq!(precompiler.variables.len(), 0);
         let block_statement = BlockStatement {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn precompile_block_statement_test_2() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         assert_eq!(precompiler.functions.len(), 0);
         let block_statement = BlockStatement {
             body: vec![Expression::FunctionDeclaration(FunctionDeclaration {

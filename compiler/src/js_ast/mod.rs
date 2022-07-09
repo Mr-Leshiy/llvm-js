@@ -40,8 +40,14 @@ impl Module {
         Ok(Self { name, program })
     }
 
-    pub fn precompile(self) -> Result<llvm_ast::Module, precompiler::Error> {
-        let mut precompiler = Precompiler::new();
+    pub fn precompile<Iter>(
+        self,
+        predefined_functions: Iter,
+    ) -> Result<llvm_ast::Module, precompiler::Error>
+    where
+        Iter: Iterator<Item = Identifier>,
+    {
+        let mut precompiler = Precompiler::new(predefined_functions);
 
         let mut body = Vec::new();
         for expr in self.program.body {

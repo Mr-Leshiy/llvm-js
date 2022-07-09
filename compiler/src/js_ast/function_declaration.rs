@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn precompile_function_declaration_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let function_declaration = FunctionDeclaration {
             name: Identifier {
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn precompile_function_declaration_error_test() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .functions
             .insert(Identifier {

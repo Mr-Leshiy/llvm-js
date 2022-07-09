@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_test_1() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .variables
             .insert(Identifier {
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_test_2() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .variables
             .insert(Identifier {
@@ -164,7 +164,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_error_test_1() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let variable_assigment = VariableAssigment {
             left: Identifier {
@@ -183,7 +183,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_error_test_2() {
-        let mut precompiler = Precompiler::new();
+        let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .variables
             .insert(Identifier {
