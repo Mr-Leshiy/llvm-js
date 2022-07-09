@@ -35,3 +35,64 @@ impl Display for Token {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::lexer::{Error, Position, TokenReader};
+
+    #[test]
+    fn token_ident_test() {
+        let mut reader = TokenReader::new("name1".as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("name12name".as_bytes());
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Ident("name12name".to_string()))
+        );
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("name_1".as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name_1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("name^2name".as_bytes());
+        assert_eq!(
+            reader.read_token(),
+            Err(Error::UnexpectedSymbol(
+                '^',
+                Position { line: 5, column: 0 }
+            ))
+        );
+    }
+
+    #[test]
+    fn token_assign_test() {
+        let mut reader = TokenReader::new("=".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Assign));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("name_1=name_2".as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name_1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Assign));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name_2".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn token_unexpected_symbol_test() {
+        let mut reader = TokenReader::new("^".as_bytes());
+
+        assert_eq!(
+            reader.read_token(),
+            Err(Error::UnexpectedSymbol(
+                '^',
+                Position { line: 1, column: 0 }
+            ))
+        );
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+}

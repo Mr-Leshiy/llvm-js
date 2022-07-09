@@ -47,7 +47,183 @@ impl<R: Read> TokenReader<R> {
             saved_flag: false,
         }
     }
+}
 
+enum TokenResult<T> {
+    Result(T),
+    Token(Token),
+}
+
+impl<T> TokenResult<T> {
+    fn token_or_continue<F>(self, f: F) -> Result<Token, Error>
+    where
+        F: FnOnce(T) -> Result<Token, Error>,
+    {
+        match self {
+            TokenResult::Result(val) => f(val),
+            TokenResult::Token(token) => Ok(token),
+        }
+    }
+}
+
+impl<R: Read> TokenReader<R> {
+    // Skip any whitespaces
+    fn try_skip_whitespaces(&mut self, mut char: char) -> Result<TokenResult<char>, Error> {
+        while is_skip(&char) {
+            char = match self.char_reader.get_char() {
+                Ok(char) => char,
+                Err(e) if e == char_reader::Error::Eof => {
+                    return Ok(TokenResult::Token(Token::Eof))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            };
+        }
+        Ok(TokenResult::Result(char))
+    }
+
+    // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
+    fn try_read_identifier(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
+        if char.is_ascii_alphabetic() {
+            let mut ident = char.to_string();
+            loop {
+                char = match self.char_reader.get_char() {
+                    Ok(char) => char,
+                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(e) => return Err(Error::ReaderError(e)),
+                };
+                if !char.is_ascii_alphanumeric() && char != '_' {
+                    if !can_stop(&char) {
+                        return Err(Error::UnexpectedSymbol(
+                            char,
+                            self.char_reader.get_position().clone(),
+                        ));
+                    }
+                    self.char_reader.save(char);
+                    break;
+                }
+
+                ident.push(char);
+            }
+
+            if ident == "var" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Var)));
+            }
+
+            if ident == "function" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Function)));
+            }
+
+            return Ok(TokenResult::Token(Token::Ident(ident)));
+        }
+        Ok(TokenResult::Result(()))
+    }
+
+    // try read number: [0-9.]+
+    fn try_read_number(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
+        if char.is_ascii_digit() {
+            let mut number = char.to_string();
+            loop {
+                char = match self.char_reader.get_char() {
+                    Ok(char) => char,
+                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(e) => return Err(Error::ReaderError(e)),
+                };
+                if !char.is_ascii_digit() && char != '.' {
+                    if !can_stop(&char) {
+                        return Err(Error::UnexpectedSymbol(
+                            char,
+                            self.char_reader.get_position().clone(),
+                        ));
+                    }
+                    self.char_reader.save(char);
+                    break;
+                }
+
+                number.push(char);
+            }
+
+            return Ok(TokenResult::Token(Token::Literal(Literal::Number(
+                number.parse().expect("string should be f64 number"),
+            ))));
+        }
+        Ok(TokenResult::Result(()))
+    }
+
+    // try read assign operator: '='
+    fn try_read_assign_operator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+        if char == '=' {
+            return Ok(TokenResult::Token(Token::Assign));
+        }
+        Ok(TokenResult::Result(()))
+    }
+
+    // try read separator: '(',')','{','}','[',']'
+    fn try_read_separator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+        match char {
+            '(' => return Ok(TokenResult::Token(Token::Separator(Separator::OpenBrace))),
+            ')' => return Ok(TokenResult::Token(Token::Separator(Separator::CloseBrace))),
+            '{' => {
+                return Ok(TokenResult::Token(Token::Separator(
+                    Separator::OpenCurlyBrace,
+                )))
+            }
+            '}' => {
+                return Ok(TokenResult::Token(Token::Separator(
+                    Separator::CloseCurlyBrace,
+                )))
+            }
+            '[' => {
+                return Ok(TokenResult::Token(Token::Separator(
+                    Separator::OpenSquareBracket,
+                )))
+            }
+            ']' => {
+                return Ok(TokenResult::Token(Token::Separator(
+                    Separator::CloseSquareBracket,
+                )))
+            }
+            ',' => return Ok(TokenResult::Token(Token::Separator(Separator::Comma))),
+            _ => Ok(TokenResult::Result(())),
+        }
+    }
+
+    // try read string: "<any symbol>"
+    fn try_read_string(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
+        if char == '"' {
+            let mut string = String::new();
+            loop {
+                char = match self.char_reader.get_char() {
+                    Ok(char) => char,
+                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(e) => return Err(Error::ReaderError(e)),
+                };
+                if char == '"' {
+                    char = match self.char_reader.get_char() {
+                        Ok(char) => char,
+                        Err(e) if e == char_reader::Error::Eof => break,
+                        Err(e) => return Err(Error::ReaderError(e)),
+                    };
+                    // next symbol should be skipped symbol
+                    if !can_stop(&char) {
+                        return Err(Error::UnexpectedSymbol(
+                            char,
+                            self.char_reader.get_position().clone(),
+                        ));
+                    }
+                    self.char_reader.save(char);
+                    break;
+                }
+
+                string.push(char);
+            }
+
+            return Ok(TokenResult::Token(Token::Literal(Literal::String(string))));
+        }
+        Ok(TokenResult::Result(()))
+    }
+}
+
+impl<R: Read> TokenReader<R> {
     pub fn start_saving(&mut self) {
         self.saved_flag = true;
     }
@@ -71,132 +247,22 @@ impl<R: Read> TokenReader<R> {
 
     fn read_token(&mut self) -> Result<Token, Error> {
         match self.char_reader.get_char() {
-            Ok(mut char) => {
-                // Skip any whitespaces
-                while is_skip(&char) {
-                    char = match self.char_reader.get_char() {
-                        Ok(char) => char,
-                        Err(e) if e == char_reader::Error::Eof => return Ok(Token::Eof),
-                        Err(e) => return Err(Error::ReaderError(e)),
-                    };
-                }
-
-                // identifier: [a-zA-Z][a-zA-Z0-9_]*
-                if char.is_ascii_alphabetic() {
-                    let mut ident = char.to_string();
-                    loop {
-                        char = match self.char_reader.get_char() {
-                            Ok(char) => char,
-                            Err(e) if e == char_reader::Error::Eof => break,
-                            Err(e) => return Err(Error::ReaderError(e)),
-                        };
-                        if !char.is_ascii_alphanumeric() && char != '_' {
-                            if !can_stop(&char) {
-                                return Err(Error::UnexpectedSymbol(
-                                    char,
-                                    self.char_reader.get_position().clone(),
-                                ));
-                            }
-                            self.char_reader.save(char);
-                            break;
-                        }
-
-                        ident.push(char);
-                    }
-
-                    if ident == "var" {
-                        return Ok(Token::Keyword(Keyword::Var));
-                    }
-
-                    if ident == "function" {
-                        return Ok(Token::Keyword(Keyword::Function));
-                    }
-
-                    return Ok(Token::Ident(ident));
-                }
-
-                // Number: [0-9.]+
-                if char.is_ascii_digit() {
-                    let mut number = char.to_string();
-                    loop {
-                        char = match self.char_reader.get_char() {
-                            Ok(char) => char,
-                            Err(e) if e == char_reader::Error::Eof => break,
-                            Err(e) => return Err(Error::ReaderError(e)),
-                        };
-                        if !char.is_ascii_digit() && char != '.' {
-                            if !can_stop(&char) {
-                                return Err(Error::UnexpectedSymbol(
-                                    char,
-                                    self.char_reader.get_position().clone(),
-                                ));
-                            }
-                            self.char_reader.save(char);
-                            break;
-                        }
-
-                        number.push(char);
-                    }
-
-                    return Ok(Token::Literal(Literal::Number(
-                        number.parse().expect("string should be f64 number"),
-                    )));
-                }
-
-                // assign operator: '='
-                if char == '=' {
-                    return Ok(Token::Assign);
-                }
-
-                // separator: '(',')','{','}','[',']'
-                match char {
-                    '(' => return Ok(Token::Separator(Separator::OpenBrace)),
-                    ')' => return Ok(Token::Separator(Separator::CloseBrace)),
-                    '{' => return Ok(Token::Separator(Separator::OpenCurlyBrace)),
-                    '}' => return Ok(Token::Separator(Separator::CloseCurlyBrace)),
-                    '[' => return Ok(Token::Separator(Separator::OpenSquareBracket)),
-                    ']' => return Ok(Token::Separator(Separator::CloseSquareBracket)),
-                    ',' => return Ok(Token::Separator(Separator::Comma)),
-                    _ => {}
-                }
-
-                // String: string
-                if char == '"' {
-                    let mut string = String::new();
-                    loop {
-                        char = match self.char_reader.get_char() {
-                            Ok(char) => char,
-                            Err(e) if e == char_reader::Error::Eof => break,
-                            Err(e) => return Err(Error::ReaderError(e)),
-                        };
-                        if char == '"' {
-                            char = match self.char_reader.get_char() {
-                                Ok(char) => char,
-                                Err(e) if e == char_reader::Error::Eof => break,
-                                Err(e) => return Err(Error::ReaderError(e)),
-                            };
-                            // next symbol should be skipped symbol
-                            if !can_stop(&char) {
-                                return Err(Error::UnexpectedSymbol(
-                                    char,
-                                    self.char_reader.get_position().clone(),
-                                ));
-                            }
-                            self.char_reader.save(char);
-                            break;
-                        }
-
-                        string.push(char);
-                    }
-
-                    return Ok(Token::Literal(Literal::String(string)));
-                }
-
-                Err(Error::UnexpectedSymbol(
-                    char,
-                    self.char_reader.get_position().clone(),
-                ))
-            }
+            Ok(char) => self.try_skip_whitespaces(char)?.token_or_continue(|char| {
+                self.try_read_identifier(char)?.token_or_continue(|_| {
+                    self.try_read_number(char)?.token_or_continue(|_| {
+                        self.try_read_assign_operator(char)?.token_or_continue(|_| {
+                            self.try_read_separator(char)?.token_or_continue(|_| {
+                                self.try_read_string(char)?.token_or_continue(|_| {
+                                    Err(Error::UnexpectedSymbol(
+                                        char,
+                                        self.char_reader.get_position().clone(),
+                                    ))
+                                })
+                            })
+                        })
+                    })
+                })
+            }),
             Err(e) if e == char_reader::Error::Eof => Ok(Token::Eof),
             Err(e) => Err(Error::ReaderError(e)),
         }
@@ -226,61 +292,6 @@ mod tests {
         assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
 
         assert_eq!(reader.next_token(), Ok(Token::Eof));
-    }
-
-    #[test]
-    fn token_ident_test() {
-        let mut reader = TokenReader::new("name1".as_bytes());
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("name12name".as_bytes());
-        assert_eq!(
-            reader.read_token(),
-            Ok(Token::Ident("name12name".to_string()))
-        );
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("name_1".as_bytes());
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name_1".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("name^2name".as_bytes());
-        assert_eq!(
-            reader.read_token(),
-            Err(Error::UnexpectedSymbol(
-                '^',
-                Position { line: 5, column: 0 }
-            ))
-        );
-    }
-
-    #[test]
-    fn token_assign_test() {
-        let mut reader = TokenReader::new("=".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Assign));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("name_1=name_2".as_bytes());
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name_1".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Assign));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name_2".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-    }
-
-    #[test]
-    fn token_unexpected_symbol_test() {
-        let mut reader = TokenReader::new("^".as_bytes());
-
-        assert_eq!(
-            reader.read_token(),
-            Err(Error::UnexpectedSymbol(
-                '^',
-                Position { line: 1, column: 0 }
-            ))
-        );
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
