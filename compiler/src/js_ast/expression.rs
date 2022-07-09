@@ -59,7 +59,11 @@ impl Precompile for Expression {
                 precompiler.function_declarations.push(function_declaration);
                 Ok(Vec::new())
             }
-            Expression::FunctionCall(_function_call) => Ok(Vec::new()),
+            Expression::FunctionCall(function_call) => {
+                Ok(vec![llvm_ast::Expression::FunctionCall(
+                    function_call.precompile(precompiler)?,
+                )])
+            }
             Expression::VariableDeclaration(variable_declaration) => {
                 Ok(vec![llvm_ast::Expression::VariableDeclaration(
                     variable_declaration.precompile(precompiler)?,

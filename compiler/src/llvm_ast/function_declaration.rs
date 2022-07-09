@@ -17,6 +17,11 @@ impl Compile for FunctionDeclaration {
             .module
             .add_function(self.name.as_str(), function_type, None);
 
+        match compiler.functions.insert(self.name.clone(), function) {
+            None => Ok(()),
+            Some(_) => Err(compiler::Error::AlreadyDeclaredFunction(self.name.clone())),
+        }?;
+
         let basic_block = compiler.context.append_basic_block(function, "entry");
         compiler.builder.position_at_end(basic_block);
         for expr in self.body {
