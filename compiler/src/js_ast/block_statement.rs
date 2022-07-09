@@ -63,29 +63,24 @@ impl Precompile for BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, Identifier, Literal, RightAssigmentValue, VariableAssigment,
-        VariableDeclaration,
+        FunctionDeclaration, Literal, RightAssigmentValue, VariableAssigment, VariableDeclaration,
     };
 
     #[test]
     fn parse_block_statement_test() {
-        // let mut reader = TokenReader::new("{ }".as_bytes());
-        // assert_eq!(
-        //     BlockStatement::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(BlockStatement { body: vec![] })
-        // );
+        let mut reader = TokenReader::new("{ }".as_bytes());
+        assert_eq!(
+            BlockStatement::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(BlockStatement { body: vec![] })
+        );
 
         let mut reader = TokenReader::new("{ name1 = name2; }".as_bytes());
         assert_eq!(
             BlockStatement::parse(reader.next_token().unwrap(), &mut reader),
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: Identifier {
-                        name: "name1".to_string()
-                    },
-                    right: RightAssigmentValue::Identifier(Identifier {
-                        name: "name2".to_string()
-                    })
+                    left: "name1".to_string().into(),
+                    right: RightAssigmentValue::Identifier("name2".to_string().into())
                 })]
             })
         );
@@ -98,30 +93,18 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: Identifier {
-                            name: "name1".to_string()
-                        },
-                        right: RightAssigmentValue::Identifier(Identifier {
-                            name: "name2".to_string()
-                        })
+                        left: "name1".to_string().into(),
+                        right: RightAssigmentValue::Identifier("name2".to_string().into())
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: Identifier {
-                                    name: "name1".to_string()
-                                },
-                                right: RightAssigmentValue::Identifier(Identifier {
-                                    name: "name2".to_string()
-                                })
+                                left: "name1".to_string().into(),
+                                right: RightAssigmentValue::Identifier("name2".to_string().into())
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: Identifier {
-                                    name: "name1".to_string()
-                                },
-                                right: RightAssigmentValue::Identifier(Identifier {
-                                    name: "name2".to_string()
-                                })
+                                left: "name1".to_string().into(),
+                                right: RightAssigmentValue::Identifier("name2".to_string().into())
                             }),
                         ]
                     })
@@ -137,9 +120,7 @@ mod tests {
         let block_statement = BlockStatement {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
-                    left: Identifier {
-                        name: "name_1".to_string(),
-                    },
+                    left: "name_1".to_string().into(),
                     right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
                 },
             ))],
@@ -163,9 +144,7 @@ mod tests {
         assert_eq!(precompiler.functions.len(), 0);
         let block_statement = BlockStatement {
             body: vec![Expression::FunctionDeclaration(FunctionDeclaration {
-                name: Identifier {
-                    name: "name_1".to_string(),
-                },
+                name: "name_1".to_string().into(),
                 args: vec![],
                 body: BlockStatement { body: vec![] },
             })],

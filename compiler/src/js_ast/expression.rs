@@ -82,7 +82,7 @@ impl Precompile for Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Identifier, Literal, RightAssigmentValue};
+    use crate::js_ast::{Literal, RightAssigmentValue};
 
     #[test]
     fn parse_expression_variable_declaration_test() {
@@ -91,9 +91,7 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
-                    left: Identifier {
-                        name: "name".to_string()
-                    },
+                    left: "name".to_string().into(),
                     right: RightAssigmentValue::Literal(Literal::Number(12_f64))
                 }
             )))
@@ -106,9 +104,7 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
-                left: Identifier {
-                    name: "name".to_string()
-                },
+                left: "name".to_string().into(),
                 right: RightAssigmentValue::Literal(Literal::Number(12_f64))
             })
         );
@@ -127,12 +123,8 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: Identifier {
-                        name: "name1".to_string()
-                    },
-                    right: RightAssigmentValue::Identifier(Identifier {
-                        name: "name2".to_string()
-                    })
+                    left: "name1".to_string().into(),
+                    right: RightAssigmentValue::Identifier("name2".to_string().into())
                 })]
             })
         );
@@ -145,30 +137,18 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: Identifier {
-                            name: "name1".to_string()
-                        },
-                        right: RightAssigmentValue::Identifier(Identifier {
-                            name: "name2".to_string()
-                        })
+                        left: "name1".to_string().into(),
+                        right: RightAssigmentValue::Identifier("name2".to_string().into())
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: Identifier {
-                                    name: "name1".to_string()
-                                },
-                                right: RightAssigmentValue::Identifier(Identifier {
-                                    name: "name2".to_string()
-                                })
+                                left: "name1".to_string().into(),
+                                right: RightAssigmentValue::Identifier("name2".to_string().into())
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: Identifier {
-                                    name: "name1".to_string()
-                                },
-                                right: RightAssigmentValue::Identifier(Identifier {
-                                    name: "name2".to_string()
-                                })
+                                left: "name1".to_string().into(),
+                                right: RightAssigmentValue::Identifier("name2".to_string().into())
                             }),
                         ]
                     })

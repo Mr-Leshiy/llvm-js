@@ -38,19 +38,14 @@ impl Module {
 
 #[cfg(test)]
 mod tests {
-    use crate::js_ast::{self, Identifier};
+    use crate::js_ast;
 
     #[test]
     fn compile_module_from_file_test() {
         let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
         let module = js_ast::Module::new("".to_string(), file).unwrap();
         let module = module
-            .precompile(
-                vec![Identifier {
-                    name: "printf".to_string(),
-                }]
-                .into_iter(),
-            )
+            .precompile(vec!["printf".to_string().into()].into_iter())
             .unwrap();
         let mut out = Vec::new();
         module.compile_to(&mut out).unwrap();

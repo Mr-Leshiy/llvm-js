@@ -33,7 +33,7 @@ impl Parser for Program {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Identifier, Literal, RightAssigmentValue, VariableAssigment};
+    use crate::js_ast::{Literal, RightAssigmentValue, VariableAssigment};
 
     #[test]
     fn parse_program_test() {
@@ -42,9 +42,7 @@ mod tests {
             Program::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Program {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: Identifier {
-                        name: "name".to_string()
-                    },
+                    left: "name".to_string().into(),
                     right: RightAssigmentValue::Literal(Literal::Number(12_f64))
                 })]
             })

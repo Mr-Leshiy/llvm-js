@@ -78,17 +78,8 @@ mod tests {
         assert_eq!(
             FunctionCall::parse(reader.next_token().unwrap(), &mut reader),
             Ok(FunctionCall {
-                name: Identifier {
-                    name: "foo".to_string()
-                },
-                args: vec![
-                    Identifier {
-                        name: "a".to_string()
-                    },
-                    Identifier {
-                        name: "b".to_string()
-                    }
-                ]
+                name: "foo".to_string().into(),
+                args: vec!["a".to_string().into(), "b".to_string().into()]
             })
         );
     }
@@ -98,35 +89,21 @@ mod tests {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler
             .functions
-            .insert(Identifier {
-                name: "name_1".to_string(),
-            })
+            .insert("name_1".to_string().into())
             .unwrap();
         precompiler
             .variables
-            .insert(Identifier {
-                name: "a".to_string(),
-            })
+            .insert("a".to_string().into())
             .unwrap();
         precompiler
             .variables
-            .insert(Identifier {
-                name: "b".to_string(),
-            })
+            .insert("b".to_string().into())
             .unwrap();
 
         let function_call = FunctionCall {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
-            args: vec![
-                Identifier {
-                    name: "a".to_string(),
-                },
-                Identifier {
-                    name: "b".to_string(),
-                },
-            ],
+            name: "name_1".to_string().into(),
+
+            args: vec!["a".to_string().into(), "b".to_string().into()],
         };
 
         assert_eq!(
@@ -143,17 +120,16 @@ mod tests {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
         let function_call = FunctionCall {
-            name: Identifier {
-                name: "name_1".to_string(),
-            },
+            name: "name_1".to_string().into(),
+
             args: vec![],
         };
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction(Identifier {
-                name: "name_1".to_string(),
-            }))
+            Err(precompiler::Error::UndefinedFunction(
+                "name_1".to_string().into()
+            ))
         );
     }
 }
