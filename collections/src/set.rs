@@ -67,36 +67,60 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
     }
 }
 
+impl<V: Clone + Eq + Hash + Display + Debug> FromIterator<V> for Set<V> {
+    fn from_iter<T: IntoIterator<Item = V>>(iter: T) -> Self {
+        let mut set = Set::new();
+        for el in iter.into_iter() {
+            let _ = set.insert(el);
+        }
+        set
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn set_test() {
-        let mut map = Set::new();
+        let mut set = Set::new();
 
-        map.remove_last_added(10);
-        assert_eq!(map.len(), 0);
+        set.remove_last_added(10);
+        assert_eq!(set.len(), 0);
 
-        map.insert(5).unwrap();
-        assert_eq!(map.insert(5), Err(Error::AlreadyKnownValue(5)));
+        set.insert(5).unwrap();
+        assert_eq!(set.insert(5), Err(Error::AlreadyKnownValue(5)));
 
-        map.insert(6).unwrap();
+        set.insert(6).unwrap();
 
-        assert!(map.contains(&5));
-        assert!(map.contains(&6));
-        assert_eq!(map.len(), 2);
+        assert!(set.contains(&5));
+        assert!(set.contains(&6));
+        assert_eq!(set.len(), 2);
 
-        map.remove_last_added(1);
+        set.remove_last_added(1);
 
-        assert!(map.contains(&5));
-        assert!(!map.contains(&6));
-        assert_eq!(map.len(), 1);
+        assert!(set.contains(&5));
+        assert!(!set.contains(&6));
+        assert_eq!(set.len(), 1);
 
-        map.remove_last_added(3);
+        set.remove_last_added(3);
 
-        assert!(!map.contains(&5));
-        assert!(!map.contains(&6));
-        assert_eq!(map.len(), 0);
+        assert!(!set.contains(&5));
+        assert!(!set.contains(&6));
+        assert_eq!(set.len(), 0);
+    }
+
+    #[test]
+    fn from_iter_test() {
+        let vec = vec![1, 2, 3, 4, 5];
+
+        let set: Set<i32> = vec.into_iter().collect();
+
+        assert_eq!(set.len(), 5);
+        assert!(set.contains(&1));
+        assert!(set.contains(&2));
+        assert!(set.contains(&3));
+        assert!(set.contains(&4));
+        assert!(set.contains(&5));
     }
 }
