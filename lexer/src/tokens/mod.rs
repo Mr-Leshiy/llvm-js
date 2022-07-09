@@ -39,7 +39,7 @@ impl Display for Token {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{Error, Position, TokenReader};
+    use crate::{Error, Position, TokenReader};
 
     #[test]
     fn token_ident_test() {

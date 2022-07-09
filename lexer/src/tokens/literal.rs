@@ -20,7 +20,7 @@ impl Display for Literal {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{Error, Position, Token, TokenReader};
+    use crate::{Error, Position, Token, TokenReader};
 
     #[test]
     fn literal_number_test() {

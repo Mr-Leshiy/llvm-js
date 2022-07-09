@@ -1,5 +1,4 @@
 use crate::{
-    lexer::TokenReader,
     llvm_ast, parser,
     parser::Parser,
     precompiler::{self, Precompile, Precompiler},
@@ -9,6 +8,7 @@ pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
+use lexer::TokenReader;
 pub use literal::Literal;
 pub use program::Program;
 pub use right_assignment_value::RightAssigmentValue;

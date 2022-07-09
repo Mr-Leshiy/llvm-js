@@ -2,11 +2,11 @@ use super::{
     BlockStatement, FunctionCall, FunctionDeclaration, VariableAssigment, VariableDeclaration,
 };
 use crate::{
-    lexer::{Keyword, Separator, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
+use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]

@@ -1,8 +1,6 @@
 use super::{Identifier, Literal};
-use crate::{
-    lexer::{Literal as LiteralToken, Token, TokenReader},
-    parser::{self, Parser},
-};
+use crate::parser::{self, Parser};
+use lexer::{Literal as LiteralToken, Token, TokenReader};
 use std::io::Read;
 
 /// RightAssigmentValue
