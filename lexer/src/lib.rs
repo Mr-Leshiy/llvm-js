@@ -160,29 +160,21 @@ impl<R: Read> TokenReader<R> {
     // try read separator: '(',')','{','}','[',']'
     fn try_read_separator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
         match char {
-            '(' => return Ok(TokenResult::Token(Token::Separator(Separator::OpenBrace))),
-            ')' => return Ok(TokenResult::Token(Token::Separator(Separator::CloseBrace))),
-            '{' => {
-                return Ok(TokenResult::Token(Token::Separator(
-                    Separator::OpenCurlyBrace,
-                )))
-            }
-            '}' => {
-                return Ok(TokenResult::Token(Token::Separator(
-                    Separator::CloseCurlyBrace,
-                )))
-            }
-            '[' => {
-                return Ok(TokenResult::Token(Token::Separator(
-                    Separator::OpenSquareBracket,
-                )))
-            }
-            ']' => {
-                return Ok(TokenResult::Token(Token::Separator(
-                    Separator::CloseSquareBracket,
-                )))
-            }
-            ',' => return Ok(TokenResult::Token(Token::Separator(Separator::Comma))),
+            '(' => Ok(TokenResult::Token(Token::Separator(Separator::OpenBrace))),
+            ')' => Ok(TokenResult::Token(Token::Separator(Separator::CloseBrace))),
+            '{' => Ok(TokenResult::Token(Token::Separator(
+                Separator::OpenCurlyBrace,
+            ))),
+            '}' => Ok(TokenResult::Token(Token::Separator(
+                Separator::CloseCurlyBrace,
+            ))),
+            '[' => Ok(TokenResult::Token(Token::Separator(
+                Separator::OpenSquareBracket,
+            ))),
+            ']' => Ok(TokenResult::Token(Token::Separator(
+                Separator::CloseSquareBracket,
+            ))),
+            ',' => Ok(TokenResult::Token(Token::Separator(Separator::Comma))),
             _ => Ok(TokenResult::Result(())),
         }
     }
