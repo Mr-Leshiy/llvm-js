@@ -1,7 +1,5 @@
-use crate::{
-    lexer::{Literal as LiteralToken, Token, TokenReader},
-    parser::{self, Parser},
-};
+use crate::parser::{self, Parser};
+use lexer::{Literal as LiteralToken, Token, TokenReader};
 use std::io::Read;
 
 /// Literal - Expression type for numeric literals like "1.0" or string literals "hello".

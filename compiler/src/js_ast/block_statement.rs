@@ -1,10 +1,10 @@
 use super::Expression;
 use crate::{
-    lexer::{Separator, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
+use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]

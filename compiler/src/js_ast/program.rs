@@ -1,8 +1,6 @@
 use super::Expression;
-use crate::{
-    lexer::{Token, TokenReader},
-    parser::{self, Parser},
-};
+use crate::parser::{self, Parser};
+use lexer::{Token, TokenReader};
 use std::io::Read;
 
 /// Program

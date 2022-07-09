@@ -1,4 +1,4 @@
-use crate::lexer::{self, Token, TokenReader};
+use lexer::{self, Token, TokenReader};
 use std::io::Read;
 use thiserror::Error;
 

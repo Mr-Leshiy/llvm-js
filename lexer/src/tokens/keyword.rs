@@ -20,7 +20,7 @@ impl Display for Keyword {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{Token, TokenReader};
+    use crate::{Token, TokenReader};
 
     #[test]
     fn token_var() {

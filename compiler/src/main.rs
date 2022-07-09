@@ -2,7 +2,6 @@ use js_ast::Module;
 
 mod compiler;
 mod js_ast;
-mod lexer;
 mod llvm_ast;
 mod parser;
 mod precompiler;

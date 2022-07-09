@@ -1,10 +1,10 @@
 use super::{Literal, RightAssigmentValue, VariableAssigment};
 use crate::{
-    lexer::{Keyword, Token, TokenReader},
     llvm_ast,
     parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
+use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"

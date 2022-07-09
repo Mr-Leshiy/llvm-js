@@ -35,7 +35,7 @@ impl Display for Separator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{Token, TokenReader};
+    use crate::{Token, TokenReader};
 
     #[test]
     fn separator_test_1() {
