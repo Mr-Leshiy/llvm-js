@@ -53,6 +53,7 @@ impl Precompile for FunctionCall {
         if precompiler.functions.contains(&self.name) {
             Ok(llvm_ast::FunctionCall {
                 name: self.name.name,
+                args: self.args.into_iter().map(|name| name.name).collect(),
             })
         } else {
             Err(precompiler::Error::UndefinedFunction(self.name))
@@ -99,13 +100,21 @@ mod tests {
             name: Identifier {
                 name: "name_1".to_string(),
             },
-            args: vec![],
+            args: vec![
+                Identifier {
+                    name: "a".to_string(),
+                },
+                Identifier {
+                    name: "b".to_string(),
+                },
+            ],
         };
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionCall {
                 name: "name_1".to_string(),
+                args: vec!["a".to_string(), "b".to_string()],
             })
         );
     }
