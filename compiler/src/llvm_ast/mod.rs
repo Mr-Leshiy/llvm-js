@@ -25,6 +25,7 @@ impl Module {
         let context = Context::create();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
+        compiler.declare_dynamic_type();
         compiler.declare_prinf();
 
         self.program.compile(&mut compiler)?;

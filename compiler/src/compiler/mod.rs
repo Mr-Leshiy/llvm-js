@@ -1,3 +1,4 @@
+use self::dynamic_type::DynamicType;
 use crate::llvm_ast::{FunctionName, VariableName};
 use extern_functions::PrintfFn;
 use inkwell::{
@@ -9,6 +10,7 @@ use inkwell::{
 use std::collections::HashMap;
 use thiserror::Error;
 
+mod dynamic_type;
 mod extern_functions;
 
 #[derive(Debug, Error)]
@@ -45,6 +47,8 @@ pub struct Compiler<'ctx> {
     pub variables: HashMap<VariableName, PointerValue<'ctx>>,
     pub functions: HashMap<FunctionName, FunctionValue<'ctx>>,
 
+    dynamic_type: Option<DynamicType<'ctx>>,
+
     printf: Option<PrintfFn<'ctx>>,
 }
 
@@ -56,8 +60,13 @@ impl<'ctx> Compiler<'ctx> {
             builder: context.create_builder(),
             variables: HashMap::new(),
             functions: HashMap::new(),
+            dynamic_type: None,
             printf: None,
         }
+    }
+
+    pub fn declare_dynamic_type(&mut self) {
+        self.dynamic_type = Some(DynamicType::declare(self));
     }
 
     pub fn declare_prinf(&mut self) {
