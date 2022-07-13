@@ -1,5 +1,5 @@
 use super::{VariableAssigment, VariableValue};
-use crate::compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);

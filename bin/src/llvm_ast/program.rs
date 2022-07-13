@@ -1,5 +1,5 @@
 use super::{expression::Expression, FunctionDeclaration};
-use crate::compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler};
 
 pub struct Program {
     pub functions: Vec<FunctionDeclaration>,

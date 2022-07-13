@@ -43,6 +43,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "compiler"
+version = "0.1.0"
+dependencies = [
+ "inkwell",
+ "thiserror",
+]
+
+[[package]]
 name = "either"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -95,6 +103,7 @@ name = "llvm-js-compiler"
 version = "0.1.0"
 dependencies = [
  "collections",
+ "compiler",
  "inkwell",
  "lexer",
  "thiserror",

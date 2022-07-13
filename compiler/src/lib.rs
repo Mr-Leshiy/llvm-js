@@ -1,5 +1,4 @@
 use self::dynamic_type::DynamicType;
-use crate::llvm_ast::{FunctionName, VariableName};
 use extern_functions::PrintfFn;
 use inkwell::{
     builder::Builder,
@@ -16,13 +15,13 @@ mod extern_functions;
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Undefined variable identifier {0}")]
-    UndefinedVariable(VariableName),
+    UndefinedVariable(String),
     #[error("Variable with this identifier {0} already declared")]
-    AlreadyDeclaredVariable(VariableName),
+    AlreadyDeclaredVariable(String),
     #[error("Undefined function identifier {0}")]
-    UndefinedFunction(FunctionName),
+    UndefinedFunction(String),
     #[error("Function with this identifier {0} already declared")]
-    AlreadyDeclaredFunction(FunctionName),
+    AlreadyDeclaredFunction(String),
     #[error("Not enough arguments")]
     NotEnoughArguments,
     #[error("Invalid compiled module, {0}")]
@@ -44,8 +43,8 @@ pub struct Compiler<'ctx> {
     pub module: Module<'ctx>,
     pub builder: Builder<'ctx>,
 
-    pub variables: HashMap<VariableName, PointerValue<'ctx>>,
-    pub functions: HashMap<FunctionName, FunctionValue<'ctx>>,
+    pub variables: HashMap<String, PointerValue<'ctx>>,
+    pub functions: HashMap<String, FunctionValue<'ctx>>,
 
     dynamic_type: Option<DynamicType<'ctx>>,
 

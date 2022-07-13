@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler};
 
 pub type FunctionName = String;
 

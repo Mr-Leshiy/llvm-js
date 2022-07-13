@@ -1,4 +1,4 @@
-use crate::compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler};
 pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::{FunctionDeclaration, FunctionName};

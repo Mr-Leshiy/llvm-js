@@ -1,5 +1,5 @@
 use super::{FunctionName, VariableName};
-use crate::compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
