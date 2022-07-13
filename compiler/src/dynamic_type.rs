@@ -6,7 +6,7 @@ pub struct DynamicType<'ctx> {
 }
 
 impl<'ctx> DynamicType<'ctx> {
-    pub fn declare(compiler: &mut Compiler<'ctx>) -> Self {
+    pub fn new(compiler: &mut Compiler<'ctx>) -> Self {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
 

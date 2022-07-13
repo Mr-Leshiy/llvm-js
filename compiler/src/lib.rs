@@ -1,16 +1,13 @@
 use self::dynamic_type::DynamicType;
 use extern_functions::PrintfFn;
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    module::Module,
-    values::{FunctionValue, PointerValue},
-};
-use std::collections::HashMap;
+pub use function::Function;
+use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
+use std::{collections::HashMap, io::Write};
 use thiserror::Error;
 
 mod dynamic_type;
 mod extern_functions;
+mod function;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -40,13 +37,11 @@ pub trait Compile {
 
 pub struct Compiler<'ctx> {
     pub context: &'ctx Context,
-    pub module: Module<'ctx>,
+    module: Module<'ctx>,
     pub builder: Builder<'ctx>,
 
     pub variables: HashMap<String, PointerValue<'ctx>>,
-    pub functions: HashMap<String, FunctionValue<'ctx>>,
-
-    dynamic_type: Option<DynamicType<'ctx>>,
+    functions: HashMap<String, Function<'ctx>>,
 
     printf: Option<PrintfFn<'ctx>>,
 }
@@ -59,13 +54,8 @@ impl<'ctx> Compiler<'ctx> {
             builder: context.create_builder(),
             variables: HashMap::new(),
             functions: HashMap::new(),
-            dynamic_type: None,
             printf: None,
         }
-    }
-
-    pub fn declare_dynamic_type(&mut self) {
-        self.dynamic_type = Some(DynamicType::declare(self));
     }
 
     pub fn declare_prinf(&mut self) {
@@ -76,6 +66,30 @@ impl<'ctx> Compiler<'ctx> {
         self.printf
             .clone()
             .ok_or_else(|| Error::UndeclaredFunction("printf".to_string()))
+    }
+}
+
+impl<'ctx> Compiler<'ctx> {
+    pub fn insert_function(&mut self, name: String, function: Function<'ctx>) -> Result<(), Error> {
+        match self.functions.insert(name.clone(), function) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredFunction(name)),
+        }
+    }
+
+    pub fn get_function(&self, name: String) -> Result<Function<'ctx>, Error> {
+        self.functions
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedFunction(name))
+    }
+
+    pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        self.verify()?;
+        writer
+            .write(self.module.print_to_string().to_bytes())
+            .map_err(|e| Error::CannotWriteModule(e.to_string()))?;
+        Ok(())
     }
 
     pub fn verify(&self) -> Result<(), Error> {

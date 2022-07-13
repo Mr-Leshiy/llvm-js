@@ -1,5 +1,5 @@
 use super::Expression;
-use compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler, Function};
 
 pub type FunctionName = String;
 
@@ -12,23 +12,9 @@ pub struct FunctionDeclaration {
 
 impl Compile for FunctionDeclaration {
     fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
-        let function_type = compiler.context.void_type().fn_type(&[], false);
-        let function = compiler
-            .module
-            .add_function(self.name.as_str(), function_type, None);
+        let function = Function::new(compiler, &self.name);
+        function.generate_body(compiler, self.body)?;
 
-        match compiler.functions.insert(self.name.clone(), function) {
-            None => Ok(()),
-            Some(_) => Err(compiler::Error::AlreadyDeclaredFunction(self.name.clone())),
-        }?;
-
-        let basic_block = compiler.context.append_basic_block(function, "entry");
-        compiler.builder.position_at_end(basic_block);
-        for expr in self.body {
-            expr.compile(compiler)?;
-        }
-        compiler.builder.build_return(None);
-
-        Ok(())
+        compiler.insert_function(self.name, function)
     }
 }

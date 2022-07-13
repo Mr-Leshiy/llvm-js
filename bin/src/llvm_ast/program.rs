@@ -1,5 +1,5 @@
 use super::{expression::Expression, FunctionDeclaration};
-use compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler, Function};
 
 pub struct Program {
     pub functions: Vec<FunctionDeclaration>,
@@ -13,17 +13,7 @@ impl Compile for Program {
         }
 
         // define main function
-        let function_type = compiler.context.void_type().fn_type(&[], false);
-        let function = compiler.module.add_function("main", function_type, None);
-        let basic_block = compiler.context.append_basic_block(function, "entry");
-        compiler.builder.position_at_end(basic_block);
-
-        for expr in self.body {
-            expr.compile(compiler)?;
-        }
-
-        compiler.builder.build_return(None);
-
-        Ok(())
+        let function = Function::new(compiler, "main");
+        function.generate_body(compiler, self.body)
     }
 }

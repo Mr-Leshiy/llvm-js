@@ -25,15 +25,10 @@ impl Module {
         let context = Context::create();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_dynamic_type();
         compiler.declare_prinf();
 
         self.program.compile(&mut compiler)?;
-        compiler.verify()?;
-        writer
-            .write(compiler.module.print_to_string().to_bytes())
-            .map_err(|e| compiler::Error::CannotWriteModule(e.to_string()))?;
-        Ok(())
+        compiler.write_result_into(writer)
     }
 }
 
