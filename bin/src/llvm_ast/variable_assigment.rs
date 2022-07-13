@@ -17,29 +17,27 @@ pub struct VariableAssigment {
 
 impl Compile for VariableAssigment {
     fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
-        let pointer = compiler
+        let variable1 = compiler
             .variables
             .get(&self.name)
             .cloned()
             .ok_or(compiler::Error::UndefinedVariable(self.name))?;
         match self.value {
             VariableValue::FloatNumber(value) => {
-                let value = compiler.context.f64_type().const_float(value);
-                compiler.builder.build_store(pointer, value);
+                variable1.assign_number(compiler, value);
                 Ok(())
             }
             VariableValue::String(value) => {
-                let value = compiler.context.const_string(value.as_bytes(), false);
-                compiler.builder.build_store(pointer, value);
+                variable1.assign_string(compiler, &value);
                 Ok(())
             }
             VariableValue::Identifier(name) => {
-                let value = compiler
+                let variable2 = compiler
                     .variables
                     .get(&name)
-                    .ok_or_else(|| compiler::Error::UndefinedVariable(name.clone()))?;
-                let value = compiler.builder.build_load(*value, "");
-                compiler.builder.build_store(pointer, value);
+                    .ok_or_else(|| compiler::Error::UndefinedVariable(name.clone()))?
+                    .clone();
+                variable1.assign_variable(compiler, &variable2);
                 Ok(())
             }
         }

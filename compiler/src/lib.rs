@@ -1,13 +1,13 @@
-use self::dynamic_type::DynamicType;
 use extern_functions::PrintfFn;
 pub use function::Function;
-use inkwell::{builder::Builder, context::Context, module::Module, values::PointerValue};
+use inkwell::{builder::Builder, context::Context, module::Module};
 use std::{collections::HashMap, io::Write};
 use thiserror::Error;
+pub use variable::Variable;
 
-mod dynamic_type;
 mod extern_functions;
 mod function;
+mod variable;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -40,7 +40,7 @@ pub struct Compiler<'ctx> {
     module: Module<'ctx>,
     pub builder: Builder<'ctx>,
 
-    pub variables: HashMap<String, PointerValue<'ctx>>,
+    pub variables: HashMap<String, Variable<'ctx>>,
     functions: HashMap<String, Function<'ctx>>,
 
     printf: Option<PrintfFn<'ctx>>,

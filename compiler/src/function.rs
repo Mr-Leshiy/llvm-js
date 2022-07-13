@@ -3,7 +3,7 @@ use inkwell::values::FunctionValue;
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
-    function: FunctionValue<'ctx>,
+    pub(super) function: FunctionValue<'ctx>,
 }
 
 impl<'ctx> Function<'ctx> {
@@ -39,12 +39,12 @@ impl<'ctx> Function<'ctx> {
             if i >= args_num {
                 break;
             }
-            let pointer = compiler
+            let variable = compiler
                 .variables
                 .get(&arg_name)
                 .cloned()
                 .ok_or(Error::UndefinedVariable(arg_name))?;
-            vec.push(pointer.into());
+            vec.push(variable.value.into());
         }
 
         compiler

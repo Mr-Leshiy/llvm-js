@@ -56,12 +56,12 @@ impl<'ctx> PrintfFn<'ctx> {
                     .build_pointer_cast(
                         self.p_f64_fmt.as_pointer_value(),
                         compiler.context.i8_type().ptr_type(AddressSpace::Generic),
-                        "cast",
+                        "",
                     )
                     .into(),
                 val.into(),
             ],
-            "call",
+            "",
         );
     }
 
@@ -74,12 +74,12 @@ impl<'ctx> PrintfFn<'ctx> {
                     .build_pointer_cast(
                         self.p_str_fmt.as_pointer_value(),
                         compiler.context.i8_type().ptr_type(AddressSpace::Generic),
-                        "cast",
+                        "",
                     )
                     .into(),
                 val.into(),
             ],
-            "call",
+            "",
         );
     }
 
