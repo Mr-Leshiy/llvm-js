@@ -1,8 +1,7 @@
-use compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler, Context};
 pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::{FunctionDeclaration, FunctionName};
-use inkwell::context::Context;
 pub use program::Program;
 use std::io::Write;
 pub use variable_assigment::{VariableAssigment, VariableName, VariableValue};
@@ -22,7 +21,7 @@ pub struct Module {
 
 impl Module {
     pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error> {
-        let context = Context::create();
+        let context = Context::new();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
         compiler.declare_prinf();

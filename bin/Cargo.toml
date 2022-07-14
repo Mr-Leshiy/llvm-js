@@ -9,5 +9,4 @@ edition = "2021"
 collections = { path = "../collections" }
 compiler = { path = "../compiler" }
 lexer = { path = "../lexer" }
-inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm14-0"] }
 thiserror = { version = "1.0.31" }

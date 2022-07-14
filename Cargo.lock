@@ -104,7 +104,6 @@ version = "0.1.0"
 dependencies = [
  "collections",
  "compiler",
- "inkwell",
  "lexer",
  "thiserror",
 ]

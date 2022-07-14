@@ -1,7 +1,6 @@
 use extern_functions::PrintfFn;
 pub use function::Function;
-use inkwell::{builder::Builder, context::Context, module::Module};
-use std::{collections::HashMap, io::Write};
+use std::{collections::HashMap, io::Write, ops::Deref};
 use thiserror::Error;
 pub use variable::Variable;
 
@@ -35,10 +34,25 @@ pub trait Compile {
     fn compile(self, compiler: &mut Compiler) -> Result<(), Error>;
 }
 
+pub struct Context(inkwell::context::Context);
+
+impl Deref for Context {
+    type Target = inkwell::context::Context;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Context {
+    pub fn new() -> Self {
+        Self(inkwell::context::Context::create())
+    }
+}
+
 pub struct Compiler<'ctx> {
-    pub context: &'ctx Context,
-    module: Module<'ctx>,
-    builder: Builder<'ctx>,
+    context: &'ctx Context,
+    module: inkwell::module::Module<'ctx>,
+    builder: inkwell::builder::Builder<'ctx>,
 
     variables: HashMap<String, Variable<'ctx>>,
     functions: HashMap<String, Function<'ctx>>,
