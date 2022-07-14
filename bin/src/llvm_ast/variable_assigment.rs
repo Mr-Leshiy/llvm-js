@@ -17,11 +17,7 @@ pub struct VariableAssigment {
 
 impl Compile for VariableAssigment {
     fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
-        let variable1 = compiler
-            .variables
-            .get(&self.name)
-            .cloned()
-            .ok_or(compiler::Error::UndefinedVariable(self.name))?;
+        let variable1 = compiler.get_variable(self.name)?;
         match self.value {
             VariableValue::FloatNumber(value) => {
                 variable1.assign_number(compiler, value);
@@ -32,11 +28,7 @@ impl Compile for VariableAssigment {
                 Ok(())
             }
             VariableValue::Identifier(name) => {
-                let variable2 = compiler
-                    .variables
-                    .get(&name)
-                    .ok_or_else(|| compiler::Error::UndefinedVariable(name.clone()))?
-                    .clone();
+                let variable2 = compiler.get_variable(name)?;
                 variable1.assign_variable(compiler, &variable2);
                 Ok(())
             }

@@ -13,17 +13,10 @@ impl Compile for VariableDeclaration {
             }
             VariableValue::String(value) => Variable::new_string(compiler, &value, &variable.name),
             VariableValue::Identifier(name) => {
-                let variable = compiler
-                    .variables
-                    .get(&name)
-                    .ok_or_else(|| compiler::Error::UndefinedVariable(name.clone()))?
-                    .clone();
+                let variable = compiler.get_variable(name.clone())?;
                 Variable::new_variable(compiler, &name, &variable)
             }
         };
-        match compiler.variables.insert(variable.name.clone(), var) {
-            None => Ok(()),
-            Some(_) => Err(compiler::Error::AlreadyDeclaredVariable(variable.name)),
-        }
+        compiler.insert_variable(variable.name, var)
     }
 }

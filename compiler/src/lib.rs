@@ -38,9 +38,9 @@ pub trait Compile {
 pub struct Compiler<'ctx> {
     pub context: &'ctx Context,
     module: Module<'ctx>,
-    pub builder: Builder<'ctx>,
+    builder: Builder<'ctx>,
 
-    pub variables: HashMap<String, Variable<'ctx>>,
+    variables: HashMap<String, Variable<'ctx>>,
     functions: HashMap<String, Function<'ctx>>,
 
     printf: Option<PrintfFn<'ctx>>,
@@ -74,6 +74,20 @@ impl<'ctx> Compiler<'ctx> {
         match self.functions.insert(name.clone(), function) {
             None => Ok(()),
             Some(_) => Err(Error::AlreadyDeclaredFunction(name)),
+        }
+    }
+
+    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+        self.variables
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedVariable(name))
+    }
+
+    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
+        match self.variables.insert(name.clone(), variable) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
         }
     }
 
