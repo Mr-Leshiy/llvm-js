@@ -31,7 +31,11 @@ pub enum Error {
 }
 
 pub trait Compile {
-    fn compile(self, compiler: &mut Compiler) -> Result<(), Error>;
+    fn compile<'ctx>(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+    ) -> Result<(), Error>;
 }
 
 pub struct Context(inkwell::context::Context);

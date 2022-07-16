@@ -1,7 +1,8 @@
 use super::Compiler;
+use crate::Function;
 use inkwell::{
     types::StructType,
-    values::{FunctionValue, IntValue, PointerValue},
+    values::{IntValue, PointerValue},
     AddressSpace,
 };
 
@@ -112,20 +113,20 @@ impl<'ctx> Variable<'ctx> {
     pub fn assign_variable(
         &self,
         compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
         variable: &Variable<'ctx>,
-        cur_func: FunctionValue<'ctx>,
     ) {
         let flag = variable.get_flag(compiler);
 
         let else_block = compiler
             .context
-            .append_basic_block(cur_func, "assing_variable_else_block");
+            .append_basic_block(cur_function.function, "assing_variable_else_block");
         let number_block = compiler
             .context
-            .append_basic_block(cur_func, "assing_variable_number_block");
+            .append_basic_block(cur_function.function, "assing_variable_number_block");
         let string_block = compiler
             .context
-            .append_basic_block(cur_func, "assing_variable_string_block");
+            .append_basic_block(cur_function.function, "assing_variable_string_block");
 
         let number_case = (Type::Number.to_int(compiler), number_block);
         let string_case = (Type::String.to_int(compiler), string_block);

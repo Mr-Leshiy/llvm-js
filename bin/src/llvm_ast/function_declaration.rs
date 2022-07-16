@@ -1,5 +1,5 @@
 use super::Expression;
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{self, Compiler, Function};
 
 pub type FunctionName = String;
 
@@ -10,8 +10,8 @@ pub struct FunctionDeclaration {
     pub body: Vec<Expression>,
 }
 
-impl Compile for FunctionDeclaration {
-    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
+impl FunctionDeclaration {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
         let function = Function::new(compiler, &self.name);
         function.generate_body(compiler, self.body)?;
 

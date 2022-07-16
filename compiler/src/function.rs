@@ -22,7 +22,7 @@ impl<'ctx> Function<'ctx> {
         let basic_block = compiler.context.append_basic_block(self.function, "entry");
         compiler.builder.position_at_end(basic_block);
         for expr in body {
-            expr.compile(compiler)?;
+            expr.compile(compiler, self)?;
         }
         compiler.builder.build_return(None);
         Ok(())

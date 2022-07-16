@@ -1,4 +1,4 @@
-use compiler::{self, Compile, Compiler, Context};
+use compiler::{self, Compiler, Context};
 pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::{FunctionDeclaration, FunctionName};

@@ -1,4 +1,4 @@
-use compiler::{self, Compile, Compiler};
+use compiler::{self, Compile, Compiler, Function};
 
 pub type VariableName = String;
 
@@ -16,7 +16,11 @@ pub struct VariableAssigment {
 }
 
 impl Compile for VariableAssigment {
-    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
+    fn compile<'ctx>(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+    ) -> Result<(), compiler::Error> {
         let variable1 = compiler.get_variable(self.name)?;
         match self.value {
             VariableValue::FloatNumber(value) => {
@@ -29,7 +33,7 @@ impl Compile for VariableAssigment {
             }
             VariableValue::Identifier(name) => {
                 let variable2 = compiler.get_variable(name)?;
-                // variable1.assign_variable(compiler, &variable2);
+                variable1.assign_variable(compiler, cur_function, &variable2);
                 Ok(())
             }
         }

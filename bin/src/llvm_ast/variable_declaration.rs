@@ -1,11 +1,11 @@
 use super::{VariableAssigment, VariableValue};
-use compiler::{self, Compile, Compiler, Variable};
+use compiler::{self, Compile, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
 impl Compile for VariableDeclaration {
-    fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
+    fn compile(self, compiler: &mut Compiler, _: &Function) -> Result<(), compiler::Error> {
         let variable = self.0;
         let var = match variable.value {
             VariableValue::FloatNumber(value) => {
