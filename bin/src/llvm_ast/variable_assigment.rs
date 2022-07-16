@@ -29,7 +29,7 @@ impl Compile for VariableAssigment {
             }
             VariableValue::Identifier(name) => {
                 let variable2 = compiler.get_variable(name)?;
-                variable1.assign_variable(compiler, &variable2);
+                // variable1.assign_variable(compiler, &variable2);
                 Ok(())
             }
         }
