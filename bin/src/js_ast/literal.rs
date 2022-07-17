@@ -1,5 +1,4 @@
-use crate::parser::{self, Parser};
-use lexer::{Literal as LiteralToken, Token, TokenReader};
+use lexer::{Literal as LiteralToken, Parser, Token, TokenReader};
 use std::io::Read;
 
 /// Literal - Expression type for numeric literals like "1.0" or string literals "hello".
@@ -10,11 +9,11 @@ pub enum Literal {
 }
 
 impl Parser for Literal {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Literal(LiteralToken::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(LiteralToken::String(val)) => Ok(Self::String(val)),
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

@@ -8,12 +8,18 @@ mod char_reader;
 mod position;
 mod tokens;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
     #[error("Unected symbol: {0}, position: {1}")]
     UnexpectedSymbol(char, Position),
+    #[error("Unexpected token provided: {0}")]
+    UnexpectedToken(Token),
+}
+
+pub trait Parser: Sized {
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error>;
 }
 
 fn is_skip(char: &char) -> bool {
@@ -224,6 +230,11 @@ impl<R: Read> TokenReader<R> {
         self.saved_flag = false;
     }
 
+    pub fn reset_saving(&mut self) {
+        self.saved_flag = false;
+        self.saved_tokens.clear();
+    }
+
     pub fn next_token(&mut self) -> Result<Token, Error> {
         if self.saved_flag {
             let token = self.read_token()?;
@@ -336,6 +347,20 @@ mod tests {
         assert_eq!(
             reader.read_token(),
             Ok(Token::Literal(Literal::Number(6_f64)))
+        );
+
+        //line: "foo(a, b);"
+        assert_eq!(reader.read_token(), Ok(Token::Ident("foo".to_string())));
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Separator(Separator::CloseBrace))
         );
 
         //line: "{"

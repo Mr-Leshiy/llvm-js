@@ -1,10 +1,9 @@
 use super::{BlockStatement, Identifier};
 use crate::{
     llvm_ast,
-    parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Keyword, Separator, Token, TokenReader};
+use lexer::{Keyword, Parser, Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -18,7 +17,7 @@ impl Parser for FunctionDeclaration {
     fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => {
                 // parse function name
@@ -39,12 +38,12 @@ impl Parser for FunctionDeclaration {
                             cur_token = match reader.next_token()? {
                                 Token::Separator(Separator::CloseBrace) => break,
                                 Token::Separator(Separator::Comma) => reader.next_token()?,
-                                token => return Err(parser::Error::UnexpectedToken(token)),
+                                token => return Err(lexer::Error::UnexpectedToken(token)),
                             };
                         }
                         Ok(args)
                     }
-                    token => Err(parser::Error::UnexpectedToken(token)),
+                    token => Err(lexer::Error::UnexpectedToken(token)),
                 }?;
 
                 // parse function body
@@ -52,7 +51,7 @@ impl Parser for FunctionDeclaration {
 
                 Ok(Self { name, args, body })
             }
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

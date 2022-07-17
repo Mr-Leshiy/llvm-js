@@ -1,6 +1,5 @@
 use super::{Identifier, Literal};
-use crate::parser::{self, Parser};
-use lexer::{Literal as LiteralToken, Token, TokenReader};
+use lexer::{Literal as LiteralToken, Parser, Token, TokenReader};
 use std::io::Read;
 
 /// RightAssigmentValue
@@ -11,12 +10,12 @@ pub enum RightAssigmentValue {
 }
 
 impl Parser for RightAssigmentValue {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Literal(LiteralToken::Number(val)) => Ok(Self::Literal(Literal::Number(val))),
             Token::Literal(LiteralToken::String(val)) => Ok(Self::Literal(Literal::String(val))),
             Token::Ident(name) => Ok(Self::Identifier(Identifier { name })),
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

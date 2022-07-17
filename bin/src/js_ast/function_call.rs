@@ -1,10 +1,9 @@
 use super::Identifier;
 use crate::{
     llvm_ast,
-    parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Separator, Token, TokenReader};
+use lexer::{Parser, Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -17,7 +16,7 @@ impl Parser for FunctionCall {
     fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    ) -> Result<Self, lexer::Error> {
         // parse function name
         let name = Identifier::parse(cur_token, reader)?;
 
@@ -36,12 +35,12 @@ impl Parser for FunctionCall {
                     cur_token = match reader.next_token()? {
                         Token::Separator(Separator::CloseBrace) => break,
                         Token::Separator(Separator::Comma) => reader.next_token()?,
-                        token => return Err(parser::Error::UnexpectedToken(token)),
+                        token => return Err(lexer::Error::UnexpectedToken(token)),
                     };
                 }
                 Ok(args)
             }
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }?;
         Ok(Self { name, args })
     }
