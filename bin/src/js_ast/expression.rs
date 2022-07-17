@@ -3,10 +3,9 @@ use super::{
 };
 use crate::{
     llvm_ast,
-    parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Keyword, Separator, Token, TokenReader};
+use lexer::{Keyword, Parser, Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -19,10 +18,7 @@ pub enum Expression {
 }
 
 impl Parser for Expression {
-    fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,
@@ -48,7 +44,7 @@ impl Parser for Expression {
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

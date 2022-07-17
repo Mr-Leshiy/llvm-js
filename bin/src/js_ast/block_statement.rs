@@ -1,10 +1,9 @@
 use super::Expression;
 use crate::{
     llvm_ast,
-    parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Separator, Token, TokenReader};
+use lexer::{Parser, Separator, Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -13,10 +12,7 @@ pub struct BlockStatement {
 }
 
 impl Parser for BlockStatement {
-    fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Separator(Separator::OpenCurlyBrace) => {
                 let mut body = Vec::new();
@@ -33,7 +29,7 @@ impl Parser for BlockStatement {
 
                 Ok(Self { body })
             }
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

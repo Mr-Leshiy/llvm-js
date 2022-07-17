@@ -1,10 +1,9 @@
 use super::{Literal, RightAssigmentValue, VariableAssigment};
 use crate::{
     llvm_ast,
-    parser::{self, Parser},
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Keyword, Token, TokenReader};
+use lexer::{Keyword, Parser, Token, TokenReader};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"
@@ -12,16 +11,13 @@ use std::io::Read;
 pub struct VariableDeclaration(pub VariableAssigment);
 
 impl Parser for VariableDeclaration {
-    fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
                 reader.next_token()?,
                 reader,
             )?)),
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

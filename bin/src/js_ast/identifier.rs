@@ -1,5 +1,4 @@
-use crate::parser::{self, Parser};
-use lexer::{Token, TokenReader};
+use lexer::{Parser, Token, TokenReader};
 use std::{fmt::Display, io::Read};
 
 /// Identifier - Expression type for any identifier, like "name"
@@ -21,10 +20,10 @@ impl From<String> for Identifier {
 }
 
 impl Parser for Identifier {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, parser::Error> {
+    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Ident(name) => Ok(Self { name }),
-            token => Err(parser::Error::UnexpectedToken(token)),
+            token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
 }

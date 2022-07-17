@@ -1,6 +1,5 @@
 use crate::{
-    llvm_ast, parser,
-    parser::Parser,
+    llvm_ast,
     precompiler::{self, Precompile, Precompiler},
 };
 pub use block_statement::BlockStatement;
@@ -8,7 +7,7 @@ pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
-use lexer::TokenReader;
+use lexer::{Parser, TokenReader};
 pub use literal::Literal;
 pub use program::Program;
 pub use right_assignment_value::RightAssigmentValue;
@@ -34,7 +33,7 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn new<R: Read>(name: String, input: R) -> Result<Self, parser::Error> {
+    pub fn new<R: Read>(name: String, input: R) -> Result<Self, lexer::Error> {
         let mut reader = TokenReader::new(input);
         let program = Program::parse(reader.next_token()?, &mut reader)?;
         Ok(Self { name, program })

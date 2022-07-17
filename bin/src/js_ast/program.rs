@@ -1,6 +1,5 @@
 use super::Expression;
-use crate::parser::{self, Parser};
-use lexer::{Token, TokenReader};
+use lexer::{Parser, Token, TokenReader};
 use std::io::Read;
 
 /// Program
@@ -13,7 +12,7 @@ impl Parser for Program {
     fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, parser::Error> {
+    ) -> Result<Self, lexer::Error> {
         let mut body = Vec::new();
 
         loop {
