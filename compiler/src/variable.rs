@@ -6,6 +6,7 @@ use inkwell::{
     AddressSpace,
 };
 
+#[derive(Clone, Copy)]
 pub(crate) enum Type {
     Number = 0,
     String = 1,

@@ -51,6 +51,12 @@ impl Context {
     }
 }
 
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Compiler<'ctx> {
     context: &'ctx Context,
     module: inkwell::module::Module<'ctx>,
