@@ -1,26 +1,23 @@
-use crate::llvm_ast::{FunctionName, VariableName};
-use extern_functions::PrintfFn;
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    module::Module,
-    values::{FunctionValue, PointerValue},
-};
-use std::collections::HashMap;
+pub use function::Function;
+use printf::PrintfFn;
+use std::{collections::HashMap, io::Write, ops::Deref};
 use thiserror::Error;
+pub use variable::Variable;
 
-mod extern_functions;
+mod function;
+mod printf;
+mod variable;
 
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Undefined variable identifier {0}")]
-    UndefinedVariable(VariableName),
+    UndefinedVariable(String),
     #[error("Variable with this identifier {0} already declared")]
-    AlreadyDeclaredVariable(VariableName),
+    AlreadyDeclaredVariable(String),
     #[error("Undefined function identifier {0}")]
-    UndefinedFunction(FunctionName),
+    UndefinedFunction(String),
     #[error("Function with this identifier {0} already declared")]
-    AlreadyDeclaredFunction(FunctionName),
+    AlreadyDeclaredFunction(String),
     #[error("Not enough arguments")]
     NotEnoughArguments,
     #[error("Invalid compiled module, {0}")]
@@ -29,21 +26,44 @@ pub enum Error {
     CannotWriteModule(String),
     #[error("Undeclared function: {0}")]
     UndeclaredFunction(String),
-    #[error("InvalidType")]
-    InvalidType,
 }
 
 pub trait Compile {
-    fn compile(self, compiler: &mut Compiler) -> Result<(), Error>;
+    fn compile<'ctx>(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+    ) -> Result<(), Error>;
+}
+
+pub struct Context(inkwell::context::Context);
+
+impl Deref for Context {
+    type Target = inkwell::context::Context;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Context {
+    pub fn new() -> Self {
+        Self(inkwell::context::Context::create())
+    }
+}
+
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct Compiler<'ctx> {
-    pub context: &'ctx Context,
-    pub module: Module<'ctx>,
-    pub builder: Builder<'ctx>,
+    context: &'ctx Context,
+    module: inkwell::module::Module<'ctx>,
+    builder: inkwell::builder::Builder<'ctx>,
 
-    pub variables: HashMap<VariableName, PointerValue<'ctx>>,
-    pub functions: HashMap<FunctionName, FunctionValue<'ctx>>,
+    variables: HashMap<String, Variable<'ctx>>,
+    functions: HashMap<String, Function<'ctx>>,
 
     printf: Option<PrintfFn<'ctx>>,
 }
@@ -68,6 +88,44 @@ impl<'ctx> Compiler<'ctx> {
         self.printf
             .clone()
             .ok_or_else(|| Error::UndeclaredFunction("printf".to_string()))
+    }
+}
+
+impl<'ctx> Compiler<'ctx> {
+    pub fn insert_function(&mut self, name: String, function: Function<'ctx>) -> Result<(), Error> {
+        match self.functions.insert(name.clone(), function) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredFunction(name)),
+        }
+    }
+
+    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+        self.variables
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedVariable(name))
+    }
+
+    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
+        match self.variables.insert(name.clone(), variable) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
+        }
+    }
+
+    pub fn get_function(&self, name: String) -> Result<Function<'ctx>, Error> {
+        self.functions
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedFunction(name))
+    }
+
+    pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        self.verify()?;
+        writer
+            .write(self.module.print_to_string().to_bytes())
+            .map_err(|e| Error::CannotWriteModule(e.to_string()))?;
+        Ok(())
     }
 
     pub fn verify(&self) -> Result<(), Error> {

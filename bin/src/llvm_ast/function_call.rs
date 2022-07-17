@@ -1,0 +1,25 @@
+use super::{FunctionName, VariableName};
+use compiler::{self, Compile, Compiler, Function};
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct FunctionCall {
+    pub name: FunctionName,
+    pub args: Vec<VariableName>,
+}
+
+impl Compile for FunctionCall {
+    fn compile<'ctx>(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+    ) -> Result<(), compiler::Error> {
+        // TODO refactor
+        if self.name == "printf" {
+            let pritnf = compiler.get_printf()?;
+            pritnf.print(compiler, cur_function, self.args)
+        } else {
+            let function = compiler.get_function(self.name)?;
+            function.generate_call(compiler, self.args)
+        }
+    }
+}
