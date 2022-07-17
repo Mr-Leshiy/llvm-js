@@ -98,6 +98,10 @@ mod tests {
                             left: "b".to_string().into(),
                             right: RightAssigmentValue::Literal(Literal::Number(6_f64))
                         })),
+                        Expression::FunctionCall(FunctionCall {
+                            name: "foo".to_string().into(),
+                            args: vec!["a".to_string().into(), "b".to_string().into()]
+                        }),
                         Expression::BlockStatement(BlockStatement {
                             body: vec![
                                 Expression::VariableAssigment(VariableAssigment {

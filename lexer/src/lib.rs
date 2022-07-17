@@ -224,6 +224,11 @@ impl<R: Read> TokenReader<R> {
         self.saved_flag = false;
     }
 
+    pub fn reset_saving(&mut self) {
+        self.saved_flag = false;
+        self.saved_tokens.clear();
+    }
+
     pub fn next_token(&mut self) -> Result<Token, Error> {
         if self.saved_flag {
             let token = self.read_token()?;
@@ -336,6 +341,20 @@ mod tests {
         assert_eq!(
             reader.read_token(),
             Ok(Token::Literal(Literal::Number(6_f64)))
+        );
+
+        //line: "foo(a, b);"
+        assert_eq!(reader.read_token(), Ok(Token::Ident("foo".to_string())));
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Separator(Separator::OpenBrace))
+        );
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Separator(Separator::CloseBrace))
         );
 
         //line: "{"

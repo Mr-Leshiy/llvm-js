@@ -33,7 +33,10 @@ impl Parser for Expression {
             Token::Ident(_) => {
                 reader.start_saving();
                 match FunctionCall::parse(cur_token.clone(), reader) {
-                    Ok(res) => Ok(Self::FunctionCall(res)),
+                    Ok(res) => {
+                        reader.reset_saving();
+                        Ok(Self::FunctionCall(res))
+                    }
                     Err(_) => {
                         reader.stop_saving();
                         Ok(Self::VariableAssigment(VariableAssigment::parse(
@@ -85,7 +88,7 @@ mod tests {
     use crate::js_ast::{Literal, RightAssigmentValue};
 
     #[test]
-    fn parse_expression_variable_declaration_test() {
+    fn parse_expression_test1() {
         let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
@@ -99,7 +102,7 @@ mod tests {
     }
 
     #[test]
-    fn expression_assigment_test() {
+    fn parse_expression_test2() {
         let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -111,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn expression_block_statement_test() {
+    fn parse_expression_test3() {
         let mut reader = TokenReader::new("{ }".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -154,6 +157,25 @@ mod tests {
                     })
                 ]
             })
+        );
+    }
+
+    #[test]
+    fn parse_expression_test4() {
+        let mut reader = TokenReader::new("foo(a, b); a = 6;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::FunctionCall(FunctionCall {
+                name: "foo".to_string().into(),
+                args: vec!["a".to_string().into(), "b".to_string().into()]
+            })
+        );
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Expression::VariableAssigment(VariableAssigment {
+                left: "a".to_string().into(),
+                right: RightAssigmentValue::Literal(Literal::Number(6_f64))
+            }))
         );
     }
 }
