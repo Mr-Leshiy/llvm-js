@@ -87,6 +87,10 @@ impl<'ctx> PrintfFn<'ctx> {
         };
         let string_case_f = |compiler: &mut Compiler<'ctx>| {
             let string_field = variable.get_field(compiler, Field::String);
+            let string_field = compiler
+                .builder
+                .build_load(string_field, "")
+                .into_pointer_value();
             compiler.builder.build_call(
                 self.func,
                 &[
