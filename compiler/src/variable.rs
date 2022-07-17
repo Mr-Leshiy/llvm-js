@@ -6,7 +6,7 @@ use inkwell::{
     AddressSpace,
 };
 
-pub enum Type {
+pub(crate) enum Type {
     Number = 0,
     String = 1,
 }
@@ -17,7 +17,7 @@ impl Type {
     }
 }
 
-pub enum Field {
+pub(crate) enum Field {
     Flag = 0,
     Number = 1,
     String = 2,
@@ -51,7 +51,11 @@ impl<'ctx> Variable<'ctx> {
         Self { value }
     }
 
-    fn get_field(&self, compiler: &mut Compiler<'ctx>, field: Field) -> PointerValue<'ctx> {
+    pub(crate) fn get_field(
+        &self,
+        compiler: &mut Compiler<'ctx>,
+        field: Field,
+    ) -> PointerValue<'ctx> {
         compiler
             .builder
             .build_struct_gep(self.value, field as u32, "")
@@ -69,6 +73,54 @@ impl<'ctx> Variable<'ctx> {
     fn get_flag(&self, compiler: &mut Compiler<'ctx>) -> IntValue<'ctx> {
         let flag_field = self.get_field(compiler, Field::Flag);
         compiler.builder.build_load(flag_field, "").into_int_value()
+    }
+
+    pub(crate) fn switch_type(
+        &self,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+        number_case_f: impl FnOnce(&mut Compiler<'ctx>),
+        string_case_f: impl FnOnce(&mut Compiler<'ctx>),
+    ) {
+        let flag = self.get_flag(compiler);
+
+        let else_block = compiler
+            .context
+            .append_basic_block(cur_function.function, "");
+        let number_block = compiler
+            .context
+            .append_basic_block(cur_function.function, "");
+        let string_block = compiler
+            .context
+            .append_basic_block(cur_function.function, "");
+
+        let continue_block = compiler
+            .context
+            .append_basic_block(cur_function.function, "");
+
+        let number_case = (Type::Number.to_int(compiler), number_block);
+        let string_case = (Type::String.to_int(compiler), string_block);
+
+        compiler
+            .builder
+            .build_switch(flag, else_block, &[number_case, string_case]);
+
+        // describe else case
+        compiler.builder.position_at_end(else_block);
+        compiler.builder.build_unconditional_branch(continue_block);
+
+        // describe number case
+        compiler.builder.position_at_end(number_block);
+        number_case_f(compiler);
+        compiler.builder.build_unconditional_branch(continue_block);
+
+        // describe string case
+        compiler.builder.position_at_end(string_block);
+        string_case_f(compiler);
+        compiler.builder.build_unconditional_branch(continue_block);
+
+        //
+        compiler.builder.position_at_end(continue_block);
     }
 }
 
@@ -104,9 +156,14 @@ impl<'ctx> Variable<'ctx> {
         self.update_flag(compiler, Type::String);
     }
 
-    pub fn new_variable(compiler: &mut Compiler<'ctx>, name: &str, _variable2: &Variable) -> Self {
+    pub fn new_variable(
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+        name: &str,
+        variable2: &Variable<'ctx>,
+    ) -> Self {
         let variable1 = Self::new(compiler, name);
-        // variable1.assign_variable(compiler, variable2);
+        variable1.assign_variable(compiler, cur_function, variable2);
         variable1
     }
 
@@ -116,43 +173,27 @@ impl<'ctx> Variable<'ctx> {
         cur_function: &Function<'ctx>,
         variable: &Variable<'ctx>,
     ) {
-        let flag = variable.get_flag(compiler);
+        let number_case_f = |compiler: &mut Compiler<'ctx>| {
+            self.update_flag(compiler, Type::Number);
+            let self_filed = self.get_field(compiler, Field::Number);
+            let variable_field = variable.get_field(compiler, Field::Number);
+            let variable_field = compiler
+                .builder
+                .build_load(variable_field, "")
+                .into_float_value();
+            compiler.builder.build_store(self_filed, variable_field);
+        };
+        let string_case_f = |compiler: &mut Compiler<'ctx>| {
+            self.update_flag(compiler, Type::String);
+            let self_filed = self.get_field(compiler, Field::String);
+            let variable_field = variable.get_field(compiler, Field::String);
+            let variable_field = compiler
+                .builder
+                .build_load(variable_field, "")
+                .into_pointer_value();
+            compiler.builder.build_store(self_filed, variable_field);
+        };
 
-        let else_block = compiler
-            .context
-            .append_basic_block(cur_function.function, "assing_variable_else_block");
-        let number_block = compiler
-            .context
-            .append_basic_block(cur_function.function, "assing_variable_number_block");
-        let string_block = compiler
-            .context
-            .append_basic_block(cur_function.function, "assing_variable_string_block");
-
-        let number_case = (Type::Number.to_int(compiler), number_block);
-        let string_case = (Type::String.to_int(compiler), string_block);
-
-        compiler
-            .builder
-            .build_switch(flag, else_block, &[number_case, string_case]);
-
-        // describe number case
-        compiler.builder.position_at_end(number_block);
-
-        self.update_flag(compiler, Type::Number);
-        let self_filed = self.get_field(compiler, Field::Number);
-        let variable_field = variable.get_field(compiler, Field::Number);
-        let variable_field = compiler
-            .builder
-            .build_load(variable_field, "")
-            .into_int_value();
-        compiler.builder.build_store(self_filed, variable_field);
-
-        // describe string case
-        compiler.builder.position_at_end(string_block);
-
-        self.update_flag(compiler, Type::String);
-        let self_filed = self.get_field(compiler, Field::String);
-        let variable_field = variable.get_field(compiler, Field::String);
-        compiler.builder.build_store(self_filed, variable_field);
+        variable.switch_type(compiler, cur_function, number_case_f, string_case_f);
     }
 }

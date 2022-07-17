@@ -1,11 +1,11 @@
-use extern_functions::PrintfFn;
 pub use function::Function;
+use printf::PrintfFn;
 use std::{collections::HashMap, io::Write, ops::Deref};
 use thiserror::Error;
 pub use variable::Variable;
 
-mod extern_functions;
 mod function;
+mod printf;
 mod variable;
 
 #[derive(Debug, Error)]
@@ -26,8 +26,6 @@ pub enum Error {
     CannotWriteModule(String),
     #[error("Undeclared function: {0}")]
     UndeclaredFunction(String),
-    #[error("InvalidType")]
-    InvalidType,
 }
 
 pub trait Compile {
