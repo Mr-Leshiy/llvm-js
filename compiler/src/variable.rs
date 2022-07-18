@@ -146,14 +146,20 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_string(&self, compiler: &mut Compiler<'ctx>, string: &str) {
-        let string = compiler.context.const_string(string.as_bytes(), false);
-        let string = string
-            .get_element_as_constant(0)
-            .into_int_value()
-            .const_to_pointer(compiler.context.i8_type().ptr_type(AddressSpace::Generic));
+        let string = compiler.context.const_string(string.as_bytes(), true);
+        let tmp_value = compiler.builder.build_alloca(string.get_type(), "");
+        compiler.builder.build_store(tmp_value, string);
+        let tmp_value = compiler
+            .builder
+            .build_bitcast(
+                tmp_value,
+                compiler.context.i8_type().ptr_type(AddressSpace::Generic),
+                "",
+            )
+            .into_pointer_value();
 
         let string_field = self.get_field(compiler, Field::String);
-        compiler.builder.build_store(string_field, string);
+        compiler.builder.build_store(string_field, tmp_value);
         self.update_flag(compiler, Type::String);
     }
 
