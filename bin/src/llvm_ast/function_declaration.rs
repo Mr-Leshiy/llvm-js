@@ -1,4 +1,4 @@
-use super::Expression;
+use super::{Expression, VariableName};
 use compiler::{self, Compiler, Function};
 
 pub type FunctionName = String;
@@ -6,7 +6,7 @@ pub type FunctionName = String;
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
     pub name: FunctionName,
-    // TODO: add args field
+    pub args: Vec<VariableName>,
     pub body: Vec<Expression>,
 }
 

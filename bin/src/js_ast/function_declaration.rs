@@ -65,6 +65,7 @@ impl Precompile for FunctionDeclaration {
             .map_err(|_| precompiler::Error::AlreadyDeclaredFunction(self.name.clone()))?;
         Ok(llvm_ast::FunctionDeclaration {
             name: self.name.name,
+            args: self.args.into_iter().map(|name| name.name).collect(),
             body: self.body.precompile(precompiler)?,
         })
     }
@@ -93,7 +94,7 @@ mod tests {
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
-            args: vec![],
+            args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement { body: vec![] },
         };
 
@@ -101,6 +102,7 @@ mod tests {
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
                 name: "name_1".to_string(),
+                args: vec!["a".to_string(), "b".to_string()],
                 body: vec![]
             })
         );
