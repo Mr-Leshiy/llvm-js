@@ -52,6 +52,17 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
+    pub(super) fn from_value(
+        compiler: &mut Compiler<'ctx>,
+        struct_value: StructValue<'ctx>,
+    ) -> Self {
+        let var_type = Self::get_type(compiler);
+
+        let value = compiler.builder.build_alloca(var_type, "");
+        compiler.builder.build_store(value, struct_value);
+        Self { value }
+    }
+
     pub(crate) fn get_value(&self, compiler: &mut Compiler<'ctx>) -> StructValue<'ctx> {
         compiler
             .builder
@@ -174,7 +185,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
         name: &str,
-        variable2: &Variable<'ctx>,
+        variable2: &Self,
     ) -> Self {
         let variable1 = Self::new(compiler, name);
         variable1.assign_variable(compiler, cur_function, variable2);
@@ -185,7 +196,7 @@ impl<'ctx> Variable<'ctx> {
         &self,
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        variable: &Variable<'ctx>,
+        variable: &Self,
     ) {
         let number_case_f = |compiler: &mut Compiler<'ctx>| {
             self.update_flag(compiler, Type::Number);

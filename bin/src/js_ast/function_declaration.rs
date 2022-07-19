@@ -143,9 +143,14 @@ mod tests {
     #[test]
     fn precompile_function_declaration_test2() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("a".to_string().into()).unwrap();
-        precompiler.variables.insert("b".to_string().into()).unwrap();
-
+        precompiler
+            .variables
+            .insert("a".to_string().into())
+            .unwrap();
+        precompiler
+            .variables
+            .insert("b".to_string().into())
+            .unwrap();
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),

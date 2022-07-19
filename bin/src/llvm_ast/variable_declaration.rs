@@ -17,7 +17,7 @@ impl Compile for VariableDeclaration {
             }
             VariableValue::String(value) => Variable::new_string(compiler, &value, &variable.name),
             VariableValue::Identifier(name) => {
-                let variable = compiler.get_variable(name.clone())?;
+                let variable = compiler.get_variable(name.clone(), cur_function)?;
                 Variable::new_variable(compiler, cur_function, &name, &variable)
             }
         };

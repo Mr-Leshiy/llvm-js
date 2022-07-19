@@ -21,7 +21,7 @@ impl Compile for VariableAssigment {
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
     ) -> Result<(), compiler::Error> {
-        let variable1 = compiler.get_variable(self.name)?;
+        let variable1 = compiler.get_variable(self.name, cur_function)?;
         match self.value {
             VariableValue::FloatNumber(value) => {
                 variable1.assign_number(compiler, value);
@@ -32,7 +32,7 @@ impl Compile for VariableAssigment {
                 Ok(())
             }
             VariableValue::Identifier(name) => {
-                let variable2 = compiler.get_variable(name)?;
+                let variable2 = compiler.get_variable(name, cur_function)?;
                 variable1.assign_variable(compiler, cur_function, &variable2);
                 Ok(())
             }

@@ -85,7 +85,12 @@ mod tests {
                 Expression::FunctionDeclaration(FunctionDeclaration {
                     name: "foo".to_string().into(),
                     args: vec!["arg1".to_string().into(), "arg2".to_string().into()],
-                    body: BlockStatement { body: vec![] }
+                    body: BlockStatement {
+                        body: vec![Expression::VariableAssigment(VariableAssigment {
+                            left: "arg1".to_string().into(),
+                            right: RightAssigmentValue::Literal(Literal::Number(12_f64)),
+                        })]
+                    }
                 }),
                 Expression::BlockStatement(BlockStatement {
                     body: vec![

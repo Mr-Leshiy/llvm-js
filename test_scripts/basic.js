@@ -1,5 +1,5 @@
 function foo(arg1, arg2) {
-    arg1 = 5;
+    arg1 = 12;
 }
 
 {

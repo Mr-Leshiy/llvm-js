@@ -3,19 +3,23 @@ use inkwell::values::FunctionValue;
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
+    pub(super) args: Vec<String>,
     pub(super) function: FunctionValue<'ctx>,
 }
 
 impl<'ctx> Function<'ctx> {
-    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: &Vec<String>) -> Self {
-        let args: Vec<_> = args
+    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: Vec<String>) -> Self {
+        let args_type: Vec<_> = args
             .iter()
             .map(|_| Variable::get_type(compiler).into())
             .collect();
-        let function_type = compiler.context.void_type().fn_type(args.as_slice(), false);
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        Self { function }
+        Self { function, args }
     }
 
     pub fn generate_body<T: Compile>(

@@ -99,7 +99,24 @@ impl<'ctx> Compiler<'ctx> {
         }
     }
 
-    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+    pub fn get_variable(
+        &mut self,
+        name: String,
+        cur_function: &Function<'ctx>,
+    ) -> Result<Variable<'ctx>, Error> {
+        // firstly look into the function arguments
+        for (i, arg_name) in cur_function.args.iter().enumerate() {
+            if name.eq(arg_name) {
+                let arg = cur_function
+                    .function
+                    .get_params()
+                    .get(i)
+                    .expect("")
+                    .into_struct_value();
+                return Ok(Variable::from_value(self, arg));
+            }
+        }
+
         self.variables
             .get(&name)
             .cloned()
