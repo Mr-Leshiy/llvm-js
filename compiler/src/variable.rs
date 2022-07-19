@@ -2,7 +2,7 @@ use super::Compiler;
 use crate::Function;
 use inkwell::{
     types::StructType,
-    values::{IntValue, PointerValue},
+    values::{IntValue, PointerValue, StructValue},
     AddressSpace,
 };
 
@@ -30,7 +30,14 @@ pub struct Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
+    fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
+        let var_type = Self::get_type(compiler);
+
+        let value = compiler.builder.build_alloca(var_type, name);
+        Self { value }
+    }
+
+    pub(super) fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
         let type_flag_type = compiler.context.i8_type();
@@ -45,11 +52,11 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
-    fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
-        let var_type = Self::get_type(compiler);
-
-        let value = compiler.builder.build_alloca(var_type, name);
-        Self { value }
+    pub(crate) fn get_value(&self, compiler: &mut Compiler<'ctx>) -> StructValue<'ctx> {
+        compiler
+            .builder
+            .build_load(self.value, "")
+            .into_struct_value()
     }
 
     pub(crate) fn get_field(

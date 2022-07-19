@@ -1,4 +1,4 @@
-use crate::{Compile, Compiler, Error};
+use crate::{Compile, Compiler, Error, Variable};
 use inkwell::values::FunctionValue;
 
 #[derive(Clone)]
@@ -7,8 +7,12 @@ pub struct Function<'ctx> {
 }
 
 impl<'ctx> Function<'ctx> {
-    pub fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
-        let function_type = compiler.context.void_type().fn_type(&[], false);
+    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: &Vec<String>) -> Self {
+        let args: Vec<_> = args
+            .iter()
+            .map(|_| Variable::get_type(compiler).into())
+            .collect();
+        let function_type = compiler.context.void_type().fn_type(args.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
         Self { function }
@@ -44,7 +48,7 @@ impl<'ctx> Function<'ctx> {
                 .get(&arg_name)
                 .cloned()
                 .ok_or(Error::UndefinedVariable(arg_name))?;
-            vec.push(variable.value.into());
+            vec.push(variable.get_value(compiler).into());
         }
 
         compiler
