@@ -4,11 +4,13 @@ use inkwell::{
     values::FunctionValue,
     AddressSpace,
 };
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
     pub(super) args: Vec<String>,
     pub(super) function: FunctionValue<'ctx>,
+    pub(super) variables: HashMap<String, Variable<'ctx>>,
 }
 
 impl<'ctx> Function<'ctx> {
@@ -36,11 +38,43 @@ impl<'ctx> Function<'ctx> {
             function.add_attribute(AttributeLoc::Param(i as u32), attribute)
         }
 
-        Self { function, args }
+        Self {
+            function,
+            args,
+            variables: HashMap::new(),
+        }
     }
 
+    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+        // firstly look into the function arguments
+        for (i, arg_name) in self.args.iter().enumerate() {
+            if name.eq(arg_name) {
+                let arg = self
+                    .function
+                    .get_params()
+                    .get(i)
+                    .expect("")
+                    .into_pointer_value();
+                return Ok(Variable { value: arg });
+            }
+        }
+
+        self.variables
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedVariable(name))
+    }
+
+    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
+        match self.variables.insert(name.clone(), variable) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
+        }
+    }
+
+    // TODO: move this code inside new function
     pub fn generate_body<T: Compile>(
-        &self,
+        &mut self,
         compiler: &mut Compiler<'ctx>,
         body: Vec<T>,
     ) -> Result<(), Error> {
@@ -56,6 +90,7 @@ impl<'ctx> Function<'ctx> {
     pub fn generate_call(
         &self,
         compiler: &mut Compiler<'ctx>,
+        cur_function: &Self,
         args_names: Vec<String>,
     ) -> Result<(), Error> {
         let args_num = self.function.get_type().get_param_types().len();
@@ -64,11 +99,7 @@ impl<'ctx> Function<'ctx> {
             if i >= args_num {
                 break;
             }
-            let variable = compiler
-                .variables
-                .get(&arg_name)
-                .cloned()
-                .ok_or(Error::UndefinedVariable(arg_name))?;
+            let variable = cur_function.get_variable(arg_name)?;
             vec.push(variable.value.into());
         }
 

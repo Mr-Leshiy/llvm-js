@@ -11,7 +11,7 @@ impl Compile for FunctionCall {
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
         // TODO refactor
         if self.name == "print" {
@@ -19,7 +19,7 @@ impl Compile for FunctionCall {
             pritnf.print(compiler, cur_function, self.args)
         } else {
             let function = compiler.get_function(self.name)?;
-            function.generate_call(compiler, self.args)
+            function.generate_call(compiler, cur_function, self.args)
         }
     }
 }

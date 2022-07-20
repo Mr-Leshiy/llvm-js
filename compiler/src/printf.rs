@@ -57,7 +57,7 @@ impl<'ctx> PrintfFn<'ctx> {
             .into_iter()
             .next()
             .ok_or(Error::NotEnoughArguments)?;
-        let variable = compiler.get_variable(arg_name, cur_function)?;
+        let variable = cur_function.get_variable(arg_name)?;
 
         let number_case_f = |compiler: &mut Compiler<'ctx>| {
             let number_field = variable.get_field(compiler, Field::Number);

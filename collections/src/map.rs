@@ -13,7 +13,7 @@ pub enum Error<K> {
     UnknownKey(K),
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Map<K: Clone + Eq + Hash + Display, V> {
     stack: Vec<K>,
     hash_map: HashMap<K, V>,

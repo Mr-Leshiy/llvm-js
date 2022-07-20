@@ -32,7 +32,7 @@ pub trait Compile {
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<(), Error>;
 }
 
@@ -62,7 +62,6 @@ pub struct Compiler<'ctx> {
     module: inkwell::module::Module<'ctx>,
     builder: inkwell::builder::Builder<'ctx>,
 
-    variables: HashMap<String, Variable<'ctx>>,
     functions: HashMap<String, Function<'ctx>>,
 
     printf: Option<PrintfFn<'ctx>>,
@@ -74,7 +73,6 @@ impl<'ctx> Compiler<'ctx> {
             context,
             module: context.create_module(module_name),
             builder: context.create_builder(),
-            variables: HashMap::new(),
             functions: HashMap::new(),
             printf: None,
         }
@@ -96,37 +94,6 @@ impl<'ctx> Compiler<'ctx> {
         match self.functions.insert(name.clone(), function) {
             None => Ok(()),
             Some(_) => Err(Error::AlreadyDeclaredFunction(name)),
-        }
-    }
-
-    pub fn get_variable(
-        &mut self,
-        name: String,
-        cur_function: &Function<'ctx>,
-    ) -> Result<Variable<'ctx>, Error> {
-        // firstly look into the function arguments
-        for (i, arg_name) in cur_function.args.iter().enumerate() {
-            if name.eq(arg_name) {
-                let arg = cur_function
-                    .function
-                    .get_params()
-                    .get(i)
-                    .expect("")
-                    .into_pointer_value();
-                return Ok(Variable { value: arg });
-            }
-        }
-
-        self.variables
-            .get(&name)
-            .cloned()
-            .ok_or(Error::UndefinedVariable(name))
-    }
-
-    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
-        match self.variables.insert(name.clone(), variable) {
-            None => Ok(()),
-            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
         }
     }
 
