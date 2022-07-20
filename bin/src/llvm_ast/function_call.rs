@@ -14,7 +14,7 @@ impl Compile for FunctionCall {
         cur_function: &Function<'ctx>,
     ) -> Result<(), compiler::Error> {
         // TODO refactor
-        if self.name == "printf" {
+        if self.name == "print" {
             let pritnf = compiler.get_printf()?;
             pritnf.print(compiler, cur_function, self.args)
         } else {

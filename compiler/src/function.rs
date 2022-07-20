@@ -1,5 +1,9 @@
 use crate::{Compile, Compiler, Error, Variable};
-use inkwell::values::FunctionValue;
+use inkwell::{
+    attributes::{Attribute, AttributeLoc},
+    values::FunctionValue,
+    AddressSpace,
+};
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
@@ -11,13 +15,26 @@ impl<'ctx> Function<'ctx> {
     pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: Vec<String>) -> Self {
         let args_type: Vec<_> = args
             .iter()
-            .map(|_| Variable::get_type(compiler).into())
+            .map(|_| {
+                Variable::get_type(compiler)
+                    .ptr_type(AddressSpace::Generic)
+                    .into()
+            })
             .collect();
         let function_type = compiler
             .context
             .void_type()
             .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
+
+        // define argument attributes
+        for i in 0..args_type.len() {
+            let attribute = compiler.context.create_type_attribute(
+                Attribute::get_named_enum_kind_id("byval"),
+                Variable::get_type(compiler).into(),
+            );
+            function.add_attribute(AttributeLoc::Param(i as u32), attribute)
+        }
 
         Self { function, args }
     }
@@ -52,7 +69,7 @@ impl<'ctx> Function<'ctx> {
                 .get(&arg_name)
                 .cloned()
                 .ok_or(Error::UndefinedVariable(arg_name))?;
-            vec.push(variable.get_value(compiler).into());
+            vec.push(variable.value.into());
         }
 
         compiler

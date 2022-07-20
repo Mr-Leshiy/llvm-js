@@ -112,8 +112,8 @@ impl<'ctx> Compiler<'ctx> {
                     .get_params()
                     .get(i)
                     .expect("")
-                    .into_struct_value();
-                return Ok(Variable::from_value(self, arg));
+                    .into_pointer_value();
+                return Ok(Variable { value: arg });
             }
         }
 
