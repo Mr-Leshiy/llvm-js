@@ -26,7 +26,7 @@ pub(crate) enum Field {
 
 #[derive(Clone)]
 pub struct Variable<'ctx> {
-    pub(super) value: PointerValue<'ctx>,
+    pub(crate) value: PointerValue<'ctx>,
 }
 
 impl<'ctx> Variable<'ctx> {
@@ -37,7 +37,7 @@ impl<'ctx> Variable<'ctx> {
         Self { value }
     }
 
-    pub(super) fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
+    pub(crate) fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
         let type_flag_type = compiler.context.i8_type();
@@ -52,7 +52,7 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
-    pub(super) fn from_value(
+    pub(crate) fn from_value(
         compiler: &mut Compiler<'ctx>,
         struct_value: StructValue<'ctx>,
     ) -> Self {
