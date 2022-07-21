@@ -1,4 +1,4 @@
-use super::Compiler;
+use super::{Compiler, ExternFunction, ExternFunctionName};
 use crate::{variable::Field, Error, Function};
 use inkwell::{
     module::Linkage,
@@ -7,15 +7,21 @@ use inkwell::{
 };
 
 #[derive(Clone)]
-pub struct PrintfFn<'ctx> {
+pub struct PrintFn<'ctx> {
     func: FunctionValue<'ctx>,
 
     p_f64_fmt: GlobalValue<'ctx>,
     p_str_fmt: GlobalValue<'ctx>,
 }
 
-impl<'ctx> PrintfFn<'ctx> {
-    pub fn declare(compiler: &mut Compiler<'ctx>) -> Self {
+impl<'ctx> ExternFunction<'ctx> for PrintFn<'ctx> {}
+
+impl<'ctx> ExternFunctionName<'ctx> for PrintFn<'ctx> {
+    const NAME: &'static str = "print";
+}
+
+impl<'ctx> PrintFn<'ctx> {
+    pub(super) fn declare(compiler: &Compiler<'ctx>) -> Self {
         let s = compiler.context.const_string(b"%f\n", true);
         let p_f64_fmt = compiler.module.add_global(s.get_type(), None, "p_f64_fmt");
         p_f64_fmt.set_constant(true);
@@ -49,7 +55,7 @@ impl<'ctx> PrintfFn<'ctx> {
 
     pub fn print(
         &self,
-        compiler: &mut Compiler<'ctx>,
+        compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
         args_names: Vec<String>,
     ) -> Result<(), Error> {
@@ -59,7 +65,7 @@ impl<'ctx> PrintfFn<'ctx> {
             .ok_or(Error::NotEnoughArguments)?;
         let variable = cur_function.get_variable(arg_name)?;
 
-        let number_case_f = |compiler: &mut Compiler<'ctx>| {
+        let number_case_f = |compiler: &Compiler<'ctx>| {
             let number_field = variable.get_field(compiler, Field::Number);
             let number_field = compiler
                 .builder
@@ -81,7 +87,7 @@ impl<'ctx> PrintfFn<'ctx> {
                 "",
             );
         };
-        let string_case_f = |compiler: &mut Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx>| {
             let string_field = variable.get_field(compiler, Field::String);
             let string_field = compiler
                 .builder

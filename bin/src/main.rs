@@ -1,16 +1,17 @@
-use js_ast::Module;
-
-mod js_ast;
-mod llvm_ast;
-mod precompiler;
+use ast::js_ast::Module;
+use compiler::extern_functions::{printf::PrintFn, ExternFunctionName};
 
 fn main() {
     let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();
     let mut out_file = std::fs::File::create("test_scripts/basic.ll").unwrap();
     let js_module = Module::new("module_1".to_string(), in_file).unwrap();
+    let extern_functions = vec![PrintFn::NAME.to_string()];
+
     let llvm_module = js_module
-        .precompile(vec!["print".to_string().into()].into_iter())
+        .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
         .unwrap();
 
-    llvm_module.compile_to(&mut out_file).unwrap()
+    llvm_module
+        .compile_to(&mut out_file, extern_functions.into_iter())
+        .unwrap()
 }

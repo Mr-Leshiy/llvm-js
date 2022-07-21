@@ -1,11 +1,13 @@
+pub use context::Context;
+use extern_functions::ExternFunctions;
 pub use function::Function;
-use printf::PrintfFn;
-use std::{collections::HashMap, io::Write, ops::Deref};
+use std::{collections::HashMap, io::Write};
 use thiserror::Error;
 pub use variable::Variable;
 
+mod context;
+pub mod extern_functions;
 mod function;
-mod printf;
 mod variable;
 
 #[derive(Debug, Error)]
@@ -36,35 +38,13 @@ pub trait Compile {
     ) -> Result<(), Error>;
 }
 
-pub struct Context(inkwell::context::Context);
-
-impl Deref for Context {
-    type Target = inkwell::context::Context;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Context {
-    pub fn new() -> Self {
-        Self(inkwell::context::Context::create())
-    }
-}
-
-impl Default for Context {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 pub struct Compiler<'ctx> {
     context: &'ctx Context,
     module: inkwell::module::Module<'ctx>,
     builder: inkwell::builder::Builder<'ctx>,
 
     functions: HashMap<String, Function<'ctx>>,
-
-    printf: Option<PrintfFn<'ctx>>,
+    extern_functions: ExternFunctions<'ctx>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -74,18 +54,23 @@ impl<'ctx> Compiler<'ctx> {
             module: context.create_module(module_name),
             builder: context.create_builder(),
             functions: HashMap::new(),
-            printf: None,
+            extern_functions: ExternFunctions::new(),
         }
     }
 
-    pub fn declare_prinf(&mut self) {
-        self.printf = Some(PrintfFn::declare(self));
+    pub fn declare_extern_functions<Iter>(
+        &mut self,
+        predefined_functions: Iter,
+    ) -> Result<(), Error>
+    where
+        Iter: Iterator<Item = String>,
+    {
+        self.extern_functions = ExternFunctions::declare(self, predefined_functions)?;
+        Ok(())
     }
 
-    pub fn get_printf(&self) -> Result<PrintfFn<'ctx>, Error> {
-        self.printf
-            .clone()
-            .ok_or_else(|| Error::UndeclaredFunction("printf".to_string()))
+    pub fn extern_functions(&self) -> &ExternFunctions<'ctx> {
+        &self.extern_functions
     }
 }
 
