@@ -13,6 +13,12 @@ pub struct ExternFunctions<'ctx> {
     printf: Option<PrintFn<'ctx>>,
 }
 
+impl<'ctx> Default for ExternFunctions<'ctx> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'ctx> ExternFunctions<'ctx> {
     pub fn new() -> Self {
         Self { printf: None }
