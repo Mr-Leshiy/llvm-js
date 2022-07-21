@@ -1,9 +1,5 @@
 use compiler::extern_functions::{printf::PrintFn, ExternFunctionName};
-use js_ast::Module;
-
-mod js_ast;
-mod llvm_ast;
-mod precompiler;
+use ast::js_ast::Module;
 
 fn main() {
     let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();

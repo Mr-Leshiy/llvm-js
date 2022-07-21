@@ -1,5 +1,5 @@
 [package]
-name = "llvm-js-compiler"
+name = "ast"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,5 +9,4 @@ edition = "2021"
 collections = { path = "../collections" }
 compiler = { path = "../compiler" }
 lexer = { path = "../lexer" }
-ast = { path = "../ast" }
 thiserror = { version = "1.0.31" }

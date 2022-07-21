@@ -3,5 +3,6 @@ members = [
     "bin",
     "compiler",
     "lexer",
+    "ast",
     "collections",
 ]

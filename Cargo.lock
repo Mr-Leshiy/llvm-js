@@ -12,6 +12,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ast"
+version = "0.1.0"
+dependencies = [
+ "collections",
+ "compiler",
+ "lexer",
+ "thiserror",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -102,6 +112,7 @@ checksum = "349d5a591cd28b49e1d1037471617a32ddcda5731b99419008085f72d5a53836"
 name = "llvm-js-compiler"
 version = "0.1.0"
 dependencies = [
+ "ast",
  "collections",
  "compiler",
  "lexer",
