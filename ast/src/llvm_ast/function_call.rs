@@ -1,5 +1,9 @@
 use super::{FunctionName, VariableName};
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{
+    self,
+    extern_functions::{printf::PrintFn, ExternFunctionName},
+    Compile, Compiler, Function,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
@@ -13,13 +17,15 @@ impl Compile for FunctionCall {
         compiler: &mut Compiler<'ctx>,
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
-        // TODO refactor
-        if self.name == "print" {
-            let pritnf = compiler.extern_functions().get_print()?;
-            pritnf.print(compiler, cur_function, self.args)
-        } else {
-            let function = compiler.get_function(self.name)?;
-            function.generate_call(compiler, cur_function, self.args)
+        match self.name.as_str() {
+            PrintFn::NAME => {
+                let pritnf = compiler.extern_functions().get_print()?;
+                pritnf.print(compiler, cur_function, self.args)
+            }
+            _ => {
+                let function = compiler.get_function(self.name)?;
+                function.generate_call(compiler, cur_function, self.args)
+            }
         }
     }
 }
