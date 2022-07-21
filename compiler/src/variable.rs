@@ -13,7 +13,7 @@ pub(crate) enum Type {
 }
 
 impl Type {
-    fn to_int<'ctx>(self, compiler: &mut Compiler<'ctx>) -> IntValue<'ctx> {
+    fn to_int<'ctx>(self, compiler: &Compiler<'ctx>) -> IntValue<'ctx> {
         compiler.context.i8_type().const_int(self as u64, false)
     }
 }
@@ -52,11 +52,7 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
-    pub(crate) fn get_field(
-        &self,
-        compiler: &mut Compiler<'ctx>,
-        field: Field,
-    ) -> PointerValue<'ctx> {
+    pub(crate) fn get_field(&self, compiler: &Compiler<'ctx>, field: Field) -> PointerValue<'ctx> {
         compiler
             .builder
             .build_struct_gep(self.value, field as u32, "")
@@ -65,23 +61,24 @@ impl<'ctx> Variable<'ctx> {
             )
     }
 
-    fn update_flag(&self, compiler: &mut Compiler<'ctx>, t: Type) {
+    fn update_flag(&self, compiler: &Compiler<'ctx>, t: Type) {
         let flag_field = self.get_field(compiler, Field::Flag);
         let t = t.to_int(compiler);
         compiler.builder.build_store(flag_field, t);
     }
 
-    fn get_flag(&self, compiler: &mut Compiler<'ctx>) -> IntValue<'ctx> {
+    fn get_flag(&self, compiler: &Compiler<'ctx>) -> IntValue<'ctx> {
         let flag_field = self.get_field(compiler, Field::Flag);
         compiler.builder.build_load(flag_field, "").into_int_value()
     }
 
+    // TODO: try to replace switch, try to look into the strategy pattern
     pub(crate) fn switch_type(
         &self,
-        compiler: &mut Compiler<'ctx>,
+        compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        number_case_f: impl FnOnce(&mut Compiler<'ctx>),
-        string_case_f: impl FnOnce(&mut Compiler<'ctx>),
+        number_case_f: impl FnOnce(&Compiler<'ctx>),
+        string_case_f: impl FnOnce(&Compiler<'ctx>),
     ) {
         let flag = self.get_flag(compiler);
 
@@ -180,7 +177,7 @@ impl<'ctx> Variable<'ctx> {
         cur_function: &Function<'ctx>,
         variable: &Self,
     ) {
-        let number_case_f = |compiler: &mut Compiler<'ctx>| {
+        let number_case_f = |compiler: &Compiler<'ctx>| {
             self.update_flag(compiler, Type::Number);
             let self_filed = self.get_field(compiler, Field::Number);
             let variable_field = variable.get_field(compiler, Field::Number);
@@ -190,7 +187,7 @@ impl<'ctx> Variable<'ctx> {
                 .into_float_value();
             compiler.builder.build_store(self_filed, variable_field);
         };
-        let string_case_f = |compiler: &mut Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx>| {
             self.update_flag(compiler, Type::String);
             let self_filed = self.get_field(compiler, Field::String);
             let variable_field = variable.get_field(compiler, Field::String);

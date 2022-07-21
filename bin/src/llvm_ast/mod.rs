@@ -20,11 +20,18 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error> {
+    pub fn compile_to<W: Write, Iter>(
+        self,
+        writer: &mut W,
+        extern_functions: Iter,
+    ) -> Result<(), compiler::Error>
+    where
+        Iter: Iterator<Item = String>,
+    {
         let context = Context::new();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_prinf();
+        compiler.declare_extern_functions(extern_functions)?;
 
         self.program.compile(&mut compiler)?;
         compiler.write_result_into(writer)
@@ -41,6 +48,6 @@ mod tests {
         let module = js_ast::Module::new("".to_string(), file).unwrap();
         let module = module.precompile(vec![].into_iter()).unwrap();
         let mut out = Vec::new();
-        module.compile_to(&mut out).unwrap();
+        module.compile_to(&mut out, vec![].into_iter()).unwrap();
     }
 }
