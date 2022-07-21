@@ -1,21 +1,80 @@
-use crate::{Compile, Compiler, Error};
-use inkwell::values::FunctionValue;
+use crate::{Compile, Compiler, Error, Variable};
+use inkwell::{
+    attributes::{Attribute, AttributeLoc},
+    values::FunctionValue,
+    AddressSpace,
+};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
+    pub(super) args: Vec<String>,
     pub(super) function: FunctionValue<'ctx>,
+    pub(super) variables: HashMap<String, Variable<'ctx>>,
 }
 
 impl<'ctx> Function<'ctx> {
-    pub fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
-        let function_type = compiler.context.void_type().fn_type(&[], false);
+    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: Vec<String>) -> Self {
+        let args_type: Vec<_> = args
+            .iter()
+            .map(|_| {
+                Variable::get_type(compiler)
+                    .ptr_type(AddressSpace::Generic)
+                    .into()
+            })
+            .collect();
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        Self { function }
+        // define argument attributes
+        for i in 0..args_type.len() {
+            let attribute = compiler.context.create_type_attribute(
+                Attribute::get_named_enum_kind_id("byval"),
+                Variable::get_type(compiler).into(),
+            );
+            function.add_attribute(AttributeLoc::Param(i as u32), attribute)
+        }
+
+        Self {
+            function,
+            args,
+            variables: HashMap::new(),
+        }
     }
 
+    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+        // firstly look into the function arguments
+        for (i, arg_name) in self.args.iter().enumerate() {
+            if name.eq(arg_name) {
+                let arg = self
+                    .function
+                    .get_params()
+                    .get(i)
+                    .expect("")
+                    .into_pointer_value();
+                return Ok(Variable { value: arg });
+            }
+        }
+
+        self.variables
+            .get(&name)
+            .cloned()
+            .ok_or(Error::UndefinedVariable(name))
+    }
+
+    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
+        match self.variables.insert(name.clone(), variable) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
+        }
+    }
+
+    // TODO: move this code inside new function
     pub fn generate_body<T: Compile>(
-        &self,
+        &mut self,
         compiler: &mut Compiler<'ctx>,
         body: Vec<T>,
     ) -> Result<(), Error> {
@@ -31,6 +90,7 @@ impl<'ctx> Function<'ctx> {
     pub fn generate_call(
         &self,
         compiler: &mut Compiler<'ctx>,
+        cur_function: &Self,
         args_names: Vec<String>,
     ) -> Result<(), Error> {
         let args_num = self.function.get_type().get_param_types().len();
@@ -39,11 +99,7 @@ impl<'ctx> Function<'ctx> {
             if i >= args_num {
                 break;
             }
-            let variable = compiler
-                .variables
-                .get(&arg_name)
-                .cloned()
-                .ok_or(Error::UndefinedVariable(arg_name))?;
+            let variable = cur_function.get_variable(arg_name)?;
             vec.push(variable.value.into());
         }
 

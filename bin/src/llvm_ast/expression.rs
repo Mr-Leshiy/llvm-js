@@ -12,7 +12,7 @@ impl Compile for Expression {
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {

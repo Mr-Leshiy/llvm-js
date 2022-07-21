@@ -302,7 +302,7 @@ mod tests {
         let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
         let mut reader = TokenReader::new(file);
 
-        // line: "function foo(arg1, arg2) {}"
+        // line: "function foo(arg1, arg2) { arg1 = 12; }"
         assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Function)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("foo".to_string())));
         assert_eq!(
@@ -320,6 +320,13 @@ mod tests {
             reader.read_token(),
             Ok(Token::Separator(Separator::OpenCurlyBrace))
         );
+        assert_eq!(reader.read_token(), Ok(Token::Ident("arg1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Assign));
+        assert_eq!(
+            reader.read_token(),
+            Ok(Token::Literal(Literal::Number(12_f64)))
+        );
+
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))

@@ -13,7 +13,7 @@ impl Program {
         }
 
         // define main function
-        let function = Function::new(compiler, "main");
+        let mut function = Function::new(compiler, "main", vec![]);
         function.generate_body(compiler, self.body)
     }
 }

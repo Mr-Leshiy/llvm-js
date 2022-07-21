@@ -26,11 +26,18 @@ pub(crate) enum Field {
 
 #[derive(Clone)]
 pub struct Variable<'ctx> {
-    pub(super) value: PointerValue<'ctx>,
+    pub(crate) value: PointerValue<'ctx>,
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
+    fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
+        let var_type = Self::get_type(compiler);
+
+        let value = compiler.builder.build_alloca(var_type, name);
+        Self { value }
+    }
+
+    pub(crate) fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
         let type_flag_type = compiler.context.i8_type();
@@ -43,13 +50,6 @@ impl<'ctx> Variable<'ctx> {
             ],
             false,
         )
-    }
-
-    fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
-        let var_type = Self::get_type(compiler);
-
-        let value = compiler.builder.build_alloca(var_type, name);
-        Self { value }
     }
 
     pub(crate) fn get_field(
@@ -167,7 +167,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
         name: &str,
-        variable2: &Variable<'ctx>,
+        variable2: &Self,
     ) -> Self {
         let variable1 = Self::new(compiler, name);
         variable1.assign_variable(compiler, cur_function, variable2);
@@ -178,7 +178,7 @@ impl<'ctx> Variable<'ctx> {
         &self,
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        variable: &Variable<'ctx>,
+        variable: &Self,
     ) {
         let number_case_f = |compiler: &mut Compiler<'ctx>| {
             self.update_flag(compiler, Type::Number);
