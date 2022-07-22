@@ -1,5 +1,5 @@
 use super::Compiler;
-use crate::Function;
+use crate::{Error, Function};
 use inkwell::{
     types::StructType,
     values::{IntValue, PointerValue},
@@ -41,6 +41,18 @@ impl<'ctx> Variable<'ctx> {
 
         let value = compiler.builder.build_alloca(var_type, name);
         Self { value }
+    }
+
+    pub(crate) fn try_from_variable_value(
+        compiler: &Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+        value: VariableValue,
+    ) -> Result<Self, Error> {
+        match value {
+            VariableValue::String(string) => Ok(Variable::new_string(compiler, &string, "")),
+            VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number, "")),
+            VariableValue::Identifier(name) => cur_function.get_variable(name),
+        }
     }
 
     pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {

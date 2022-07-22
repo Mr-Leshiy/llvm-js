@@ -20,11 +20,7 @@ impl Compile for FunctionCall {
         let args: Vec<_> = self
             .args
             .into_iter()
-            .map(|variable| match variable {
-                VariableValue::FloatNumber(number) => compiler::VariableValue::FloatNumber(number),
-                VariableValue::String(string) => compiler::VariableValue::String(string),
-                VariableValue::Identifier(ident) => compiler::VariableValue::Identifier(ident),
-            })
+            .map(|variable| variable.into())
             .collect();
         match self.name.as_str() {
             PrintFn::NAME => {

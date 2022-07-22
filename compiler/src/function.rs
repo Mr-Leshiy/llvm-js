@@ -99,11 +99,8 @@ impl<'ctx> Function<'ctx> {
             if i >= args_num {
                 break;
             }
-            let variable = match arg {
-                VariableValue::String(string) => Variable::new_string(compiler, &string, ""),
-                VariableValue::FloatNumber(number) => Variable::new_number(compiler, number, ""),
-                VariableValue::Identifier(arg_name) => cur_function.get_variable(arg_name)?,
-            };
+
+            let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
             vec.push(variable.value.into());
         }
 
