@@ -163,7 +163,10 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
-                args: vec!["a".to_string().into(), "b".to_string().into()]
+                args: vec![
+                    Value::Identifier("a".to_string().into()),
+                    Value::Identifier("b".to_string().into())
+                ]
             })
         );
         assert_eq!(

@@ -1,4 +1,5 @@
 use super::{Identifier, Literal};
+use crate::{llvm_ast, precompiler::Precompile};
 use lexer::{Literal as LiteralToken, Parser, Token, TokenReader};
 use std::io::Read;
 
@@ -20,6 +21,22 @@ impl Parser for Value {
     }
 }
 
+impl Precompile for Value {
+    type Output = llvm_ast::VariableValue;
+    fn precompile(
+        self,
+        _: &mut crate::precompiler::Precompiler,
+    ) -> Result<Self::Output, crate::precompiler::Error> {
+        let res = match self {
+            Value::Identifier(name) => Self::Output::Identifier(name.name),
+            Value::Literal(Literal::Number(number)) => Self::Output::FloatNumber(number),
+            Value::Literal(Literal::String(string)) => Self::Output::String(string),
+        };
+
+        Ok(res)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -35,9 +52,7 @@ mod tests {
         let mut reader = TokenReader::new(r#""name""#.as_bytes());
         assert_eq!(
             Value::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Value::Literal(Literal::String(
-                "name".to_string()
-            ))),
+            Ok(Value::Literal(Literal::String("name".to_string()))),
         );
 
         let mut reader = TokenReader::new("name".as_bytes());

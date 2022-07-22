@@ -10,8 +10,8 @@ pub use identifier::Identifier;
 use lexer::{Parser, TokenReader};
 pub use literal::Literal;
 pub use program::Program;
-pub use value::Value;
 use std::io::Read;
+pub use value::Value;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 
@@ -69,8 +69,8 @@ impl Module {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BlockStatement, Expression, FunctionDeclaration, Literal, Value,
-        VariableAssigment, VariableDeclaration,
+        BlockStatement, Expression, FunctionDeclaration, Literal, Value, VariableAssigment,
+        VariableDeclaration,
     };
 
     #[test]
@@ -104,7 +104,10 @@ mod tests {
                         })),
                         Expression::FunctionCall(FunctionCall {
                             name: "foo".to_string().into(),
-                            args: vec!["a".to_string().into(), "b".to_string().into()]
+                            args: vec![
+                                Value::Identifier("a".to_string().into()),
+                                Value::Identifier("b".to_string().into())
+                            ]
                         }),
                         Expression::BlockStatement(BlockStatement {
                             body: vec![
@@ -119,16 +122,17 @@ mod tests {
                                 Expression::VariableDeclaration(VariableDeclaration(
                                     VariableAssigment {
                                         left: "c".to_string().into(),
-                                        right: Value::Literal(Literal::String(
-                                            "hello".to_string()
-                                        ))
+                                        right: Value::Literal(Literal::String("hello".to_string()))
                                     }
                                 ))
                             ]
                         }),
                         Expression::FunctionCall(FunctionCall {
                             name: "foo".to_string().into(),
-                            args: vec!["a".to_string().into(), "b".to_string().into()]
+                            args: vec![
+                                Value::Identifier("a".to_string().into()),
+                                Value::Identifier("b".to_string().into())
+                            ]
                         })
                     ]
                 })

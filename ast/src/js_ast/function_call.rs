@@ -1,4 +1,4 @@
-use super::Identifier;
+use super::{Identifier, Value};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -9,7 +9,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct FunctionCall {
     pub name: Identifier,
-    pub args: Vec<Identifier>,
+    pub args: Vec<Value>,
 }
 
 impl Parser for FunctionCall {
@@ -28,7 +28,7 @@ impl Parser for FunctionCall {
                 loop {
                     let arg = match cur_token {
                         Token::Separator(Separator::CloseBrace) => break,
-                        cur_token => Identifier::parse(cur_token, reader)?,
+                        cur_token => Value::parse(cur_token, reader)?,
                     };
                     args.push(arg);
 
@@ -51,15 +51,19 @@ impl Precompile for FunctionCall {
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         if precompiler.functions.contains(&self.name) {
             // check if arguments exist
-            for arg in &self.args {
-                if !precompiler.variables.contains(arg) {
-                    return Err(precompiler::Error::UndefinedVariable(arg.clone()));
+            let mut args = Vec::new();
+            for arg in self.args {
+                if let Value::Identifier(arg_name) = &arg {
+                    if !precompiler.variables.contains(arg_name) {
+                        return Err(precompiler::Error::UndefinedVariable(arg_name.clone()));
+                    }
                 }
+                args.push(arg.precompile(precompiler)?);
             }
 
             Ok(llvm_ast::FunctionCall {
                 name: self.name.name,
-                args: self.args.into_iter().map(|name| name.name).collect(),
+                args,
             })
         } else {
             Err(precompiler::Error::UndefinedFunction(self.name))
@@ -78,7 +82,10 @@ mod tests {
             FunctionCall::parse(reader.next_token().unwrap(), &mut reader),
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
-                args: vec!["a".to_string().into(), "b".to_string().into()]
+                args: vec![
+                    Value::Identifier("a".to_string().into()),
+                    Value::Identifier("b".to_string().into())
+                ]
             })
         );
     }
@@ -102,14 +109,20 @@ mod tests {
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),
 
-            args: vec!["a".to_string().into(), "b".to_string().into()],
+            args: vec![
+                Value::Identifier("a".to_string().into()),
+                Value::Identifier("b".to_string().into()),
+            ],
         };
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionCall {
                 name: "name_1".to_string(),
-                args: vec!["a".to_string(), "b".to_string()],
+                args: vec![
+                    llvm_ast::VariableValue::Identifier("a".to_string()),
+                    llvm_ast::VariableValue::Identifier("b".to_string())
+                ],
             })
         );
     }
