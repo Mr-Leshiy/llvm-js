@@ -77,14 +77,16 @@ mod tests {
 
     #[test]
     fn parse_function_call_test() {
-        let mut reader = TokenReader::new("foo(a, b)".as_bytes());
+        let mut reader = TokenReader::new(r#"foo(a, b, "val", 5)"#.as_bytes());
         assert_eq!(
             FunctionCall::parse(reader.next_token().unwrap(), &mut reader),
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
                     VariableValue::Identifier("a".to_string().into()),
-                    VariableValue::Identifier("b".to_string().into())
+                    VariableValue::Identifier("b".to_string().into()),
+                    VariableValue::String("val".to_string()),
+                    VariableValue::Number(5_f64),
                 ]
             })
         );
@@ -112,6 +114,8 @@ mod tests {
             args: vec![
                 VariableValue::Identifier("a".to_string().into()),
                 VariableValue::Identifier("b".to_string().into()),
+                VariableValue::String("val".to_string()),
+                VariableValue::Number(5_f64),
             ],
         };
 
@@ -121,7 +125,9 @@ mod tests {
                 name: "name_1".to_string(),
                 args: vec![
                     llvm_ast::VariableValue::Identifier("a".to_string()),
-                    llvm_ast::VariableValue::Identifier("b".to_string())
+                    llvm_ast::VariableValue::Identifier("b".to_string()),
+                    llvm_ast::VariableValue::String("val".to_string()),
+                    llvm_ast::VariableValue::FloatNumber(5_f64),
                 ],
             })
         );
