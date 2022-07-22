@@ -1,4 +1,4 @@
-use super::{Literal, RightAssigmentValue, VariableAssigment};
+use super::{Literal, Value, VariableAssigment};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -26,7 +26,7 @@ impl Precompile for VariableDeclaration {
     type Output = llvm_ast::VariableDeclaration;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         let res = match self.0.right {
-            RightAssigmentValue::Literal(literal) => match literal {
+            Value::Literal(literal) => match literal {
                 Literal::Number(value) => llvm_ast::VariableAssigment {
                     name: self.0.left.name.clone(),
                     value: llvm_ast::VariableValue::FloatNumber(value),
@@ -36,7 +36,7 @@ impl Precompile for VariableDeclaration {
                     value: llvm_ast::VariableValue::String(value),
                 },
             },
-            RightAssigmentValue::Identifier(identifier) => {
+            Value::Identifier(identifier) => {
                 precompiler
                     .variables
                     .contains(&identifier)
@@ -59,7 +59,7 @@ impl Precompile for VariableDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Literal, RightAssigmentValue};
+    use crate::js_ast::{Literal, Value};
 
     #[test]
     fn parse_variable_declaration_test() {
@@ -68,7 +68,7 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name".to_string().into(),
-                right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+                right: Value::Literal(Literal::Number(12_f64))
             }))
         );
 
@@ -77,7 +77,7 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: RightAssigmentValue::Identifier("name2".to_string().into())
+                right: Value::Identifier("name2".to_string().into())
             }))
         );
     }
@@ -88,7 +88,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+            right: Value::Literal(Literal::Number(64_f64)),
         });
 
         assert_eq!(
@@ -113,7 +113,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
+            right: Value::Identifier("name_2".to_string().into()),
         });
 
         assert_eq!(
@@ -136,7 +136,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+            right: Value::Literal(Literal::Number(64_f64)),
         });
 
         assert_eq!(
@@ -153,7 +153,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
+            right: Value::Identifier("name_2".to_string().into()),
         });
 
         assert_eq!(

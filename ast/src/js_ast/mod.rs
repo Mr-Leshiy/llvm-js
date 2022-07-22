@@ -10,7 +10,7 @@ pub use identifier::Identifier;
 use lexer::{Parser, TokenReader};
 pub use literal::Literal;
 pub use program::Program;
-pub use right_assignment_value::RightAssigmentValue;
+pub use value::Value;
 use std::io::Read;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
@@ -22,7 +22,7 @@ mod function_declaration;
 mod identifier;
 mod literal;
 mod program;
-mod right_assignment_value;
+mod value;
 mod variable_assigment;
 mod variable_declaration;
 
@@ -69,7 +69,7 @@ impl Module {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BlockStatement, Expression, FunctionDeclaration, Literal, RightAssigmentValue,
+        BlockStatement, Expression, FunctionDeclaration, Literal, Value,
         VariableAssigment, VariableDeclaration,
     };
 
@@ -88,7 +88,7 @@ mod tests {
                     body: BlockStatement {
                         body: vec![Expression::VariableAssigment(VariableAssigment {
                             left: "arg1".to_string().into(),
-                            right: RightAssigmentValue::Literal(Literal::Number(12_f64)),
+                            right: Value::Literal(Literal::Number(12_f64)),
                         })]
                     }
                 }),
@@ -96,11 +96,11 @@ mod tests {
                     body: vec![
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: "a".to_string().into(),
-                            right: RightAssigmentValue::Literal(Literal::Number(5_f64))
+                            right: Value::Literal(Literal::Number(5_f64))
                         })),
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: "b".to_string().into(),
-                            right: RightAssigmentValue::Literal(Literal::Number(6_f64))
+                            right: Value::Literal(Literal::Number(6_f64))
                         })),
                         Expression::FunctionCall(FunctionCall {
                             name: "foo".to_string().into(),
@@ -110,16 +110,16 @@ mod tests {
                             body: vec![
                                 Expression::VariableAssigment(VariableAssigment {
                                     left: "a".to_string().into(),
-                                    right: RightAssigmentValue::Identifier("b".to_string().into())
+                                    right: Value::Identifier("b".to_string().into())
                                 }),
                                 Expression::VariableAssigment(VariableAssigment {
                                     left: "b".to_string().into(),
-                                    right: RightAssigmentValue::Literal(Literal::Number(7_f64))
+                                    right: Value::Literal(Literal::Number(7_f64))
                                 }),
                                 Expression::VariableDeclaration(VariableDeclaration(
                                     VariableAssigment {
                                         left: "c".to_string().into(),
-                                        right: RightAssigmentValue::Literal(Literal::String(
+                                        right: Value::Literal(Literal::String(
                                             "hello".to_string()
                                         ))
                                     }

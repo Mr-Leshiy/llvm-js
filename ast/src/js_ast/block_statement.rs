@@ -59,7 +59,7 @@ impl Precompile for BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, Literal, RightAssigmentValue, VariableAssigment, VariableDeclaration,
+        FunctionDeclaration, Literal, Value, VariableAssigment, VariableDeclaration,
     };
 
     #[test]
@@ -76,7 +76,7 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: RightAssigmentValue::Identifier("name2".to_string().into())
+                    right: Value::Identifier("name2".to_string().into())
                 })]
             })
         );
@@ -90,17 +90,17 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: RightAssigmentValue::Identifier("name2".to_string().into())
+                        right: Value::Identifier("name2".to_string().into())
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: RightAssigmentValue::Identifier("name2".to_string().into())
+                                right: Value::Identifier("name2".to_string().into())
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: RightAssigmentValue::Identifier("name2".to_string().into())
+                                right: Value::Identifier("name2".to_string().into())
                             }),
                         ]
                     })
@@ -117,7 +117,7 @@ mod tests {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name_1".to_string().into(),
-                    right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+                    right: Value::Literal(Literal::Number(64_f64)),
                 },
             ))],
         };

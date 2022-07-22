@@ -86,7 +86,7 @@ impl Precompile for FunctionDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Expression, RightAssigmentValue, VariableAssigment};
+    use crate::js_ast::{Expression, Value, VariableAssigment};
 
     #[test]
     fn parse_function_declaration_test() {
@@ -99,7 +99,7 @@ mod tests {
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
                         left: "a".to_string().into(),
-                        right: RightAssigmentValue::Identifier("b".to_string().into()),
+                        right: Value::Identifier("b".to_string().into()),
                     })]
                 }
             })
@@ -116,7 +116,7 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: RightAssigmentValue::Identifier("b".to_string().into()),
+                    right: Value::Identifier("b".to_string().into()),
                 })],
             },
         };
@@ -158,7 +158,7 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: RightAssigmentValue::Identifier("b".to_string().into()),
+                    right: Value::Identifier("b".to_string().into()),
                 })],
             },
         };
