@@ -1,5 +1,5 @@
 use super::{Compiler, ExternFunction, ExternFunctionName};
-use crate::{variable::Field, Error, Function};
+use crate::{variable::Field, Error, Function, Variable, VariableValue};
 use inkwell::{
     module::Linkage,
     values::{FunctionValue, GlobalValue},
@@ -57,13 +57,13 @@ impl<'ctx> PrintFn<'ctx> {
         &self,
         compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        args_names: Vec<String>,
+        arg: VariableValue,
     ) -> Result<(), Error> {
-        let arg_name = args_names
-            .into_iter()
-            .next()
-            .ok_or(Error::NotEnoughArguments)?;
-        let variable = cur_function.get_variable(arg_name)?;
+        let variable = match arg {
+            VariableValue::String(string) => Variable::new_string(compiler, &string, ""),
+            VariableValue::FloatNumber(number) => Variable::new_number(compiler, number, ""),
+            VariableValue::Identifier(arg_name) => cur_function.get_variable(arg_name)?,
+        };
 
         let number_case_f = |compiler: &Compiler<'ctx>| {
             let number_field = variable.get_field(compiler, Field::Number);

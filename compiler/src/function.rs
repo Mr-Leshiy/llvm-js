@@ -1,4 +1,4 @@
-use crate::{Compile, Compiler, Error, Variable};
+use crate::{Compile, Compiler, Error, Variable, VariableValue};
 use inkwell::{
     attributes::{Attribute, AttributeLoc},
     values::FunctionValue,
@@ -8,14 +8,14 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Function<'ctx> {
-    pub(super) args: Vec<String>,
+    pub(super) arg_names: Vec<String>,
     pub(super) function: FunctionValue<'ctx>,
     pub(super) variables: HashMap<String, Variable<'ctx>>,
 }
 
 impl<'ctx> Function<'ctx> {
-    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, args: Vec<String>) -> Self {
-        let args_type: Vec<_> = args
+    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, arg_names: Vec<String>) -> Self {
+        let args_type: Vec<_> = arg_names
             .iter()
             .map(|_| {
                 Variable::get_type(compiler)
@@ -40,14 +40,14 @@ impl<'ctx> Function<'ctx> {
 
         Self {
             function,
-            args,
+            arg_names,
             variables: HashMap::new(),
         }
     }
 
     pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
         // firstly look into the function arguments
-        for (i, arg_name) in self.args.iter().enumerate() {
+        for (i, arg_name) in self.arg_names.iter().enumerate() {
             if name.eq(arg_name) {
                 let arg = self
                     .function
@@ -91,15 +91,19 @@ impl<'ctx> Function<'ctx> {
         &self,
         compiler: &mut Compiler<'ctx>,
         cur_function: &Self,
-        args_names: Vec<String>,
+        args: Vec<VariableValue>,
     ) -> Result<(), Error> {
         let args_num = self.function.get_type().get_param_types().len();
         let mut vec = Vec::with_capacity(args_num);
-        for (i, arg_name) in args_names.into_iter().enumerate() {
+        for (i, arg) in args.into_iter().enumerate() {
             if i >= args_num {
                 break;
             }
-            let variable = cur_function.get_variable(arg_name)?;
+            let variable = match arg {
+                VariableValue::String(string) => Variable::new_string(compiler, &string, ""),
+                VariableValue::FloatNumber(number) => Variable::new_number(compiler, number, ""),
+                VariableValue::Identifier(arg_name) => cur_function.get_variable(arg_name)?,
+            };
             vec.push(variable.value.into());
         }
 
