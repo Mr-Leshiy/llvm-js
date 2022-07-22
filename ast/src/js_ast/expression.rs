@@ -81,7 +81,7 @@ impl Precompile for Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Literal, Value};
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_expression_test1() {
@@ -91,7 +91,7 @@ mod tests {
             Ok(Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name".to_string().into(),
-                    right: Value::Literal(Literal::Number(12_f64))
+                    right: VariableValue::Number(12_f64)
                 }
             )))
         );
@@ -104,7 +104,7 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
                 left: "name".to_string().into(),
-                right: Value::Literal(Literal::Number(12_f64))
+                right: VariableValue::Number(12_f64)
             })
         );
     }
@@ -123,7 +123,7 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: Value::Identifier("name2".to_string().into())
+                    right: VariableValue::Identifier("name2".to_string().into())
                 })]
             })
         );
@@ -137,17 +137,17 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: Value::Identifier("name2".to_string().into())
+                        right: VariableValue::Identifier("name2".to_string().into())
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: Value::Identifier("name2".to_string().into())
+                                right: VariableValue::Identifier("name2".to_string().into())
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: Value::Identifier("name2".to_string().into())
+                                right: VariableValue::Identifier("name2".to_string().into())
                             }),
                         ]
                     })
@@ -164,8 +164,8 @@ mod tests {
             Expression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    Value::Identifier("a".to_string().into()),
-                    Value::Identifier("b".to_string().into())
+                    VariableValue::Identifier("a".to_string().into()),
+                    VariableValue::Identifier("b".to_string().into())
                 ]
             })
         );
@@ -173,7 +173,7 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableAssigment(VariableAssigment {
                 left: "a".to_string().into(),
-                right: Value::Literal(Literal::Number(6_f64))
+                right: VariableValue::Number(6_f64)
             }))
         );
     }

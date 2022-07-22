@@ -1,4 +1,4 @@
-use super::{Identifier, Value};
+use super::{Identifier, VariableValue};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -9,7 +9,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct FunctionCall {
     pub name: Identifier,
-    pub args: Vec<Value>,
+    pub args: Vec<VariableValue>,
 }
 
 impl Parser for FunctionCall {
@@ -28,7 +28,7 @@ impl Parser for FunctionCall {
                 loop {
                     let arg = match cur_token {
                         Token::Separator(Separator::CloseBrace) => break,
-                        cur_token => Value::parse(cur_token, reader)?,
+                        cur_token => VariableValue::parse(cur_token, reader)?,
                     };
                     args.push(arg);
 
@@ -53,7 +53,7 @@ impl Precompile for FunctionCall {
             // check if arguments exist
             let mut args = Vec::new();
             for arg in self.args {
-                if let Value::Identifier(arg_name) = &arg {
+                if let VariableValue::Identifier(arg_name) = &arg {
                     if !precompiler.variables.contains(arg_name) {
                         return Err(precompiler::Error::UndefinedVariable(arg_name.clone()));
                     }
@@ -83,8 +83,8 @@ mod tests {
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    Value::Identifier("a".to_string().into()),
-                    Value::Identifier("b".to_string().into())
+                    VariableValue::Identifier("a".to_string().into()),
+                    VariableValue::Identifier("b".to_string().into())
                 ]
             })
         );
@@ -110,8 +110,8 @@ mod tests {
             name: "name_1".to_string().into(),
 
             args: vec![
-                Value::Identifier("a".to_string().into()),
-                Value::Identifier("b".to_string().into()),
+                VariableValue::Identifier("a".to_string().into()),
+                VariableValue::Identifier("b".to_string().into()),
             ],
         };
 

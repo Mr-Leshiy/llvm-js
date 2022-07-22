@@ -32,7 +32,7 @@ impl Parser for Program {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Literal, Value, VariableAssigment};
+    use crate::js_ast::{VariableAssigment, VariableValue};
 
     #[test]
     fn parse_program_test() {
@@ -42,7 +42,7 @@ mod tests {
             Ok(Program {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name".to_string().into(),
-                    right: Value::Literal(Literal::Number(12_f64))
+                    right: VariableValue::Number(12_f64)
                 })]
             })
         );

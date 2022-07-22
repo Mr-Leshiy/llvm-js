@@ -8,23 +8,21 @@ pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 use lexer::{Parser, TokenReader};
-pub use literal::Literal;
 pub use program::Program;
 use std::io::Read;
-pub use value::Value;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
+pub use variable_value::VariableValue;
 
 mod block_statement;
 mod expression;
 mod function_call;
 mod function_declaration;
 mod identifier;
-mod literal;
 mod program;
-mod value;
 mod variable_assigment;
 mod variable_declaration;
+mod variable_value;
 
 /// Module
 pub struct Module {
@@ -69,8 +67,8 @@ impl Module {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BlockStatement, Expression, FunctionDeclaration, Literal, Value, VariableAssigment,
-        VariableDeclaration,
+        BlockStatement, Expression, FunctionDeclaration, VariableAssigment, VariableDeclaration,
+        VariableValue,
     };
 
     #[test]
@@ -88,7 +86,7 @@ mod tests {
                     body: BlockStatement {
                         body: vec![Expression::VariableAssigment(VariableAssigment {
                             left: "arg1".to_string().into(),
-                            right: Value::Literal(Literal::Number(12_f64)),
+                            right: VariableValue::Number(12_f64),
                         })]
                     }
                 }),
@@ -96,33 +94,33 @@ mod tests {
                     body: vec![
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: "a".to_string().into(),
-                            right: Value::Literal(Literal::Number(5_f64))
+                            right: VariableValue::Number(5_f64)
                         })),
                         Expression::VariableDeclaration(VariableDeclaration(VariableAssigment {
                             left: "b".to_string().into(),
-                            right: Value::Literal(Literal::Number(6_f64))
+                            right: VariableValue::Number(6_f64)
                         })),
                         Expression::FunctionCall(FunctionCall {
                             name: "foo".to_string().into(),
                             args: vec![
-                                Value::Identifier("a".to_string().into()),
-                                Value::Identifier("b".to_string().into())
+                                VariableValue::Identifier("a".to_string().into()),
+                                VariableValue::Identifier("b".to_string().into())
                             ]
                         }),
                         Expression::BlockStatement(BlockStatement {
                             body: vec![
                                 Expression::VariableAssigment(VariableAssigment {
                                     left: "a".to_string().into(),
-                                    right: Value::Identifier("b".to_string().into())
+                                    right: VariableValue::Identifier("b".to_string().into())
                                 }),
                                 Expression::VariableAssigment(VariableAssigment {
                                     left: "b".to_string().into(),
-                                    right: Value::Literal(Literal::Number(7_f64))
+                                    right: VariableValue::Number(7_f64)
                                 }),
                                 Expression::VariableDeclaration(VariableDeclaration(
                                     VariableAssigment {
                                         left: "c".to_string().into(),
-                                        right: Value::Literal(Literal::String("hello".to_string()))
+                                        right: VariableValue::String("hello".to_string())
                                     }
                                 ))
                             ]
@@ -130,8 +128,8 @@ mod tests {
                         Expression::FunctionCall(FunctionCall {
                             name: "foo".to_string().into(),
                             args: vec![
-                                Value::Identifier("a".to_string().into()),
-                                Value::Identifier("b".to_string().into())
+                                VariableValue::Identifier("a".to_string().into()),
+                                VariableValue::Identifier("b".to_string().into())
                             ]
                         })
                     ]
