@@ -3,7 +3,7 @@ use extern_functions::ExternFunctions;
 pub use function::Function;
 use std::{collections::HashMap, io::Write};
 use thiserror::Error;
-pub use variable::Variable;
+pub use variable::{Variable, VariableValue};
 
 mod context;
 pub mod extern_functions;

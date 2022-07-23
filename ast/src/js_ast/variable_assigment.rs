@@ -1,4 +1,4 @@
-use super::{Identifier, Literal, RightAssigmentValue};
+use super::{Identifier, VariableValue};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -10,7 +10,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableAssigment {
     pub left: Identifier,
-    pub right: RightAssigmentValue,
+    pub right: VariableValue,
 }
 
 impl Parser for VariableAssigment {
@@ -22,7 +22,7 @@ impl Parser for VariableAssigment {
             token => return Err(lexer::Error::UnexpectedToken(token)),
         }
 
-        let right = RightAssigmentValue::parse(reader.next_token()?, reader)?;
+        let right = VariableValue::parse(reader.next_token()?, reader)?;
         Ok(Self { left, right })
     }
 }
@@ -32,17 +32,15 @@ impl Precompile for VariableAssigment {
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         if precompiler.variables.contains(&self.left) {
             match self.right {
-                RightAssigmentValue::Literal(literal) => match literal {
-                    Literal::Number(value) => Ok(llvm_ast::VariableAssigment {
-                        name: self.left.name.clone(),
-                        value: llvm_ast::VariableValue::FloatNumber(value),
-                    }),
-                    Literal::String(value) => Ok(llvm_ast::VariableAssigment {
-                        name: self.left.name.clone(),
-                        value: llvm_ast::VariableValue::String(value),
-                    }),
-                },
-                RightAssigmentValue::Identifier(identifier) => {
+                VariableValue::Number(value) => Ok(llvm_ast::VariableAssigment {
+                    name: self.left.name.clone(),
+                    value: llvm_ast::VariableValue::FloatNumber(value),
+                }),
+                VariableValue::String(value) => Ok(llvm_ast::VariableAssigment {
+                    name: self.left.name.clone(),
+                    value: llvm_ast::VariableValue::String(value),
+                }),
+                VariableValue::Identifier(identifier) => {
                     precompiler
                         .variables
                         .contains(&identifier)
@@ -63,7 +61,7 @@ impl Precompile for VariableAssigment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Literal, RightAssigmentValue};
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -72,7 +70,7 @@ mod tests {
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: "name".to_string().into(),
-                right: RightAssigmentValue::Literal(Literal::Number(12_f64))
+                right: VariableValue::Number(12_f64)
             })
         );
 
@@ -81,7 +79,7 @@ mod tests {
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: RightAssigmentValue::Identifier("name2".to_string().into())
+                right: VariableValue::Identifier("name2".to_string().into())
             })
         );
     }
@@ -96,7 +94,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+            right: VariableValue::Number(64_f64),
         };
 
         assert_eq!(
@@ -123,7 +121,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
+            right: VariableValue::Identifier("name_2".to_string().into()),
         };
 
         assert_eq!(
@@ -142,7 +140,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Literal(Literal::Number(64_f64)),
+            right: VariableValue::Number(64_f64),
         };
 
         assert_eq!(
@@ -163,7 +161,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: RightAssigmentValue::Identifier("name_2".to_string().into()),
+            right: VariableValue::Identifier("name_2".to_string().into()),
         };
 
         assert_eq!(

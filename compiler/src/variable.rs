@@ -1,10 +1,16 @@
 use super::Compiler;
-use crate::Function;
+use crate::{Error, Function};
 use inkwell::{
     types::StructType,
     values::{IntValue, PointerValue},
     AddressSpace,
 };
+
+pub enum VariableValue {
+    FloatNumber(f64),
+    String(String),
+    Identifier(String),
+}
 
 #[derive(Clone, Copy)]
 pub(crate) enum Type {
@@ -30,14 +36,26 @@ pub struct Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn new(compiler: &mut Compiler<'ctx>, name: &str) -> Self {
+    fn new(compiler: &Compiler<'ctx>, name: &str) -> Self {
         let var_type = Self::get_type(compiler);
 
         let value = compiler.builder.build_alloca(var_type, name);
         Self { value }
     }
 
-    pub(crate) fn get_type(compiler: &mut Compiler<'ctx>) -> StructType<'ctx> {
+    pub(crate) fn try_from_variable_value(
+        compiler: &Compiler<'ctx>,
+        cur_function: &Function<'ctx>,
+        value: VariableValue,
+    ) -> Result<Self, Error> {
+        match value {
+            VariableValue::String(string) => Ok(Variable::new_string(compiler, &string, "")),
+            VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number, "")),
+            VariableValue::Identifier(name) => cur_function.get_variable(name),
+        }
+    }
+
+    pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
         let type_flag_type = compiler.context.i8_type();
@@ -123,26 +141,26 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn new_number(compiler: &mut Compiler<'ctx>, number: f64, name: &str) -> Self {
+    pub fn new_number(compiler: &Compiler<'ctx>, number: f64, name: &str) -> Self {
         let variable = Self::new(compiler, name);
         variable.assign_number(compiler, number);
         variable
     }
 
-    pub fn assign_number(&self, compiler: &mut Compiler<'ctx>, number: f64) {
+    pub fn assign_number(&self, compiler: &Compiler<'ctx>, number: f64) {
         let number = compiler.context.f64_type().const_float(number);
         let number_field = self.get_field(compiler, Field::Number);
         compiler.builder.build_store(number_field, number);
         self.update_flag(compiler, Type::Number);
     }
 
-    pub fn new_string(compiler: &mut Compiler<'ctx>, string: &str, name: &str) -> Self {
+    pub fn new_string(compiler: &Compiler<'ctx>, string: &str, name: &str) -> Self {
         let variable = Self::new(compiler, name);
         variable.assign_string(compiler, string);
         variable
     }
 
-    pub fn assign_string(&self, compiler: &mut Compiler<'ctx>, string: &str) {
+    pub fn assign_string(&self, compiler: &Compiler<'ctx>, string: &str) {
         let string = compiler.context.const_string(string.as_bytes(), true);
         let tmp_value = compiler.builder.build_alloca(string.get_type(), "");
         compiler.builder.build_store(tmp_value, string);

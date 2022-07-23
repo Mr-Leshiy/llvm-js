@@ -1,4 +1,4 @@
-use super::{FunctionName, VariableName};
+use super::{FunctionName, VariableValue};
 use compiler::{
     self,
     extern_functions::{printf::PrintFn, ExternFunctionName},
@@ -8,7 +8,7 @@ use compiler::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
     pub name: FunctionName,
-    pub args: Vec<VariableName>,
+    pub args: Vec<VariableValue>,
 }
 
 impl Compile for FunctionCall {
@@ -17,14 +17,25 @@ impl Compile for FunctionCall {
         compiler: &mut Compiler<'ctx>,
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
+        let args: Vec<_> = self
+            .args
+            .into_iter()
+            .map(|variable| variable.into())
+            .collect();
         match self.name.as_str() {
             PrintFn::NAME => {
                 let pritnf = compiler.extern_functions().get_print()?;
-                pritnf.print(compiler, cur_function, self.args)
+                pritnf.print(
+                    compiler,
+                    cur_function,
+                    args.into_iter()
+                        .next()
+                        .ok_or(compiler::Error::NotEnoughArguments)?,
+                )
             }
             _ => {
                 let function = compiler.get_function(self.name)?;
-                function.generate_call(compiler, cur_function, self.args)
+                function.generate_call(compiler, cur_function, args)
             }
         }
     }

@@ -9,6 +9,16 @@ pub enum VariableValue {
     Identifier(VariableName),
 }
 
+impl From<VariableValue> for compiler::VariableValue {
+    fn from(val: VariableValue) -> Self {
+        match val {
+            VariableValue::FloatNumber(number) => compiler::VariableValue::FloatNumber(number),
+            VariableValue::String(string) => compiler::VariableValue::String(string),
+            VariableValue::Identifier(ident) => compiler::VariableValue::Identifier(ident),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
     pub name: VariableName,
