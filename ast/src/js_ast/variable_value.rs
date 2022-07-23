@@ -1,5 +1,8 @@
 use super::Identifier;
-use crate::{llvm_ast, precompiler::Precompile};
+use crate::{
+    llvm_ast,
+    precompiler::{self, Precompile, Precompiler},
+};
 use lexer::{Literal as LiteralToken, Parser, Token, TokenReader};
 use std::io::Read;
 
@@ -24,12 +27,16 @@ impl Parser for VariableValue {
 
 impl Precompile for VariableValue {
     type Output = llvm_ast::VariableValue;
-    fn precompile(
-        self,
-        _: &mut crate::precompiler::Precompiler,
-    ) -> Result<Self::Output, crate::precompiler::Error> {
+    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         let res = match self {
-            VariableValue::Identifier(name) => Self::Output::Identifier(name.name),
+            VariableValue::Identifier(identifier) => {
+                precompiler
+                    .variables
+                    .contains(&identifier)
+                    .then(|| ())
+                    .ok_or_else(|| precompiler::Error::UndefinedVariable(identifier.clone()))?;
+                Self::Output::Identifier(identifier.name)
+            }
             VariableValue::Number(number) => Self::Output::FloatNumber(number),
             VariableValue::String(string) => Self::Output::String(string),
         };

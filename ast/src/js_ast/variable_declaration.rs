@@ -1,4 +1,4 @@
-use super::{VariableAssigment, VariableValue};
+use super::VariableAssigment;
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -25,26 +25,10 @@ impl Parser for VariableDeclaration {
 impl Precompile for VariableDeclaration {
     type Output = llvm_ast::VariableDeclaration;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        let res = match self.0.right {
-            VariableValue::Number(value) => llvm_ast::VariableAssigment {
-                name: self.0.left.name.clone(),
-                value: llvm_ast::VariableValue::FloatNumber(value),
-            },
-            VariableValue::String(value) => llvm_ast::VariableAssigment {
-                name: self.0.left.name.clone(),
-                value: llvm_ast::VariableValue::String(value),
-            },
-            VariableValue::Identifier(identifier) => {
-                precompiler
-                    .variables
-                    .contains(&identifier)
-                    .then(|| ())
-                    .ok_or_else(|| precompiler::Error::UndefinedVariable(identifier.clone()))?;
-                llvm_ast::VariableAssigment {
-                    name: self.0.left.name.clone(),
-                    value: llvm_ast::VariableValue::Identifier(identifier.name),
-                }
-            }
+        let value = self.0.right.precompile(precompiler)?;
+        let res = llvm_ast::VariableAssigment {
+            name: self.0.left.name.clone(),
+            value,
         };
         precompiler
             .variables
