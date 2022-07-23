@@ -119,6 +119,14 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Keyword(Keyword::Function)));
             }
 
+            if ident == "true" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::True)));
+            }
+
+            if ident == "false" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::False)));
+            }
+
             return Ok(TokenResult::Token(Token::Ident(ident)));
         }
         Ok(TokenResult::Result(()))
