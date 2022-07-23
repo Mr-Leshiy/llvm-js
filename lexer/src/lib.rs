@@ -120,11 +120,11 @@ impl<R: Read> TokenReader<R> {
             }
 
             if ident == "true" {
-                return Ok(TokenResult::Token(Token::Literal(Literal::True)));
+                return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(true))));
             }
 
             if ident == "false" {
-                return Ok(TokenResult::Token(Token::Literal(Literal::False)));
+                return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(false))));
             }
 
             return Ok(TokenResult::Token(Token::Ident(ident)));

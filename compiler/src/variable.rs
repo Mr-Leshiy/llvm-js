@@ -7,6 +7,7 @@ use inkwell::{
 };
 
 pub enum VariableValue {
+    Boolean(bool),
     FloatNumber(f64),
     String(String),
     Identifier(String),
@@ -16,6 +17,7 @@ pub enum VariableValue {
 pub(crate) enum Type {
     Number = 0,
     String = 1,
+    Boolean = 2,
 }
 
 impl Type {
@@ -28,6 +30,7 @@ pub(crate) enum Field {
     Flag = 0,
     Number = 1,
     String = 2,
+    Boolean = 3,
 }
 
 #[derive(Clone)]
@@ -49,6 +52,7 @@ impl<'ctx> Variable<'ctx> {
         value: VariableValue,
     ) -> Result<Self, Error> {
         match value {
+            VariableValue::Boolean(boolean) => Ok(Variable::new_boolean(compiler, boolean, "")),
             VariableValue::String(string) => Ok(Variable::new_string(compiler, &string, "")),
             VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number, "")),
             VariableValue::Identifier(name) => cur_function.get_variable(name),
@@ -58,6 +62,7 @@ impl<'ctx> Variable<'ctx> {
     pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+        let boolean_type = compiler.context.bool_type();
         let type_flag_type = compiler.context.i8_type();
 
         compiler.context.struct_type(
@@ -65,6 +70,7 @@ impl<'ctx> Variable<'ctx> {
                 type_flag_type.into(),
                 number_type.into(),
                 string_type.into(),
+                boolean_type.into(),
             ],
             false,
         )
@@ -176,6 +182,22 @@ impl<'ctx> Variable<'ctx> {
         let string_field = self.get_field(compiler, Field::String);
         compiler.builder.build_store(string_field, tmp_value);
         self.update_flag(compiler, Type::String);
+    }
+
+    pub fn new_boolean(compiler: &Compiler<'ctx>, boolean: bool, name: &str) -> Self {
+        let variable = Self::new(compiler, name);
+        variable.assign_boolean(compiler, boolean);
+        variable
+    }
+
+    pub fn assign_boolean(&self, compiler: &Compiler<'ctx>, boolean: bool) {
+        let boolean = compiler
+            .context
+            .bool_type()
+            .const_int(boolean.then_some(1_u64).unwrap_or(0_u64), false);
+        let boolean_field = self.get_field(compiler, Field::Boolean);
+        compiler.builder.build_store(boolean_field, boolean);
+        self.update_flag(compiler, Type::Boolean);
     }
 
     pub fn new_variable(

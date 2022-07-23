@@ -4,6 +4,7 @@ pub type VariableName = String;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableValue {
+    Boolean(bool),
     FloatNumber(f64),
     String(String),
     Identifier(VariableName),
@@ -12,6 +13,7 @@ pub enum VariableValue {
 impl From<VariableValue> for compiler::VariableValue {
     fn from(val: VariableValue) -> Self {
         match val {
+            VariableValue::Boolean(boolean) => compiler::VariableValue::Boolean(boolean),
             VariableValue::FloatNumber(number) => compiler::VariableValue::FloatNumber(number),
             VariableValue::String(string) => compiler::VariableValue::String(string),
             VariableValue::Identifier(ident) => compiler::VariableValue::Identifier(ident),
@@ -33,6 +35,10 @@ impl Compile for VariableAssigment {
     ) -> Result<(), compiler::Error> {
         let variable1 = cur_function.get_variable(self.name)?;
         match self.value {
+            VariableValue::Boolean(boolean) => {
+                variable1.assign_boolean(compiler, boolean);
+                Ok(())
+            }
             VariableValue::FloatNumber(value) => {
                 variable1.assign_number(compiler, value);
                 Ok(())
