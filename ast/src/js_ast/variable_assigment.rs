@@ -31,27 +31,11 @@ impl Precompile for VariableAssigment {
     type Output = llvm_ast::VariableAssigment;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         if precompiler.variables.contains(&self.left) {
-            match self.right {
-                VariableValue::Number(value) => Ok(llvm_ast::VariableAssigment {
-                    name: self.left.name.clone(),
-                    value: llvm_ast::VariableValue::FloatNumber(value),
-                }),
-                VariableValue::String(value) => Ok(llvm_ast::VariableAssigment {
-                    name: self.left.name.clone(),
-                    value: llvm_ast::VariableValue::String(value),
-                }),
-                VariableValue::Identifier(identifier) => {
-                    precompiler
-                        .variables
-                        .contains(&identifier)
-                        .then(|| ())
-                        .ok_or_else(|| precompiler::Error::UndefinedVariable(identifier.clone()))?;
-                    Ok(llvm_ast::VariableAssigment {
-                        name: self.left.name.clone(),
-                        value: llvm_ast::VariableValue::Identifier(identifier.name),
-                    })
-                }
-            }
+            let value = self.right.precompile(precompiler)?;
+            Ok(llvm_ast::VariableAssigment {
+                name: self.left.name,
+                value,
+            })
         } else {
             Err(precompiler::Error::UndefinedVariable(self.left))
         }

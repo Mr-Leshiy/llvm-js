@@ -12,6 +12,9 @@ impl Compile for VariableDeclaration {
     ) -> Result<(), compiler::Error> {
         let variable = self.0;
         let var = match variable.value {
+            VariableValue::Boolean(boolean) => {
+                Variable::new_boolean(compiler, boolean, &variable.name)
+            }
             VariableValue::FloatNumber(value) => {
                 Variable::new_number(compiler, value, &variable.name)
             }
