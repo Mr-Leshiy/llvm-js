@@ -26,6 +26,7 @@ impl Type {
     }
 }
 
+#[derive(Clone, Copy)]
 pub(crate) enum Field {
     Flag = 0,
     Number = 1,
@@ -103,6 +104,7 @@ impl<'ctx> Variable<'ctx> {
         cur_function: &Function<'ctx>,
         number_case_f: impl FnOnce(&Compiler<'ctx>),
         string_case_f: impl FnOnce(&Compiler<'ctx>),
+        boolean_case_f: impl FnOnce(&Compiler<'ctx>),
     ) {
         let flag = self.get_flag(compiler);
 
@@ -115,6 +117,9 @@ impl<'ctx> Variable<'ctx> {
         let string_block = compiler
             .context
             .append_basic_block(cur_function.function, "");
+        let boolean_block = compiler
+            .context
+            .append_basic_block(cur_function.function, "");
 
         let continue_block = compiler
             .context
@@ -122,10 +127,11 @@ impl<'ctx> Variable<'ctx> {
 
         let number_case = (Type::Number.to_int(compiler), number_block);
         let string_case = (Type::String.to_int(compiler), string_block);
+        let boolean_case = (Type::Boolean.to_int(compiler), boolean_block);
 
         compiler
             .builder
-            .build_switch(flag, else_block, &[number_case, string_case]);
+            .build_switch(flag, else_block, &[number_case, string_case, boolean_case]);
 
         // describe else case
         compiler.builder.position_at_end(else_block);
@@ -139,6 +145,11 @@ impl<'ctx> Variable<'ctx> {
         // describe string case
         compiler.builder.position_at_end(string_block);
         string_case_f(compiler);
+        compiler.builder.build_unconditional_branch(continue_block);
+
+        // describe boolean case
+        compiler.builder.position_at_end(boolean_block);
+        boolean_case_f(compiler);
         compiler.builder.build_unconditional_branch(continue_block);
 
         //
@@ -237,7 +248,23 @@ impl<'ctx> Variable<'ctx> {
                 .into_pointer_value();
             compiler.builder.build_store(self_filed, variable_field);
         };
+        let boolean_case_f = |compiler: &Compiler<'ctx>| {
+            self.update_flag(compiler, Type::Boolean);
+            let self_filed = self.get_field(compiler, Field::Boolean);
+            let variable_field = variable.get_field(compiler, Field::Boolean);
+            let variable_field = compiler
+                .builder
+                .build_load(variable_field, "")
+                .into_int_value();
+            compiler.builder.build_store(self_filed, variable_field);
+        };
 
-        variable.switch_type(compiler, cur_function, number_case_f, string_case_f);
+        variable.switch_type(
+            compiler,
+            cur_function,
+            number_case_f,
+            string_case_f,
+            boolean_case_f,
+        );
     }
 }
