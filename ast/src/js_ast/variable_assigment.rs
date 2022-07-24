@@ -33,7 +33,7 @@ impl Precompile for VariableAssigment {
         if precompiler.variables.contains(&self.left) {
             let value = self.right.precompile(precompiler)?;
             Ok(llvm_ast::VariableAssigment {
-                name: self.left.name.clone(),
+                name: self.left.name,
                 value,
             })
         } else {
