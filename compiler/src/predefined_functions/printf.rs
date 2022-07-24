@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunction, PredefineFunctionName};
+use super::{Compiler, PredefineFunctionName};
 use crate::{variable::Field, Error, Function, Variable, VariableValue};
 use inkwell::{
     module::Linkage,
@@ -15,9 +15,7 @@ pub struct PrintFn<'ctx> {
     p_str_fmt: GlobalValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunction<'ctx> for PrintFn<'ctx> {}
-
-impl<'ctx> PredefineFunctionName<'ctx> for PrintFn<'ctx> {
+impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
     const NAME: &'static str = "print";
 }
 

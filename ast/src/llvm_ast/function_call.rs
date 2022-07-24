@@ -1,7 +1,9 @@
 use super::{FunctionName, VariableValue};
 use compiler::{
     self,
-    predefined_functions::{assert::AssertFn, printf::PrintFn, PredefineFunctionName},
+    predefined_functions::{
+        abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+    },
     Compile, Compiler, Function,
 };
 
@@ -35,13 +37,20 @@ impl Compile for FunctionCall {
             }
             AssertFn::NAME => {
                 let assert = compiler.predefined_functions().get_assert()?;
+                let abort = compiler.predefined_functions().get_abort()?;
                 assert.assert(
                     compiler,
                     cur_function,
+                    abort,
                     args.into_iter()
                         .next()
                         .ok_or(compiler::Error::NotEnoughArguments)?,
                 )
+            }
+            AbortFn::NAME => {
+                let abort = compiler.predefined_functions().get_abort()?;
+                abort.abort(compiler);
+                Ok(())
             }
             _ => {
                 let function = compiler.get_function(self.name)?;

@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunction, PredefineFunctionName};
+use super::{Compiler, PredefineFunctionName};
 use inkwell::{module::Linkage, values::FunctionValue};
 
 #[derive(Clone)]
@@ -6,9 +6,7 @@ pub struct AbortFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunction<'ctx> for AbortFn<'ctx> {}
-
-impl<'ctx> PredefineFunctionName<'ctx> for AbortFn<'ctx> {
+impl<'ctx> PredefineFunctionName for AbortFn<'ctx> {
     const NAME: &'static str = "abort";
 }
 

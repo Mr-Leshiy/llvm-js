@@ -1,69 +1,36 @@
-use super::{abort::AbortFn, Compiler, PredefineFunction, PredefineFunctionName};
+use super::{abort::AbortFn, Compiler, PredefineFunctionName};
 use crate::{variable::Field, Error, Function, Variable, VariableValue};
-use inkwell::values::FunctionValue;
 
 #[derive(Clone)]
-pub struct AssertFn<'ctx> {
-    func: FunctionValue<'ctx>,
-}
+pub struct AssertFn;
 
-impl<'ctx> PredefineFunction<'ctx> for AssertFn<'ctx> {}
-
-impl<'ctx> PredefineFunctionName<'ctx> for AssertFn<'ctx> {
+impl PredefineFunctionName for AssertFn {
     const NAME: &'static str = "assert";
 }
 
-impl<'ctx> AssertFn<'ctx> {
-    pub(super) fn declare(compiler: &Compiler<'ctx>, abort_fn: &AbortFn<'ctx>) -> Self {
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[compiler.context.bool_type().into()], false);
-        let func = compiler.module.add_function("assert", function_type, None);
-
-        let res = Self { func };
-        res.generate_body(compiler, abort_fn);
-        res
+impl AssertFn {
+    pub(super) fn declare() -> Self {
+        Self
     }
 }
 
-impl<'ctx> AssertFn<'ctx> {
-    fn generate_body(&self, compiler: &Compiler<'ctx>, abort_fn: &AbortFn<'ctx>) {
-        let basic_block = compiler.context.append_basic_block(self.func, "entry");
-        compiler.builder.position_at_end(basic_block);
-
-        let true_block = compiler.context.append_basic_block(self.func, "");
-        let false_block = compiler.context.append_basic_block(self.func, "");
-
-        let arg_value = self.func.get_params().get(0).expect("").into_int_value();
-
-        compiler
-            .builder
-            .build_conditional_branch(arg_value, true_block, false_block);
-
-        // describe true case
-        compiler.builder.position_at_end(true_block);
-        compiler.builder.build_return(None);
-
-        // describe false case
-        compiler.builder.position_at_end(false_block);
-        abort_fn.abort(compiler);
-        compiler.builder.build_return(None);
-    }
-
-    pub fn assert(
+impl AssertFn {
+    pub fn assert<'ctx>(
         &self,
         compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
+        abort_fn: &AbortFn<'ctx>,
         arg: VariableValue,
     ) -> Result<(), Error> {
         let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
 
         let number_case_f = |_compiler: &Compiler<'ctx>| {
             // TODO implement
+            abort_fn.abort(compiler);
         };
         let string_case_f = |_compiler: &Compiler<'ctx>| {
             // TODO implement
+            abort_fn.abort(compiler);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx>| {
             let boolean_field = variable.get_field(compiler, Field::Boolean);
@@ -71,9 +38,25 @@ impl<'ctx> AssertFn<'ctx> {
                 .builder
                 .build_load(boolean_field, "")
                 .into_int_value();
+
+            let true_block = compiler
+                .context
+                .append_basic_block(cur_function.function, "");
+            let false_block = compiler
+                .context
+                .append_basic_block(cur_function.function, "");
+
             compiler
                 .builder
-                .build_call(self.func, &[boolean_field.into()], "");
+                .build_conditional_branch(boolean_field, true_block, false_block);
+
+            // describe false case
+            compiler.builder.position_at_end(false_block);
+            abort_fn.abort(compiler);
+            compiler.builder.build_unconditional_branch(true_block);
+
+            // describe true case
+            compiler.builder.position_at_end(true_block);
         };
 
         variable.switch_type(
