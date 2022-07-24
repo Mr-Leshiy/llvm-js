@@ -15,12 +15,14 @@ pub struct PrintFn<'ctx> {
     p_str_fmt: GlobalValue<'ctx>,
 }
 
+impl<'ctx> PredefineFunction<'ctx> for PrintFn<'ctx> {}
+
 impl<'ctx> PredefineFunctionName<'ctx> for PrintFn<'ctx> {
     const NAME: &'static str = "print";
 }
 
-impl<'ctx> PredefineFunction<'ctx> for PrintFn<'ctx> {
-    fn declare(compiler: &Compiler<'ctx>) -> Self {
+impl<'ctx> PrintFn<'ctx> {
+    pub(super) fn declare(compiler: &Compiler<'ctx>) -> Self {
         let s = compiler.context.const_string(b"%f\n", true);
         let p_f64_fmt = compiler.module.add_global(s.get_type(), None, "p_f64_fmt");
         p_f64_fmt.set_constant(true);

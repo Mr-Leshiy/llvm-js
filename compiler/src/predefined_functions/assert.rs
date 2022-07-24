@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunction, PredefineFunctionName};
+use super::{abort::AbortFn, Compiler, PredefineFunction, PredefineFunctionName};
 use crate::{variable::Field, Error, Function, Variable, VariableValue};
 use inkwell::values::FunctionValue;
 
@@ -7,12 +7,14 @@ pub struct AssertFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
+impl<'ctx> PredefineFunction<'ctx> for AssertFn<'ctx> {}
+
 impl<'ctx> PredefineFunctionName<'ctx> for AssertFn<'ctx> {
     const NAME: &'static str = "assert";
 }
 
-impl<'ctx> PredefineFunction<'ctx> for AssertFn<'ctx> {
-    fn declare(compiler: &Compiler<'ctx>) -> Self {
+impl<'ctx> AssertFn<'ctx> {
+    pub(super) fn declare(compiler: &Compiler<'ctx>, abort_fn: &AbortFn<'ctx>) -> Self {
         let function_type = compiler
             .context
             .void_type()
@@ -20,13 +22,13 @@ impl<'ctx> PredefineFunction<'ctx> for AssertFn<'ctx> {
         let func = compiler.module.add_function("assert", function_type, None);
 
         let res = Self { func };
-        res.generate_body(compiler);
+        res.generate_body(compiler, abort_fn);
         res
     }
 }
 
 impl<'ctx> AssertFn<'ctx> {
-    fn generate_body(&self, compiler: &Compiler<'ctx>) {
+    fn generate_body(&self, compiler: &Compiler<'ctx>, abort_fn: &AbortFn<'ctx>) {
         let basic_block = compiler.context.append_basic_block(self.func, "entry");
         compiler.builder.position_at_end(basic_block);
 
@@ -45,6 +47,7 @@ impl<'ctx> AssertFn<'ctx> {
 
         // describe false case
         compiler.builder.position_at_end(false_block);
+        abort_fn.abort(compiler);
         compiler.builder.build_return(None);
     }
 

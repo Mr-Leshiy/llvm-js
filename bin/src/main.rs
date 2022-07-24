@@ -1,11 +1,17 @@
 use ast::js_ast::Module;
-use compiler::predefined_functions::{assert::AssertFn, printf::PrintFn, PredefineFunctionName};
+use compiler::predefined_functions::{
+    abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+};
 
 fn main() {
     let in_file = std::fs::File::open("test_scripts/basic.js").unwrap();
     let mut out_file = std::fs::File::create("test_scripts/basic.ll").unwrap();
     let js_module = Module::new("module_1".to_string(), in_file).unwrap();
-    let extern_functions = vec![PrintFn::NAME.to_string(), AssertFn::NAME.to_string()];
+    let extern_functions = vec![
+        PrintFn::NAME.to_string(),
+        AbortFn::NAME.to_string(),
+        AssertFn::NAME.to_string(),
+    ];
 
     let llvm_module = js_module
         .precompile(extern_functions.clone().into_iter().map(|e| e.into()))

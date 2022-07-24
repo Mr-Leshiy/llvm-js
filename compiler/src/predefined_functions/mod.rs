@@ -1,12 +1,11 @@
-use self::{assert::AssertFn, printf::PrintFn};
+use self::{abort::AbortFn, assert::AssertFn, printf::PrintFn};
 use crate::{Compiler, Error};
 
+pub mod abort;
 pub mod assert;
 pub mod printf;
 
-pub trait PredefineFunction<'ctx> {
-    fn declare(compiler: &Compiler<'ctx>) -> Self;
-}
+pub trait PredefineFunction<'ctx> {}
 
 pub trait PredefineFunctionName<'ctx>: PredefineFunction<'ctx> + Clone {
     const NAME: &'static str;
@@ -15,6 +14,7 @@ pub trait PredefineFunctionName<'ctx>: PredefineFunction<'ctx> + Clone {
 pub struct PredefineFunctions<'ctx> {
     printf: Option<PrintFn<'ctx>>,
     assert: Option<AssertFn<'ctx>>,
+    abort: Option<AbortFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -28,6 +28,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
         Self {
             printf: None,
             assert: None,
+            abort: None,
         }
     }
 
@@ -40,14 +41,27 @@ impl<'ctx> PredefineFunctions<'ctx> {
     {
         let mut printf = None;
         let mut assert = None;
+        let mut abort = None;
         for function_name in predefined_functions {
             match function_name.as_str() {
                 PrintFn::NAME => printf = Some(PrintFn::declare(compiler)),
-                AssertFn::NAME => assert = Some(AssertFn::declare(compiler)),
+                AssertFn::NAME => {
+                    assert = Some(AssertFn::declare(
+                        compiler,
+                        abort
+                            .as_ref()
+                            .ok_or_else(|| Error::UndeclaredFunction(AbortFn::NAME.to_string()))?,
+                    ))
+                }
+                AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
                 _ => return Err(Error::UndefinedFunction(function_name)),
             }
         }
-        Ok(Self { printf, assert })
+        Ok(Self {
+            printf,
+            assert,
+            abort,
+        })
     }
 
     pub fn get_print(&self) -> Result<&PrintFn<'ctx>, Error> {
@@ -60,5 +74,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
         self.assert
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(AssertFn::NAME.to_string()))
+    }
+
+    pub fn get_abort(&self) -> Result<&AbortFn<'ctx>, Error> {
+        self.abort
+            .as_ref()
+            .ok_or_else(|| Error::UndeclaredFunction(AbortFn::NAME.to_string()))
     }
 }
