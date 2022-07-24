@@ -1,7 +1,9 @@
 use super::{FunctionName, VariableValue};
 use compiler::{
     self,
-    extern_functions::{printf::PrintFn, ExternFunctionName},
+    predefined_functions::{
+        abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+    },
     Compile, Compiler, Function,
 };
 
@@ -24,7 +26,7 @@ impl Compile for FunctionCall {
             .collect();
         match self.name.as_str() {
             PrintFn::NAME => {
-                let pritnf = compiler.extern_functions().get_print()?;
+                let pritnf = compiler.predefined_functions().get_print()?;
                 pritnf.print(
                     compiler,
                     cur_function,
@@ -32,6 +34,23 @@ impl Compile for FunctionCall {
                         .next()
                         .ok_or(compiler::Error::NotEnoughArguments)?,
                 )
+            }
+            AssertFn::NAME => {
+                let assert = compiler.predefined_functions().get_assert()?;
+                let abort = compiler.predefined_functions().get_abort()?;
+                assert.assert(
+                    compiler,
+                    cur_function,
+                    abort,
+                    args.into_iter()
+                        .next()
+                        .ok_or(compiler::Error::NotEnoughArguments)?,
+                )
+            }
+            AbortFn::NAME => {
+                let abort = compiler.predefined_functions().get_abort()?;
+                abort.abort(compiler);
+                Ok(())
             }
             _ => {
                 let function = compiler.get_function(self.name)?;

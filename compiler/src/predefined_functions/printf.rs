@@ -1,4 +1,4 @@
-use super::{Compiler, ExternFunction, ExternFunctionName};
+use super::{Compiler, PredefineFunctionName};
 use crate::{variable::Field, Error, Function, Variable, VariableValue};
 use inkwell::{
     module::Linkage,
@@ -15,9 +15,7 @@ pub struct PrintFn<'ctx> {
     p_str_fmt: GlobalValue<'ctx>,
 }
 
-impl<'ctx> ExternFunction<'ctx> for PrintFn<'ctx> {}
-
-impl<'ctx> ExternFunctionName<'ctx> for PrintFn<'ctx> {
+impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
     const NAME: &'static str = "print";
 }
 
@@ -62,7 +60,9 @@ impl<'ctx> PrintFn<'ctx> {
             p_str_fmt,
         }
     }
+}
 
+impl<'ctx> PrintFn<'ctx> {
     pub fn print(
         &self,
         compiler: &Compiler<'ctx>,

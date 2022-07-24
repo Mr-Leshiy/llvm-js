@@ -1,13 +1,13 @@
 pub use context::Context;
-use extern_functions::ExternFunctions;
 pub use function::Function;
+use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, io::Write};
 use thiserror::Error;
 pub use variable::{Variable, VariableValue};
 
 mod context;
-pub mod extern_functions;
 mod function;
+pub mod predefined_functions;
 mod variable;
 
 #[derive(Debug, Error)]
@@ -44,7 +44,7 @@ pub struct Compiler<'ctx> {
     builder: inkwell::builder::Builder<'ctx>,
 
     functions: HashMap<String, Function<'ctx>>,
-    extern_functions: ExternFunctions<'ctx>,
+    predefined_functions: PredefineFunctions<'ctx>,
 }
 
 impl<'ctx> Compiler<'ctx> {
@@ -54,7 +54,7 @@ impl<'ctx> Compiler<'ctx> {
             module: context.create_module(module_name),
             builder: context.create_builder(),
             functions: HashMap::new(),
-            extern_functions: ExternFunctions::new(),
+            predefined_functions: PredefineFunctions::new(),
         }
     }
 
@@ -65,12 +65,12 @@ impl<'ctx> Compiler<'ctx> {
     where
         Iter: Iterator<Item = String>,
     {
-        self.extern_functions = ExternFunctions::declare(self, predefined_functions)?;
+        self.predefined_functions = PredefineFunctions::declare(self, predefined_functions)?;
         Ok(())
     }
 
-    pub fn extern_functions(&self) -> &ExternFunctions<'ctx> {
-        &self.extern_functions
+    pub fn predefined_functions(&self) -> &PredefineFunctions<'ctx> {
+        &self.predefined_functions
     }
 }
 
