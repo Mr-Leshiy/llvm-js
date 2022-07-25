@@ -104,31 +104,3 @@ impl<'ctx> Compiler<'ctx> {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use inkwell::context::Context;
-
-    #[test]
-    fn tmp_test() {
-        let context = Context::create();
-        let module = context.create_module("module");
-        let builder = context.create_builder();
-
-        let function_type = context.void_type().fn_type(&[], false);
-
-        let function = module.add_function("main", function_type, None);
-        let basic_block = context.append_basic_block(function, "entry");
-        builder.position_at_end(basic_block);
-
-        let pointer_1 = builder.build_alloca(context.f64_type(), "a1");
-        let pointer_2 = builder.build_alloca(context.f64_type(), "a2");
-        builder.build_store(pointer_1, context.f64_type().const_float(64_f64));
-        let value = builder.build_load(pointer_1, "load");
-        builder.build_store(pointer_2, value);
-
-        builder.build_return(None);
-
-        dbg!(module.print_to_string());
-    }
-}
