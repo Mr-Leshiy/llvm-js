@@ -2,6 +2,7 @@
 members = [
     "bin",
     "compiler",
+    "testing",
     "lexer",
     "ast",
     "collections",

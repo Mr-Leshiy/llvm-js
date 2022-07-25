@@ -113,9 +113,7 @@ name = "llvm-js-compiler"
 version = "0.1.0"
 dependencies = [
  "ast",
- "collections",
  "compiler",
- "lexer",
  "thiserror",
 ]
 
@@ -248,6 +246,14 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "testing"
+version = "0.1.0"
+dependencies = [
+ "ast",
+ "compiler",
 ]
 
 [[package]]
