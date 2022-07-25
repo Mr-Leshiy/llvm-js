@@ -37,17 +37,3 @@ impl Module {
         compiler.write_result_into(writer)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::js_ast;
-
-    #[test]
-    fn compile_module_from_file_test() {
-        let file = std::fs::File::open("../test_scripts/basic.js").unwrap();
-        let module = js_ast::Module::new("".to_string(), file).unwrap();
-        let module = module.precompile(vec![].into_iter()).unwrap();
-        let mut out = Vec::new();
-        module.compile_to(&mut out, vec![].into_iter()).unwrap();
-    }
-}
