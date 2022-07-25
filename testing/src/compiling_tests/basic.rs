@@ -2,8 +2,14 @@ use crate::compile::CompileSuite;
 
 #[test]
 fn variables_test() {
-    let suite = CompileSuite::new("../test_scripts/basic/variables.js", "variables");
+    CompileSuite::new("../test_scripts/basic/variables.js", "variables")
+        .compile()
+        .cleanup();
+}
 
-    suite.compile();
-    suite.cleanup();
+#[test]
+fn functions_test() {
+    CompileSuite::new("../test_scripts/basic/functions.js", "functions")
+        .compile()
+        .cleanup();
 }

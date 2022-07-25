@@ -29,13 +29,14 @@ impl CompileSuite {
         }
     }
 
-    pub fn compile(&self) {
+    pub fn compile(self) -> Self {
         compile_js(
             self.source_code_path,
             self.llvm_ir_out_file.clone(),
             self.module_name.clone(),
         );
         compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone());
+        self
     }
 
     pub fn cleanup(&self) {
