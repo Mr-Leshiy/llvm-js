@@ -50,7 +50,7 @@ impl Precompile for FunctionCall {
     type Output = llvm_ast::FunctionCall;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         match precompiler.functions.get(&self.name) {
-            Some(_index) => {
+            Some(index) => {
                 // check if arguments exist
                 let mut args = Vec::new();
                 for arg in self.args {
@@ -58,7 +58,7 @@ impl Precompile for FunctionCall {
                 }
 
                 Ok(llvm_ast::FunctionCall {
-                    name: self.name.name,
+                    name: llvm_ast::FunctionName::new(self.name.name, index),
                     args,
                 })
             }
@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(
             function_call.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionCall {
-                name: "name_1".to_string(),
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
                 args: vec![
                     llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
                         "a".to_string(),

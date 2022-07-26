@@ -64,7 +64,7 @@ impl Precompile for FunctionDeclaration {
         let variables_len = precompiler.variables.len();
 
         let function_declaration = llvm_ast::FunctionDeclaration {
-            name: self.name.name,
+            name: llvm_ast::FunctionName::new(self.name.name, index),
             args: self
                 .args
                 .into_iter()
@@ -125,7 +125,7 @@ mod tests {
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
-                name: "name_1".to_string(),
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
                 args: vec![
                     llvm_ast::VariableName::new("a".to_string(), 0),
                     llvm_ast::VariableName::new("b".to_string(), 0)
@@ -168,7 +168,7 @@ mod tests {
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
-                name: "name_1".to_string(),
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
                 args: vec![
                     llvm_ast::VariableName::new("a".to_string(), 1),
                     llvm_ast::VariableName::new("b".to_string(), 1)
@@ -206,7 +206,7 @@ mod tests {
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
-                name: "name_1".to_string(),
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 1),
                 args: vec![],
                 body: vec![],
             })
