@@ -10,3 +10,9 @@ var b = 3;
 foo(a, b);
 foo(4, true);
 foo("hello", a);
+
+function foo(arg1, arg2) {}
+
+foo(a, b);
+foo(4, true);
+foo("hello", a);
