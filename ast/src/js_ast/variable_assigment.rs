@@ -30,14 +30,15 @@ impl Parser for VariableAssigment {
 impl Precompile for VariableAssigment {
     type Output = llvm_ast::VariableAssigment;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        if precompiler.variables.contains(&self.left) {
-            let value = self.right.precompile(precompiler)?;
-            Ok(llvm_ast::VariableAssigment {
-                name: self.left.name,
-                value,
-            })
-        } else {
-            Err(precompiler::Error::UndefinedVariable(self.left))
+        match precompiler.variables.get(&self.left) {
+            Some(index) => {
+                let value = self.right.precompile(precompiler)?;
+                Ok(llvm_ast::VariableAssigment {
+                    name: llvm_ast::VariableName::new(self.left.name, index),
+                    value,
+                })
+            }
+            None => Err(precompiler::Error::UndefinedVariable(self.left)),
         }
     }
 }
@@ -71,10 +72,7 @@ mod tests {
     #[test]
     fn precompile_variable_assigment_test_1() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .variables
-            .insert("name_1".to_string().into())
-            .unwrap();
+        precompiler.variables.insert("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
@@ -84,24 +82,21 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: "name_1".to_string(),
+                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
                 value: llvm_ast::VariableValue::FloatNumber(64_f64),
             })
         );
-        assert!(precompiler.variables.contains(&"name_1".to_string().into()),);
+        assert_eq!(
+            precompiler.variables.get(&"name_1".to_string().into()),
+            Some(0)
+        );
     }
 
     #[test]
     fn precompile_variable_assigment_test_2() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .variables
-            .insert("name_2".to_string().into())
-            .unwrap();
-        precompiler
-            .variables
-            .insert("name_1".to_string().into())
-            .unwrap();
+        precompiler.variables.insert("name_2".to_string().into());
+        precompiler.variables.insert("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
@@ -111,11 +106,17 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: "name_1".to_string(),
-                value: llvm_ast::VariableValue::Identifier("name_2".to_string()),
+                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
+                value: llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                    "name_2".to_string(),
+                    0
+                )),
             })
         );
-        assert!(precompiler.variables.contains(&"name_1".to_string().into()));
+        assert_eq!(
+            precompiler.variables.get(&"name_1".to_string().into()),
+            Some(0)
+        );
     }
 
     #[test]
@@ -138,10 +139,7 @@ mod tests {
     #[test]
     fn precompile_variable_assigment_error_test_2() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .variables
-            .insert("name_1".to_string().into())
-            .unwrap();
+        precompiler.variables.insert("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),

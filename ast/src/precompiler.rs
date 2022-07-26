@@ -6,10 +6,6 @@ use thiserror::Error;
 pub enum Error {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(Identifier),
-    #[error("Variable with this identifier {0} already declared")]
-    AlreadyDeclaredVariable(Identifier),
-    #[error("Function with this identifier {0} already declared")]
-    AlreadyDeclaredFunction(Identifier),
     #[error("Undefined function identifier {0}")]
     UndefinedFunction(Identifier),
 }

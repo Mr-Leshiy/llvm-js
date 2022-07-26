@@ -12,7 +12,11 @@ pub struct FunctionDeclaration {
 
 impl FunctionDeclaration {
     pub fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
-        let mut function = Function::new(compiler, &self.name, self.args);
+        let mut function = Function::new(
+            compiler,
+            &self.name,
+            self.args.into_iter().map(|arg| arg.into()).collect(),
+        );
         function.generate_body(compiler, self.body)?;
 
         compiler.insert_function(self.name, function)
