@@ -24,11 +24,11 @@ impl AssertFn {
     ) -> Result<(), Error> {
         let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
 
-        let number_case_f = |_compiler: &Compiler<'ctx>| {
+        let number_case_f = |compiler: &Compiler<'ctx>| {
             // TODO implement
             abort_fn.abort(compiler);
         };
-        let string_case_f = |_compiler: &Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx>| {
             // TODO implement
             abort_fn.abort(compiler);
         };

@@ -1,6 +1,6 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+    abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, PredefineFunctionName,
 };
 use std::{
     env::current_dir,
@@ -14,6 +14,7 @@ pub struct CompileSuite {
     module_name: String,
     llvm_ir_out_file: String,
     object_out_file: String,
+    binary_out_file: String,
 }
 
 impl CompileSuite {
@@ -21,11 +22,13 @@ impl CompileSuite {
         let module_name = format!("module_{}", test_name);
         let llvm_ir_out_file = format!("{}.ll", test_name);
         let object_out_file = format!("{}.o", test_name);
+        let binary_out_file = format!("{}_run", test_name);
         Self {
             source_code_path,
             module_name,
             llvm_ir_out_file,
             object_out_file,
+            binary_out_file,
         }
     }
 
@@ -36,12 +39,23 @@ impl CompileSuite {
             self.module_name.clone(),
         );
         compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone());
+        compile_binary(self.object_out_file.clone(), self.binary_out_file.clone());
         self
+    }
+
+    pub fn run(self) -> Result<Self, String> {
+        if run_binary(self.binary_out_file.clone()) {
+            Ok(self)
+        } else {
+            // TODO provide info
+            Err("run failuire".to_string())
+        }
     }
 
     pub fn cleanup(&self) {
         remove_file(self.llvm_ir_out_file.clone()).unwrap();
         remove_file(self.object_out_file.clone()).unwrap();
+        remove_file(self.binary_out_file.clone()).unwrap();
     }
 }
 
@@ -57,6 +71,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
         PrintFn::NAME.to_string(),
         AbortFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
+        AssertEqFn::NAME.to_string(),
     ];
 
     let llvm_module = js_module
@@ -74,8 +89,31 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) {
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o={}", out_file_name,);
 
-    let _output = Command::new("llc")
+    Command::new("llc")
         .args(["-filetype=obj", out_arg.as_str(), in_arg.as_str()])
         .output()
         .expect("failed to execute process");
+}
+
+fn compile_binary(in_file_path: String, out_file_name: String) {
+    let cur_dir = current_dir().unwrap();
+
+    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    let out_arg = format!("-o{}", out_file_name,);
+
+    Command::new("clang")
+        .args([out_arg.as_str(), in_arg.as_str()])
+        .output()
+        .expect("failed to execute process");
+}
+
+fn run_binary(in_file_path: String) -> bool {
+    let cur_dir = current_dir().unwrap();
+
+    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+
+    let output = Command::new(in_arg)
+        .output()
+        .expect("failed to execute process");
+    output.status.success()
 }
