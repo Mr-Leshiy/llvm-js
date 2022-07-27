@@ -13,3 +13,10 @@ fn functions_test() {
         .compile()
         .cleanup();
 }
+
+#[test]
+fn block_test() {
+    CompileSuite::new("../test_scripts/basic/block.js", "block")
+        .compile()
+        .cleanup();
+}

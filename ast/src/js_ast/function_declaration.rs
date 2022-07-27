@@ -59,20 +59,21 @@ impl Parser for FunctionDeclaration {
 impl Precompile for FunctionDeclaration {
     type Output = llvm_ast::FunctionDeclaration;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        precompiler
-            .functions
-            .insert(self.name.clone())
-            .map_err(|_| precompiler::Error::AlreadyDeclaredFunction(self.name.clone()))?;
+        let index = precompiler.functions.insert(self.name.clone());
 
         let variables_len = precompiler.variables.len();
-        for arg in &self.args {
-            // argument initialization hides the previous variable declaration with the same name
-            let _ = precompiler.variables.insert(arg.clone());
-        }
 
         let function_declaration = llvm_ast::FunctionDeclaration {
-            name: self.name.name,
-            args: self.args.into_iter().map(|name| name.name).collect(),
+            name: llvm_ast::FunctionName::new(self.name.name, index),
+            args: self
+                .args
+                .into_iter()
+                .map(|name| {
+                    // argument initialization hides the previous variable declaration with the same name
+                    let index = precompiler.variables.insert(name.clone());
+                    llvm_ast::VariableName::new(name.name, index)
+                })
+                .collect(),
             body: self.body.precompile(precompiler)?,
         };
         precompiler
@@ -124,33 +125,34 @@ mod tests {
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
-                name: "name_1".to_string(),
-                args: vec!["a".to_string(), "b".to_string()],
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
+                args: vec![
+                    llvm_ast::VariableName::new("a".to_string(), 0),
+                    llvm_ast::VariableName::new("b".to_string(), 0)
+                ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: "a".to_string(),
-                        value: llvm_ast::VariableValue::Identifier("b".to_string())
+                        name: llvm_ast::VariableName::new("a".to_string(), 0),
+                        value: llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                            "b".to_string(),
+                            0
+                        ))
                     }
                 )]
             })
         );
         assert!(precompiler.variables.is_empty());
-        assert!(precompiler
-            .functions
-            .contains(&"name_1".to_string().into(),));
+        assert_eq!(
+            precompiler.functions.get(&"name_1".to_string().into(),),
+            Some(0)
+        );
     }
 
     #[test]
-    fn precompile_function_declaration_test2() {
+    fn precompile_function_declaration_test_2() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .variables
-            .insert("a".to_string().into())
-            .unwrap();
-        precompiler
-            .variables
-            .insert("b".to_string().into())
-            .unwrap();
+        precompiler.variables.insert("a".to_string().into());
+        precompiler.variables.insert("b".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
@@ -166,29 +168,33 @@ mod tests {
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionDeclaration {
-                name: "name_1".to_string(),
-                args: vec!["a".to_string(), "b".to_string()],
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
+                args: vec![
+                    llvm_ast::VariableName::new("a".to_string(), 1),
+                    llvm_ast::VariableName::new("b".to_string(), 1)
+                ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: "a".to_string(),
-                        value: llvm_ast::VariableValue::Identifier("b".to_string())
+                        name: llvm_ast::VariableName::new("a".to_string(), 1),
+                        value: llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                            "b".to_string(),
+                            1
+                        ))
                     }
                 )]
             })
         );
         assert_eq!(precompiler.variables.len(), 2);
-        assert!(precompiler
-            .functions
-            .contains(&"name_1".to_string().into(),));
+        assert_eq!(
+            precompiler.functions.get(&"name_1".to_string().into(),),
+            Some(0)
+        );
     }
 
     #[test]
-    fn precompile_function_declaration_error_test() {
+    fn precompile_function_declaration_test_3() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .functions
-            .insert("name_1".to_string().into())
-            .unwrap();
+        precompiler.functions.insert("name_1".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
@@ -199,9 +205,11 @@ mod tests {
 
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::AlreadyDeclaredFunction(
-                "name_1".to_string().into(),
-            ))
+            Ok(llvm_ast::FunctionDeclaration {
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 1),
+                args: vec![],
+                body: vec![],
+            })
         );
     }
 }

@@ -13,17 +13,19 @@ impl Compile for VariableDeclaration {
         let variable = self.0;
         let var = match variable.value {
             VariableValue::Boolean(boolean) => {
-                Variable::new_boolean(compiler, boolean, &variable.name)
+                Variable::new_boolean(compiler, boolean, &String::from(variable.name.clone()))
             }
             VariableValue::FloatNumber(value) => {
-                Variable::new_number(compiler, value, &variable.name)
+                Variable::new_number(compiler, value, &String::from(variable.name.clone()))
             }
-            VariableValue::String(value) => Variable::new_string(compiler, &value, &variable.name),
+            VariableValue::String(value) => {
+                Variable::new_string(compiler, &value, &String::from(variable.name.clone()))
+            }
             VariableValue::Identifier(name) => {
-                let variable = cur_function.get_variable(name.clone())?;
-                Variable::new_variable(compiler, cur_function, &name, &variable)
+                let variable = cur_function.get_variable(name.clone().into())?;
+                Variable::new_variable(compiler, cur_function, &String::from(name), &variable)
             }
         };
-        cur_function.insert_variable(variable.name, var)
+        cur_function.insert_variable(variable.name.into(), var)
     }
 }

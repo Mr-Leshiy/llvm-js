@@ -49,24 +49,20 @@ impl Parser for FunctionCall {
 impl Precompile for FunctionCall {
     type Output = llvm_ast::FunctionCall;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        if precompiler.functions.contains(&self.name) {
-            // check if arguments exist
-            let mut args = Vec::new();
-            for arg in self.args {
-                if let VariableValue::Identifier(arg_name) = &arg {
-                    if !precompiler.variables.contains(arg_name) {
-                        return Err(precompiler::Error::UndefinedVariable(arg_name.clone()));
-                    }
+        match precompiler.functions.get(&self.name) {
+            Some(index) => {
+                // check if arguments exist
+                let mut args = Vec::new();
+                for arg in self.args {
+                    args.push(arg.precompile(precompiler)?);
                 }
-                args.push(arg.precompile(precompiler)?);
-            }
 
-            Ok(llvm_ast::FunctionCall {
-                name: self.name.name,
-                args,
-            })
-        } else {
-            Err(precompiler::Error::UndefinedFunction(self.name))
+                Ok(llvm_ast::FunctionCall {
+                    name: llvm_ast::FunctionName::new(self.name.name, index),
+                    args,
+                })
+            }
+            None => Err(precompiler::Error::UndefinedFunction(self.name)),
         }
     }
 }
@@ -95,18 +91,9 @@ mod tests {
     #[test]
     fn precompile_function_call_test() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler
-            .functions
-            .insert("name_1".to_string().into())
-            .unwrap();
-        precompiler
-            .variables
-            .insert("a".to_string().into())
-            .unwrap();
-        precompiler
-            .variables
-            .insert("b".to_string().into())
-            .unwrap();
+        precompiler.functions.insert("name_1".to_string().into());
+        precompiler.variables.insert("a".to_string().into());
+        precompiler.variables.insert("b".to_string().into());
 
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),
@@ -122,10 +109,16 @@ mod tests {
         assert_eq!(
             function_call.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionCall {
-                name: "name_1".to_string(),
+                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
                 args: vec![
-                    llvm_ast::VariableValue::Identifier("a".to_string()),
-                    llvm_ast::VariableValue::Identifier("b".to_string()),
+                    llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                        "a".to_string(),
+                        0
+                    )),
+                    llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                        "b".to_string(),
+                        0
+                    )),
                     llvm_ast::VariableValue::String("val".to_string()),
                     llvm_ast::VariableValue::FloatNumber(5_f64),
                 ],

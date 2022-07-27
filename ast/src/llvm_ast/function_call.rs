@@ -24,7 +24,7 @@ impl Compile for FunctionCall {
             .into_iter()
             .map(|variable| variable.into())
             .collect();
-        match self.name.as_str() {
+        match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let pritnf = compiler.predefined_functions().get_print()?;
                 pritnf.print(
@@ -53,7 +53,7 @@ impl Compile for FunctionCall {
                 Ok(())
             }
             _ => {
-                let function = compiler.get_function(self.name)?;
+                let function = compiler.get_function(self.name.into())?;
                 function.generate_call(compiler, cur_function, args)
             }
         }

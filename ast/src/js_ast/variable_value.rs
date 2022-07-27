@@ -30,21 +30,18 @@ impl Parser for VariableValue {
 impl Precompile for VariableValue {
     type Output = llvm_ast::VariableValue;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
-        let res = match self {
-            VariableValue::Boolean(boolean) => Self::Output::Boolean(boolean),
-            VariableValue::Identifier(identifier) => {
-                precompiler
-                    .variables
-                    .contains(&identifier)
-                    .then(|| ())
-                    .ok_or_else(|| precompiler::Error::UndefinedVariable(identifier.clone()))?;
-                Self::Output::Identifier(identifier.name)
-            }
-            VariableValue::Number(number) => Self::Output::FloatNumber(number),
-            VariableValue::String(string) => Self::Output::String(string),
-        };
-
-        Ok(res)
+        match self {
+            VariableValue::Boolean(boolean) => Ok(Self::Output::Boolean(boolean)),
+            VariableValue::Identifier(identifier) => match precompiler.variables.get(&identifier) {
+                Some(index) => Ok(Self::Output::Identifier(llvm_ast::VariableName::new(
+                    identifier.name,
+                    index,
+                ))),
+                None => Err(precompiler::Error::UndefinedVariable(identifier.clone())),
+            },
+            VariableValue::Number(number) => Ok(Self::Output::FloatNumber(number)),
+            VariableValue::String(string) => Ok(Self::Output::String(string)),
+        }
     }
 }
 
