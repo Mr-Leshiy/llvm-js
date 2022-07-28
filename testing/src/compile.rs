@@ -87,11 +87,15 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), St
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o={}", out_file_name,);
 
-    Command::new("llc")
+    let out = Command::new("llc")
         .args(["-filetype=obj", out_arg.as_str(), in_arg.as_str()])
         .output()
         .map_err(|e| e.to_string())?;
-    Ok(())
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!("status code: {}", out.status))
+    }
 }
 
 fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), String> {
@@ -104,22 +108,22 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
         .args([out_arg.as_str(), in_arg.as_str()])
         .output()
         .map_err(|e| e.to_string())?;
-    dbg!(&out);
-    let out = Command::new("ls").output();
-    dbg!(&out);
-    Ok(())
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!("status code: {}", out.status))
+    }
 }
 
 fn run_binary(in_file_path: String) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
-    dbg!(&in_arg);
 
-    let output = Command::new(in_arg).output().map_err(|e| e.to_string())?;
-    if output.status.success() {
+    let out = Command::new(in_arg).output().map_err(|e| e.to_string())?;
+    if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", output.status))
+        Err(format!("status code: {}", out.status))
     }
 }
