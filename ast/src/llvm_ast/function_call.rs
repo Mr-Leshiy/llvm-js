@@ -2,7 +2,8 @@ use super::{FunctionName, VariableValue};
 use compiler::{
     self,
     predefined_functions::{
-        abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+        abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
+        PredefineFunctionName,
     },
     Compile, Compiler, Function,
 };
@@ -45,6 +46,18 @@ impl Compile for FunctionCall {
                     args.into_iter()
                         .next()
                         .ok_or(compiler::Error::NotEnoughArguments)?,
+                )
+            }
+            AssertEqFn::NAME => {
+                let assert_eq = compiler.predefined_functions().get_assert_eq()?;
+                let abort = compiler.predefined_functions().get_abort()?;
+                let mut iter = args.into_iter();
+                assert_eq.assert_eq(
+                    compiler,
+                    cur_function,
+                    abort,
+                    iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
+                    iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 )
             }
             AbortFn::NAME => {

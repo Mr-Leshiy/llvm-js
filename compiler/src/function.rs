@@ -25,7 +25,7 @@ impl<'ctx> Function<'ctx> {
             .collect();
         let function_type = compiler
             .context
-            .void_type()
+            .i32_type()
             .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
@@ -83,7 +83,9 @@ impl<'ctx> Function<'ctx> {
         for expr in body {
             expr.compile(compiler, self)?;
         }
-        compiler.builder.build_return(None);
+        compiler
+            .builder
+            .build_return(Some(&compiler.context.i32_type().const_int(0, false)));
         Ok(())
     }
 

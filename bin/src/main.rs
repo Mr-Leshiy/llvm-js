@@ -1,6 +1,6 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    abort::AbortFn, assert::AssertFn, printf::PrintFn, PredefineFunctionName,
+    abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, PredefineFunctionName,
 };
 
 fn main() {
@@ -11,6 +11,7 @@ fn main() {
         PrintFn::NAME.to_string(),
         AbortFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
+        AssertEqFn::NAME.to_string(),
     ];
 
     let llvm_module = js_module
