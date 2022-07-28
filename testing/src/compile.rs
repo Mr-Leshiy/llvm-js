@@ -32,24 +32,20 @@ impl CompileSuite {
         }
     }
 
-    pub fn compile(self) -> Self {
+    pub fn compile(self) -> Result<Self, String> {
         compile_js(
             self.source_code_path,
             self.llvm_ir_out_file.clone(),
             self.module_name.clone(),
-        );
-        compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone());
-        compile_binary(self.object_out_file.clone(), self.binary_out_file.clone());
-        self
+        )?;
+        compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone())?;
+        compile_binary(self.object_out_file.clone(), self.binary_out_file.clone())?;
+        Ok(self)
     }
 
     pub fn run(self) -> Result<Self, String> {
-        if run_binary(self.binary_out_file.clone()) {
-            Ok(self)
-        } else {
-            // TODO provide info
-            Err("run failuire".to_string())
-        }
+        run_binary(self.binary_out_file.clone())?;
+        Ok(self)
     }
 
     pub fn cleanup(&self) {
@@ -63,7 +59,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
     in_file_path: P1,
     out_file_path: P2,
     module_name: String,
-) {
+) -> Result<(), String> {
     let in_file = File::open(in_file_path).unwrap();
     let mut out_file = File::create(out_file_path).unwrap();
     let js_module = Module::new(module_name, in_file).unwrap();
@@ -76,14 +72,16 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
 
     let llvm_module = js_module
         .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
-        .unwrap();
+        .map_err(|e| e.to_string())?;
 
     llvm_module
         .compile_to(&mut out_file, extern_functions.into_iter())
-        .unwrap();
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
 }
 
-fn compile_llvm_ir(in_file_path: String, out_file_name: String) {
+fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
@@ -92,28 +90,36 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) {
     Command::new("llc")
         .args(["-filetype=obj", out_arg.as_str(), in_arg.as_str()])
         .output()
-        .expect("failed to execute process");
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
-fn compile_binary(in_file_path: String, out_file_name: String) {
+fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o{}", out_file_name,);
 
-    Command::new("clang")
+    let out = Command::new("clang")
         .args([out_arg.as_str(), in_arg.as_str()])
         .output()
-        .expect("failed to execute process");
+        .map_err(|e| e.to_string())?;
+    dbg!(&out);
+    let out = Command::new("ls").output();
+    dbg!(&out);
+    Ok(())
 }
 
-fn run_binary(in_file_path: String) -> bool {
+fn run_binary(in_file_path: String) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    dbg!(&in_arg);
 
-    let output = Command::new(in_arg)
-        .output()
-        .expect("failed to execute process");
-    output.status.success()
+    let output = Command::new(in_arg).output().map_err(|e| e.to_string())?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(format!("status code: {}", output.status))
+    }
 }

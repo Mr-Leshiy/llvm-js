@@ -4,6 +4,7 @@ use crate::compile::CompileSuite;
 fn variables_test() {
     CompileSuite::new("../test_scripts/basic/variables.js", "variables")
         .compile()
+        .unwrap()
         .run()
         .unwrap()
         .cleanup();
@@ -13,6 +14,7 @@ fn variables_test() {
 fn functions_test() {
     CompileSuite::new("../test_scripts/basic/functions.js", "functions")
         .compile()
+        .unwrap()
         .run()
         .unwrap()
         .cleanup();
@@ -22,6 +24,7 @@ fn functions_test() {
 fn block_test() {
     CompileSuite::new("../test_scripts/basic/block.js", "block")
         .compile()
+        .unwrap()
         .run()
         .unwrap()
         .cleanup();
