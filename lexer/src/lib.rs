@@ -174,7 +174,7 @@ impl<R: Read> TokenReader<R> {
     // try read logical: '!'
     fn try_read_logical(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
         if char == '!' {
-            return Ok(TokenResult::Token(Token::Logical(Logical::NOT)));
+            return Ok(TokenResult::Token(Token::Logical(Logical::Not)));
         }
         if char == '&' {
             let postion = self.char_reader.get_position().clone();

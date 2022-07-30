@@ -3,7 +3,7 @@ use std::fmt::Display;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Logical {
     /// logical negate, e.g. !
-    NOT,
+    Not,
     /// logical negate, e.g. &&
     And,
     /// logical negate, e.g. ||
@@ -13,7 +13,7 @@ pub enum Logical {
 impl Display for Logical {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NOT => write!(f, "Logical NOT operator"),
+            Self::Not => write!(f, "Logical NOT operator"),
             Self::And => write!(f, "Logical AND operator"),
             Self::Or => write!(f, "Logical OR operator"),
         }
@@ -29,12 +29,12 @@ mod tests {
     fn logical_negate_test() {
         let mut reader = TokenReader::new("!".as_bytes());
 
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::NOT)));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Not)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("!a".as_bytes());
 
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::NOT)));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Not)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
