@@ -7,6 +7,7 @@ pub use variable::{Variable, VariableValue};
 
 mod context;
 mod function;
+pub mod logical_operations;
 pub mod predefined_functions;
 mod variable;
 
