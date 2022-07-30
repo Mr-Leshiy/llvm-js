@@ -6,12 +6,12 @@ pub fn logical_negate<'ctx>(
     var: VariableValue,
 ) -> Result<(), Error> {
     // TODO optimize it
-    let mut var = Variable::try_from_variable_value(compiler, cur_function, var)?;
+    let var = Variable::try_from_variable_value(compiler, cur_function, var)?;
 
-    let arg_number_case_f = |compiler: &Compiler<'ctx>| {
+    let arg_number_case_f = |_compiler: &Compiler<'ctx>| {
         // TODO implement
     };
-    let arg_string_case_f = |compiler: &Compiler<'ctx>| {
+    let arg_string_case_f = |_compiler: &Compiler<'ctx>| {
         // TODO implement
     };
     let arg_boolean_case_f = |compiler: &Compiler<'ctx>| {
