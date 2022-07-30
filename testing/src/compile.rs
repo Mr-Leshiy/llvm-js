@@ -108,7 +108,6 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
         .args([out_arg.as_str(), in_arg.as_str()])
         .output()
         .map_err(|e| e.to_string())?;
-    dbg!(&out);
     if out.status.success() {
         Ok(())
     } else {
