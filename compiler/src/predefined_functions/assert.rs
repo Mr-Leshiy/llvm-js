@@ -15,22 +15,22 @@ impl AssertFn {
 }
 
 impl AssertFn {
-    pub fn assert<'ctx>(
+    pub fn assert<'ctx, T>(
         &self,
-        compiler: &Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        compiler: &Compiler<'ctx, T>,
+        cur_function: &Function<'ctx, T>,
         abort_fn: &AbortFn<'ctx>,
         arg: Variable<'ctx>,
-    ) -> Result<(), Error> {
-        let number_case_f = |compiler: &Compiler<'ctx>| {
+    ) -> Result<(), Error<T>> {
+        let number_case_f = |compiler: &Compiler<'ctx, T>| {
             // TODO implement
             abort_fn.abort(compiler);
         };
-        let string_case_f = |compiler: &Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx, T>| {
             // TODO implement
             abort_fn.abort(compiler);
         };
-        let boolean_case_f = |compiler: &Compiler<'ctx>| {
+        let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
             let boolean_field = arg.get_field(compiler, Field::Boolean);
             let boolean_field = compiler
                 .builder

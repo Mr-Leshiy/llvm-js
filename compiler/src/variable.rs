@@ -14,7 +14,7 @@ pub(crate) enum Type {
 }
 
 impl Type {
-    fn to_int<'ctx>(self, compiler: &Compiler<'ctx>) -> IntValue<'ctx> {
+    fn to_int<'ctx, T>(self, compiler: &Compiler<'ctx, T>) -> IntValue<'ctx> {
         compiler.context.i8_type().const_int(self as u64, false)
     }
 }
@@ -33,14 +33,14 @@ pub struct Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn new(compiler: &Compiler<'ctx>) -> Self {
+    fn new<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = Self::get_type(compiler);
 
         let value = compiler.builder.build_alloca(var_type, "");
         Self { value }
     }
 
-    pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {
+    pub(crate) fn get_type<T>(compiler: &Compiler<'ctx, T>) -> StructType<'ctx> {
         let number_type = compiler.context.f64_type();
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
         let boolean_type = compiler.context.bool_type();
@@ -57,7 +57,11 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
-    pub(crate) fn get_field(&self, compiler: &Compiler<'ctx>, field: Field) -> PointerValue<'ctx> {
+    pub(crate) fn get_field<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        field: Field,
+    ) -> PointerValue<'ctx> {
         compiler
             .builder
             .build_struct_gep(self.value, field as u32, "")
@@ -66,24 +70,24 @@ impl<'ctx> Variable<'ctx> {
             )
     }
 
-    fn update_flag(&self, compiler: &Compiler<'ctx>, t: Type) {
+    fn update_flag<T>(&self, compiler: &Compiler<'ctx, T>, t: Type) {
         let flag_field = self.get_field(compiler, Field::Flag);
         let t = t.to_int(compiler);
         compiler.builder.build_store(flag_field, t);
     }
 
-    fn get_flag(&self, compiler: &Compiler<'ctx>) -> IntValue<'ctx> {
+    fn get_flag<T>(&self, compiler: &Compiler<'ctx, T>) -> IntValue<'ctx> {
         let flag_field = self.get_field(compiler, Field::Flag);
         compiler.builder.build_load(flag_field, "").into_int_value()
     }
 
-    pub(crate) fn switch_type(
+    pub(crate) fn switch_type<T>(
         &self,
-        compiler: &Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
-        number_case_f: impl FnOnce(&Compiler<'ctx>),
-        string_case_f: impl FnOnce(&Compiler<'ctx>),
-        boolean_case_f: impl FnOnce(&Compiler<'ctx>),
+        compiler: &Compiler<'ctx, T>,
+        cur_function: &Function<'ctx, T>,
+        number_case_f: impl FnOnce(&Compiler<'ctx, T>),
+        string_case_f: impl FnOnce(&Compiler<'ctx, T>),
+        boolean_case_f: impl FnOnce(&Compiler<'ctx, T>),
     ) {
         let flag = self.get_flag(compiler);
 
@@ -137,26 +141,26 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn new_number(compiler: &Compiler<'ctx>, number: f64) -> Self {
+    pub fn new_number<T>(compiler: &Compiler<'ctx, T>, number: f64) -> Self {
         let variable = Self::new(compiler);
         variable.assign_number(compiler, number);
         variable
     }
 
-    pub fn assign_number(&self, compiler: &Compiler<'ctx>, number: f64) {
+    pub fn assign_number<T>(&self, compiler: &Compiler<'ctx, T>, number: f64) {
         let number = compiler.context.f64_type().const_float(number);
         let number_field = self.get_field(compiler, Field::Number);
         compiler.builder.build_store(number_field, number);
         self.update_flag(compiler, Type::Number);
     }
 
-    pub fn new_string(compiler: &Compiler<'ctx>, string: &str) -> Self {
+    pub fn new_string<T>(compiler: &Compiler<'ctx, T>, string: &str) -> Self {
         let variable = Self::new(compiler);
         variable.assign_string(compiler, string);
         variable
     }
 
-    pub fn assign_string(&self, compiler: &Compiler<'ctx>, string: &str) {
+    pub fn assign_string<T>(&self, compiler: &Compiler<'ctx, T>, string: &str) {
         let string = compiler.context.const_string(string.as_bytes(), true);
         let tmp_value = compiler.builder.build_alloca(string.get_type(), "");
         compiler.builder.build_store(tmp_value, string);
@@ -174,13 +178,13 @@ impl<'ctx> Variable<'ctx> {
         self.update_flag(compiler, Type::String);
     }
 
-    pub fn new_boolean(compiler: &Compiler<'ctx>, boolean: bool) -> Self {
+    pub fn new_boolean<T>(compiler: &Compiler<'ctx, T>, boolean: bool) -> Self {
         let variable = Self::new(compiler);
         variable.assign_boolean(compiler, boolean);
         variable
     }
 
-    pub fn assign_boolean(&self, compiler: &Compiler<'ctx>, boolean: bool) {
+    pub fn assign_boolean<T>(&self, compiler: &Compiler<'ctx, T>, boolean: bool) {
         let boolean = compiler
             .context
             .bool_type()
@@ -190,9 +194,9 @@ impl<'ctx> Variable<'ctx> {
         self.update_flag(compiler, Type::Boolean);
     }
 
-    pub fn new_variable(
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+    pub fn new_variable<T>(
+        compiler: &mut Compiler<'ctx, T>,
+        cur_function: &Function<'ctx, T>,
         variable2: &Self,
     ) -> Self {
         let variable1 = Self::new(compiler);
@@ -200,13 +204,13 @@ impl<'ctx> Variable<'ctx> {
         variable1
     }
 
-    pub fn assign_variable(
+    pub fn assign_variable<T>(
         &self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        compiler: &mut Compiler<'ctx, T>,
+        cur_function: &Function<'ctx, T>,
         variable: &Self,
     ) {
-        let number_case_f = |compiler: &Compiler<'ctx>| {
+        let number_case_f = |compiler: &Compiler<'ctx, T>| {
             self.update_flag(compiler, Type::Number);
             let self_filed = self.get_field(compiler, Field::Number);
             let variable_field = variable.get_field(compiler, Field::Number);
@@ -216,7 +220,7 @@ impl<'ctx> Variable<'ctx> {
                 .into_float_value();
             compiler.builder.build_store(self_filed, variable_field);
         };
-        let string_case_f = |compiler: &Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx, T>| {
             self.update_flag(compiler, Type::String);
             let self_filed = self.get_field(compiler, Field::String);
             let variable_field = variable.get_field(compiler, Field::String);
@@ -226,7 +230,7 @@ impl<'ctx> Variable<'ctx> {
                 .into_pointer_value();
             compiler.builder.build_store(self_filed, variable_field);
         };
-        let boolean_case_f = |compiler: &Compiler<'ctx>| {
+        let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
             self.update_flag(compiler, Type::Boolean);
             let self_filed = self.get_field(compiler, Field::Boolean);
             let variable_field = variable.get_field(compiler, Field::Boolean);

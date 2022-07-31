@@ -33,10 +33,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
         }
     }
 
-    pub fn declare<Iter>(
-        compiler: &mut Compiler<'ctx>,
+    pub fn declare<Iter, T>(
+        compiler: &mut Compiler<'ctx, T>,
         predefined_functions: Iter,
-    ) -> Result<Self, Error>
+    ) -> Result<Self, Error<T>>
     where
         Iter: Iterator<Item = String>,
     {
@@ -50,7 +50,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
                 AssertFn::NAME => assert = Some(AssertFn::declare()),
                 AssertEqFn::NAME => assert_eq = Some(AssertEqFn::declare()),
                 AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
-                _ => return Err(Error::UndefinedFunction(function_name)),
+                // _ => return Err(Error::UndefinedFunction(Identifier::new(function_name, 0))),
+                _ => unimplemented!(),
             }
         }
         Ok(Self {
@@ -61,25 +62,25 @@ impl<'ctx> PredefineFunctions<'ctx> {
         })
     }
 
-    pub fn get_print(&self) -> Result<&PrintFn<'ctx>, Error> {
+    pub fn get_print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
         self.printf
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(PrintFn::NAME.to_string()))
     }
 
-    pub fn get_assert(&self) -> Result<&AssertFn, Error> {
+    pub fn get_assert<T>(&self) -> Result<&AssertFn, Error<T>> {
         self.assert
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(AssertFn::NAME.to_string()))
     }
 
-    pub fn get_assert_eq(&self) -> Result<&AssertEqFn, Error> {
+    pub fn get_assert_eq<T>(&self) -> Result<&AssertEqFn, Error<T>> {
         self.assert_eq
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(AssertEqFn::NAME.to_string()))
     }
 
-    pub fn get_abort(&self) -> Result<&AbortFn<'ctx>, Error> {
+    pub fn get_abort<T>(&self) -> Result<&AbortFn<'ctx>, Error<T>> {
         self.abort
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(AbortFn::NAME.to_string()))

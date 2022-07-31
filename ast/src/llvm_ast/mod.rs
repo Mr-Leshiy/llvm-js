@@ -30,7 +30,7 @@ impl Module {
         self,
         writer: &mut W,
         extern_functions: Iter,
-    ) -> Result<(), compiler::Error>
+    ) -> Result<(), compiler::Error<Identifier>>
     where
         Iter: Iterator<Item = String>,
     {

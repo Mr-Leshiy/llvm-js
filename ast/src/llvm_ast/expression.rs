@@ -1,4 +1,4 @@
-use super::{FunctionCall, VariableAssigment, VariableDeclaration};
+use super::{FunctionCall, Identifier, VariableAssigment, VariableDeclaration};
 use compiler::{self, Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,12 +8,12 @@ pub enum Expression {
     FunctionCall(FunctionCall),
 }
 
-impl Compile for Expression {
+impl Compile<Identifier> for Expression {
     fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), compiler::Error> {
+        compiler: &mut Compiler<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
+    ) -> Result<(), compiler::Error<Identifier>> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, cur_function)

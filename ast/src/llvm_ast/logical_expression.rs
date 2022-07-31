@@ -1,4 +1,4 @@
-use super::VariableValue;
+use super::{Identifier, VariableValue};
 use compiler::{
     logical_operations::{logical_and, logical_not, logical_or},
     Compiler, Function, Variable,
@@ -20,9 +20,9 @@ pub enum LogicalExpression {
 impl LogicalExpression {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<Variable<'ctx>, compiler::Error> {
+        compiler: &mut Compiler<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
+    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         match self {
             Self::Not(value) => {
                 let value = value.compile(compiler, cur_function)?;

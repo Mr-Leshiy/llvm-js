@@ -1,7 +1,7 @@
 pub use context::Context;
 pub use function::Function;
 use predefined_functions::PredefineFunctions;
-use std::{collections::HashMap, io::Write};
+use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
 pub use variable::Variable;
 
@@ -12,15 +12,15 @@ pub mod predefined_functions;
 mod variable;
 
 #[derive(Debug, Error)]
-pub enum Error {
+pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
-    UndefinedVariable(String),
+    UndefinedVariable(T),
     #[error("Variable with this identifier {0} already declared")]
-    AlreadyDeclaredVariable(String),
+    AlreadyDeclaredVariable(T),
     #[error("Undefined function identifier {0}")]
-    UndefinedFunction(String),
+    UndefinedFunction(T),
     #[error("Function with this identifier {0} already declared")]
-    AlreadyDeclaredFunction(String),
+    AlreadyDeclaredFunction(T),
     #[error("Not enough arguments")]
     NotEnoughArguments,
     #[error("Invalid compiled module, {0}")]
@@ -31,24 +31,24 @@ pub enum Error {
     UndeclaredFunction(String),
 }
 
-pub trait Compile {
+pub trait Compile<T> {
     fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), Error>;
+        compiler: &mut Compiler<'ctx, T>,
+        cur_function: &mut Function<'ctx, T>,
+    ) -> Result<(), Error<T>>;
 }
 
-pub struct Compiler<'ctx> {
+pub struct Compiler<'ctx, T> {
     context: &'ctx Context,
     module: inkwell::module::Module<'ctx>,
     builder: inkwell::builder::Builder<'ctx>,
 
-    functions: HashMap<String, Function<'ctx>>,
+    functions: HashMap<T, Function<'ctx, T>>,
     predefined_functions: PredefineFunctions<'ctx>,
 }
 
-impl<'ctx> Compiler<'ctx> {
+impl<'ctx, T> Compiler<'ctx, T> {
     pub fn new(context: &'ctx Context, module_name: &str) -> Self {
         Self {
             context,
@@ -62,7 +62,7 @@ impl<'ctx> Compiler<'ctx> {
     pub fn declare_extern_functions<Iter>(
         &mut self,
         predefined_functions: Iter,
-    ) -> Result<(), Error>
+    ) -> Result<(), Error<T>>
     where
         Iter: Iterator<Item = String>,
     {
@@ -75,22 +75,29 @@ impl<'ctx> Compiler<'ctx> {
     }
 }
 
-impl<'ctx> Compiler<'ctx> {
-    pub fn insert_function(&mut self, name: String, function: Function<'ctx>) -> Result<(), Error> {
+impl<'ctx, T> Compiler<'ctx, T>
+where
+    T: Clone + Hash + PartialEq + Eq,
+{
+    pub fn insert_function(
+        &mut self,
+        name: T,
+        function: Function<'ctx, T>,
+    ) -> Result<(), Error<T>> {
         match self.functions.insert(name.clone(), function) {
             None => Ok(()),
             Some(_) => Err(Error::AlreadyDeclaredFunction(name)),
         }
     }
 
-    pub fn get_function(&self, name: String) -> Result<Function<'ctx>, Error> {
+    pub fn get_function(&self, name: T) -> Result<Function<'ctx, T>, Error<T>> {
         self.functions
             .get(&name)
             .cloned()
             .ok_or(Error::UndefinedFunction(name))
     }
 
-    pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+    pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {
         self.verify()?;
         writer
             .write(self.module.print_to_string().to_bytes())
@@ -98,7 +105,7 @@ impl<'ctx> Compiler<'ctx> {
         Ok(())
     }
 
-    pub fn verify(&self) -> Result<(), Error> {
+    pub fn verify(&self) -> Result<(), Error<T>> {
         self.module
             .verify()
             .map_err(|e| Error::InvalidModule(e.to_string()))?;

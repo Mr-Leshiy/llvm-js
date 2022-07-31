@@ -9,7 +9,10 @@ pub struct FunctionDeclaration {
 }
 
 impl FunctionDeclaration {
-    pub fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
+    pub fn compile(
+        self,
+        compiler: &mut Compiler<Identifier>,
+    ) -> Result<(), compiler::Error<Identifier>> {
         let mut function = Function::new(
             compiler,
             &String::from(self.name.clone()),

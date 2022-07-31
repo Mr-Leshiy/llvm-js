@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq)]
+use std::fmt::Display;
+
+#[derive(Debug, Hash, Clone, PartialEq, Eq)]
 pub struct Identifier {
     name: String,
     index: u32,
@@ -17,5 +19,11 @@ impl From<Identifier> for String {
         } else {
             format!("{}{}", val.name, val.index)
         }
+    }
+}
+
+impl Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "name: {}, index: {}", self.name, self.index)
     }
 }
