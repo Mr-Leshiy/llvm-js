@@ -1,4 +1,4 @@
-use crate::{Compile, Compiler, Error, Variable, VariableValue};
+use crate::{Compile, Compiler, Error, Variable};
 use inkwell::{
     attributes::{Attribute, AttributeLoc},
     values::FunctionValue,
@@ -92,8 +92,7 @@ impl<'ctx> Function<'ctx> {
     pub fn generate_call(
         &self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &Self,
-        args: Vec<VariableValue>,
+        args: Vec<Variable<'ctx>>,
     ) -> Result<(), Error> {
         let args_num = self.function.get_type().get_param_types().len();
         let mut vec = Vec::with_capacity(args_num);
@@ -102,8 +101,7 @@ impl<'ctx> Function<'ctx> {
                 break;
             }
 
-            let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
-            vec.push(variable.value.into());
+            vec.push(arg.value.into());
         }
 
         compiler

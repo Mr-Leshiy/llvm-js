@@ -3,10 +3,11 @@ pub use function::Function;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, io::Write};
 use thiserror::Error;
-pub use variable::{Variable, VariableValue};
+pub use variable::Variable;
 
 mod context;
 mod function;
+pub mod logical_operations;
 pub mod predefined_functions;
 mod variable;
 

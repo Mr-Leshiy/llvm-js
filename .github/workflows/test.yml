@@ -40,7 +40,7 @@ jobs:
         mkdir build
         cmake -S llvm -B build -DCMAKE_BUILD_TYPE=Release
         cd build
-        make -j
+        make -j4
         sudo make install
 
     - if: ${{ matrix.os == 'macos-latest' }}

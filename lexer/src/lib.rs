@@ -2,7 +2,7 @@ use char_reader::CharReader;
 pub use position::Position;
 use std::io::Read;
 use thiserror::Error;
-pub use tokens::{Keyword, Literal, Separator, Token};
+pub use tokens::{Keyword, Literal, Logical, Separator, Token};
 
 mod char_reader;
 mod position;
@@ -171,6 +171,44 @@ impl<R: Read> TokenReader<R> {
         Ok(TokenResult::Result(()))
     }
 
+    // try read logical: '!'
+    fn try_read_logical(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
+        if char == '!' {
+            return Ok(TokenResult::Token(Token::Logical(Logical::Not)));
+        }
+        if char == '&' {
+            let postion = self.char_reader.get_position().clone();
+            char = match self.char_reader.get_char() {
+                Ok(char) => char,
+                Err(e) if e == char_reader::Error::Eof => {
+                    return Err(Error::UnexpectedSymbol('&', postion))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            };
+            if char == '&' {
+                return Ok(TokenResult::Token(Token::Logical(Logical::And)));
+            } else {
+                return Err(Error::UnexpectedSymbol('&', postion));
+            }
+        }
+        if char == '|' {
+            let postion = self.char_reader.get_position().clone();
+            char = match self.char_reader.get_char() {
+                Ok(char) => char,
+                Err(e) if e == char_reader::Error::Eof => {
+                    return Err(Error::UnexpectedSymbol('|', postion))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            };
+            if char == '|' {
+                return Ok(TokenResult::Token(Token::Logical(Logical::Or)));
+            } else {
+                return Err(Error::UnexpectedSymbol('|', postion));
+            }
+        }
+        Ok(TokenResult::Result(()))
+    }
+
     // try read separator: '(',')','{','}','[',']'
     fn try_read_separator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
         match char {
@@ -262,12 +300,14 @@ impl<R: Read> TokenReader<R> {
                 self.try_read_identifier(char)?.token_or_continue(|_| {
                     self.try_read_number(char)?.token_or_continue(|_| {
                         self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                            self.try_read_separator(char)?.token_or_continue(|_| {
-                                self.try_read_string(char)?.token_or_continue(|_| {
-                                    Err(Error::UnexpectedSymbol(
-                                        char,
-                                        self.char_reader.get_position().clone(),
-                                    ))
+                            self.try_read_logical(char)?.token_or_continue(|_| {
+                                self.try_read_separator(char)?.token_or_continue(|_| {
+                                    self.try_read_string(char)?.token_or_continue(|_| {
+                                        Err(Error::UnexpectedSymbol(
+                                            char,
+                                            self.char_reader.get_position().clone(),
+                                        ))
+                                    })
                                 })
                             })
                         })

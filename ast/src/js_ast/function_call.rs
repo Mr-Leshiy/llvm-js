@@ -58,7 +58,7 @@ impl Precompile for FunctionCall {
                 }
 
                 Ok(llvm_ast::FunctionCall {
-                    name: llvm_ast::FunctionName::new(self.name.name, index),
+                    name: llvm_ast::Identifier::new(self.name.name, index),
                     args,
                 })
             }
@@ -109,13 +109,13 @@ mod tests {
         assert_eq!(
             function_call.precompile(&mut precompiler),
             Ok(llvm_ast::FunctionCall {
-                name: llvm_ast::FunctionName::new("name_1".to_string(), 0),
+                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 args: vec![
-                    llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
                         "a".to_string(),
                         0
                     )),
-                    llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
                         "b".to_string(),
                         0
                     )),

@@ -1,17 +1,10 @@
 use super::Compiler;
-use crate::{Error, Function};
+use crate::Function;
 use inkwell::{
     types::StructType,
     values::{IntValue, PointerValue},
     AddressSpace,
 };
-
-pub enum VariableValue {
-    Boolean(bool),
-    FloatNumber(f64),
-    String(String),
-    Identifier(String),
-}
 
 #[derive(Clone, Copy)]
 pub(crate) enum Type {
@@ -40,24 +33,11 @@ pub struct Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn new(compiler: &Compiler<'ctx>, name: &str) -> Self {
+    fn new(compiler: &Compiler<'ctx>) -> Self {
         let var_type = Self::get_type(compiler);
 
-        let value = compiler.builder.build_alloca(var_type, name);
+        let value = compiler.builder.build_alloca(var_type, "");
         Self { value }
-    }
-
-    pub(crate) fn try_from_variable_value(
-        compiler: &Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
-        value: VariableValue,
-    ) -> Result<Self, Error> {
-        match value {
-            VariableValue::Boolean(boolean) => Ok(Variable::new_boolean(compiler, boolean, "")),
-            VariableValue::String(string) => Ok(Variable::new_string(compiler, &string, "")),
-            VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number, "")),
-            VariableValue::Identifier(name) => cur_function.get_variable(name),
-        }
     }
 
     pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {
@@ -97,7 +77,6 @@ impl<'ctx> Variable<'ctx> {
         compiler.builder.build_load(flag_field, "").into_int_value()
     }
 
-    // TODO: try to replace switch, try to look into the strategy pattern
     pub(crate) fn switch_type(
         &self,
         compiler: &Compiler<'ctx>,
@@ -158,8 +137,8 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn new_number(compiler: &Compiler<'ctx>, number: f64, name: &str) -> Self {
-        let variable = Self::new(compiler, name);
+    pub fn new_number(compiler: &Compiler<'ctx>, number: f64) -> Self {
+        let variable = Self::new(compiler);
         variable.assign_number(compiler, number);
         variable
     }
@@ -171,8 +150,8 @@ impl<'ctx> Variable<'ctx> {
         self.update_flag(compiler, Type::Number);
     }
 
-    pub fn new_string(compiler: &Compiler<'ctx>, string: &str, name: &str) -> Self {
-        let variable = Self::new(compiler, name);
+    pub fn new_string(compiler: &Compiler<'ctx>, string: &str) -> Self {
+        let variable = Self::new(compiler);
         variable.assign_string(compiler, string);
         variable
     }
@@ -195,8 +174,8 @@ impl<'ctx> Variable<'ctx> {
         self.update_flag(compiler, Type::String);
     }
 
-    pub fn new_boolean(compiler: &Compiler<'ctx>, boolean: bool, name: &str) -> Self {
-        let variable = Self::new(compiler, name);
+    pub fn new_boolean(compiler: &Compiler<'ctx>, boolean: bool) -> Self {
+        let variable = Self::new(compiler);
         variable.assign_boolean(compiler, boolean);
         variable
     }
@@ -214,10 +193,9 @@ impl<'ctx> Variable<'ctx> {
     pub fn new_variable(
         compiler: &mut Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        name: &str,
         variable2: &Self,
     ) -> Self {
-        let variable1 = Self::new(compiler, name);
+        let variable1 = Self::new(compiler);
         variable1.assign_variable(compiler, cur_function, variable2);
         variable1
     }
