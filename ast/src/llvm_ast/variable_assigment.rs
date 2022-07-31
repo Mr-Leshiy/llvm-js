@@ -32,6 +32,11 @@ impl Compile for VariableAssigment {
                 variable1.assign_variable(compiler, cur_function, &variable2);
                 Ok(())
             }
+            VariableValue::LogicalExpression(logical) => {
+                let variable2 = logical.compile(compiler, cur_function)?;
+                variable1.assign_variable(compiler, cur_function, &variable2);
+                Ok(())
+            }
         }
     }
 }

@@ -22,8 +22,22 @@ impl Compile for VariableDeclaration {
                 Variable::new_string(compiler, &value, &String::from(variable.name.clone()))
             }
             VariableValue::Identifier(name) => {
-                let variable = cur_function.get_variable(name.clone().into())?;
-                Variable::new_variable(compiler, cur_function, &String::from(name), &variable)
+                let variable1 = cur_function.get_variable(name.clone().into())?;
+                Variable::new_variable(
+                    compiler,
+                    cur_function,
+                    &String::from(variable.name.clone()),
+                    &variable1,
+                )
+            }
+            VariableValue::LogicalExpression(logical) => {
+                let variable1 = logical.compile(compiler, cur_function)?;
+                Variable::new_variable(
+                    compiler,
+                    cur_function,
+                    &String::from(variable.name.clone()),
+                    &variable1,
+                )
             }
         };
         cur_function.insert_variable(variable.name.into(), var)
