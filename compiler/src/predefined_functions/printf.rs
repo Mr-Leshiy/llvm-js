@@ -20,7 +20,7 @@ impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
 }
 
 impl<'ctx> PrintFn<'ctx> {
-    pub(super) fn declare(compiler: &Compiler<'ctx>) -> Self {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let s = compiler.context.const_string(b"%f\n", true);
         let p_f64_fmt = compiler.module.add_global(s.get_type(), None, "p_f64_fmt");
         p_f64_fmt.set_constant(true);
@@ -63,13 +63,13 @@ impl<'ctx> PrintFn<'ctx> {
 }
 
 impl<'ctx> PrintFn<'ctx> {
-    pub fn print(
+    pub fn print<T>(
         &self,
-        compiler: &Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
+        compiler: &Compiler<'ctx, T>,
+        cur_function: &Function<'ctx, T>,
         arg: Variable<'ctx>,
-    ) -> Result<(), Error> {
-        let number_case_f = |compiler: &Compiler<'ctx>| {
+    ) -> Result<(), Error<T>> {
+        let number_case_f = |compiler: &Compiler<'ctx, T>| {
             let number_field = arg.get_field(compiler, Field::Number);
             let number_field = compiler
                 .builder
@@ -91,7 +91,7 @@ impl<'ctx> PrintFn<'ctx> {
                 "",
             );
         };
-        let string_case_f = |compiler: &Compiler<'ctx>| {
+        let string_case_f = |compiler: &Compiler<'ctx, T>| {
             let string_field = arg.get_field(compiler, Field::String);
             let string_field = compiler
                 .builder
@@ -113,7 +113,7 @@ impl<'ctx> PrintFn<'ctx> {
                 "",
             );
         };
-        let boolean_case_f = |compiler: &Compiler<'ctx>| {
+        let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
             let boolean_field = arg.get_field(compiler, Field::Boolean);
             let boolean_field = compiler
                 .builder

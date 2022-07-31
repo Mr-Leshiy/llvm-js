@@ -11,7 +11,7 @@ impl<'ctx> PredefineFunctionName for AbortFn<'ctx> {
 }
 
 impl<'ctx> AbortFn<'ctx> {
-    pub(super) fn declare(compiler: &Compiler<'ctx>) -> Self {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let function_type = compiler.context.void_type().fn_type(&[], false);
         let func = compiler
             .module
@@ -22,7 +22,7 @@ impl<'ctx> AbortFn<'ctx> {
 }
 
 impl<'ctx> AbortFn<'ctx> {
-    pub fn abort(&self, compiler: &Compiler<'ctx>) {
+    pub fn abort<T>(&self, compiler: &Compiler<'ctx, T>) {
         compiler.builder.build_call(self.func, &[], "");
     }
 }

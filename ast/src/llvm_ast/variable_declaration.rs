@@ -1,22 +1,22 @@
-use super::{VariableAssigment, VariableValue};
+use super::{Identifier, VariableAssigment, VariableValue};
 use compiler::{self, Compile, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
-impl Compile for VariableDeclaration {
+impl Compile<Identifier> for VariableDeclaration {
     fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), compiler::Error> {
+        compiler: &mut Compiler<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
+    ) -> Result<(), compiler::Error<Identifier>> {
         let variable = self.0;
         let var = match variable.value {
             VariableValue::Boolean(boolean) => Variable::new_boolean(compiler, boolean),
             VariableValue::FloatNumber(value) => Variable::new_number(compiler, value),
             VariableValue::String(value) => Variable::new_string(compiler, &value),
             VariableValue::Identifier(name) => {
-                let variable1 = cur_function.get_variable(name.into())?;
+                let variable1 = cur_function.get_variable(name)?;
                 Variable::new_variable(compiler, cur_function, &variable1)
             }
             VariableValue::LogicalExpression(logical) => {
@@ -24,6 +24,6 @@ impl Compile for VariableDeclaration {
                 Variable::new_variable(compiler, cur_function, &variable1)
             }
         };
-        cur_function.insert_variable(variable.name.into(), var)
+        cur_function.insert_variable(variable.name, var)
     }
 }

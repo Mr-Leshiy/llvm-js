@@ -4,17 +4,20 @@ use inkwell::{
     values::FunctionValue,
     AddressSpace,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
-pub struct Function<'ctx> {
-    pub(super) arg_names: Vec<String>,
+pub struct Function<'ctx, T> {
+    pub(super) arg_names: Vec<T>,
     pub(super) function: FunctionValue<'ctx>,
-    pub(super) variables: HashMap<String, Variable<'ctx>>,
+    pub(super) variables: HashMap<T, Variable<'ctx>>,
 }
 
-impl<'ctx> Function<'ctx> {
-    pub fn new(compiler: &mut Compiler<'ctx>, name: &str, arg_names: Vec<String>) -> Self {
+impl<'ctx, T> Function<'ctx, T>
+where
+    T: Clone + Hash + PartialEq + Eq,
+{
+    pub fn new(compiler: &mut Compiler<'ctx, T>, name: &str, arg_names: Vec<T>) -> Self {
         let args_type: Vec<_> = arg_names
             .iter()
             .map(|_| {
@@ -45,7 +48,7 @@ impl<'ctx> Function<'ctx> {
         }
     }
 
-    pub fn get_variable(&self, name: String) -> Result<Variable<'ctx>, Error> {
+    pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
         // firstly look into the function arguments
         for (i, arg_name) in self.arg_names.iter().enumerate() {
             if name.eq(arg_name) {
@@ -65,7 +68,7 @@ impl<'ctx> Function<'ctx> {
             .ok_or(Error::UndefinedVariable(name))
     }
 
-    pub fn insert_variable(&mut self, name: String, variable: Variable<'ctx>) -> Result<(), Error> {
+    pub fn insert_variable(&mut self, name: T, variable: Variable<'ctx>) -> Result<(), Error<T>> {
         match self.variables.insert(name.clone(), variable) {
             None => Ok(()),
             Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
@@ -73,11 +76,11 @@ impl<'ctx> Function<'ctx> {
     }
 
     // TODO: move this code inside new function
-    pub fn generate_body<T: Compile>(
+    pub fn generate_body<Expr: Compile<T>>(
         &mut self,
-        compiler: &mut Compiler<'ctx>,
-        body: Vec<T>,
-    ) -> Result<(), Error> {
+        compiler: &mut Compiler<'ctx, T>,
+        body: Vec<Expr>,
+    ) -> Result<(), Error<T>> {
         let basic_block = compiler.context.append_basic_block(self.function, "entry");
         compiler.builder.position_at_end(basic_block);
         for expr in body {
@@ -91,9 +94,9 @@ impl<'ctx> Function<'ctx> {
 
     pub fn generate_call(
         &self,
-        compiler: &mut Compiler<'ctx>,
+        compiler: &mut Compiler<'ctx, T>,
         args: Vec<Variable<'ctx>>,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error<T>> {
         let args_num = self.function.get_type().get_param_types().len();
         let mut vec = Vec::with_capacity(args_num);
         for (i, arg) in args.into_iter().enumerate() {

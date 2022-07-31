@@ -1,4 +1,4 @@
-use super::{expression::Expression, FunctionDeclaration};
+use super::{expression::Expression, FunctionDeclaration, Identifier};
 use compiler::{self, Compiler, Function};
 
 pub struct Program {
@@ -7,7 +7,10 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn compile(self, compiler: &mut Compiler) -> Result<(), compiler::Error> {
+    pub fn compile(
+        self,
+        compiler: &mut Compiler<Identifier>,
+    ) -> Result<(), compiler::Error<Identifier>> {
         for func in self.functions {
             func.compile(compiler)?;
         }

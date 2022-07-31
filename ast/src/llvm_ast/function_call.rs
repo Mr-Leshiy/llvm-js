@@ -14,12 +14,12 @@ pub struct FunctionCall {
     pub args: Vec<VariableValue>,
 }
 
-impl Compile for FunctionCall {
+impl Compile<Identifier> for FunctionCall {
     fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), compiler::Error> {
+        compiler: &mut Compiler<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
+    ) -> Result<(), compiler::Error<Identifier>> {
         let mut args = Vec::new();
         for arg in self.args.into_iter() {
             args.push(arg.compile(compiler, cur_function)?);
@@ -65,7 +65,7 @@ impl Compile for FunctionCall {
                 Ok(())
             }
             _ => {
-                let function = compiler.get_function(self.name.into())?;
+                let function = compiler.get_function(self.name)?;
                 function.generate_call(compiler, args)
             }
         }
