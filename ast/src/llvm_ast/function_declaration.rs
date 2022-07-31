@@ -1,32 +1,10 @@
-use super::{Expression, VariableName};
+use super::{Expression, Identifier};
 use compiler::{self, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct FunctionName {
-    name: String,
-    index: u32,
-}
-
-impl FunctionName {
-    pub fn new(name: String, index: u32) -> Self {
-        Self { name, index }
-    }
-}
-
-impl From<FunctionName> for String {
-    fn from(val: FunctionName) -> Self {
-        if val.index == 0 {
-            val.name
-        } else {
-            format!("{}{}", val.name, val.index)
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
-    pub name: FunctionName,
-    pub args: Vec<VariableName>,
+    pub name: Identifier,
+    pub args: Vec<Identifier>,
     pub body: Vec<Expression>,
 }
 

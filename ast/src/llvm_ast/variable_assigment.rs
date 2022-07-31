@@ -1,29 +1,12 @@
+use super::Identifier;
 use compiler::{self, Compile, Compiler, Function};
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct VariableName {
-    name: String,
-    index: u32,
-}
-
-impl VariableName {
-    pub fn new(name: String, index: u32) -> Self {
-        Self { name, index }
-    }
-}
-
-impl From<VariableName> for String {
-    fn from(val: VariableName) -> Self {
-        format!("{}{}", val.name, val.index)
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableValue {
     Boolean(bool),
     FloatNumber(f64),
     String(String),
-    Identifier(VariableName),
+    Identifier(Identifier),
 }
 
 impl From<VariableValue> for compiler::VariableValue {
@@ -39,7 +22,7 @@ impl From<VariableValue> for compiler::VariableValue {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
-    pub name: VariableName,
+    pub name: Identifier,
     pub value: VariableValue,
 }
 

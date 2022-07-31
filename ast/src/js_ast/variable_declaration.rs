@@ -28,7 +28,7 @@ impl Precompile for VariableDeclaration {
         let value = self.0.right.precompile(precompiler)?;
         let index = precompiler.variables.insert(self.0.left.clone());
         let res = llvm_ast::VariableAssigment {
-            name: llvm_ast::VariableName::new(self.0.left.name, index),
+            name: llvm_ast::Identifier::new(self.0.left.name, index),
             value,
         };
         Ok(llvm_ast::VariableDeclaration(res))
@@ -73,7 +73,7 @@ mod tests {
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
-                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
+                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: llvm_ast::VariableValue::FloatNumber(64_f64),
             }))
         );
@@ -96,8 +96,8 @@ mod tests {
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
-                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                value: llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
                     "name_2".to_string(),
                     0
                 )),
@@ -122,7 +122,7 @@ mod tests {
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
-                name: llvm_ast::VariableName::new("name_1".to_string(), 1),
+                name: llvm_ast::Identifier::new("name_1".to_string(), 1),
                 value: llvm_ast::VariableValue::FloatNumber(64_f64),
             }))
         );

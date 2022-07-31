@@ -126,7 +126,7 @@ mod tests {
             block_statement.precompile(&mut precompiler),
             Ok(vec![llvm_ast::Expression::VariableDeclaration(
                 llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
-                    name: llvm_ast::VariableName::new("name_1".to_string(), 0),
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                     value: llvm_ast::VariableValue::FloatNumber(64_f64),
                 })
             )])

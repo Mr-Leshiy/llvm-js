@@ -1,16 +1,18 @@
 use compiler::{self, Compiler, Context};
 pub use expression::Expression;
 pub use function_call::FunctionCall;
-pub use function_declaration::{FunctionDeclaration, FunctionName};
+pub use function_declaration::FunctionDeclaration;
+pub use identifier::Identifier;
 pub use logical_expression::LogicalExpression;
 pub use program::Program;
 use std::io::Write;
-pub use variable_assigment::{VariableAssigment, VariableName, VariableValue};
+pub use variable_assigment::{VariableAssigment, VariableValue};
 pub use variable_declaration::VariableDeclaration;
 
 mod expression;
 mod function_call;
 mod function_declaration;
+mod identifier;
 mod logical_expression;
 mod program;
 mod variable_assigment;

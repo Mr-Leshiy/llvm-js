@@ -97,7 +97,6 @@ impl<'ctx> Variable<'ctx> {
         compiler.builder.build_load(flag_field, "").into_int_value()
     }
 
-    // TODO: try to replace switch, try to look into the strategy pattern
     pub(crate) fn switch_type(
         &self,
         compiler: &Compiler<'ctx>,

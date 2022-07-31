@@ -33,7 +33,7 @@ impl Precompile for VariableValue {
         match self {
             VariableValue::Boolean(boolean) => Ok(Self::Output::Boolean(boolean)),
             VariableValue::Identifier(identifier) => match precompiler.variables.get(&identifier) {
-                Some(index) => Ok(Self::Output::Identifier(llvm_ast::VariableName::new(
+                Some(index) => Ok(Self::Output::Identifier(llvm_ast::Identifier::new(
                     identifier.name,
                     index,
                 ))),

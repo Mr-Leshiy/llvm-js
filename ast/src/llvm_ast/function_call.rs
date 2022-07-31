@@ -1,4 +1,4 @@
-use super::{FunctionName, VariableValue};
+use super::{Identifier, VariableValue};
 use compiler::{
     self,
     predefined_functions::{
@@ -10,7 +10,7 @@ use compiler::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
-    pub name: FunctionName,
+    pub name: Identifier,
     pub args: Vec<VariableValue>,
 }
 

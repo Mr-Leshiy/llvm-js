@@ -34,7 +34,7 @@ impl Precompile for VariableAssigment {
             Some(index) => {
                 let value = self.right.precompile(precompiler)?;
                 Ok(llvm_ast::VariableAssigment {
-                    name: llvm_ast::VariableName::new(self.left.name, index),
+                    name: llvm_ast::Identifier::new(self.left.name, index),
                     value,
                 })
             }
@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
+                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: llvm_ast::VariableValue::FloatNumber(64_f64),
             })
         );
@@ -106,8 +106,8 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: llvm_ast::VariableName::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableValue::Identifier(llvm_ast::VariableName::new(
+                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                value: llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
                     "name_2".to_string(),
                     0
                 )),
