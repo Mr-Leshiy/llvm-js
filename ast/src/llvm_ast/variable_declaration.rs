@@ -16,7 +16,7 @@ impl Compile for VariableDeclaration {
             VariableValue::FloatNumber(value) => Variable::new_number(compiler, value),
             VariableValue::String(value) => Variable::new_string(compiler, &value),
             VariableValue::Identifier(name) => {
-                let variable1 = cur_function.get_variable(name.clone().into())?;
+                let variable1 = cur_function.get_variable(name.into())?;
                 Variable::new_variable(compiler, cur_function, &variable1)
             }
             VariableValue::LogicalExpression(logical) => {
