@@ -59,8 +59,8 @@ mod tests {
         );
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
-        let mut reader = TokenReader::new("name_1".as_bytes());
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name_1".to_string())));
+        let mut reader = TokenReader::new("_name_1".as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("_name_1".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("name^2name".as_bytes());

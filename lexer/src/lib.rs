@@ -89,7 +89,7 @@ impl<R: Read> TokenReader<R> {
 
     // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
     fn try_read_identifier(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
-        if char.is_ascii_alphabetic() {
+        if char.is_ascii_alphabetic() || char == '_' {
             let mut ident = char.to_string();
             loop {
                 char = match self.char_reader.get_char() {
