@@ -134,7 +134,7 @@ impl<R: Read> TokenReader<R> {
 
     // try read number: [0-9.]+
     fn try_read_number(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
-        if char.is_ascii_digit() {
+        if char.is_ascii_digit() || char == '-' {
             let mut number = char.to_string();
             loop {
                 char = match self.char_reader.get_char() {
