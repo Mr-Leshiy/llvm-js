@@ -28,32 +28,28 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # - name: Install LLVM
-    #   uses: Mr-Leshiy/install-llvm-action@master
-    #   with:
-    #     version: "14.0"
     - name: Install LLVM
-      run: |
-        git clone https://github.com/llvm/llvm-project.git
-        cd llvm-project
-        git checkout release/14.x
-        mkdir build
-        cmake -S llvm -B build -DCMAKE_BUILD_TYPE=Release
-        cd build
-        make -j4
-        sudo make install
-
-    - if: ${{ matrix.os == 'macos-latest' }}
-      name: Setup default clang
-      run: xcode-select --install
+      uses: KyleMayes/install-llvm-action@v1.5.4
+      with:
+        version: "14.0"
+    # - name: Install LLVM
+    #   run: |
+    #     git clone https://github.com/llvm/llvm-project.git
+    #     cd llvm-project
+    #     git checkout release/14.x
+    #     mkdir build
+    #     cmake -S llvm -B build -DCMAKE_BUILD_TYPE=Release
+    #     cd build
+    #     make -j4
+    #     sudo make install
 
     - name: Build
       uses: actions-rs/cargo@v1
       with:
         command: build
         args: --all-targets ${{ matrix.mode }} ${{ matrix.features }}
-
-    - name: Run tests
+    - if: ${{ runner.os == 'ubuntu-latest' }}
+      name: Run tests
       uses: actions-rs/cargo@v1
       with:
         command: test
