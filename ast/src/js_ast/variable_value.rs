@@ -1,9 +1,9 @@
-use super::Identifier;
+use super::{Identifier, LogicalExpression};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Literal as LiteralToken, Parser, Token, TokenReader};
+use lexer::{Literal as LiteralToken, Logical, Parser, Token, TokenReader};
 use std::io::Read;
 
 /// VariableValue
@@ -13,16 +13,41 @@ pub enum VariableValue {
     Number(f64),
     String(String),
     Identifier(Identifier),
+    LogicalExpression(Box<LogicalExpression>),
 }
 
 impl Parser for VariableValue {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
-        match cur_token {
-            Token::Literal(LiteralToken::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
-            Token::Literal(LiteralToken::Number(val)) => Ok(Self::Number(val)),
-            Token::Literal(LiteralToken::String(val)) => Ok(Self::String(val)),
-            Token::Ident(name) => Ok(Self::Identifier(Identifier { name })),
-            token => Err(lexer::Error::UnexpectedToken(token)),
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+        let left = match cur_token {
+            Token::Literal(LiteralToken::Boolean(boolean)) => Self::Boolean(boolean),
+            Token::Literal(LiteralToken::Number(val)) => Self::Number(val),
+            Token::Literal(LiteralToken::String(val)) => Self::String(val),
+            Token::Ident(name) => Self::Identifier(Identifier { name }),
+            Token::Logical(Logical::Not) => Self::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::parse(reader.next_token()?, reader)?),
+            )),
+            token => return Err(lexer::Error::UnexpectedToken(token)),
+        };
+        reader.start_saving();
+        match reader.next_token()? {
+            Token::Logical(Logical::Or) => {
+                reader.reset_saving();
+                Ok(Self::LogicalExpression(Box::new(LogicalExpression::Or {
+                    left,
+                    right: VariableValue::parse(reader.next_token()?, reader)?,
+                })))
+            }
+            Token::Logical(Logical::And) => {
+                reader.reset_saving();
+                Ok(Self::LogicalExpression(Box::new(LogicalExpression::And {
+                    left,
+                    right: VariableValue::parse(reader.next_token()?, reader)?,
+                })))
+            }
+            _ => {
+                reader.stop_saving();
+                Ok(left)
+            }
         }
     }
 }
@@ -31,16 +56,17 @@ impl Precompile for VariableValue {
     type Output = llvm_ast::VariableValue;
     fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
         match self {
-            VariableValue::Boolean(boolean) => Ok(Self::Output::Boolean(boolean)),
-            VariableValue::Identifier(identifier) => match precompiler.variables.get(&identifier) {
+            Self::Boolean(boolean) => Ok(Self::Output::Boolean(boolean)),
+            Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
                 Some(index) => Ok(Self::Output::Identifier(llvm_ast::Identifier::new(
                     identifier.name,
                     index,
                 ))),
                 None => Err(precompiler::Error::UndefinedVariable(identifier.clone())),
             },
-            VariableValue::Number(number) => Ok(Self::Output::FloatNumber(number)),
-            VariableValue::String(string) => Ok(Self::Output::String(string)),
+            Self::Number(number) => Ok(Self::Output::FloatNumber(number)),
+            Self::String(string) => Ok(Self::Output::String(string)),
+            Self::LogicalExpression(_logical) => unimplemented!(),
         }
     }
 }
@@ -50,7 +76,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_value_test() {
+    fn parse_variable_value_test() {
         let mut reader = TokenReader::new("true".as_bytes());
         assert_eq!(
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),
@@ -81,6 +107,113 @@ mod tests {
             Ok(VariableValue::Identifier(Identifier {
                 name: "name".to_string()
             })),
+        );
+
+        let mut reader = TokenReader::new("!true".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::Boolean(true))
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_not_logical_expression_test() {
+        let mut reader = TokenReader::new("!true".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::Boolean(true))
+            ))),
+        );
+
+        let mut reader = TokenReader::new("!false".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::Boolean(false))
+            ))),
+        );
+
+        let mut reader = TokenReader::new("!a".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::Identifier("a".to_string().into()))
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_and_logical_expression_test() {
+        let mut reader = TokenReader::new("true && false".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::And {
+                    left: VariableValue::Boolean(true),
+                    right: VariableValue::Boolean(false)
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false && a".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::And {
+                    left: VariableValue::Boolean(false),
+                    right: VariableValue::Identifier("a".to_string().into())
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a && b".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::And {
+                    left: VariableValue::Identifier("a".to_string().into()),
+                    right: VariableValue::Identifier("b".to_string().into())
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_or_logical_expression_test() {
+        let mut reader = TokenReader::new("true || false".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Or {
+                    left: VariableValue::Boolean(true),
+                    right: VariableValue::Boolean(false)
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false || a".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Or {
+                    left: VariableValue::Boolean(false),
+                    right: VariableValue::Identifier("a".to_string().into())
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a || b".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Or {
+                    left: VariableValue::Identifier("a".to_string().into()),
+                    right: VariableValue::Identifier("b".to_string().into())
+                }
+            ))),
         );
     }
 }
