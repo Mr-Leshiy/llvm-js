@@ -1,4 +1,4 @@
-use super::{VariableAssigment, VariableValue, Identifier};
+use super::{Identifier, VariableAssigment, VariableValue};
 use compiler::{self, Compile, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -9,8 +9,7 @@ impl Compile<Identifier> for VariableDeclaration {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>>
-    {
+    ) -> Result<(), compiler::Error<Identifier>> {
         let variable = self.0;
         let var = match variable.value {
             VariableValue::Boolean(boolean) => Variable::new_boolean(compiler, boolean),
@@ -25,6 +24,6 @@ impl Compile<Identifier> for VariableDeclaration {
                 Variable::new_variable(compiler, cur_function, &variable1)
             }
         };
-        cur_function.insert_variable(variable.name.into(), var)
+        cur_function.insert_variable(variable.name, var)
     }
 }

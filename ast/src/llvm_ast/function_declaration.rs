@@ -13,13 +13,9 @@ impl FunctionDeclaration {
         self,
         compiler: &mut Compiler<Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let mut function = Function::new(
-            compiler,
-            &String::from(self.name.clone()),
-            self.args.into_iter().map(|arg| arg.into()).collect(),
-        );
+        let mut function = Function::new(compiler, &String::from(self.name.clone()), self.args);
         function.generate_body(compiler, self.body)?;
 
-        compiler.insert_function(self.name.into(), function)
+        compiler.insert_function(self.name, function)
     }
 }
