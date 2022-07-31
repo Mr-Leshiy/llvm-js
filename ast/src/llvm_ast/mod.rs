@@ -6,8 +6,9 @@ pub use identifier::Identifier;
 pub use logical_expression::LogicalExpression;
 pub use program::Program;
 use std::io::Write;
-pub use variable_assigment::{VariableAssigment, VariableValue};
+pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
+pub use variable_value::VariableValue;
 
 mod expression;
 mod function_call;
@@ -17,6 +18,7 @@ mod logical_expression;
 mod program;
 mod variable_assigment;
 mod variable_declaration;
+mod variable_value;
 
 pub struct Module {
     pub name: String,

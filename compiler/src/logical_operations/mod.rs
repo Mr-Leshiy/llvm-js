@@ -1,33 +1,30 @@
-use crate::{Compiler, Error, Function, Variable, VariableValue};
+use crate::{Compiler, Error, Function, Variable};
 
 pub fn logical_not<'ctx>(
-    compiler: &Compiler<'ctx>,
-    cur_function: &Function<'ctx>,
-    var: VariableValue,
+    _compiler: &Compiler<'ctx>,
+    _cur_function: &Function<'ctx>,
+    var: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error> {
     // TODO implement
-    let var = Variable::try_from_variable_value(compiler, cur_function, var)?;
     Ok(var)
 }
 
 pub fn logical_and<'ctx>(
-    compiler: &Compiler<'ctx>,
-    cur_function: &Function<'ctx>,
-    var1: VariableValue,
-    _var2: VariableValue,
+    _compiler: &Compiler<'ctx>,
+    _cur_function: &Function<'ctx>,
+    var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error> {
     // TODO implement
-    let var = Variable::try_from_variable_value(compiler, cur_function, var1)?;
-    Ok(var)
+    Ok(var1)
 }
 
 pub fn logical_or<'ctx>(
-    compiler: &Compiler<'ctx>,
-    cur_function: &Function<'ctx>,
-    var1: VariableValue,
-    _var2: VariableValue,
+    _compiler: &Compiler<'ctx>,
+    _cur_function: &Function<'ctx>,
+    var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error> {
     // TODO implement
-    let var = Variable::try_from_variable_value(compiler, cur_function, var1)?;
-    Ok(var)
+    Ok(var1)
 }

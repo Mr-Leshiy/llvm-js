@@ -24,12 +24,19 @@ impl Compile for LogicalExpression {
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
         match self {
-            Self::Not(value) => logical_not(compiler, cur_function, value.into())?,
+            Self::Not(value) => {
+                let value = value.compile(compiler, cur_function)?;
+                logical_not(compiler, cur_function, value)?
+            }
             Self::And { left, right } => {
-                logical_and(compiler, cur_function, left.into(), right.into())?
+                let left = left.compile(compiler, cur_function)?;
+                let right = right.compile(compiler, cur_function)?;
+                logical_and(compiler, cur_function, left, right)?
             }
             Self::Or { left, right } => {
-                logical_or(compiler, cur_function, left.into(), right.into())?
+                let left = left.compile(compiler, cur_function)?;
+                let right = right.compile(compiler, cur_function)?;
+                logical_or(compiler, cur_function, left, right)?
             }
         };
         Ok(())

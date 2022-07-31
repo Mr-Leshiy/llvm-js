@@ -1,5 +1,5 @@
 use super::{abort::AbortFn, Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable, VariableValue};
+use crate::{variable::Field, Error, Function, Variable};
 
 #[derive(Clone)]
 pub struct AssertFn;
@@ -20,10 +20,8 @@ impl AssertFn {
         compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
         abort_fn: &AbortFn<'ctx>,
-        arg: VariableValue,
+        arg: Variable<'ctx>,
     ) -> Result<(), Error> {
-        let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
-
         let number_case_f = |compiler: &Compiler<'ctx>| {
             // TODO implement
             abort_fn.abort(compiler);
@@ -33,7 +31,7 @@ impl AssertFn {
             abort_fn.abort(compiler);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx>| {
-            let boolean_field = variable.get_field(compiler, Field::Boolean);
+            let boolean_field = arg.get_field(compiler, Field::Boolean);
             let boolean_field = compiler
                 .builder
                 .build_load(boolean_field, "")
@@ -59,7 +57,7 @@ impl AssertFn {
             compiler.builder.position_at_end(true_block);
         };
 
-        variable.switch_type(
+        arg.switch_type(
             compiler,
             cur_function,
             number_case_f,

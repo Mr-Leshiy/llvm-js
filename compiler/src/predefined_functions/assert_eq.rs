@@ -1,5 +1,5 @@
 use super::{abort::AbortFn, Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable, VariableValue};
+use crate::{variable::Field, Error, Function, Variable};
 use inkwell::{FloatPredicate, IntPredicate};
 
 #[derive(Clone)]
@@ -21,12 +21,9 @@ impl AssertEqFn {
         compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
         abort_fn: &AbortFn<'ctx>,
-        arg1: VariableValue,
-        arg2: VariableValue,
+        arg1: Variable<'ctx>,
+        arg2: Variable<'ctx>,
     ) -> Result<(), Error> {
-        let arg1 = Variable::try_from_variable_value(compiler, cur_function, arg1)?;
-        let arg2 = Variable::try_from_variable_value(compiler, cur_function, arg2)?;
-
         // number case
         let arg1_number_case_f = |_compiler: &Compiler<'ctx>| {
             let arg2_number_case_f = |compiler: &Compiler<'ctx>| {

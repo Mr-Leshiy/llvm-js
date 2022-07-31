@@ -20,11 +20,10 @@ impl Compile for FunctionCall {
         compiler: &mut Compiler<'ctx>,
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), compiler::Error> {
-        let args: Vec<_> = self
-            .args
-            .into_iter()
-            .map(|variable| variable.into())
-            .collect();
+        let mut args = Vec::new();
+        for arg in self.args.into_iter() {
+            args.push(arg.compile(compiler, cur_function)?);
+        }
         match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let pritnf = compiler.predefined_functions().get_print()?;
@@ -67,7 +66,7 @@ impl Compile for FunctionCall {
             }
             _ => {
                 let function = compiler.get_function(self.name.into())?;
-                function.generate_call(compiler, cur_function, args)
+                function.generate_call(compiler, args)
             }
         }
     }

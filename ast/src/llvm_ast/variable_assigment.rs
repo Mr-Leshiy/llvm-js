@@ -1,24 +1,5 @@
-use super::Identifier;
+use super::{Identifier, VariableValue};
 use compiler::{self, Compile, Compiler, Function};
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum VariableValue {
-    Boolean(bool),
-    FloatNumber(f64),
-    String(String),
-    Identifier(Identifier),
-}
-
-impl From<VariableValue> for compiler::VariableValue {
-    fn from(val: VariableValue) -> Self {
-        match val {
-            VariableValue::Boolean(boolean) => compiler::VariableValue::Boolean(boolean),
-            VariableValue::FloatNumber(number) => compiler::VariableValue::FloatNumber(number),
-            VariableValue::String(string) => compiler::VariableValue::String(string),
-            VariableValue::Identifier(ident) => compiler::VariableValue::Identifier(ident.into()),
-        }
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {

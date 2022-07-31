@@ -1,5 +1,5 @@
 use super::{Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable, VariableValue};
+use crate::{variable::Field, Error, Function, Variable};
 use inkwell::{
     module::Linkage,
     values::{FunctionValue, GlobalValue},
@@ -67,12 +67,10 @@ impl<'ctx> PrintFn<'ctx> {
         &self,
         compiler: &Compiler<'ctx>,
         cur_function: &Function<'ctx>,
-        arg: VariableValue,
+        arg: Variable<'ctx>,
     ) -> Result<(), Error> {
-        let variable = Variable::try_from_variable_value(compiler, cur_function, arg)?;
-
         let number_case_f = |compiler: &Compiler<'ctx>| {
-            let number_field = variable.get_field(compiler, Field::Number);
+            let number_field = arg.get_field(compiler, Field::Number);
             let number_field = compiler
                 .builder
                 .build_load(number_field, "")
@@ -94,7 +92,7 @@ impl<'ctx> PrintFn<'ctx> {
             );
         };
         let string_case_f = |compiler: &Compiler<'ctx>| {
-            let string_field = variable.get_field(compiler, Field::String);
+            let string_field = arg.get_field(compiler, Field::String);
             let string_field = compiler
                 .builder
                 .build_load(string_field, "")
@@ -116,7 +114,7 @@ impl<'ctx> PrintFn<'ctx> {
             );
         };
         let boolean_case_f = |compiler: &Compiler<'ctx>| {
-            let boolean_field = variable.get_field(compiler, Field::Boolean);
+            let boolean_field = arg.get_field(compiler, Field::Boolean);
             let boolean_field = compiler
                 .builder
                 .build_load(boolean_field, "")
@@ -138,7 +136,7 @@ impl<'ctx> PrintFn<'ctx> {
             );
         };
 
-        variable.switch_type(
+        arg.switch_type(
             compiler,
             cur_function,
             number_case_f,

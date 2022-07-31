@@ -1,17 +1,10 @@
 use super::Compiler;
-use crate::{Error, Function};
+use crate::Function;
 use inkwell::{
     types::StructType,
     values::{IntValue, PointerValue},
     AddressSpace,
 };
-
-pub enum VariableValue {
-    Boolean(bool),
-    FloatNumber(f64),
-    String(String),
-    Identifier(String),
-}
 
 #[derive(Clone, Copy)]
 pub(crate) enum Type {
@@ -45,19 +38,6 @@ impl<'ctx> Variable<'ctx> {
 
         let value = compiler.builder.build_alloca(var_type, name);
         Self { value }
-    }
-
-    pub(crate) fn try_from_variable_value(
-        compiler: &Compiler<'ctx>,
-        cur_function: &Function<'ctx>,
-        value: VariableValue,
-    ) -> Result<Self, Error> {
-        match value {
-            VariableValue::Boolean(boolean) => Ok(Variable::new_boolean(compiler, boolean, "")),
-            VariableValue::String(string) => Ok(Variable::new_string(compiler, &string, "")),
-            VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number, "")),
-            VariableValue::Identifier(name) => cur_function.get_variable(name),
-        }
     }
 
     pub(crate) fn get_type(compiler: &Compiler<'ctx>) -> StructType<'ctx> {
