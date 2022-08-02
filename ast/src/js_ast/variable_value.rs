@@ -16,39 +16,55 @@ pub enum VariableValue {
     LogicalExpression(Box<LogicalExpression>),
 }
 
-impl Parser for VariableValue {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl VariableValue {
+    fn parse_impl<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+        is_unary: bool,
+    ) -> Result<Self, lexer::Error> {
         let left = match cur_token {
             Token::Literal(LiteralToken::Boolean(boolean)) => Self::Boolean(boolean),
             Token::Literal(LiteralToken::Number(val)) => Self::Number(val),
             Token::Literal(LiteralToken::String(val)) => Self::String(val),
             Token::Ident(name) => Self::Identifier(Identifier { name }),
-            Token::Logical(Logical::Not) => Self::LogicalExpression(Box::new(
-                LogicalExpression::Not(VariableValue::parse(reader.next_token()?, reader)?),
-            )),
+            Token::Logical(Logical::Not) => {
+                Self::LogicalExpression(Box::new(LogicalExpression::Not(
+                    VariableValue::parse_impl(reader.next_token()?, reader, true)?,
+                )))
+            }
             token => return Err(lexer::Error::UnexpectedToken(token)),
         };
-        reader.start_saving();
-        match reader.next_token()? {
-            Token::Logical(Logical::Or) => {
-                reader.reset_saving();
-                Ok(Self::LogicalExpression(Box::new(LogicalExpression::Or {
-                    left,
-                    right: VariableValue::parse(reader.next_token()?, reader)?,
-                })))
-            }
-            Token::Logical(Logical::And) => {
-                reader.reset_saving();
-                Ok(Self::LogicalExpression(Box::new(LogicalExpression::And {
-                    left,
-                    right: VariableValue::parse(reader.next_token()?, reader)?,
-                })))
-            }
-            _ => {
-                reader.stop_saving();
-                Ok(left)
+        if is_unary {
+            Ok(left)
+        } else {
+            reader.start_saving();
+            match reader.next_token()? {
+                Token::Logical(Logical::Or) => {
+                    reader.reset_saving();
+                    Ok(Self::LogicalExpression(Box::new(LogicalExpression::Or {
+                        left,
+                        right: VariableValue::parse_impl(reader.next_token()?, reader, false)?,
+                    })))
+                }
+                Token::Logical(Logical::And) => {
+                    reader.reset_saving();
+                    Ok(Self::LogicalExpression(Box::new(LogicalExpression::And {
+                        left,
+                        right: VariableValue::parse_impl(reader.next_token()?, reader, false)?,
+                    })))
+                }
+                _ => {
+                    reader.stop_saving();
+                    Ok(left)
+                }
             }
         }
+    }
+}
+
+impl Parser for VariableValue {
+    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+        Self::parse_impl(cur_token, reader, false)
     }
 }
 
@@ -212,6 +228,27 @@ mod tests {
                 LogicalExpression::Or {
                     left: VariableValue::Identifier("a".to_string().into()),
                     right: VariableValue::Identifier("b".to_string().into())
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_logical_expression_test_1() {
+        let mut reader = TokenReader::new("!a || b && !c".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Or {
+                    left: VariableValue::LogicalExpression(Box::new(LogicalExpression::Not(
+                        VariableValue::Identifier("a".to_string().into())
+                    ))),
+                    right: VariableValue::LogicalExpression(Box::new(LogicalExpression::And {
+                        left: VariableValue::Identifier("b".to_string().into()),
+                        right: VariableValue::LogicalExpression(Box::new(LogicalExpression::Not(
+                            VariableValue::Identifier("c".to_string().into())
+                        )))
+                    }))
                 }
             ))),
         );

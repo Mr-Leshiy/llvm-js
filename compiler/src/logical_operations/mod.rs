@@ -3,28 +3,25 @@ use crate::{Compiler, Error, Function, Variable};
 pub fn logical_not<'ctx, T>(
     _compiler: &Compiler<'ctx, T>,
     _cur_function: &Function<'ctx, T>,
-    var: Variable<'ctx>,
+    _var: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error<T>> {
-    // TODO implement
-    Ok(var)
+    todo!("implement");
 }
 
 pub fn logical_and<'ctx, T>(
     _compiler: &Compiler<'ctx, T>,
     _cur_function: &Function<'ctx, T>,
-    var1: Variable<'ctx>,
+    _var1: Variable<'ctx>,
     _var2: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error<T>> {
-    // TODO implement
-    Ok(var1)
+    todo!("implement");
 }
 
 pub fn logical_or<'ctx, T>(
     _compiler: &Compiler<'ctx, T>,
     _cur_function: &Function<'ctx, T>,
-    var1: Variable<'ctx>,
+    _var1: Variable<'ctx>,
     _var2: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error<T>> {
-    // TODO implement
-    Ok(var1)
+    todo!("implement");
 }
