@@ -3,7 +3,7 @@ use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
 };
-use lexer::{Literal as LiteralToken, Logical, Parser, Token, TokenReader};
+use lexer::{Literal as LiteralToken, Logical, Parser, Separator, Token, TokenReader};
 use std::io::Read;
 
 /// VariableValue
@@ -14,6 +14,7 @@ pub enum VariableValue {
     String(String),
     Identifier(Identifier),
     LogicalExpression(Box<LogicalExpression>),
+    Grouping(Box<VariableValue>),
 }
 
 impl VariableValue {
@@ -27,10 +28,15 @@ impl VariableValue {
             Token::Literal(LiteralToken::Number(val)) => Self::Number(val),
             Token::Literal(LiteralToken::String(val)) => Self::String(val),
             Token::Ident(name) => Self::Identifier(Identifier { name }),
-            Token::Logical(Logical::Not) => {
-                Self::LogicalExpression(Box::new(LogicalExpression::Not(
-                    VariableValue::parse_impl(reader.next_token()?, reader, true)?,
-                )))
+            Token::Logical(Logical::Not) => Self::LogicalExpression(Box::new(
+                LogicalExpression::Not(Self::parse_impl(reader.next_token()?, reader, true)?),
+            )),
+            Token::Separator(Separator::OpenBrace) => {
+                let value = Self::parse_impl(reader.next_token()?, reader, false)?;
+                match reader.next_token()? {
+                    Token::Separator(Separator::CloseBrace) => Self::Grouping(Box::new(value)),
+                    token => return Err(lexer::Error::UnexpectedToken(token)),
+                }
             }
             token => return Err(lexer::Error::UnexpectedToken(token)),
         };
@@ -83,6 +89,7 @@ impl Precompile for VariableValue {
             Self::Number(number) => Ok(Self::Output::FloatNumber(number)),
             Self::String(string) => Ok(Self::Output::String(string)),
             Self::LogicalExpression(_logical) => todo!("implement"),
+            Self::Grouping(_grouping) => todo!("implement"),
         }
     }
 }
@@ -264,6 +271,43 @@ mod tests {
                                 "a".to_string().into()
                             ))
                         )))
+                    )))
+                )))
+            )))
+        );
+    }
+
+    #[test]
+    fn parse_grouping_test() {
+        let mut reader = TokenReader::new("(!a || (b && !c))".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Grouping(Box::new(
+                VariableValue::LogicalExpression(Box::new(LogicalExpression::Or {
+                    left: VariableValue::LogicalExpression(Box::new(LogicalExpression::Not(
+                        VariableValue::Identifier("a".to_string().into())
+                    ))),
+                    right: VariableValue::Grouping(Box::new(VariableValue::LogicalExpression(
+                        Box::new(LogicalExpression::And {
+                            left: VariableValue::Identifier("b".to_string().into()),
+                            right: VariableValue::LogicalExpression(Box::new(
+                                LogicalExpression::Not(VariableValue::Identifier(
+                                    "c".to_string().into()
+                                ))
+                            ))
+                        })
+                    )))
+                }))
+            )))
+        );
+
+        let mut reader = TokenReader::new("(!(a))".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Grouping(Box::new(
+                VariableValue::LogicalExpression(Box::new(LogicalExpression::Not(
+                    VariableValue::Grouping(Box::new(VariableValue::Identifier(
+                        "a".to_string().into()
                     )))
                 )))
             )))
