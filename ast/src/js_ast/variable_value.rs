@@ -82,7 +82,7 @@ impl Precompile for VariableValue {
             },
             Self::Number(number) => Ok(Self::Output::FloatNumber(number)),
             Self::String(string) => Ok(Self::Output::String(string)),
-            Self::LogicalExpression(_logical) => unimplemented!(),
+            Self::LogicalExpression(_logical) => todo!("implement"),
         }
     }
 }
@@ -251,6 +251,22 @@ mod tests {
                     }))
                 }
             ))),
+        );
+
+        let mut reader = TokenReader::new("!!!!a".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::LogicalExpression(Box::new(
+                LogicalExpression::Not(VariableValue::LogicalExpression(Box::new(
+                    LogicalExpression::Not(VariableValue::LogicalExpression(Box::new(
+                        LogicalExpression::Not(VariableValue::LogicalExpression(Box::new(
+                            LogicalExpression::Not(VariableValue::Identifier(
+                                "a".to_string().into()
+                            ))
+                        )))
+                    )))
+                )))
+            )))
         );
     }
 }
