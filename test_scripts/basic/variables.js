@@ -39,3 +39,6 @@ assert_eq(a5, 0);
 
 a4 = 0;
 assert_eq(a5, a4);
+
+var _a_1 = true;
+assert_eq(_a_1, true);

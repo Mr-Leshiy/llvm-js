@@ -6,7 +6,7 @@ use crate::{
     precompiler::{self, Precompile, Precompiler},
 };
 use lexer::{Keyword, Parser, Separator, Token, TokenReader};
-use std::io::Read;
+use std::{fmt::Debug, io::Read};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression {

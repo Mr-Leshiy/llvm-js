@@ -41,8 +41,8 @@ fn can_stop(char: &char) -> bool {
 pub struct TokenReader<R: Read> {
     char_reader: CharReader<R>,
     // used as FIFO collection
-    saved_tokens: Vec<Token>,
-    saved_flag: bool,
+    saved_tokens: Vec<Vec<Token>>,
+    saved_flag: u8,
 }
 
 impl<R: Read> TokenReader<R> {
@@ -50,7 +50,7 @@ impl<R: Read> TokenReader<R> {
         Self {
             char_reader: CharReader::new(reader),
             saved_tokens: Vec::new(),
-            saved_flag: false,
+            saved_flag: 0,
         }
     }
 }
@@ -89,7 +89,7 @@ impl<R: Read> TokenReader<R> {
 
     // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
     fn try_read_identifier(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
-        if char.is_ascii_alphabetic() {
+        if char.is_ascii_alphabetic() || char == '_' {
             let mut ident = char.to_string();
             loop {
                 char = match self.char_reader.get_char() {
@@ -268,29 +268,50 @@ impl<R: Read> TokenReader<R> {
 }
 
 impl<R: Read> TokenReader<R> {
-    pub fn start_saving(&mut self) {
-        self.saved_flag = true;
+    pub fn saved_flag(&self) -> u8 {
+        self.saved_flag
+    }
+
+    pub fn start_saving(&mut self) -> u8 {
+        self.saved_flag += 1;
+        self.saved_tokens.push(Vec::new());
+        self.saved_flag
     }
 
     pub fn stop_saving(&mut self) {
-        self.saved_flag = false;
+        if self.saved_flag != 0 {
+            self.saved_flag -= 1;
+        }
     }
 
     pub fn reset_saving(&mut self) {
-        self.saved_flag = false;
-        self.saved_tokens.clear();
+        if self.saved_flag != 0 {
+            self.saved_flag -= 1;
+        }
+        self.saved_tokens.pop();
     }
 
     pub fn next_token(&mut self) -> Result<Token, Error> {
-        if self.saved_flag {
+        if self.saved_flag > 0 && self.saved_flag == self.saved_tokens.len() as u8 {
             let token = self.read_token()?;
-            self.saved_tokens.push(token.clone());
+            self.saved_tokens
+                .last_mut()
+                .expect("saved tokens should not be empty")
+                .push(token.clone());
             Ok(token)
-        } else if self.saved_tokens.is_empty() {
-            self.read_token()
+        } else if let Some(saved_tokens) = self.saved_tokens.last_mut() {
+            if saved_tokens.is_empty() {
+                self.read_token()
+            } else {
+                // remove first element
+                let token = saved_tokens.remove(0);
+                if saved_tokens.is_empty() {
+                    self.saved_tokens.pop();
+                }
+                Ok(token)
+            }
         } else {
-            // remove first element
-            Ok(self.saved_tokens.remove(0))
+            self.read_token()
         }
     }
 
@@ -326,6 +347,7 @@ mod tests {
 
     #[test]
     fn token_reader_test() {
+        // TODO update test cases
         let mut reader = TokenReader::new("name1 name2 name3 name4".as_bytes());
 
         assert_eq!(reader.next_token(), Ok(Token::Ident("name1".to_string())));
