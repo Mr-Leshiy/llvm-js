@@ -1,32 +1,44 @@
-use crate::{js_ast::Identifier, llvm_ast::FunctionDeclaration};
 use collections::set::Set;
+use std::{
+    fmt::{Debug, Display},
+    hash::Hash,
+};
 use thiserror::Error;
 
 #[derive(Debug, Error, PartialEq)]
-pub enum Error {
+pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
-    UndefinedVariable(Identifier),
+    UndefinedVariable(T),
     #[error("Undefined function identifier {0}")]
-    UndefinedFunction(Identifier),
+    UndefinedFunction(T),
 }
 
-pub trait Precompile: Sized {
+pub trait Precompile<T1, T2>: Sized
+where
+    T1: Clone + Hash + PartialEq + Eq + Display,
+{
     type Output;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, Error>;
+    fn precompile(self, precompiler: &mut Precompiler<T1, T2>) -> Result<Self::Output, Error<T1>>;
 }
 
 /// Precompiler - validate the exisitng AST tree, prepare data for the compiler
-pub struct Precompiler {
-    pub variables: Set<Identifier>,
-    pub functions: Set<Identifier>,
+pub struct Precompiler<T1, T2>
+where
+    T1: Clone + Hash + PartialEq + Eq + Display,
+{
+    pub variables: Set<T1>,
+    pub functions: Set<T1>,
 
-    pub function_declarations: Vec<FunctionDeclaration>,
+    pub function_declarations: Vec<T2>,
 }
 
-impl Precompiler {
+impl<T1, T2> Precompiler<T1, T2>
+where
+    T1: Clone + Hash + PartialEq + Eq + Display + Debug,
+{
     pub fn new<Iter>(predefined_functions: Iter) -> Self
     where
-        Iter: Iterator<Item = Identifier>,
+        Iter: Iterator<Item = T1>,
     {
         Self {
             variables: Set::new(),

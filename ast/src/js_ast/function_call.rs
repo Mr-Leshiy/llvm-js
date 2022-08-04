@@ -1,4 +1,4 @@
-use super::{Identifier, VariableValue};
+use super::{Identifier, VariableExpression};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -9,7 +9,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct FunctionCall {
     pub name: Identifier,
-    pub args: Vec<VariableValue>,
+    pub args: Vec<VariableExpression>,
 }
 
 impl Parser for FunctionCall {
@@ -28,7 +28,7 @@ impl Parser for FunctionCall {
                 loop {
                     let arg = match cur_token {
                         Token::Separator(Separator::CloseBrace) => break,
-                        cur_token => VariableValue::parse(cur_token, reader)?,
+                        cur_token => VariableExpression::parse(cur_token, reader)?,
                     };
                     args.push(arg);
 
@@ -46,9 +46,12 @@ impl Parser for FunctionCall {
     }
 }
 
-impl Precompile for FunctionCall {
+impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for FunctionCall {
     type Output = llvm_ast::FunctionCall;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+    fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
         match precompiler.functions.get(&self.name) {
             Some(index) => {
                 // check if arguments exist
@@ -79,10 +82,10 @@ mod tests {
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableValue::Identifier("a".to_string().into()),
-                    VariableValue::Identifier("b".to_string().into()),
-                    VariableValue::String("val".to_string()),
-                    VariableValue::Number(5_f64),
+                    VariableExpression::Identifier("a".to_string().into()),
+                    VariableExpression::Identifier("b".to_string().into()),
+                    VariableExpression::String("val".to_string()),
+                    VariableExpression::Number(5_f64),
                 ]
             })
         );
@@ -99,10 +102,10 @@ mod tests {
             name: "name_1".to_string().into(),
 
             args: vec![
-                VariableValue::Identifier("a".to_string().into()),
-                VariableValue::Identifier("b".to_string().into()),
-                VariableValue::String("val".to_string()),
-                VariableValue::Number(5_f64),
+                VariableExpression::Identifier("a".to_string().into()),
+                VariableExpression::Identifier("b".to_string().into()),
+                VariableExpression::String("val".to_string()),
+                VariableExpression::Number(5_f64),
             ],
         };
 

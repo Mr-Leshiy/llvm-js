@@ -1,4 +1,4 @@
-use super::{Identifier, VariableValue};
+use super::{Identifier, VariableExpression};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -10,7 +10,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableAssigment {
     pub left: Identifier,
-    pub right: VariableValue,
+    pub right: VariableExpression,
 }
 
 impl Parser for VariableAssigment {
@@ -22,14 +22,17 @@ impl Parser for VariableAssigment {
             token => return Err(lexer::Error::UnexpectedToken(token)),
         }
 
-        let right = VariableValue::parse(reader.next_token()?, reader)?;
+        let right = VariableExpression::parse(reader.next_token()?, reader)?;
         Ok(Self { left, right })
     }
 }
 
-impl Precompile for VariableAssigment {
+impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for VariableAssigment {
     type Output = llvm_ast::VariableAssigment;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+    fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
         match precompiler.variables.get(&self.left) {
             Some(index) => {
                 let value = self.right.precompile(precompiler)?;
@@ -46,7 +49,7 @@ impl Precompile for VariableAssigment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::VariableValue;
+    use crate::js_ast::VariableExpression;
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -55,7 +58,7 @@ mod tests {
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: "name".to_string().into(),
-                right: VariableValue::Number(12_f64)
+                right: VariableExpression::Number(12_f64)
             })
         );
 
@@ -64,7 +67,7 @@ mod tests {
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: VariableValue::Identifier("name2".to_string().into())
+                right: VariableExpression::Identifier("name2".to_string().into())
             })
         );
     }
@@ -76,7 +79,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Number(64_f64),
+            right: VariableExpression::Number(64_f64),
         };
 
         assert_eq!(
@@ -100,7 +103,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Identifier("name_2".to_string().into()),
+            right: VariableExpression::Identifier("name_2".to_string().into()),
         };
 
         assert_eq!(
@@ -125,7 +128,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Number(64_f64),
+            right: VariableExpression::Number(64_f64),
         };
 
         assert_eq!(
@@ -143,7 +146,7 @@ mod tests {
 
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Identifier("name_2".to_string().into()),
+            right: VariableExpression::Identifier("name_2".to_string().into()),
         };
 
         assert_eq!(

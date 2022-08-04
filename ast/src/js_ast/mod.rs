@@ -13,7 +13,7 @@ pub use program::Program;
 use std::io::Read;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
-pub use variable_value::VariableValue;
+pub use variable_expression::VariableExpression;
 
 mod block_statement;
 mod expression;
@@ -24,7 +24,7 @@ mod logical_expression;
 mod program;
 mod variable_assigment;
 mod variable_declaration;
-mod variable_value;
+mod variable_expression;
 
 /// Module
 pub struct Module {
@@ -42,7 +42,7 @@ impl Module {
     pub fn precompile<Iter>(
         self,
         predefined_functions: Iter,
-    ) -> Result<llvm_ast::Module, precompiler::Error>
+    ) -> Result<llvm_ast::Module, precompiler::Error<Identifier>>
     where
         Iter: Iterator<Item = Identifier>,
     {

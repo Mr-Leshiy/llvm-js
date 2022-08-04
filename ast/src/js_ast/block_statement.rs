@@ -1,4 +1,4 @@
-use super::Expression;
+use super::{Expression, Identifier};
 use crate::{
     llvm_ast,
     precompiler::{self, Precompile, Precompiler},
@@ -34,9 +34,12 @@ impl Parser for BlockStatement {
     }
 }
 
-impl Precompile for BlockStatement {
+impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for BlockStatement {
     type Output = Vec<llvm_ast::Expression>;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+    fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables.len();
         let functions_len = precompiler.functions.len();
@@ -59,7 +62,7 @@ impl Precompile for BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableValue,
+        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableExpression,
     };
 
     #[test]
@@ -76,7 +79,7 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: VariableValue::Identifier("name2".to_string().into())
+                    right: VariableExpression::Identifier("name2".to_string().into())
                 })]
             })
         );
@@ -90,17 +93,17 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: VariableValue::Identifier("name2".to_string().into())
+                        right: VariableExpression::Identifier("name2".to_string().into())
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableValue::Identifier("name2".to_string().into())
+                                right: VariableExpression::Identifier("name2".to_string().into())
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableValue::Identifier("name2".to_string().into())
+                                right: VariableExpression::Identifier("name2".to_string().into())
                             }),
                         ]
                     })
@@ -117,7 +120,7 @@ mod tests {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name_1".to_string().into(),
-                    right: VariableValue::Number(64_f64),
+                    right: VariableExpression::Number(64_f64),
                 },
             ))],
         };

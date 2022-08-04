@@ -1,14 +1,14 @@
-use super::VariableValue;
+use super::VariableExpression;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum LogicalExpression {
-    Not(VariableValue),
+    Not(VariableExpression),
     And {
-        left: VariableValue,
-        right: VariableValue,
+        left: VariableExpression,
+        right: VariableExpression,
     },
     Or {
-        left: VariableValue,
-        right: VariableValue,
+        left: VariableExpression,
+        right: VariableExpression,
     },
 }
