@@ -1,9 +1,7 @@
 use super::{Identifier, LogicalExpression};
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
+use crate::llvm_ast;
 use lexer::{Literal as LiteralToken, Logical, Parser, Separator, Token, TokenReader};
+use precompiler::{self, Precompile, Precompiler};
 use std::io::Read;
 
 /// VariableValue

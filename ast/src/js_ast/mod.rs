@@ -1,7 +1,4 @@
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
+use crate::llvm_ast;
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
@@ -9,6 +6,7 @@ pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 use lexer::{Parser, TokenReader};
 pub use logical_expression::LogicalExpression;
+use precompiler::{self, Precompile, Precompiler};
 pub use program::Program;
 use std::io::Read;
 pub use variable_assigment::VariableAssigment;

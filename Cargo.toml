@@ -2,6 +2,7 @@
 members = [
     "bin",
     "compiler",
+    "precompiler",
     "testing",
     "lexer",
     "ast",

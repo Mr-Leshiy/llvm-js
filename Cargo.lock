@@ -18,6 +18,7 @@ dependencies = [
  "collections",
  "compiler",
  "lexer",
+ "precompiler",
  "thiserror",
 ]
 
@@ -173,6 +174,14 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-sys",
+]
+
+[[package]]
+name = "precompiler"
+version = "0.1.0"
+dependencies = [
+ "collections",
+ "thiserror",
 ]
 
 [[package]]

@@ -1,9 +1,7 @@
 use super::{Identifier, VariableAssigment};
-use crate::{
-    llvm_ast::{self},
-    precompiler::{self, Precompile, Precompiler},
-};
+use crate::llvm_ast;
 use lexer::{Keyword, Parser, Token, TokenReader};
+use precompiler::{self, Precompile, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"

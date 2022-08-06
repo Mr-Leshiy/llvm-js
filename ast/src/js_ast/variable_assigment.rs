@@ -1,9 +1,7 @@
 use super::{Identifier, VariableExpression};
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
+use crate::llvm_ast;
 use lexer::{Parser, Token, TokenReader};
+use precompiler::{self, Precompile, Precompiler};
 use std::io::Read;
 
 /// VariableAssigment - Expression type for variable assigment, like "a = 4"

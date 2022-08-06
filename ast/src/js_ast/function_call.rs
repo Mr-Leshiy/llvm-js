@@ -1,9 +1,7 @@
 use super::{Identifier, VariableExpression};
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
+use crate::llvm_ast;
 use lexer::{Parser, Separator, Token, TokenReader};
+use precompiler::{self, Precompile, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
