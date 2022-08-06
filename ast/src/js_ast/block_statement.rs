@@ -61,6 +61,7 @@ mod tests {
     use super::*;
     use crate::js_ast::{
         FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableExpression,
+        VariableValue,
     };
 
     #[test]
@@ -77,7 +78,9 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: VariableExpression::Identifier("name2".to_string().into())
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name2".to_string().into()
+                    ))
                 })]
             })
         );
@@ -91,17 +94,23 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: VariableExpression::Identifier("name2".to_string().into())
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name2".to_string().into()
+                        ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::Identifier("name2".to_string().into())
+                                right: VariableExpression::VariableValue(
+                                    VariableValue::Identifier("name2".to_string().into())
+                                )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::Identifier("name2".to_string().into())
+                                right: VariableExpression::VariableValue(
+                                    VariableValue::Identifier("name2".to_string().into())
+                                )
                             }),
                         ]
                     })
@@ -118,7 +127,7 @@ mod tests {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name_1".to_string().into(),
-                    right: VariableExpression::Number(64_f64),
+                    right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
                 },
             ))],
         };

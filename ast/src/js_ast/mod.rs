@@ -12,6 +12,7 @@ use std::io::Read;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 pub use variable_expression::VariableExpression;
+pub use variable_value::VariableValue;
 
 mod block_statement;
 mod expression;
@@ -23,6 +24,7 @@ mod program;
 mod variable_assigment;
 mod variable_declaration;
 mod variable_expression;
+mod variable_value;
 
 /// Module
 pub struct Module {

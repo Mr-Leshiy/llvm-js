@@ -88,7 +88,7 @@ impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for FunctionDeclarati
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Expression, VariableAssigment, VariableExpression};
+    use crate::js_ast::{Expression, VariableAssigment, VariableExpression, VariableValue};
 
     #[test]
     fn parse_function_declaration_test() {
@@ -101,7 +101,9 @@ mod tests {
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
                         left: "a".to_string().into(),
-                        right: VariableExpression::Identifier("b".to_string().into()),
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
                     })]
                 }
             })
@@ -118,7 +120,9 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: VariableExpression::Identifier("b".to_string().into()),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
+                    )),
                 })],
             },
         };
@@ -161,7 +165,9 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: VariableExpression::Identifier("b".to_string().into()),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
+                    )),
                 })],
             },
         };

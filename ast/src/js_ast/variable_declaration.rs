@@ -39,7 +39,7 @@ impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for VariableDeclarati
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::VariableExpression;
+    use crate::js_ast::{VariableExpression, VariableValue};
 
     #[test]
     fn parse_variable_declaration_test() {
@@ -48,7 +48,7 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name".to_string().into(),
-                right: VariableExpression::Number(12_f64)
+                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             }))
         );
 
@@ -57,7 +57,9 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: VariableExpression::Identifier("name2".to_string().into())
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
             }))
         );
     }
@@ -68,7 +70,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::Number(64_f64),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         });
 
         assert_eq!(
@@ -91,7 +93,9 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::Identifier("name_2".to_string().into()),
+            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                "name_2".to_string().into(),
+            )),
         });
 
         assert_eq!(
@@ -117,7 +121,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::Number(64_f64),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         });
 
         assert_eq!(
@@ -135,7 +139,9 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::Identifier("name_2".to_string().into()),
+            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                "name_2".to_string().into(),
+            )),
         });
 
         assert_eq!(

@@ -5,6 +5,8 @@ use std::{
 };
 use thiserror::Error;
 
+pub mod rpn;
+
 #[derive(Debug, Error, PartialEq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]

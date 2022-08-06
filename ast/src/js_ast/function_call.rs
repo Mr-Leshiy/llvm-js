@@ -71,6 +71,7 @@ impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for FunctionCall {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_function_call_test() {
@@ -80,10 +81,14 @@ mod tests {
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableExpression::Identifier("a".to_string().into()),
-                    VariableExpression::Identifier("b".to_string().into()),
-                    VariableExpression::String("val".to_string()),
-                    VariableExpression::Number(5_f64),
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    VariableExpression::VariableValue(VariableValue::String("val".to_string())),
+                    VariableExpression::VariableValue(VariableValue::Number(5_f64)),
                 ]
             })
         );
@@ -100,10 +105,14 @@ mod tests {
             name: "name_1".to_string().into(),
 
             args: vec![
-                VariableExpression::Identifier("a".to_string().into()),
-                VariableExpression::Identifier("b".to_string().into()),
-                VariableExpression::String("val".to_string()),
-                VariableExpression::Number(5_f64),
+                VariableExpression::VariableValue(VariableValue::Identifier(
+                    "a".to_string().into(),
+                )),
+                VariableExpression::VariableValue(VariableValue::Identifier(
+                    "b".to_string().into(),
+                )),
+                VariableExpression::VariableValue(VariableValue::String("val".to_string())),
+                VariableExpression::VariableValue(VariableValue::Number(5_f64)),
             ],
         };
 
