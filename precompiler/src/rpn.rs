@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-enum Operation<T1, T2, T3: Ord> {
+pub enum Operation<T1, T2, T3: Ord> {
     // e.g. !x - factorial
     PostfixFunction(T1),
     // e.g. sin(x), cos(x)
@@ -10,7 +10,7 @@ enum Operation<T1, T2, T3: Ord> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-enum Expression<V, T1, T2, T3: Ord> {
+pub enum Expression<V, T1, T2, T3: Ord> {
     Value(V),
     Operation(Operation<T1, T2, T3>),
     OpenBrace,
@@ -18,13 +18,13 @@ enum Expression<V, T1, T2, T3: Ord> {
 }
 
 /// RPN - Reverse Polish Notation representation
-struct RPN<V, T1, T2, T3: Ord> {
+pub struct RPN<V, T1, T2, T3: Ord> {
     result: Vec<Expression<V, T1, T2, T3>>,
     stack: Vec<Expression<V, T1, T2, T3>>,
 }
 
 impl<V, T1, T2, T3: Ord> RPN<V, T1, T2, T3> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             result: Vec::new(),
             stack: Vec::new(),
@@ -32,7 +32,7 @@ impl<V, T1, T2, T3: Ord> RPN<V, T1, T2, T3> {
     }
 
     /// transform expression from infix notation to Reverse Polish Notation
-    fn transform_from_infix(&mut self, expr: Expression<V, T1, T2, T3>) {
+    pub fn transform_from_infix(&mut self, expr: Expression<V, T1, T2, T3>) {
         match &expr {
             Expression::Value(_) => self.result.push(expr),
             Expression::OpenBrace => self.stack.push(expr),
@@ -75,7 +75,7 @@ impl<V, T1, T2, T3: Ord> RPN<V, T1, T2, T3> {
         }
     }
 
-    fn finish(mut self) -> Self {
+    pub fn finish(mut self) -> Self {
         let mut last = self.stack.pop();
         loop {
             match last {
@@ -106,17 +106,17 @@ mod tests {
         fn cmp(&self, other: &Self) -> Ordering {
             match (self, other) {
                 // Sum
-                (BinOp::Sum, BinOp::Sum) => Ordering::Equal,
-                (BinOp::Sum, BinOp::Div) => Ordering::Equal,
-                (BinOp::Sum, BinOp::Mul) => Ordering::Less,
+                (Self::Sum, Self::Sum) => Ordering::Equal,
+                (Self::Sum, Self::Div) => Ordering::Equal,
+                (Self::Sum, Self::Mul) => Ordering::Less,
                 // Div
-                (BinOp::Div, BinOp::Sum) => Ordering::Equal,
-                (BinOp::Div, BinOp::Div) => Ordering::Equal,
-                (BinOp::Div, BinOp::Mul) => Ordering::Less,
+                (Self::Div, Self::Sum) => Ordering::Equal,
+                (Self::Div, Self::Div) => Ordering::Equal,
+                (Self::Div, Self::Mul) => Ordering::Less,
                 // Mul
-                (BinOp::Mul, BinOp::Sum) => Ordering::Greater,
-                (BinOp::Mul, BinOp::Div) => Ordering::Greater,
-                (BinOp::Mul, BinOp::Mul) => Ordering::Equal,
+                (Self::Mul, Self::Sum) => Ordering::Greater,
+                (Self::Mul, Self::Div) => Ordering::Greater,
+                (Self::Mul, Self::Mul) => Ordering::Equal,
             }
         }
     }
@@ -125,7 +125,7 @@ mod tests {
     fn infix_to_rpn_test() {
         let mut rpn = RPN::new();
 
-        // (1 + 2) * 4 + 3
+        // (1 + 2) * 4 - 3
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::OpenBrace);
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::Value(1));
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::Operation(
@@ -138,7 +138,7 @@ mod tests {
         ));
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::Value(4));
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::Operation(
-            Operation::BinaryOp(BinOp::Sum),
+            Operation::BinaryOp(BinOp::Div),
         ));
         rpn.transform_from_infix(Expression::<i32, (), (), BinOp>::Value(3));
 
@@ -154,7 +154,7 @@ mod tests {
                 Expression::<i32, (), (), BinOp>::Value(4),
                 Expression::<i32, (), (), BinOp>::Operation(Operation::BinaryOp(BinOp::Mul)),
                 Expression::<i32, (), (), BinOp>::Value(3),
-                Expression::<i32, (), (), BinOp>::Operation(Operation::BinaryOp(BinOp::Sum))
+                Expression::<i32, (), (), BinOp>::Operation(Operation::BinaryOp(BinOp::Div))
             ]
         );
     }
