@@ -6,7 +6,7 @@ pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 use lexer::{Parser, TokenReader};
 pub use logical_expression::LogicalExpression;
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 pub use program::Program;
 use std::io::Read;
 pub use variable_assigment::VariableAssigment;
@@ -46,21 +46,11 @@ impl Module {
     where
         Iter: Iterator<Item = Identifier>,
     {
-        let mut precompiler = Precompiler::new(predefined_functions);
-
-        let mut body = Vec::new();
-        for expr in self.program.body {
-            expr.precompile(&mut precompiler)?
-                .into_iter()
-                .for_each(|expr| body.push(expr));
-        }
+        let precompiler = Precompiler::new(predefined_functions);
 
         Ok(llvm_ast::Module {
             name: self.name,
-            program: llvm_ast::Program {
-                functions: precompiler.function_declarations,
-                body,
-            },
+            program: self.program.precompile(precompiler)?,
         })
     }
 }

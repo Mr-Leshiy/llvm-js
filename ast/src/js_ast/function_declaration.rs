@@ -1,7 +1,7 @@
 use super::{BlockStatement, Identifier};
 use crate::llvm_ast;
 use lexer::{Keyword, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -54,12 +54,11 @@ impl Parser for FunctionDeclaration {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for FunctionDeclaration {
-    type Output = llvm_ast::FunctionDeclaration;
-    fn precompile(
+impl FunctionDeclaration {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::FunctionDeclaration, precompiler::Error<Identifier>> {
         let index = precompiler.functions.insert(self.name.clone());
 
         let variables_len = precompiler.variables.len();

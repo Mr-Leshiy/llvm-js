@@ -1,7 +1,7 @@
 use super::Identifier;
 use crate::llvm_ast;
 use lexer::{self, Literal, Parser, Token, TokenReader};
-use precompiler::{Precompile, Precompiler};
+use precompiler::Precompiler;
 use std::io::Read;
 
 /// VariableValue
@@ -25,23 +25,21 @@ impl Parser for VariableValue {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for VariableValue {
-    type Output = llvm_ast::VariableValue;
-    fn precompile(
+impl VariableValue {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::VariableValue, precompiler::Error<Identifier>> {
         match self {
-            Self::Boolean(boolean) => Ok(Self::Output::Boolean(boolean)),
+            Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
             Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
-                Some(index) => Ok(Self::Output::Identifier(llvm_ast::Identifier::new(
-                    identifier.name,
-                    index,
-                ))),
+                Some(index) => Ok(llvm_ast::VariableValue::Identifier(
+                    llvm_ast::Identifier::new(identifier.name, index),
+                )),
                 None => Err(precompiler::Error::UndefinedVariable(identifier.clone())),
             },
-            Self::Number(number) => Ok(Self::Output::FloatNumber(number)),
-            Self::String(string) => Ok(Self::Output::String(string)),
+            Self::Number(number) => Ok(llvm_ast::VariableValue::FloatNumber(number)),
+            Self::String(string) => Ok(llvm_ast::VariableValue::String(string)),
         }
     }
 }

@@ -4,7 +4,7 @@ use super::{
 };
 use crate::llvm_ast;
 use lexer::{Keyword, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::{fmt::Debug, io::Read};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -48,12 +48,11 @@ impl Parser for Expression {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for Expression {
-    type Output = Vec<llvm_ast::Expression>;
-    fn precompile(
+impl Expression {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
         match self {
             Expression::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;

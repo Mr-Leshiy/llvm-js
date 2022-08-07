@@ -1,7 +1,7 @@
 use super::{Identifier, VariableAssigment};
 use crate::llvm_ast;
 use lexer::{Keyword, Parser, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"
@@ -20,12 +20,11 @@ impl Parser for VariableDeclaration {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for VariableDeclaration {
-    type Output = llvm_ast::VariableDeclaration;
-    fn precompile(
+impl VariableDeclaration {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
         let value = self.0.right.precompile(precompiler)?;
         let index = precompiler.variables.insert(self.0.left.clone());
         let res = llvm_ast::VariableAssigment {

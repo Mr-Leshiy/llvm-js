@@ -1,7 +1,7 @@
 use super::{Identifier, LogicalExpression, VariableValue};
 use crate::llvm_ast;
 use lexer::{Logical, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableExpression
@@ -65,12 +65,11 @@ impl Parser for VariableExpression {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for VariableExpression {
-    type Output = llvm_ast::VariableValue;
-    fn precompile(
+impl VariableExpression {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::VariableValue, precompiler::Error<Identifier>> {
         match self {
             Self::VariableValue(value) => Ok(value.precompile(precompiler)?),
             Self::LogicalExpression(_logical) => todo!("implement"),

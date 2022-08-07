@@ -1,5 +1,7 @@
-use super::Expression;
+use super::{Expression, Identifier};
+use crate::llvm_ast;
 use lexer::{Parser, Token, TokenReader};
+use precompiler::Precompiler;
 use std::io::Read;
 
 /// Program
@@ -26,6 +28,25 @@ impl Parser for Program {
         }
 
         Ok(Self { body })
+    }
+}
+
+impl Program {
+    pub fn precompile(
+        self,
+        mut precompiler: Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<llvm_ast::Program, precompiler::Error<Identifier>> {
+        let mut body = Vec::new();
+        for expr in self.body {
+            expr.precompile(&mut precompiler)?
+                .into_iter()
+                .for_each(|expr| body.push(expr));
+        }
+
+        Ok(llvm_ast::Program {
+            functions: precompiler.function_declarations,
+            body,
+        })
     }
 }
 

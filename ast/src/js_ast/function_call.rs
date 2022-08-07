@@ -1,7 +1,7 @@
 use super::{Identifier, VariableExpression};
 use crate::llvm_ast;
 use lexer::{Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -44,12 +44,11 @@ impl Parser for FunctionCall {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for FunctionCall {
-    type Output = llvm_ast::FunctionCall;
-    fn precompile(
+impl FunctionCall {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::FunctionCall, precompiler::Error<Identifier>> {
         match precompiler.functions.get(&self.name) {
             Some(index) => {
                 // check if arguments exist

@@ -1,7 +1,7 @@
 use super::{Expression, Identifier};
 use crate::llvm_ast;
 use lexer::{Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompile, Precompiler};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -32,12 +32,11 @@ impl Parser for BlockStatement {
     }
 }
 
-impl Precompile<Identifier, llvm_ast::FunctionDeclaration> for BlockStatement {
-    type Output = Vec<llvm_ast::Expression>;
-    fn precompile(
+impl BlockStatement {
+    pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Self::Output, precompiler::Error<Identifier>> {
+    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables.len();
         let functions_len = precompiler.functions.len();
