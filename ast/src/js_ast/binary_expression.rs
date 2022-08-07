@@ -1,8 +1,7 @@
 use super::VariableExpression;
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum LogicalExpression {
-    Not(VariableExpression),
+pub enum BinaryExpression {
     And {
         left: VariableExpression,
         right: VariableExpression,

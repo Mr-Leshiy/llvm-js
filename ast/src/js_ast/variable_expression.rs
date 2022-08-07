@@ -1,4 +1,4 @@
-use super::{Identifier, LogicalExpression, VariableValue};
+use super::{BinaryExpression, Identifier, UnaryExpression, VariableValue};
 use crate::llvm_ast;
 use lexer::{Logical, Parser, Separator, Token, TokenReader};
 use precompiler::{self, Precompiler};
@@ -8,7 +8,8 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableExpression {
     VariableValue(VariableValue),
-    LogicalExpression(Box<LogicalExpression>),
+    UnaryExpression(Box<UnaryExpression>),
+    BinaryExpression(Box<BinaryExpression>),
     Grouping(Box<VariableExpression>),
 }
 
@@ -19,9 +20,9 @@ impl VariableExpression {
         is_unary: bool,
     ) -> Result<Self, lexer::Error> {
         let left = match cur_token {
-            Token::Logical(Logical::Not) => Self::LogicalExpression(Box::new(
-                LogicalExpression::Not(Self::parse_impl(reader.next_token()?, reader, true)?),
-            )),
+            Token::Logical(Logical::Not) => Self::UnaryExpression(Box::new(UnaryExpression::Not(
+                Self::parse_impl(reader.next_token()?, reader, true)?,
+            ))),
             Token::Separator(Separator::OpenBrace) => {
                 let value = Self::parse_impl(reader.next_token()?, reader, false)?;
                 match reader.next_token()? {
@@ -38,14 +39,14 @@ impl VariableExpression {
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
                     reader.reset_saving();
-                    Ok(Self::LogicalExpression(Box::new(LogicalExpression::Or {
+                    Ok(Self::BinaryExpression(Box::new(BinaryExpression::Or {
                         left,
                         right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
                     })))
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
-                    Ok(Self::LogicalExpression(Box::new(LogicalExpression::And {
+                    Ok(Self::BinaryExpression(Box::new(BinaryExpression::And {
                         left,
                         right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
                     })))
@@ -72,8 +73,9 @@ impl VariableExpression {
     ) -> Result<llvm_ast::VariableValue, precompiler::Error<Identifier>> {
         match self {
             Self::VariableValue(value) => Ok(value.precompile(precompiler)?),
-            Self::LogicalExpression(_logical) => todo!("implement"),
-            Self::Grouping(_grouping) => todo!("implement"),
+            Self::UnaryExpression(_) => todo!("implement"),
+            Self::BinaryExpression(_) => todo!("implement"),
+            Self::Grouping(_) => todo!("implement"),
         }
     }
 }
@@ -87,8 +89,8 @@ mod tests {
         let mut reader = TokenReader::new("!true".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
+            Ok(VariableExpression::UnaryExpression(Box::new(
+                UnaryExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
                     true
                 )))
             ))),
@@ -97,8 +99,8 @@ mod tests {
         let mut reader = TokenReader::new("!false".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
+            Ok(VariableExpression::UnaryExpression(Box::new(
+                UnaryExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
                     false
                 )))
             ))),
@@ -107,8 +109,8 @@ mod tests {
         let mut reader = TokenReader::new("!a".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Not(VariableExpression::VariableValue(
+            Ok(VariableExpression::UnaryExpression(Box::new(
+                UnaryExpression::Not(VariableExpression::VariableValue(
                     VariableValue::Identifier("a".to_string().into())
                 ))
             ))),
@@ -120,8 +122,8 @@ mod tests {
         let mut reader = TokenReader::new("true && false".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::And {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::And {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false))
                 }
@@ -131,8 +133,8 @@ mod tests {
         let mut reader = TokenReader::new("false && a".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::And {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::And {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
@@ -144,8 +146,8 @@ mod tests {
         let mut reader = TokenReader::new("a && b".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::And {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::And {
                     left: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
@@ -162,8 +164,8 @@ mod tests {
         let mut reader = TokenReader::new("true || false".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Or {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::Or {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false))
                 }
@@ -173,8 +175,8 @@ mod tests {
         let mut reader = TokenReader::new("false || a".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Or {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::Or {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
@@ -186,8 +188,8 @@ mod tests {
         let mut reader = TokenReader::new("a || b".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Or {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::Or {
                     left: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
@@ -204,25 +206,23 @@ mod tests {
         let mut reader = TokenReader::new("!a || b && !c".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Or {
-                    left: VariableExpression::LogicalExpression(Box::new(LogicalExpression::Not(
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression::Or {
+                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
                         VariableExpression::VariableValue(VariableValue::Identifier(
                             "a".to_string().into()
                         ))
                     ))),
-                    right: VariableExpression::LogicalExpression(Box::new(
-                        LogicalExpression::And {
-                            left: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "b".to_string().into()
-                            )),
-                            right: VariableExpression::LogicalExpression(Box::new(
-                                LogicalExpression::Not(VariableExpression::VariableValue(
-                                    VariableValue::Identifier("c".to_string().into())
-                                ))
+                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression::And {
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
+                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
+                            VariableExpression::VariableValue(VariableValue::Identifier(
+                                "c".to_string().into()
                             ))
-                        }
-                    ))
+                        )))
+                    }))
                 }
             ))),
         );
@@ -230,11 +230,11 @@ mod tests {
         let mut reader = TokenReader::new("!!!!a".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::LogicalExpression(Box::new(
-                LogicalExpression::Not(VariableExpression::LogicalExpression(Box::new(
-                    LogicalExpression::Not(VariableExpression::LogicalExpression(Box::new(
-                        LogicalExpression::Not(VariableExpression::LogicalExpression(Box::new(
-                            LogicalExpression::Not(VariableExpression::VariableValue(
+            Ok(VariableExpression::UnaryExpression(Box::new(
+                UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
+                    UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
+                        UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
+                            UnaryExpression::Not(VariableExpression::VariableValue(
                                 VariableValue::Identifier("a".to_string().into())
                             ))
                         )))
@@ -250,19 +250,19 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::LogicalExpression(Box::new(LogicalExpression::Or {
-                    left: VariableExpression::LogicalExpression(Box::new(LogicalExpression::Not(
+                VariableExpression::BinaryExpression(Box::new(BinaryExpression::Or {
+                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
                         VariableExpression::VariableValue(VariableValue::Identifier(
                             "a".to_string().into()
                         ))
                     ))),
                     right: VariableExpression::Grouping(Box::new(
-                        VariableExpression::LogicalExpression(Box::new(LogicalExpression::And {
+                        VariableExpression::BinaryExpression(Box::new(BinaryExpression::And {
                             left: VariableExpression::VariableValue(VariableValue::Identifier(
                                 "b".to_string().into()
                             )),
-                            right: VariableExpression::LogicalExpression(Box::new(
-                                LogicalExpression::Not(VariableExpression::VariableValue(
+                            right: VariableExpression::UnaryExpression(Box::new(
+                                UnaryExpression::Not(VariableExpression::VariableValue(
                                     VariableValue::Identifier("c".to_string().into())
                                 ))
                             ))
@@ -276,7 +276,7 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::LogicalExpression(Box::new(LogicalExpression::Not(
+                VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
                     VariableExpression::Grouping(Box::new(VariableExpression::VariableValue(
                         VariableValue::Identifier("a".to_string().into())
                     )))
