@@ -1,13 +1,30 @@
 use super::VariableExpression;
+use precompiler::rpn::Priority;
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum BinaryExpression {
-    And {
-        left: VariableExpression,
-        right: VariableExpression,
-    },
-    Or {
-        left: VariableExpression,
-        right: VariableExpression,
-    },
+pub struct BinaryExpression {
+    pub left: VariableExpression,
+    pub right: VariableExpression,
+    pub op_type: BinaryExpType,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum BinaryExpType {
+    And,
+    Or,
+}
+
+impl From<BinaryExpression> for BinaryExpType {
+    fn from(val: BinaryExpression) -> Self {
+        val.op_type
+    }
+}
+
+impl Priority for BinaryExpression {
+    fn priority(&self) -> u8 {
+        match self.op_type {
+            BinaryExpType::And => 0,
+            BinaryExpType::Or => 0,
+        }
+    }
 }

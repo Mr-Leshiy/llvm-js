@@ -1,5 +1,5 @@
 use crate::llvm_ast;
-pub use binary_expression::BinaryExpression;
+pub use binary_expression::{BinaryExpType, BinaryExpression};
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
@@ -9,7 +9,7 @@ use lexer::{Parser, TokenReader};
 use precompiler::{self, Precompiler};
 pub use program::Program;
 use std::io::Read;
-pub use unary_expression::UnaryExpression;
+pub use unary_expression::{UnaryExpType, UnaryExpression};
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 pub use variable_expression::VariableExpression;

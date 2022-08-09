@@ -1,7 +1,13 @@
-use super::{BinaryExpression, Identifier, UnaryExpression, VariableValue};
+use super::{
+    BinaryExpType, BinaryExpression, Identifier, UnaryExpType, UnaryExpression, VariableValue,
+};
 use crate::llvm_ast;
 use lexer::{Logical, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompiler};
+use precompiler::{
+    self,
+    rpn::{Expression, Operation, RPN},
+    Precompiler,
+};
 use std::io::Read;
 
 /// VariableExpression
@@ -20,9 +26,10 @@ impl VariableExpression {
         is_unary: bool,
     ) -> Result<Self, lexer::Error> {
         let left = match cur_token {
-            Token::Logical(Logical::Not) => Self::UnaryExpression(Box::new(UnaryExpression::Not(
-                Self::parse_impl(reader.next_token()?, reader, true)?,
-            ))),
+            Token::Logical(Logical::Not) => Self::UnaryExpression(Box::new(UnaryExpression {
+                exp: Self::parse_impl(reader.next_token()?, reader, true)?,
+                exp_type: UnaryExpType::Not,
+            })),
             Token::Separator(Separator::OpenBrace) => {
                 let value = Self::parse_impl(reader.next_token()?, reader, false)?;
                 match reader.next_token()? {
@@ -39,16 +46,18 @@ impl VariableExpression {
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
                     reader.reset_saving();
-                    Ok(Self::BinaryExpression(Box::new(BinaryExpression::Or {
+                    Ok(Self::BinaryExpression(Box::new(BinaryExpression {
                         left,
                         right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
+                        op_type: BinaryExpType::Or,
                     })))
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
-                    Ok(Self::BinaryExpression(Box::new(BinaryExpression::And {
+                    Ok(Self::BinaryExpression(Box::new(BinaryExpression {
                         left,
                         right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
+                        op_type: BinaryExpType::And,
                     })))
                 }
                 _ => {
@@ -67,6 +76,23 @@ impl Parser for VariableExpression {
 }
 
 impl VariableExpression {
+    pub fn evaluate(self, rpn: &mut RPN<VariableValue, UnaryExpression, BinaryExpression>) {
+        match self {
+            Self::VariableValue(value) => rpn.transform_from_infix(Expression::Value(value)),
+            Self::UnaryExpression(unary_expression) => rpn.transform_from_infix(
+                Expression::Operation(Operation::PrefixOp(*unary_expression)),
+            ),
+            Self::BinaryExpression(binary_expression) => rpn.transform_from_infix(
+                Expression::Operation(Operation::BinaryOp(*binary_expression)),
+            ),
+            Self::Grouping(grouping) => {
+                rpn.transform_from_infix(Expression::OpenBrace);
+                grouping.evaluate(rpn);
+                rpn.transform_from_infix(Expression::CloseBrace);
+            }
+        }
+    }
+
     pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
@@ -90,9 +116,10 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
-                UnaryExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
-                    true
-                )))
+                UnaryExpression {
+                    exp: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    exp_type: UnaryExpType::Not,
+                },
             ))),
         );
 
@@ -100,9 +127,10 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
-                UnaryExpression::Not(VariableExpression::VariableValue(VariableValue::Boolean(
-                    false
-                )))
+                UnaryExpression {
+                    exp: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    exp_type: UnaryExpType::Not,
+                }
             ))),
         );
 
@@ -110,9 +138,12 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
-                UnaryExpression::Not(VariableExpression::VariableValue(
-                    VariableValue::Identifier("a".to_string().into())
-                ))
+                UnaryExpression {
+                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    exp_type: UnaryExpType::Not,
+                }
             ))),
         );
     }
@@ -123,9 +154,10 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::And {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-                    right: VariableExpression::VariableValue(VariableValue::Boolean(false))
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -134,11 +166,12 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::And {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
-                    ))
+                    )),
+                    op_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -147,13 +180,14 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::And {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
-                    ))
+                    )),
+                    op_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -165,9 +199,10 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::Or {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-                    right: VariableExpression::VariableValue(VariableValue::Boolean(false))
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -176,11 +211,12 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::Or {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
-                    ))
+                    )),
+                    op_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -189,13 +225,14 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::Or {
+                BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
-                    ))
+                    )),
+                    op_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -207,22 +244,26 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression::Or {
-                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
-                        VariableExpression::VariableValue(VariableValue::Identifier(
+                BinaryExpression {
+                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
                             "a".to_string().into()
-                        ))
-                    ))),
-                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression::And {
+                        )),
+                        exp_type: UnaryExpType::Not,
+                    })),
+                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
                         left: VariableExpression::VariableValue(VariableValue::Identifier(
                             "b".to_string().into()
                         )),
-                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
-                            VariableExpression::VariableValue(VariableValue::Identifier(
+                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
                                 "c".to_string().into()
-                            ))
-                        )))
-                    }))
+                            )),
+                            exp_type: UnaryExpType::Not,
+                        })),
+                        op_type: BinaryExpType::And,
+                    })),
+                    op_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -231,15 +272,21 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
-                UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
-                    UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
-                        UnaryExpression::Not(VariableExpression::UnaryExpression(Box::new(
-                            UnaryExpression::Not(VariableExpression::VariableValue(
-                                VariableValue::Identifier("a".to_string().into())
-                            ))
-                        )))
-                    )))
-                )))
+                UnaryExpression {
+                    exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                        exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                            exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                                exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "a".to_string().into()
+                                )),
+                                exp_type: UnaryExpType::Not
+                            })),
+                            exp_type: UnaryExpType::Not,
+                        })),
+                        exp_type: UnaryExpType::Not,
+                    })),
+                    exp_type: UnaryExpType::Not,
+                }
             )))
         );
     }
@@ -250,24 +297,28 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::BinaryExpression(Box::new(BinaryExpression::Or {
-                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
-                        VariableExpression::VariableValue(VariableValue::Identifier(
+                VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
                             "a".to_string().into()
-                        ))
-                    ))),
+                        )),
+                        exp_type: UnaryExpType::Not,
+                    })),
                     right: VariableExpression::Grouping(Box::new(
-                        VariableExpression::BinaryExpression(Box::new(BinaryExpression::And {
+                        VariableExpression::BinaryExpression(Box::new(BinaryExpression {
                             left: VariableExpression::VariableValue(VariableValue::Identifier(
                                 "b".to_string().into()
                             )),
-                            right: VariableExpression::UnaryExpression(Box::new(
-                                UnaryExpression::Not(VariableExpression::VariableValue(
-                                    VariableValue::Identifier("c".to_string().into())
-                                ))
-                            ))
+                            right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                                exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "c".to_string().into()
+                                )),
+                                exp_type: UnaryExpType::Not,
+                            })),
+                            op_type: BinaryExpType::And,
                         }))
-                    ))
+                    )),
+                    op_type: BinaryExpType::Or,
                 }))
             )))
         );
@@ -276,11 +327,12 @@ mod tests {
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::UnaryExpression(Box::new(UnaryExpression::Not(
-                    VariableExpression::Grouping(Box::new(VariableExpression::VariableValue(
+                VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                    exp: VariableExpression::Grouping(Box::new(VariableExpression::VariableValue(
                         VariableValue::Identifier("a".to_string().into())
-                    )))
-                )))
+                    ))),
+                    exp_type: UnaryExpType::Not
+                }))
             )))
         );
     }
