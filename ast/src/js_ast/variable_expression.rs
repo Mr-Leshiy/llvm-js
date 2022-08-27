@@ -67,6 +67,58 @@ impl VariableExpression {
             }
         }
     }
+
+    pub fn parse_impl2<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+        rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
+        is_unary: bool,
+    ) -> Result<(), lexer::Error> {
+        match cur_token {
+            Token::Logical(Logical::Not) => {
+                rpn.transform_from_infix(Expression::Operation(Operation::PrefixOp(
+                    UnaryExpType::Not,
+                )));
+                Self::parse_impl2(reader.next_token()?, reader, rpn, true)?;
+            }
+            Token::Separator(Separator::OpenBrace) => {
+                rpn.transform_from_infix(Expression::OpenBrace);
+                Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                match reader.next_token()? {
+                    Token::Separator(Separator::CloseBrace) => {
+                        rpn.transform_from_infix(Expression::CloseBrace)
+                    }
+                    token => return Err(lexer::Error::UnexpectedToken(token)),
+                }
+            }
+            token => {
+                rpn.transform_from_infix(Expression::Value(VariableValue::parse(token, reader)?));
+            }
+        }
+        if !is_unary {
+            reader.start_saving();
+            match reader.next_token()? {
+                Token::Logical(Logical::Or) => {
+                    reader.reset_saving();
+                    rpn.transform_from_infix(Expression::Operation(Operation::BinaryOp(
+                        BinaryExpType::Or,
+                    )));
+                    Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                }
+                Token::Logical(Logical::And) => {
+                    reader.reset_saving();
+                    rpn.transform_from_infix(Expression::Operation(Operation::BinaryOp(
+                        BinaryExpType::And,
+                    )));
+                    Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                }
+                _ => {
+                    reader.stop_saving();
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 impl VariableExpression {
@@ -76,26 +128,18 @@ impl VariableExpression {
     ) -> Result<Self, lexer::Error> {
         Self::parse_impl(cur_token, reader, false)
     }
+
+    pub fn parse2<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<(), lexer::Error> {
+        let mut rpn = RPN::new();
+        Self::parse_impl2(cur_token.clone(), reader, &mut rpn, false)?;
+        Ok(())
+    }
 }
 
 impl VariableExpression {
-    pub fn evaluate(self, rpn: &mut RPN<VariableValue, UnaryExpression, BinaryExpression>) {
-        match self {
-            Self::VariableValue(value) => rpn.transform_from_infix(Expression::Value(value)),
-            Self::UnaryExpression(unary_expression) => rpn.transform_from_infix(
-                Expression::Operation(Operation::PrefixOp(*unary_expression)),
-            ),
-            Self::BinaryExpression(binary_expression) => rpn.transform_from_infix(
-                Expression::Operation(Operation::BinaryOp(*binary_expression)),
-            ),
-            Self::Grouping(grouping) => {
-                rpn.transform_from_infix(Expression::OpenBrace);
-                grouping.evaluate(rpn);
-                rpn.transform_from_infix(Expression::CloseBrace);
-            }
-        }
-    }
-
     pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
@@ -338,5 +382,11 @@ mod tests {
                 }))
             )))
         );
+    }
+
+    #[test]
+    fn parse2_grouping_test() {
+        let mut reader = TokenReader::new("(!a || (b && !c))".as_bytes());
+        VariableExpression::parse2(reader.next_token().unwrap(), &mut reader).unwrap();
     }
 }

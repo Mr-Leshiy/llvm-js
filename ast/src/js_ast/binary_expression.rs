@@ -20,9 +20,9 @@ impl From<BinaryExpression> for BinaryExpType {
     }
 }
 
-impl Priority for BinaryExpression {
+impl Priority for BinaryExpType {
     fn priority(&self) -> u8 {
-        match self.op_type {
+        match self {
             BinaryExpType::And => 0,
             BinaryExpType::Or => 0,
         }
