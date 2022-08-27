@@ -5,7 +5,7 @@ use crate::llvm_ast;
 use lexer::{Logical, Separator, Token, TokenReader};
 use precompiler::{
     self,
-    rpn::{Expression, Operation, RPN},
+    rpn::{InputExpression, Operation, OutputExpression, RPN},
     Precompiler,
 };
 use std::io::Read;
@@ -17,6 +17,27 @@ pub enum VariableExpression {
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
     Grouping(Box<Self>),
+}
+
+impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for VariableExpression {
+    fn from(val: OutputExpression<VariableValue, UnaryExpType, BinaryExpType>) -> Self {
+        match val {
+            OutputExpression::Value(value) => Self::VariableValue(value),
+            OutputExpression::UnaryExpression(expr) => {
+                Self::UnaryExpression(Box::new(UnaryExpression {
+                    exp: expr.exp.into(),
+                    exp_type: expr.op_type,
+                }))
+            }
+            OutputExpression::BinaryExpression(expr) => {
+                Self::BinaryExpression(Box::new(BinaryExpression {
+                    left: expr.left.into(),
+                    right: expr.right.into(),
+                    op_type: expr.op_type,
+                }))
+            }
+        }
+    }
 }
 
 impl VariableExpression {
@@ -76,23 +97,25 @@ impl VariableExpression {
     ) -> Result<(), lexer::Error> {
         match cur_token {
             Token::Logical(Logical::Not) => {
-                rpn.transform_from_infix(Expression::Operation(Operation::PrefixOp(
+                rpn.transform_from_infix(InputExpression::Operation(Operation::PrefixOp(
                     UnaryExpType::Not,
                 )));
                 Self::parse_impl2(reader.next_token()?, reader, rpn, true)?;
             }
             Token::Separator(Separator::OpenBrace) => {
-                rpn.transform_from_infix(Expression::OpenBrace);
+                rpn.transform_from_infix(InputExpression::OpenBrace);
                 Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseBrace) => {
-                        rpn.transform_from_infix(Expression::CloseBrace)
+                        rpn.transform_from_infix(InputExpression::CloseBrace)
                     }
                     token => return Err(lexer::Error::UnexpectedToken(token)),
                 }
             }
             token => {
-                rpn.transform_from_infix(Expression::Value(VariableValue::parse(token, reader)?));
+                rpn.transform_from_infix(InputExpression::Value(VariableValue::parse(
+                    token, reader,
+                )?));
             }
         }
         if !is_unary {
@@ -100,14 +123,14 @@ impl VariableExpression {
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
                     reader.reset_saving();
-                    rpn.transform_from_infix(Expression::Operation(Operation::BinaryOp(
+                    rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::Or,
                     )));
                     Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
-                    rpn.transform_from_infix(Expression::Operation(Operation::BinaryOp(
+                    rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::And,
                     )));
                     Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
@@ -132,10 +155,10 @@ impl VariableExpression {
     pub fn parse2<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<(), lexer::Error> {
+    ) -> Result<Self, lexer::Error> {
         let mut rpn = RPN::new();
         Self::parse_impl2(cur_token.clone(), reader, &mut rpn, false)?;
-        Ok(())
+        Ok(rpn.finish().evaluate().into())
     }
 }
 
