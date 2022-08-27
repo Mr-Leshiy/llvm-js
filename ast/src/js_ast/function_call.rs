@@ -1,6 +1,6 @@
 use super::{Identifier, VariableExpression};
 use crate::llvm_ast;
-use lexer::{Parser, Separator, Token, TokenReader};
+use lexer::{Separator, Token, TokenReader};
 use precompiler::{self, Precompiler};
 use std::io::Read;
 
@@ -10,8 +10,8 @@ pub struct FunctionCall {
     pub args: Vec<VariableExpression>,
 }
 
-impl Parser for FunctionCall {
-    fn parse<R: Read>(
+impl FunctionCall {
+    pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {

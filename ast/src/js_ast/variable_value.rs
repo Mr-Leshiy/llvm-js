@@ -1,6 +1,6 @@
 use super::Identifier;
 use crate::llvm_ast;
-use lexer::{self, Literal, Parser, Token, TokenReader};
+use lexer::{Literal, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
@@ -13,8 +13,8 @@ pub enum VariableValue {
     Identifier(Identifier),
 }
 
-impl Parser for VariableValue {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl VariableValue {
+    pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Literal(Literal::Boolean(boolean)) => Ok(VariableValue::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(VariableValue::Number(val)),

@@ -3,8 +3,8 @@ use super::{
     VariableDeclaration,
 };
 use crate::llvm_ast;
-use lexer::{Keyword, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompiler};
+use lexer::{Keyword, Separator, Token, TokenReader};
+use precompiler::Precompiler;
 use std::{fmt::Debug, io::Read};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -16,8 +16,11 @@ pub enum Expression {
     BlockStatement(BlockStatement),
 }
 
-impl Parser for Expression {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl Expression {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,

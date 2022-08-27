@@ -5,7 +5,7 @@ pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
-use lexer::{Parser, TokenReader};
+use lexer::TokenReader;
 use precompiler::{self, Precompiler};
 pub use program::Program;
 use std::io::Read;

@@ -1,6 +1,6 @@
 use super::{Expression, Identifier};
 use crate::llvm_ast;
-use lexer::{Parser, Token, TokenReader};
+use lexer::{Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
@@ -10,8 +10,8 @@ pub struct Program {
     pub body: Vec<Expression>,
 }
 
-impl Parser for Program {
-    fn parse<R: Read>(
+impl Program {
+    pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {

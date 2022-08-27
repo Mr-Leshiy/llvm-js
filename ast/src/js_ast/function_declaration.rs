@@ -1,7 +1,7 @@
 use super::{BlockStatement, Identifier};
 use crate::llvm_ast;
-use lexer::{Keyword, Parser, Separator, Token, TokenReader};
-use precompiler::{self, Precompiler};
+use lexer::{Keyword, Separator, Token, TokenReader};
+use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -11,8 +11,8 @@ pub struct FunctionDeclaration {
     pub body: BlockStatement,
 }
 
-impl Parser for FunctionDeclaration {
-    fn parse<R: Read>(
+impl FunctionDeclaration {
+    pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {

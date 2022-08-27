@@ -1,6 +1,6 @@
 use super::{Identifier, VariableAssigment};
 use crate::llvm_ast;
-use lexer::{Keyword, Parser, Token, TokenReader};
+use lexer::{Keyword, Token, TokenReader};
 use precompiler::{self, Precompiler};
 use std::io::Read;
 
@@ -8,8 +8,11 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
-impl Parser for VariableDeclaration {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl VariableDeclaration {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
                 reader.next_token()?,

@@ -2,7 +2,7 @@ use super::{
     BinaryExpType, BinaryExpression, Identifier, UnaryExpType, UnaryExpression, VariableValue,
 };
 use crate::llvm_ast;
-use lexer::{Logical, Parser, Separator, Token, TokenReader};
+use lexer::{Logical, Separator, Token, TokenReader};
 use precompiler::{
     self,
     rpn::{Expression, Operation, RPN},
@@ -16,7 +16,7 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
-    Grouping(Box<VariableExpression>),
+    Grouping(Box<Self>),
 }
 
 impl VariableExpression {
@@ -48,7 +48,7 @@ impl VariableExpression {
                     reader.reset_saving();
                     Ok(Self::BinaryExpression(Box::new(BinaryExpression {
                         left,
-                        right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
+                        right: Self::parse_impl(reader.next_token()?, reader, false)?,
                         op_type: BinaryExpType::Or,
                     })))
                 }
@@ -56,7 +56,7 @@ impl VariableExpression {
                     reader.reset_saving();
                     Ok(Self::BinaryExpression(Box::new(BinaryExpression {
                         left,
-                        right: VariableExpression::parse_impl(reader.next_token()?, reader, false)?,
+                        right: Self::parse_impl(reader.next_token()?, reader, false)?,
                         op_type: BinaryExpType::And,
                     })))
                 }
@@ -69,8 +69,11 @@ impl VariableExpression {
     }
 }
 
-impl Parser for VariableExpression {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl VariableExpression {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         Self::parse_impl(cur_token, reader, false)
     }
 }
