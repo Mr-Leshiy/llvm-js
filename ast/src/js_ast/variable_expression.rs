@@ -16,7 +16,6 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
-    Grouping(Box<Self>),
 }
 
 impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for VariableExpression {
@@ -41,55 +40,16 @@ impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for Vari
 }
 
 impl VariableExpression {
-    fn parse_impl<R: Read>(
+    pub fn parse<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
-        is_unary: bool,
     ) -> Result<Self, lexer::Error> {
-        let left = match cur_token {
-            Token::Logical(Logical::Not) => Self::UnaryExpression(Box::new(UnaryExpression {
-                exp: Self::parse_impl(reader.next_token()?, reader, true)?,
-                exp_type: UnaryExpType::Not,
-            })),
-            Token::Separator(Separator::OpenBrace) => {
-                let value = Self::parse_impl(reader.next_token()?, reader, false)?;
-                match reader.next_token()? {
-                    Token::Separator(Separator::CloseBrace) => Self::Grouping(Box::new(value)),
-                    token => return Err(lexer::Error::UnexpectedToken(token)),
-                }
-            }
-            token => Self::VariableValue(VariableValue::parse(token, reader)?),
-        };
-        if is_unary {
-            Ok(left)
-        } else {
-            reader.start_saving();
-            match reader.next_token()? {
-                Token::Logical(Logical::Or) => {
-                    reader.reset_saving();
-                    Ok(Self::BinaryExpression(Box::new(BinaryExpression {
-                        left,
-                        right: Self::parse_impl(reader.next_token()?, reader, false)?,
-                        op_type: BinaryExpType::Or,
-                    })))
-                }
-                Token::Logical(Logical::And) => {
-                    reader.reset_saving();
-                    Ok(Self::BinaryExpression(Box::new(BinaryExpression {
-                        left,
-                        right: Self::parse_impl(reader.next_token()?, reader, false)?,
-                        op_type: BinaryExpType::And,
-                    })))
-                }
-                _ => {
-                    reader.stop_saving();
-                    Ok(left)
-                }
-            }
-        }
+        let mut rpn = RPN::new();
+        Self::parse_impl(cur_token.clone(), reader, &mut rpn, false)?;
+        Ok(rpn.finish().evaluate().into())
     }
 
-    pub fn parse_impl2<R: Read>(
+    pub fn parse_impl<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
         rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
@@ -100,11 +60,11 @@ impl VariableExpression {
                 rpn.transform_from_infix(InputExpression::Operation(Operation::PrefixOp(
                     UnaryExpType::Not,
                 )));
-                Self::parse_impl2(reader.next_token()?, reader, rpn, true)?;
+                Self::parse_impl(reader.next_token()?, reader, rpn, true)?;
             }
             Token::Separator(Separator::OpenBrace) => {
                 rpn.transform_from_infix(InputExpression::OpenBrace);
-                Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseBrace) => {
                         rpn.transform_from_infix(InputExpression::CloseBrace)
@@ -126,14 +86,14 @@ impl VariableExpression {
                     rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::Or,
                     )));
-                    Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                    Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
                     rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::And,
                     )));
-                    Self::parse_impl2(reader.next_token()?, reader, rpn, false)?;
+                    Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 _ => {
                     reader.stop_saving();
@@ -142,27 +102,7 @@ impl VariableExpression {
         }
         Ok(())
     }
-}
 
-impl VariableExpression {
-    pub fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
-        Self::parse_impl(cur_token, reader, false)
-    }
-
-    pub fn parse2<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
-        let mut rpn = RPN::new();
-        Self::parse_impl2(cur_token.clone(), reader, &mut rpn, false)?;
-        Ok(rpn.finish().evaluate().into())
-    }
-}
-
-impl VariableExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
@@ -171,7 +111,6 @@ impl VariableExpression {
             Self::VariableValue(value) => Ok(value.precompile(precompiler)?),
             Self::UnaryExpression(_) => todo!("implement"),
             Self::BinaryExpression(_) => todo!("implement"),
-            Self::Grouping(_) => todo!("implement"),
         }
     }
 }
@@ -315,25 +254,25 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "a".to_string().into()
-                        )),
-                        exp_type: UnaryExpType::Not,
-                    })),
-                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                        left: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "b".to_string().into()
-                        )),
-                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                    left: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                        left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                             exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "c".to_string().into()
+                                "a".to_string().into()
                             )),
                             exp_type: UnaryExpType::Not,
                         })),
-                        op_type: BinaryExpType::And,
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
+                        op_type: BinaryExpType::Or,
                     })),
-                    op_type: BinaryExpType::Or,
+                    right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "c".to_string().into()
+                        )),
+                        exp_type: UnaryExpType::Not,
+                    })),
+                    op_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -366,50 +305,42 @@ mod tests {
         let mut reader = TokenReader::new("(!a || (b && !c))".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
                     left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: VariableExpression::VariableValue(VariableValue::Identifier(
                             "a".to_string().into()
                         )),
                         exp_type: UnaryExpType::Not,
                     })),
-                    right: VariableExpression::Grouping(Box::new(
-                        VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                            left: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "b".to_string().into()
+                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
+                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "c".to_string().into()
                             )),
-                            right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                                exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                                    "c".to_string().into()
-                                )),
-                                exp_type: UnaryExpType::Not,
-                            })),
-                            op_type: BinaryExpType::And,
-                        }))
-                    )),
+                            exp_type: UnaryExpType::Not,
+                        })),
+                        op_type: BinaryExpType::And,
+                    })),
                     op_type: BinaryExpType::Or,
-                }))
+                }
             )))
         );
 
         let mut reader = TokenReader::new("(!(a))".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::Grouping(Box::new(
-                VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                    exp: VariableExpression::Grouping(Box::new(VariableExpression::VariableValue(
-                        VariableValue::Identifier("a".to_string().into())
-                    ))),
+            Ok(VariableExpression::UnaryExpression(Box::new(
+                UnaryExpression {
+                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
                     exp_type: UnaryExpType::Not
-                }))
+                }
             )))
         );
-    }
-
-    #[test]
-    fn parse2_grouping_test() {
-        let mut reader = TokenReader::new("(!a || (b && !c))".as_bytes());
-        VariableExpression::parse2(reader.next_token().unwrap(), &mut reader).unwrap();
     }
 }

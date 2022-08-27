@@ -87,6 +87,9 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                                     Ordering::Less => self.stack.push(last),
                                 }
                             }
+                            InputExpression::Operation(Operation::PrefixOp(_)) => {
+                                self.result.push(last)
+                            }
                             _ => self.stack.push(last),
                         }
                     }
