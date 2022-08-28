@@ -5,7 +5,7 @@ use std::{
 };
 use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error<K> {
     #[error("map already contains value by the corresponding key: {0}")]
     AlreadyKnownKey(K),

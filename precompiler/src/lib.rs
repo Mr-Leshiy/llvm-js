@@ -7,7 +7,7 @@ use thiserror::Error;
 
 pub mod rpn;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),

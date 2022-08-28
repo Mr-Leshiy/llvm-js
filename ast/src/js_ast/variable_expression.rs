@@ -45,7 +45,7 @@ impl VariableExpression {
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {
         let mut rpn = RPN::new();
-        Self::parse_impl(cur_token.clone(), reader, &mut rpn, false)?;
+        Self::parse_impl(cur_token, reader, &mut rpn, false)?;
         Ok(rpn.finish().evaluate().into())
     }
 

@@ -8,7 +8,7 @@ pub struct BinaryExpression {
     pub op_type: BinaryExpType,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BinaryExpType {
     And,
     Or,

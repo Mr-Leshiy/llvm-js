@@ -6,7 +6,7 @@ pub struct UnaryExpression {
     pub exp_type: UnaryExpType,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum UnaryExpType {
     Not,
 }

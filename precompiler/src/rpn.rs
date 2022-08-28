@@ -47,6 +47,12 @@ pub struct RPN<V, UnaryOpType, BinaryOpType: Priority> {
     stack: Vec<InputExpression<V, UnaryOpType, BinaryOpType>>,
 }
 
+impl<V, UnaryOpType, BinaryOpType: Priority> Default for RPN<V, UnaryOpType, BinaryOpType> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
     pub fn new() -> Self {
         Self {
@@ -100,13 +106,8 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
     }
 
     pub fn finish(mut self) -> Self {
-        let mut last = self.stack.pop();
-        loop {
-            match last {
-                Some(expr) => self.result.push(expr),
-                None => break,
-            }
-            last = self.stack.pop();
+        while let Some(expr) = self.stack.pop() {
+            self.result.push(expr);
         }
         self
     }
