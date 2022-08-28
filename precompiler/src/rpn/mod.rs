@@ -1,51 +1,15 @@
+use input::{InputExpression, Operation, Priority};
+use output::{BinaryExpression, OutputExpression, UnaryExpression};
 use std::cmp::Ordering;
 use thiserror::Error;
+
+pub mod input;
+pub mod output;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     #[error("Cannot find corresponding open brace")]
     MissedOpenBrace,
-}
-
-pub trait Priority {
-    fn priority(&self) -> u8;
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Operation<UnaryOpType, BinaryOpType: Priority> {
-    // e.g. !x - factorial, ++x
-    PrefixOp(UnaryOpType),
-    // e.g. x--
-    PostfixOp(UnaryOpType),
-    BinaryOp(BinaryOpType),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum InputExpression<V, UnaryOpType, BinaryOpType: Priority> {
-    Value(V),
-    Operation(Operation<UnaryOpType, BinaryOpType>),
-    OpenBrace,
-    CloseBrace,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct BinaryExpression<V, UnaryOpType, BinaryOpType> {
-    pub left: OutputExpression<V, UnaryOpType, BinaryOpType>,
-    pub right: OutputExpression<V, UnaryOpType, BinaryOpType>,
-    pub op_type: BinaryOpType,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct UnaryExpression<V, UnaryOpType, BinaryOpType> {
-    pub exp: OutputExpression<V, UnaryOpType, BinaryOpType>,
-    pub op_type: UnaryOpType,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum OutputExpression<V, UnaryOpType, BinaryOpType> {
-    Value(V),
-    BinaryExpression(Box<BinaryExpression<V, UnaryOpType, BinaryOpType>>),
-    UnaryExpression(Box<UnaryExpression<V, UnaryOpType, BinaryOpType>>),
 }
 
 /// RPN - Reverse Polish Notation representation
@@ -70,9 +34,9 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
 
     /// transform expression from infix notation to Reverse Polish Notation
     pub fn build(
-        mut self,
+        &mut self,
         expr: InputExpression<V, UnaryOpType, BinaryOpType>,
-    ) -> Result<Self, Error> {
+    ) -> Result<(), Error> {
         match &expr {
             InputExpression::Value(_) => self.result.push(expr),
             InputExpression::OpenBrace => self.stack.push(expr),
@@ -113,7 +77,7 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                 }
             },
         }
-        Ok(self)
+        Ok(())
     }
 
     pub fn finish(mut self) -> Self {
@@ -196,41 +160,41 @@ mod tests {
     #[test]
     fn infix_to_rpn_test() {
         // (1 + ++2) * 4++ - 3
-        let rpn = RPN::new()
-            .build(InputExpression::<i32, UnOp, BinOp>::OpenBrace)
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Value(1))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Operation(
-                Operation::BinaryOp(BinOp::Sum),
-            ))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Operation(
-                Operation::PrefixOp(UnOp::PrefixInc),
-            ))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Value(2))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::CloseBrace)
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Operation(
-                Operation::BinaryOp(BinOp::Mul),
-            ))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Value(4))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Operation(
-                Operation::PostfixOp(UnOp::PostfixInc),
-            ))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Operation(
-                Operation::BinaryOp(BinOp::Sub),
-            ))
-            .unwrap()
-            .build(InputExpression::<i32, UnOp, BinOp>::Value(3))
-            .unwrap()
-            .finish();
+        let mut rpn = RPN::new();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::OpenBrace)
+            .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Value(1))
+            .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Operation(
+            Operation::BinaryOp(BinOp::Sum),
+        ))
+        .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Operation(
+            Operation::PrefixOp(UnOp::PrefixInc),
+        ))
+        .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Value(2))
+            .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::CloseBrace)
+            .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Operation(
+            Operation::BinaryOp(BinOp::Mul),
+        ))
+        .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Value(4))
+            .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Operation(
+            Operation::PostfixOp(UnOp::PostfixInc),
+        ))
+        .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Operation(
+            Operation::BinaryOp(BinOp::Sub),
+        ))
+        .unwrap();
+        rpn.build(InputExpression::<i32, UnOp, BinOp>::Value(3))
+            .unwrap();
 
+        rpn = rpn.finish();
         // 1 2 ++ + 4 ++ × 3 -
         assert_eq!(
             rpn.result,

@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Separator, Token, TokenReader};
 use precompiler::{self, Precompiler};
 use std::io::Read;
@@ -14,7 +14,7 @@ impl FunctionCall {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    ) -> Result<Self, Error> {
         // parse function name
         let name = Identifier::parse(cur_token, reader)?;
 
@@ -33,7 +33,7 @@ impl FunctionCall {
                     cur_token = match reader.next_token()? {
                         Token::Separator(Separator::CloseBrace) => break,
                         Token::Separator(Separator::Comma) => reader.next_token()?,
-                        token => return Err(lexer::Error::UnexpectedToken(token)),
+                        token => return Err(Error::UnexpectedToken(token)),
                     };
                 }
                 Ok(args)

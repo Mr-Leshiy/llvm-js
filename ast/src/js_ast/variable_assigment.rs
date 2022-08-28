@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Token, TokenReader};
 use precompiler::{self, Precompiler};
 use std::io::Read;
@@ -12,15 +12,12 @@ pub struct VariableAssigment {
 }
 
 impl VariableAssigment {
-    pub fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let left = Identifier::parse(cur_token, reader)?;
 
         match reader.next_token()? {
             Token::Assign => {}
-            token => return Err(lexer::Error::UnexpectedToken(token)),
+            token => return Err(Error::UnexpectedToken(token)),
         }
 
         let right = VariableExpression::parse(reader.next_token()?, reader)?;

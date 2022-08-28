@@ -1,5 +1,5 @@
 use super::{BlockStatement, Identifier};
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
@@ -15,7 +15,7 @@ impl FunctionDeclaration {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    ) -> Result<Self, Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => {
                 // parse function name
@@ -36,12 +36,12 @@ impl FunctionDeclaration {
                             cur_token = match reader.next_token()? {
                                 Token::Separator(Separator::CloseBrace) => break,
                                 Token::Separator(Separator::Comma) => reader.next_token()?,
-                                token => return Err(lexer::Error::UnexpectedToken(token)),
+                                token => return Err(Error::UnexpectedToken(token)),
                             };
                         }
                         Ok(args)
                     }
-                    token => Err(lexer::Error::UnexpectedToken(token)),
+                    token => Err(Error::UnexpectedToken(token)),
                 }?;
 
                 // parse function body
@@ -49,7 +49,7 @@ impl FunctionDeclaration {
 
                 Ok(Self { name, args, body })
             }
-            token => Err(lexer::Error::UnexpectedToken(token)),
+            token => Err(Error::UnexpectedToken(token)),
         }
     }
 }

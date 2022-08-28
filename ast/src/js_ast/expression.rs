@@ -2,7 +2,7 @@ use super::{
     BlockStatement, FunctionCall, FunctionDeclaration, Identifier, VariableAssigment,
     VariableDeclaration,
 };
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use precompiler::Precompiler;
 use std::{fmt::Debug, io::Read};
@@ -17,10 +17,7 @@ pub enum Expression {
 }
 
 impl Expression {
-    pub fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         match cur_token {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,
@@ -46,7 +43,7 @@ impl Expression {
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
-            token => Err(lexer::Error::UnexpectedToken(token)),
+            token => Err(Error::UnexpectedToken(token)),
         }
     }
 }

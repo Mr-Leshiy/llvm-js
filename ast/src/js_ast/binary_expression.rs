@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use precompiler::rpn::Priority;
+use precompiler::rpn::input::Priority;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpression {

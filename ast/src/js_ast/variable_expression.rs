@@ -1,11 +1,15 @@
 use super::{
     BinaryExpType, BinaryExpression, Identifier, UnaryExpType, UnaryExpression, VariableValue,
 };
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Logical, Separator, Token, TokenReader};
 use precompiler::{
     self,
-    rpn::{InputExpression, Operation, OutputExpression, RPN},
+    rpn::{
+        input::{InputExpression, Operation},
+        output::OutputExpression,
+        RPN,
+    },
     Precompiler,
 };
 use std::io::Read;
@@ -40,10 +44,7 @@ impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for Vari
 }
 
 impl VariableExpression {
-    pub fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let mut rpn = RPN::new();
         Self::parse_impl(cur_token, reader, &mut rpn, false)?;
         Ok(rpn.finish().evaluate().into())
@@ -54,28 +55,26 @@ impl VariableExpression {
         reader: &mut TokenReader<R>,
         rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
         is_unary: bool,
-    ) -> Result<(), lexer::Error> {
+    ) -> Result<(), Error> {
         match cur_token {
             Token::Logical(Logical::Not) => {
                 rpn.build(InputExpression::Operation(Operation::PrefixOp(
                     UnaryExpType::Not,
-                )));
+                )))?;
                 Self::parse_impl(reader.next_token()?, reader, rpn, true)?;
             }
             Token::Separator(Separator::OpenBrace) => {
-                rpn.build(InputExpression::OpenBrace);
+                rpn.build(InputExpression::OpenBrace)?;
                 Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseBrace) => {
-                        rpn.build(InputExpression::CloseBrace);
+                        rpn.build(InputExpression::CloseBrace)?;
                     }
-                    token => return Err(lexer::Error::UnexpectedToken(token)),
+                    token => return Err(Error::UnexpectedToken(token)),
                 }
             }
             token => {
-                rpn.build(InputExpression::Value(VariableValue::parse(
-                    token, reader,
-                )?));
+                rpn.build(InputExpression::Value(VariableValue::parse(token, reader)?))?;
             }
         }
         if !is_unary {
@@ -85,14 +84,14 @@ impl VariableExpression {
                     reader.reset_saving();
                     rpn.build(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::Or,
-                    )));
+                    )))?;
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
                     rpn.build(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::And,
-                    )));
+                    )))?;
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 _ => {
