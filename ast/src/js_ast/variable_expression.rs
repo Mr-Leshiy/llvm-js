@@ -57,23 +57,23 @@ impl VariableExpression {
     ) -> Result<(), lexer::Error> {
         match cur_token {
             Token::Logical(Logical::Not) => {
-                rpn.transform_from_infix(InputExpression::Operation(Operation::PrefixOp(
+                rpn.build(InputExpression::Operation(Operation::PrefixOp(
                     UnaryExpType::Not,
                 )));
                 Self::parse_impl(reader.next_token()?, reader, rpn, true)?;
             }
             Token::Separator(Separator::OpenBrace) => {
-                rpn.transform_from_infix(InputExpression::OpenBrace);
+                rpn.build(InputExpression::OpenBrace);
                 Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseBrace) => {
-                        rpn.transform_from_infix(InputExpression::CloseBrace)
+                        rpn.build(InputExpression::CloseBrace);
                     }
                     token => return Err(lexer::Error::UnexpectedToken(token)),
                 }
             }
             token => {
-                rpn.transform_from_infix(InputExpression::Value(VariableValue::parse(
+                rpn.build(InputExpression::Value(VariableValue::parse(
                     token, reader,
                 )?));
             }
@@ -83,14 +83,14 @@ impl VariableExpression {
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
                     reader.reset_saving();
-                    rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
+                    rpn.build(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::Or,
                     )));
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
-                    rpn.transform_from_infix(InputExpression::Operation(Operation::BinaryOp(
+                    rpn.build(InputExpression::Operation(Operation::BinaryOp(
                         BinaryExpType::And,
                     )));
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
