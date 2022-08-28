@@ -18,10 +18,6 @@ pub enum Error {
     UnexpectedToken(Token),
 }
 
-pub trait Parser: Sized {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error>;
-}
-
 fn is_skip(char: &char) -> bool {
     char.is_ascii_whitespace() || char.eq(&';')
 }

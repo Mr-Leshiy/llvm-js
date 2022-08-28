@@ -1,9 +1,7 @@
-use super::Expression;
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
-use lexer::{Parser, Separator, Token, TokenReader};
+use super::{Expression, Identifier};
+use crate::llvm_ast;
+use lexer::{Separator, Token, TokenReader};
+use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -11,8 +9,11 @@ pub struct BlockStatement {
     pub body: Vec<Expression>,
 }
 
-impl Parser for BlockStatement {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl BlockStatement {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Separator(Separator::OpenCurlyBrace) => {
                 let mut body = Vec::new();
@@ -34,9 +35,11 @@ impl Parser for BlockStatement {
     }
 }
 
-impl Precompile for BlockStatement {
-    type Output = Vec<llvm_ast::Expression>;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+impl BlockStatement {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables.len();
         let functions_len = precompiler.functions.len();
@@ -59,7 +62,8 @@ impl Precompile for BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableValue,
+        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableExpression,
+        VariableValue,
     };
 
     #[test]
@@ -76,7 +80,9 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: VariableValue::Identifier("name2".to_string().into())
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name2".to_string().into()
+                    ))
                 })]
             })
         );
@@ -90,17 +96,23 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: VariableValue::Identifier("name2".to_string().into())
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name2".to_string().into()
+                        ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableValue::Identifier("name2".to_string().into())
+                                right: VariableExpression::VariableValue(
+                                    VariableValue::Identifier("name2".to_string().into())
+                                )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableValue::Identifier("name2".to_string().into())
+                                right: VariableExpression::VariableValue(
+                                    VariableValue::Identifier("name2".to_string().into())
+                                )
                             }),
                         ]
                     })
@@ -117,7 +129,7 @@ mod tests {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name_1".to_string().into(),
-                    right: VariableValue::Number(64_f64),
+                    right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
                 },
             ))],
         };

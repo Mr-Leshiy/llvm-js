@@ -1,9 +1,7 @@
 use super::{BlockStatement, Identifier};
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
-use lexer::{Keyword, Parser, Separator, Token, TokenReader};
+use crate::llvm_ast;
+use lexer::{Keyword, Separator, Token, TokenReader};
+use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -13,8 +11,8 @@ pub struct FunctionDeclaration {
     pub body: BlockStatement,
 }
 
-impl Parser for FunctionDeclaration {
-    fn parse<R: Read>(
+impl FunctionDeclaration {
+    pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {
@@ -56,9 +54,11 @@ impl Parser for FunctionDeclaration {
     }
 }
 
-impl Precompile for FunctionDeclaration {
-    type Output = llvm_ast::FunctionDeclaration;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+impl FunctionDeclaration {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<llvm_ast::FunctionDeclaration, precompiler::Error<Identifier>> {
         let index = precompiler.functions.insert(self.name.clone());
 
         let variables_len = precompiler.variables.len();
@@ -87,7 +87,7 @@ impl Precompile for FunctionDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Expression, VariableAssigment, VariableValue};
+    use crate::js_ast::{Expression, VariableAssigment, VariableExpression, VariableValue};
 
     #[test]
     fn parse_function_declaration_test() {
@@ -100,7 +100,9 @@ mod tests {
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
                         left: "a".to_string().into(),
-                        right: VariableValue::Identifier("b".to_string().into()),
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
                     })]
                 }
             })
@@ -117,7 +119,9 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: VariableValue::Identifier("b".to_string().into()),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
+                    )),
                 })],
             },
         };
@@ -160,7 +164,9 @@ mod tests {
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
-                    right: VariableValue::Identifier("b".to_string().into()),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
+                    )),
                 })],
             },
         };

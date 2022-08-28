@@ -1,4 +1,4 @@
-use lexer::{Parser, Token, TokenReader};
+use lexer::{Token, TokenReader};
 use std::{fmt::Display, io::Read};
 
 /// Identifier - Expression type for any identifier, like "name"
@@ -19,8 +19,8 @@ impl From<String> for Identifier {
     }
 }
 
-impl Parser for Identifier {
-    fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl Identifier {
+    pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Ident(name) => Ok(Self { name }),
             token => Err(lexer::Error::UnexpectedToken(token)),

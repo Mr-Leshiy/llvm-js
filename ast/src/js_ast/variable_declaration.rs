@@ -1,17 +1,18 @@
-use super::VariableAssigment;
-use crate::{
-    llvm_ast,
-    precompiler::{self, Precompile, Precompiler},
-};
-use lexer::{Keyword, Parser, Token, TokenReader};
+use super::{Identifier, VariableAssigment};
+use crate::llvm_ast;
+use lexer::{Keyword, Token, TokenReader};
+use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4"
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
-impl Parser for VariableDeclaration {
-    fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+impl VariableDeclaration {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
                 reader.next_token()?,
@@ -22,9 +23,11 @@ impl Parser for VariableDeclaration {
     }
 }
 
-impl Precompile for VariableDeclaration {
-    type Output = llvm_ast::VariableDeclaration;
-    fn precompile(self, precompiler: &mut Precompiler) -> Result<Self::Output, precompiler::Error> {
+impl VariableDeclaration {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
         let value = self.0.right.precompile(precompiler)?;
         let index = precompiler.variables.insert(self.0.left.clone());
         let res = llvm_ast::VariableAssigment {
@@ -38,7 +41,7 @@ impl Precompile for VariableDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::VariableValue;
+    use crate::js_ast::{VariableExpression, VariableValue};
 
     #[test]
     fn parse_variable_declaration_test() {
@@ -47,7 +50,7 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name".to_string().into(),
-                right: VariableValue::Number(12_f64)
+                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             }))
         );
 
@@ -56,7 +59,9 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: VariableValue::Identifier("name2".to_string().into())
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
             }))
         );
     }
@@ -67,7 +72,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Number(64_f64),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         });
 
         assert_eq!(
@@ -90,7 +95,9 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Identifier("name_2".to_string().into()),
+            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                "name_2".to_string().into(),
+            )),
         });
 
         assert_eq!(
@@ -116,7 +123,7 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Number(64_f64),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         });
 
         assert_eq!(
@@ -134,7 +141,9 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableValue::Identifier("name_2".to_string().into()),
+            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                "name_2".to_string().into(),
+            )),
         });
 
         assert_eq!(

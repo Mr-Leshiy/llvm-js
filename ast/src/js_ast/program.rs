@@ -1,5 +1,7 @@
-use super::Expression;
-use lexer::{Parser, Token, TokenReader};
+use super::{Expression, Identifier};
+use crate::llvm_ast;
+use lexer::{Token, TokenReader};
+use precompiler::Precompiler;
 use std::io::Read;
 
 /// Program
@@ -8,8 +10,8 @@ pub struct Program {
     pub body: Vec<Expression>,
 }
 
-impl Parser for Program {
-    fn parse<R: Read>(
+impl Program {
+    pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, lexer::Error> {
@@ -29,10 +31,29 @@ impl Parser for Program {
     }
 }
 
+impl Program {
+    pub fn precompile(
+        self,
+        mut precompiler: Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
+    ) -> Result<llvm_ast::Program, precompiler::Error<Identifier>> {
+        let mut body = Vec::new();
+        for expr in self.body {
+            expr.precompile(&mut precompiler)?
+                .into_iter()
+                .for_each(|expr| body.push(expr));
+        }
+
+        Ok(llvm_ast::Program {
+            functions: precompiler.function_declarations,
+            body,
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{VariableAssigment, VariableValue};
+    use crate::js_ast::{VariableAssigment, VariableExpression, VariableValue};
 
     #[test]
     fn parse_program_test() {
@@ -42,7 +63,7 @@ mod tests {
             Ok(Program {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name".to_string().into(),
-                    right: VariableValue::Number(12_f64)
+                    right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
                 })]
             })
         );
