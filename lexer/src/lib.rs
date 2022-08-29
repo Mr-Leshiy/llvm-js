@@ -83,6 +83,78 @@ impl<R: Read> TokenReader<R> {
         Ok(TokenResult::Result(char))
     }
 
+    // Skip comments as "// ... ", "/* ... */"
+    fn try_skip_comments(&mut self, char: char) -> Result<TokenResult<char>, Error> {
+        if char == '/' {
+            let position = self.char_reader.get_position().clone();
+            match self.char_reader.get_char() {
+                Ok(mut char) => {
+                    match char {
+                        '/' => {
+                            while char != '\n' {
+                                char = match self.char_reader.get_char() {
+                                    Ok(char) => char,
+                                    Err(e) if e == char_reader::Error::Eof => {
+                                        return Ok(TokenResult::Token(Token::Eof))
+                                    }
+                                    Err(e) => return Err(Error::ReaderError(e)),
+                                };
+                            }
+                        }
+                        '*' => {
+                            loop {
+                                char = match self.char_reader.get_char() {
+                                    Ok(char) => char,
+                                    Err(e) if e == char_reader::Error::Eof => {
+                                        return Ok(TokenResult::Token(Token::Eof))
+                                    }
+                                    Err(e) => return Err(Error::ReaderError(e)),
+                                };
+                                if char == '*' {
+                                    break;
+                                }
+                            }
+                            let position = self.char_reader.get_position().clone();
+                            match self.char_reader.get_char() {
+                                Ok('/') => {
+                                    char = match self.char_reader.get_char() {
+                                        Ok(char) => char,
+                                        Err(e) if e == char_reader::Error::Eof => {
+                                            return Ok(TokenResult::Token(Token::Eof))
+                                        }
+                                        Err(e) => return Err(Error::ReaderError(e)),
+                                    };
+                                }
+                                Ok(char) => {
+                                    return Err(Error::UnexpectedSymbol(
+                                        char,
+                                        self.char_reader.get_position().clone(),
+                                    ))
+                                }
+                                Err(e) if e == char_reader::Error::Eof => {
+                                    return Err(Error::UnexpectedSymbol('*', position))
+                                }
+                                Err(e) => return Err(Error::ReaderError(e)),
+                            };
+                        }
+                        char => {
+                            return Err(Error::UnexpectedSymbol(
+                                char,
+                                self.char_reader.get_position().clone(),
+                            ));
+                        }
+                    }
+                    return Ok(TokenResult::Result(char));
+                }
+                Err(e) if e == char_reader::Error::Eof => {
+                    return Err(Error::UnexpectedSymbol('/', position))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            }
+        }
+        Ok(TokenResult::Result(char))
+    }
+
     // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
     fn try_read_identifier(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
         if char.is_ascii_alphabetic() || char == '_' {
@@ -314,16 +386,20 @@ impl<R: Read> TokenReader<R> {
     fn read_token(&mut self) -> Result<Token, Error> {
         match self.char_reader.get_char() {
             Ok(char) => self.try_skip_whitespaces(char)?.token_or_continue(|char| {
-                self.try_read_identifier(char)?.token_or_continue(|_| {
-                    self.try_read_number(char)?.token_or_continue(|_| {
-                        self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                            self.try_read_logical(char)?.token_or_continue(|_| {
-                                self.try_read_separator(char)?.token_or_continue(|_| {
-                                    self.try_read_string(char)?.token_or_continue(|_| {
-                                        Err(Error::UnexpectedSymbol(
-                                            char,
-                                            self.char_reader.get_position().clone(),
-                                        ))
+                self.try_skip_comments(char)?.token_or_continue(|char| {
+                    self.try_skip_whitespaces(char)?.token_or_continue(|char| {
+                        self.try_read_identifier(char)?.token_or_continue(|_| {
+                            self.try_read_number(char)?.token_or_continue(|_| {
+                                self.try_read_assign_operator(char)?.token_or_continue(|_| {
+                                    self.try_read_logical(char)?.token_or_continue(|_| {
+                                        self.try_read_separator(char)?.token_or_continue(|_| {
+                                            self.try_read_string(char)?.token_or_continue(|_| {
+                                                Err(Error::UnexpectedSymbol(
+                                                    char,
+                                                    self.char_reader.get_position().clone(),
+                                                ))
+                                            })
+                                        })
                                     })
                                 })
                             })
@@ -361,5 +437,20 @@ mod tests {
         assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
 
         assert_eq!(reader.next_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn try_skip_comments_test() {
+        let mut reader = TokenReader::new("name1 // name2 name3 \n name1".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("name1 /* name2 name3 */ name1".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }
