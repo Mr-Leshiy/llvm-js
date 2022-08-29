@@ -54,22 +54,22 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                         let last = self.stack.pop();
                         if let Some(last) = last {
                             match last {
-                                InputExpression::Value(Value::Operation(Operation::BinaryOp(op2))) => {
-                                    match op2.priority().cmp(&op1.priority()) {
-                                        Ordering::Equal => self
-                                            .result
-                                            .push(Value::Operation(Operation::BinaryOp(op2))),
-                                        Ordering::Greater => self
-                                            .result
-                                            .push(Value::Operation(Operation::BinaryOp(op2))),
-                                        Ordering::Less => self.stack.push(InputExpression::Value(
-                                            Value::Operation(Operation::BinaryOp(op2)),
-                                        )),
+                                InputExpression::Value(Value::Operation(Operation::BinaryOp(
+                                    op2,
+                                ))) => match op2.priority().cmp(&op1.priority()) {
+                                    Ordering::Equal => {
+                                        self.result.push(Value::Operation(Operation::BinaryOp(op2)))
                                     }
-                                }
-                                InputExpression::Value(Value::Operation(Operation::PrefixOp(op2))) => {
-                                    self.result.push(Value::Operation(Operation::PrefixOp(op2)))
-                                }
+                                    Ordering::Greater => {
+                                        self.result.push(Value::Operation(Operation::BinaryOp(op2)))
+                                    }
+                                    Ordering::Less => self.stack.push(InputExpression::Value(
+                                        Value::Operation(Operation::BinaryOp(op2)),
+                                    )),
+                                },
+                                InputExpression::Value(Value::Operation(Operation::PrefixOp(
+                                    op2,
+                                ))) => self.result.push(Value::Operation(Operation::PrefixOp(op2))),
                                 last => self.stack.push(last),
                             }
                         }
