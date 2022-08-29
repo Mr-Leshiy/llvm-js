@@ -1,5 +1,5 @@
 use super::{Expression, Identifier};
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
@@ -14,7 +14,7 @@ impl Program {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    ) -> Result<Self, Error> {
         let mut body = Vec::new();
 
         loop {

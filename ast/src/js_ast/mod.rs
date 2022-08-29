@@ -1,4 +1,4 @@
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 pub use block_statement::BlockStatement;
 pub use expression::Expression;
@@ -35,7 +35,7 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn new<R: Read>(name: String, input: R) -> Result<Self, lexer::Error> {
+    pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
         let mut reader = TokenReader::new(input);
         let program = Program::parse(reader.next_token()?, &mut reader)?;
         Ok(Self { name, program })
