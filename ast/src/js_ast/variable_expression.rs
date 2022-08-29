@@ -6,7 +6,7 @@ use lexer::{Logical, Separator, Token, TokenReader};
 use precompiler::{
     self,
     rpn::{
-        input::{InputExpression, Operation},
+        input::{InputExpression, Operation, Value},
         output::OutputExpression,
         RPN,
     },
@@ -47,7 +47,7 @@ impl VariableExpression {
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let mut rpn = RPN::new();
         Self::parse_impl(cur_token, reader, &mut rpn, false)?;
-        Ok(rpn.finish().evaluate().into())
+        Ok(rpn.finish()?.evaluate().into())
     }
 
     pub fn parse_impl<R: Read>(
@@ -58,8 +58,8 @@ impl VariableExpression {
     ) -> Result<(), Error> {
         match cur_token {
             Token::Logical(Logical::Not) => {
-                rpn.build(InputExpression::Operation(Operation::PrefixOp(
-                    UnaryExpType::Not,
+                rpn.build(InputExpression::Value(Value::Operation(
+                    Operation::PrefixOp(UnaryExpType::Not),
                 )))?;
                 Self::parse_impl(reader.next_token()?, reader, rpn, true)?;
             }
@@ -74,7 +74,9 @@ impl VariableExpression {
                 }
             }
             token => {
-                rpn.build(InputExpression::Value(VariableValue::parse(token, reader)?))?;
+                rpn.build(InputExpression::Value(Value::Value(VariableValue::parse(
+                    token, reader,
+                )?)))?;
             }
         }
         if !is_unary {
@@ -82,15 +84,15 @@ impl VariableExpression {
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
                     reader.reset_saving();
-                    rpn.build(InputExpression::Operation(Operation::BinaryOp(
-                        BinaryExpType::Or,
+                    rpn.build(InputExpression::Value(Value::Operation(
+                        Operation::BinaryOp(BinaryExpType::Or),
                     )))?;
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }
                 Token::Logical(Logical::And) => {
                     reader.reset_saving();
-                    rpn.build(InputExpression::Operation(Operation::BinaryOp(
-                        BinaryExpType::And,
+                    rpn.build(InputExpression::Value(Value::Operation(
+                        Operation::BinaryOp(BinaryExpType::And),
                     )))?;
                     Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 }

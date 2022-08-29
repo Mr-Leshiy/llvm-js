@@ -12,9 +12,14 @@ pub enum Operation<UnaryOpType, BinaryOpType: Priority> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum InputExpression<V, UnaryOpType, BinaryOpType: Priority> {
+pub enum Value<V, UnaryOpType, BinaryOpType: Priority> {
     Value(V),
     Operation(Operation<UnaryOpType, BinaryOpType>),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum InputExpression<V, UnaryOpType, BinaryOpType: Priority> {
+    Value(Value<V, UnaryOpType, BinaryOpType>),
     OpenBrace,
     CloseBrace,
 }
