@@ -1,4 +1,4 @@
-use super::{Identifier};
+use super::Identifier;
 use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]

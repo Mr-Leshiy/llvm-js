@@ -13,9 +13,9 @@ impl Compile<Identifier> for VariableAssigment {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let variable1 = cur_function.get_variable(self.name)?;
-        let variable = self.value.compile(compiler, cur_function)?;
-        variable1.assign_variable(compiler, cur_function, &variable);
+        let var1 = cur_function.get_variable(self.name)?;
+        let var = self.value.compile(compiler, cur_function)?;
+        var1.assign_variable(compiler, cur_function, &var);
         Ok(())
     }
 }

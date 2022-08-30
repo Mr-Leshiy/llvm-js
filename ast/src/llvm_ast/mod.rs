@@ -5,7 +5,7 @@ pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use program::Program;
 use std::io::Write;
-pub use unary_expression::UnaryExpression;
+pub use unary_expression::{UnaryExpType, UnaryExpression};
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 pub use variable_expression::VariableExpression;

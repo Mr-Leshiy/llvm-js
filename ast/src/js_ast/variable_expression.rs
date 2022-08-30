@@ -112,7 +112,9 @@ impl VariableExpression {
             Self::VariableValue(value) => Ok(llvm_ast::VariableExpression::VariableValue(
                 value.precompile(precompiler)?,
             )),
-            Self::UnaryExpression(_) => todo!("implement"),
+            Self::UnaryExpression(expr) => Ok(llvm_ast::VariableExpression::UnaryExpression(
+                Box::new(expr.precompile(precompiler)?),
+            )),
             Self::BinaryExpression(_) => todo!("implement"),
         }
     }

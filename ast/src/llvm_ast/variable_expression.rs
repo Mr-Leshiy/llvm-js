@@ -1,11 +1,11 @@
-use super::{Identifier, VariableValue};
+use super::{Identifier, UnaryExpression, VariableValue};
 use compiler::{self, Compiler, Function, Variable};
 
 /// VariableExpression
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableExpression {
     VariableValue(VariableValue),
-    // UnaryExpression(Box<UnaryExpression>),
+    UnaryExpression(Box<UnaryExpression>),
 }
 
 impl VariableExpression {
@@ -16,6 +16,7 @@ impl VariableExpression {
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         match self {
             Self::VariableValue(value) => value.compile(compiler, cur_function),
+            Self::UnaryExpression(expr) => expr.compile(compiler, cur_function),
         }
     }
 }
