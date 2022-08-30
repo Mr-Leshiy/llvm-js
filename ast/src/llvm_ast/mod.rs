@@ -3,21 +3,23 @@ pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
-pub use logical_expression::LogicalExpression;
 pub use program::Program;
 use std::io::Write;
+pub use unary_expression::UnaryExpression;
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
+pub use variable_expression::VariableExpression;
 pub use variable_value::VariableValue;
 
 mod expression;
 mod function_call;
 mod function_declaration;
 mod identifier;
-mod logical_expression;
 mod program;
+mod unary_expression;
 mod variable_assigment;
 mod variable_declaration;
+mod variable_expression;
 mod variable_value;
 
 pub struct Module {

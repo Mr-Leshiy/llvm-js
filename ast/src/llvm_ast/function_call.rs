@@ -1,4 +1,4 @@
-use super::{Identifier, VariableValue};
+use super::{Identifier, VariableExpression};
 use compiler::{
     self,
     predefined_functions::{
@@ -11,7 +11,7 @@ use compiler::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
     pub name: Identifier,
-    pub args: Vec<VariableValue>,
+    pub args: Vec<VariableExpression>,
 }
 
 impl Compile<Identifier> for FunctionCall {

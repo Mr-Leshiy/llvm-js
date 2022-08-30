@@ -137,10 +137,12 @@ mod tests {
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
                         name: llvm_ast::Identifier::new("a".to_string(), 0),
-                        value: llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                            "b".to_string(),
-                            0
-                        ))
+                        value: llvm_ast::VariableExpression::VariableValue(
+                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                "b".to_string(),
+                                0
+                            ))
+                        )
                     }
                 )]
             })
@@ -182,10 +184,12 @@ mod tests {
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
                         name: llvm_ast::Identifier::new("a".to_string(), 1),
-                        value: llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                            "b".to_string(),
-                            1
-                        ))
+                        value: llvm_ast::VariableExpression::VariableValue(
+                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                "b".to_string(),
+                                1
+                            ))
+                        )
                     }
                 )]
             })

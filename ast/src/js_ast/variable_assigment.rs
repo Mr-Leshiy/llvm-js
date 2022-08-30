@@ -85,7 +85,9 @@ mod tests {
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableValue::FloatNumber(64_f64),
+                value: llvm_ast::VariableExpression::VariableValue(
+                    llvm_ast::VariableValue::FloatNumber(64_f64)
+                ),
             })
         );
         assert_eq!(
@@ -111,10 +113,12 @@ mod tests {
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                    "name_2".to_string(),
-                    0
-                )),
+                value: llvm_ast::VariableExpression::VariableValue(
+                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                        "name_2".to_string(),
+                        0
+                    ))
+                ),
             })
         );
         assert_eq!(
