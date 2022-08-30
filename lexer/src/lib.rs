@@ -88,71 +88,90 @@ impl<R: Read> TokenReader<R> {
         if char == '/' {
             let position = self.char_reader.get_position().clone();
             match self.char_reader.get_char() {
-                Ok(mut char) => {
-                    match char {
-                        '/' => {
-                            while char != '\n' {
-                                char = match self.char_reader.get_char() {
-                                    Ok(char) => char,
-                                    Err(e) if e == char_reader::Error::Eof => {
-                                        return Ok(TokenResult::Token(Token::Eof))
-                                    }
-                                    Err(e) => return Err(Error::ReaderError(e)),
-                                };
-                            }
-                        }
-                        '*' => {
-                            loop {
-                                char = match self.char_reader.get_char() {
-                                    Ok(char) => char,
-                                    Err(e) if e == char_reader::Error::Eof => {
-                                        return Ok(TokenResult::Token(Token::Eof))
-                                    }
-                                    Err(e) => return Err(Error::ReaderError(e)),
-                                };
-                                if char == '*' {
-                                    break;
-                                }
-                            }
-                            let position = self.char_reader.get_position().clone();
-                            match self.char_reader.get_char() {
-                                Ok('/') => {
-                                    char = match self.char_reader.get_char() {
-                                        Ok(char) => char,
-                                        Err(e) if e == char_reader::Error::Eof => {
-                                            return Ok(TokenResult::Token(Token::Eof))
-                                        }
-                                        Err(e) => return Err(Error::ReaderError(e)),
-                                    };
-                                }
-                                Ok(char) => {
-                                    return Err(Error::UnexpectedSymbol(
-                                        char,
-                                        self.char_reader.get_position().clone(),
-                                    ))
-                                }
+                Ok(mut char) => match char {
+                    // handle "// ... " case
+                    '/' => {
+                        while char != '\n' {
+                            char = match self.char_reader.get_char() {
+                                Ok(char) => char,
                                 Err(e) if e == char_reader::Error::Eof => {
-                                    return Err(Error::UnexpectedSymbol('*', position))
+                                    return Ok(TokenResult::Token(Token::Eof))
                                 }
                                 Err(e) => return Err(Error::ReaderError(e)),
                             };
                         }
-                        char => {
-                            return Err(Error::UnexpectedSymbol(
-                                char,
-                                self.char_reader.get_position().clone(),
-                            ));
-                        }
+                        Ok(TokenResult::Result(char))
                     }
-                    return Ok(TokenResult::Result(char));
-                }
+                    // handle "/* ... */" case
+                    '*' => {
+                        loop {
+                            char = match self.char_reader.get_char() {
+                                Ok(char) => char,
+                                Err(e) if e == char_reader::Error::Eof => {
+                                    return Ok(TokenResult::Token(Token::Eof))
+                                }
+                                Err(e) => return Err(Error::ReaderError(e)),
+                            };
+                            if char == '*' {
+                                break;
+                            }
+                        }
+                        let position = self.char_reader.get_position().clone();
+                        match self.char_reader.get_char() {
+                            Ok('/') => {
+                                char = match self.char_reader.get_char() {
+                                    Ok(char) => char,
+                                    Err(e) if e == char_reader::Error::Eof => {
+                                        return Ok(TokenResult::Token(Token::Eof))
+                                    }
+                                    Err(e) => return Err(Error::ReaderError(e)),
+                                };
+                            }
+                            Ok(char) => {
+                                return Err(Error::UnexpectedSymbol(
+                                    char,
+                                    self.char_reader.get_position().clone(),
+                                ))
+                            }
+                            Err(e) if e == char_reader::Error::Eof => {
+                                return Err(Error::UnexpectedSymbol('*', position))
+                            }
+                            Err(e) => return Err(Error::ReaderError(e)),
+                        };
+                        Ok(TokenResult::Result(char))
+                    }
+                    char => Err(Error::UnexpectedSymbol(
+                        char,
+                        self.char_reader.get_position().clone(),
+                    )),
+                },
                 Err(e) if e == char_reader::Error::Eof => {
-                    return Err(Error::UnexpectedSymbol('/', position))
+                    Err(Error::UnexpectedSymbol('/', position))
                 }
-                Err(e) => return Err(Error::ReaderError(e)),
+                Err(e) => Err(Error::ReaderError(e)),
+            }
+        } else {
+            Ok(TokenResult::Result(char))
+        }
+    }
+
+    fn try_skip(&mut self, mut char: char) -> Result<TokenResult<char>, Error> {
+        let mut res;
+        loop {
+            let cur_position = self.char_reader.get_position().clone();
+            res = match self.try_skip_whitespaces(char)? {
+                TokenResult::Result(char) => self.try_skip_comments(char),
+                result => Ok(result),
+            };
+            char = match res {
+                Ok(TokenResult::Result(char)) => char,
+                result => return result,
+            };
+            if cur_position == self.char_reader.get_position().clone() {
+                break;
             }
         }
-        Ok(TokenResult::Result(char))
+        res
     }
 
     // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
@@ -385,21 +404,17 @@ impl<R: Read> TokenReader<R> {
 
     fn read_token(&mut self) -> Result<Token, Error> {
         match self.char_reader.get_char() {
-            Ok(char) => self.try_skip_whitespaces(char)?.token_or_continue(|char| {
-                self.try_skip_comments(char)?.token_or_continue(|char| {
-                    self.try_skip_whitespaces(char)?.token_or_continue(|char| {
-                        self.try_read_identifier(char)?.token_or_continue(|_| {
-                            self.try_read_number(char)?.token_or_continue(|_| {
-                                self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                                    self.try_read_logical(char)?.token_or_continue(|_| {
-                                        self.try_read_separator(char)?.token_or_continue(|_| {
-                                            self.try_read_string(char)?.token_or_continue(|_| {
-                                                Err(Error::UnexpectedSymbol(
-                                                    char,
-                                                    self.char_reader.get_position().clone(),
-                                                ))
-                                            })
-                                        })
+            Ok(char) => self.try_skip(char)?.token_or_continue(|char| {
+                self.try_read_identifier(char)?.token_or_continue(|_| {
+                    self.try_read_number(char)?.token_or_continue(|_| {
+                        self.try_read_assign_operator(char)?.token_or_continue(|_| {
+                            self.try_read_logical(char)?.token_or_continue(|_| {
+                                self.try_read_separator(char)?.token_or_continue(|_| {
+                                    self.try_read_string(char)?.token_or_continue(|_| {
+                                        Err(Error::UnexpectedSymbol(
+                                            char,
+                                            self.char_reader.get_position().clone(),
+                                        ))
                                     })
                                 })
                             })
@@ -418,7 +433,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn token_reader_test() {
+    fn token_reader_saving_test() {
         // TODO update test cases
         let mut reader = TokenReader::new("name1 name2 name3 name4".as_bytes());
 
@@ -441,16 +456,17 @@ mod tests {
 
     #[test]
     fn try_skip_comments_test() {
-        let mut reader = TokenReader::new("name1 // name2 name3 \n name1".as_bytes());
-
+        let mut reader = TokenReader::new("name1 \n // name2 name3 \n name1".as_bytes());
         assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("name1 /* name2 name3 */ name1".as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
 
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));
+        let mut reader = TokenReader::new("// name1 \n /* name2 name3 */".as_bytes());
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }
