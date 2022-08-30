@@ -70,10 +70,7 @@ mod tests {
         let mut reader = TokenReader::new("1f2.145".as_bytes());
         assert_eq!(
             reader.read_token(),
-            Err(Error::UnexpectedSymbol(
-                'f',
-                Position { line: 2, column: 0 }
-            ))
+            Err(Error::UnexpectedSymbol('f', Position::new(3, 1)))
         );
     }
 
