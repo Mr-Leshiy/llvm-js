@@ -23,7 +23,7 @@ impl<R: Read> CharReader<R> {
         Self {
             buf: [0],
             reader,
-            position: Position { line: 0, column: 0 },
+            position: Position::new(1, 1),
             saved: None,
         }
     }
@@ -87,19 +87,19 @@ mod tests {
         let mut reader = CharReader::new("a \n b".as_bytes());
 
         assert_eq!(reader.get_char(), Ok('a'));
-        assert_eq!(reader.get_position(), &Position { line: 1, column: 0 });
+        assert_eq!(reader.get_position(), &Position::new(2, 1));
 
         assert_eq!(reader.get_char(), Ok(' '));
-        assert_eq!(reader.get_position(), &Position { line: 2, column: 0 });
+        assert_eq!(reader.get_position(), &Position::new(3, 1));
 
         assert_eq!(reader.get_char(), Ok('\n'));
-        assert_eq!(reader.get_position(), &Position { line: 0, column: 1 });
+        assert_eq!(reader.get_position(), &Position::new(1, 2));
 
         assert_eq!(reader.get_char(), Ok(' '));
-        assert_eq!(reader.get_position(), &Position { line: 1, column: 1 });
+        assert_eq!(reader.get_position(), &Position::new(2, 2));
 
         assert_eq!(reader.get_char(), Ok('b'));
-        assert_eq!(reader.get_position(), &Position { line: 2, column: 1 });
+        assert_eq!(reader.get_position(), &Position::new(3, 2));
     }
 
     #[test]

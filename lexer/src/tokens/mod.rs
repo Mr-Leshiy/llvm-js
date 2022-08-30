@@ -66,10 +66,7 @@ mod tests {
         let mut reader = TokenReader::new("name^2name".as_bytes());
         assert_eq!(
             reader.read_token(),
-            Err(Error::UnexpectedSymbol(
-                '^',
-                Position { line: 5, column: 0 }
-            ))
+            Err(Error::UnexpectedSymbol('^', Position::new(6, 1)))
         );
     }
 
@@ -93,10 +90,7 @@ mod tests {
 
         assert_eq!(
             reader.read_token(),
-            Err(Error::UnexpectedSymbol(
-                '^',
-                Position { line: 1, column: 0 }
-            ))
+            Err(Error::UnexpectedSymbol('^', Position::new(2, 1)))
         );
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }

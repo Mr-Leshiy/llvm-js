@@ -2,8 +2,8 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Position {
-    pub line: u64,
-    pub column: u64,
+    line: u64,
+    column: u64,
 }
 
 impl Display for Position {
@@ -13,12 +13,16 @@ impl Display for Position {
 }
 
 impl Position {
+    pub fn new(line: u64, column: u64) -> Self {
+        Self { line, column }
+    }
+
     pub fn inc_line(&mut self) {
         self.line += 1;
     }
 
     pub fn inc_column(&mut self) {
-        self.line = 0;
+        self.line = 1;
         self.column += 1;
     }
 }
