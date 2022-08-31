@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 compiler = { path = "../compiler" }
 ast = { path = "../ast" }
-thiserror = { version = "1.0.31" }
+thiserror = { version = "1.0.33" }
