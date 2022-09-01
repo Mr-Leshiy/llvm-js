@@ -13,6 +13,7 @@ pub enum UnaryExpType {
     Not,
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<llvm_ast::UnaryExpType> for UnaryExpType {
     fn into(self) -> llvm_ast::UnaryExpType {
         match self {
