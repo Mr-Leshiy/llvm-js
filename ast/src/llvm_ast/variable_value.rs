@@ -1,4 +1,4 @@
-use super::{Identifier, LogicalExpression};
+use super::Identifier;
 use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -7,7 +7,6 @@ pub enum VariableValue {
     FloatNumber(f64),
     String(String),
     Identifier(Identifier),
-    LogicalExpression(Box<LogicalExpression>),
 }
 
 impl VariableValue {
@@ -21,7 +20,6 @@ impl VariableValue {
             VariableValue::String(string) => Ok(Variable::new_string(compiler, &string)),
             VariableValue::FloatNumber(number) => Ok(Variable::new_number(compiler, number)),
             VariableValue::Identifier(name) => cur_function.get_variable(name),
-            VariableValue::LogicalExpression(logical) => logical.compile(compiler, cur_function),
         }
     }
 }

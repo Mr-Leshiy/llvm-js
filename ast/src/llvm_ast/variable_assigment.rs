@@ -1,10 +1,10 @@
-use super::{Identifier, VariableValue};
+use super::{Identifier, VariableExpression};
 use compiler::{self, Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
     pub name: Identifier,
-    pub value: VariableValue,
+    pub value: VariableExpression,
 }
 
 impl Compile<Identifier> for VariableAssigment {
@@ -13,30 +13,9 @@ impl Compile<Identifier> for VariableAssigment {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let variable1 = cur_function.get_variable(self.name)?;
-        match self.value {
-            VariableValue::Boolean(boolean) => {
-                variable1.assign_boolean(compiler, boolean);
-                Ok(())
-            }
-            VariableValue::FloatNumber(value) => {
-                variable1.assign_number(compiler, value);
-                Ok(())
-            }
-            VariableValue::String(value) => {
-                variable1.assign_string(compiler, &value);
-                Ok(())
-            }
-            VariableValue::Identifier(name) => {
-                let variable2 = cur_function.get_variable(name)?;
-                variable1.assign_variable(compiler, cur_function, &variable2);
-                Ok(())
-            }
-            VariableValue::LogicalExpression(logical) => {
-                let variable2 = logical.compile(compiler, cur_function)?;
-                variable1.assign_variable(compiler, cur_function, &variable2);
-                Ok(())
-            }
-        }
+        let var1 = cur_function.get_variable(self.name)?;
+        let var = self.value.compile(compiler, cur_function)?;
+        var1.assign_variable(compiler, cur_function, &var);
+        Ok(())
     }
 }

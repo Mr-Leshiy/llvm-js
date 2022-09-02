@@ -14,12 +14,6 @@ pub enum BinaryExpType {
     Or,
 }
 
-impl From<BinaryExpression> for BinaryExpType {
-    fn from(val: BinaryExpression) -> Self {
-        val.op_type
-    }
-}
-
 impl Priority for BinaryExpType {
     fn priority(&self) -> u8 {
         match self {

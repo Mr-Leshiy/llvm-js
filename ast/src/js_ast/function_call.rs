@@ -120,16 +120,24 @@ mod tests {
             Ok(llvm_ast::FunctionCall {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 args: vec![
-                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                        "a".to_string(),
-                        0
+                    llvm_ast::VariableExpression::VariableValue(
+                        llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                            "a".to_string(),
+                            0
+                        ))
+                    ),
+                    llvm_ast::VariableExpression::VariableValue(
+                        llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                            "b".to_string(),
+                            0
+                        ))
+                    ),
+                    llvm_ast::VariableExpression::VariableValue(llvm_ast::VariableValue::String(
+                        "val".to_string()
                     )),
-                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                        "b".to_string(),
-                        0
-                    )),
-                    llvm_ast::VariableValue::String("val".to_string()),
-                    llvm_ast::VariableValue::FloatNumber(5_f64),
+                    llvm_ast::VariableExpression::VariableValue(
+                        llvm_ast::VariableValue::FloatNumber(5_f64)
+                    ),
                 ],
             })
         );

@@ -107,10 +107,14 @@ impl VariableExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::VariableValue, precompiler::Error<Identifier>> {
+    ) -> Result<llvm_ast::VariableExpression, precompiler::Error<Identifier>> {
         match self {
-            Self::VariableValue(value) => Ok(value.precompile(precompiler)?),
-            Self::UnaryExpression(_) => todo!("implement"),
+            Self::VariableValue(value) => Ok(llvm_ast::VariableExpression::VariableValue(
+                value.precompile(precompiler)?,
+            )),
+            Self::UnaryExpression(expr) => Ok(llvm_ast::VariableExpression::UnaryExpression(
+                Box::new(expr.precompile(precompiler)?),
+            )),
             Self::BinaryExpression(_) => todo!("implement"),
         }
     }

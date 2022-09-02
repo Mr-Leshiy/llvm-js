@@ -50,8 +50,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
                 AssertFn::NAME => assert = Some(AssertFn::declare()),
                 AssertEqFn::NAME => assert_eq = Some(AssertEqFn::declare()),
                 AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
-                // _ => return Err(Error::UndefinedFunction(Identifier::new(function_name, 0))),
-                _ => unimplemented!(),
+                _ => return Err(Error::UndeclaredFunction(function_name)),
             }
         }
         Ok(Self {
