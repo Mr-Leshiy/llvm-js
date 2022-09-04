@@ -46,7 +46,7 @@ pub fn logical_not<'ctx, T>(
         //
         compiler.builder.position_at_end(continue_block);
     };
-    let string_case_f = |compiler: &Compiler<'ctx, T>| {
+    let string_case_f = |_compiler: &Compiler<'ctx, T>| {
         // TODO implement
     };
     let boolean_case_f = |compiler: &Compiler<'ctx, T>| {

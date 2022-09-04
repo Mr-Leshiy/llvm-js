@@ -1,4 +1,4 @@
-use super::{abort::AbortFn, strcmp::StrcmpFn, Compiler, PredefineFunctionName};
+use super::{Compiler, PredefineFunctionName};
 use crate::{
     variable::{BooleanField, NumberField, StringField},
     Error, Function, Variable,
@@ -23,11 +23,11 @@ impl AssertEqFn {
         &self,
         compiler: &Compiler<'ctx, T>,
         cur_function: &Function<'ctx, T>,
-        abort_fn: &AbortFn<'ctx>,
-        strcmp_fn: &StrcmpFn<'ctx>,
         arg1: Variable<'ctx>,
         arg2: Variable<'ctx>,
     ) -> Result<(), Error<T>> {
+        let abort_fn = compiler.predefined_functions().get_abort()?;
+        let strcmp_fn = compiler.predefined_functions().get_strcmp()?;
         // number case
         let arg1_number_case_f = |_compiler: &Compiler<'ctx, T>| {
             let arg2_number_case_f = |compiler: &Compiler<'ctx, T>| {

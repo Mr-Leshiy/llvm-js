@@ -1,4 +1,4 @@
-use super::{abort::AbortFn, Compiler, PredefineFunctionName};
+use super::{Compiler, PredefineFunctionName};
 use crate::{variable::BooleanField, Error, Function, Variable};
 
 #[derive(Clone)]
@@ -19,9 +19,10 @@ impl AssertFn {
         &self,
         compiler: &Compiler<'ctx, T>,
         cur_function: &Function<'ctx, T>,
-        abort_fn: &AbortFn<'ctx>,
         arg: Variable<'ctx>,
     ) -> Result<(), Error<T>> {
+        let abort_fn = compiler.predefined_functions().get_abort()?;
+
         let number_case_f = |compiler: &Compiler<'ctx, T>| {
             // TODO implement
             abort_fn.abort(compiler);
