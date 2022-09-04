@@ -8,19 +8,6 @@ use inkwell::{
     values::{IntValue, PointerValue},
 };
 
-#[derive(Clone, Copy)]
-enum Type {
-    Number = 0,
-    String = 1,
-    Boolean = 2,
-}
-
-impl Type {
-    fn to_int<'ctx, T>(self, compiler: &Compiler<'ctx, T>) -> IntValue<'ctx> {
-        compiler.context.i8_type().const_int(self as u64, false)
-    }
-}
-
 #[derive(Clone)]
 pub struct Variable<'ctx> {
     pub(crate) value: PointerValue<'ctx>,
@@ -29,6 +16,13 @@ pub struct Variable<'ctx> {
 pub(crate) trait FieldTrait<'ctx> {
     type Type: ValueType<'ctx>;
     const INDEX: u32;
+
+    fn index_to_int<T>(compiler: &Compiler<'ctx, T>) -> IntValue<'ctx> {
+        compiler
+            .context
+            .i8_type()
+            .const_int(Self::INDEX as u64, false)
+    }
 }
 
 pub(crate) struct FlagField;
@@ -93,9 +87,9 @@ impl<'ctx> Variable<'ctx> {
         Field::Type::new(ptr)
     }
 
-    fn update_flag<T>(&self, compiler: &Compiler<'ctx, T>, t: Type) {
+    fn update_flag<T, Field: FieldTrait<'ctx>>(&self, compiler: &Compiler<'ctx, T>) {
         let flag_field = self.get_field::<T, FlagField>(compiler);
-        flag_field.assign_literal(compiler, t as u64);
+        flag_field.assign_literal(compiler, Field::INDEX as u64);
     }
 
     pub(crate) fn switch_type<T>(
@@ -125,9 +119,9 @@ impl<'ctx> Variable<'ctx> {
             .context
             .append_basic_block(cur_function.function, "");
 
-        let number_case = (Type::Number.to_int(compiler), number_block);
-        let string_case = (Type::String.to_int(compiler), string_block);
-        let boolean_case = (Type::Boolean.to_int(compiler), boolean_block);
+        let number_case = (NumberField::index_to_int(compiler), number_block);
+        let string_case = (StringField::index_to_int(compiler), string_block);
+        let boolean_case = (BooleanField::index_to_int(compiler), boolean_block);
 
         compiler.builder.build_switch(
             flag_field.load_value(compiler),
@@ -169,7 +163,7 @@ impl<'ctx> Variable<'ctx> {
     pub fn assign_number<T>(&self, compiler: &Compiler<'ctx, T>, number: f64) {
         let number_field = self.get_field::<T, NumberField>(compiler);
         number_field.assign_literal(compiler, number);
-        self.update_flag(compiler, Type::Number);
+        self.update_flag::<T, NumberField>(compiler);
     }
 
     pub fn new_string<T>(compiler: &Compiler<'ctx, T>, string: &str) -> Self {
@@ -181,7 +175,7 @@ impl<'ctx> Variable<'ctx> {
     pub fn assign_string<T>(&self, compiler: &Compiler<'ctx, T>, string: &str) {
         let string_field = self.get_field::<T, StringField>(compiler);
         string_field.assign_literal(compiler, string);
-        self.update_flag(compiler, Type::String);
+        self.update_flag::<T, StringField>(compiler);
     }
 
     pub fn new_boolean<T>(compiler: &Compiler<'ctx, T>, boolean: bool) -> Self {
@@ -193,7 +187,7 @@ impl<'ctx> Variable<'ctx> {
     pub fn assign_boolean<T>(&self, compiler: &Compiler<'ctx, T>, boolean: bool) {
         let boolean_field = self.get_field::<T, BooleanField>(compiler);
         boolean_field.assign_literal(compiler, boolean);
-        self.update_flag(compiler, Type::Boolean);
+        self.update_flag::<T, BooleanField>(compiler);
     }
 
     pub fn new_variable<T>(
@@ -213,19 +207,19 @@ impl<'ctx> Variable<'ctx> {
         variable: &Self,
     ) {
         let number_case_f = |compiler: &Compiler<'ctx, T>| {
-            self.update_flag(compiler, Type::Number);
+            self.update_flag::<T, NumberField>(compiler);
             let self_field = self.get_field::<T, NumberField>(compiler);
             let variable_field = variable.get_field::<T, NumberField>(compiler);
             self_field.assign_variable(compiler, &variable_field);
         };
         let string_case_f = |compiler: &Compiler<'ctx, T>| {
-            self.update_flag(compiler, Type::String);
+            self.update_flag::<T, StringField>(compiler);
             let self_field = self.get_field::<T, StringField>(compiler);
             let variable_field = self.get_field::<T, StringField>(compiler);
             self_field.assign_variable(compiler, &variable_field);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-            self.update_flag(compiler, Type::Boolean);
+            self.update_flag::<T, BooleanField>(compiler);
             let self_field = self.get_field::<T, BooleanField>(compiler);
             let variable_field = variable.get_field::<T, BooleanField>(compiler);
             self_field.assign_variable(compiler, &variable_field);
