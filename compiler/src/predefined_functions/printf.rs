@@ -1,5 +1,8 @@
 use super::{Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable};
+use crate::{
+    variable::{BooleanField, NumberField, StringField},
+    Error, Function, Variable,
+};
 use inkwell::{
     module::Linkage,
     values::{FunctionValue, GlobalValue},
@@ -70,11 +73,7 @@ impl<'ctx> PrintFn<'ctx> {
         arg: Variable<'ctx>,
     ) -> Result<(), Error<T>> {
         let number_case_f = |compiler: &Compiler<'ctx, T>| {
-            let number_field = arg.get_field(compiler, Field::Number);
-            let number_field = compiler
-                .builder
-                .build_load(number_field, "")
-                .into_float_value();
+            let number_field = arg.get_field::<T, NumberField>(compiler);
             compiler.builder.build_call(
                 self.func,
                 &[
@@ -86,17 +85,13 @@ impl<'ctx> PrintFn<'ctx> {
                             "",
                         )
                         .into(),
-                    number_field.into(),
+                    number_field.load_value(compiler).into(),
                 ],
                 "",
             );
         };
         let string_case_f = |compiler: &Compiler<'ctx, T>| {
-            let string_field = arg.get_field(compiler, Field::String);
-            let string_field = compiler
-                .builder
-                .build_load(string_field, "")
-                .into_pointer_value();
+            let string_field = arg.get_field::<T, StringField>(compiler);
             compiler.builder.build_call(
                 self.func,
                 &[
@@ -108,17 +103,13 @@ impl<'ctx> PrintFn<'ctx> {
                             "",
                         )
                         .into(),
-                    string_field.into(),
+                    string_field.load_value(compiler).into(),
                 ],
                 "",
             );
         };
         let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-            let boolean_field = arg.get_field(compiler, Field::Boolean);
-            let boolean_field = compiler
-                .builder
-                .build_load(boolean_field, "")
-                .into_int_value();
+            let boolean_field = arg.get_field::<T, BooleanField>(compiler);
             compiler.builder.build_call(
                 self.func,
                 &[
@@ -130,7 +121,7 @@ impl<'ctx> PrintFn<'ctx> {
                             "",
                         )
                         .into(),
-                    boolean_field.into(),
+                    boolean_field.load_value(compiler).into(),
                 ],
                 "",
             );

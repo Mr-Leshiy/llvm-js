@@ -1,5 +1,5 @@
 use super::{abort::AbortFn, Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable};
+use crate::{variable::BooleanField, Error, Function, Variable};
 
 #[derive(Clone)]
 pub struct AssertFn;
@@ -31,11 +31,7 @@ impl AssertFn {
             abort_fn.abort(compiler);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-            let boolean_field = arg.get_field(compiler, Field::Boolean);
-            let boolean_field = compiler
-                .builder
-                .build_load(boolean_field, "")
-                .into_int_value();
+            let boolean_field = arg.get_field::<T, BooleanField>(compiler);
 
             let true_block = compiler
                 .context
@@ -44,9 +40,11 @@ impl AssertFn {
                 .context
                 .append_basic_block(cur_function.function, "");
 
-            compiler
-                .builder
-                .build_conditional_branch(boolean_field, true_block, false_block);
+            compiler.builder.build_conditional_branch(
+                boolean_field.load_value(compiler),
+                true_block,
+                false_block,
+            );
 
             // describe false case
             compiler.builder.position_at_end(false_block);
