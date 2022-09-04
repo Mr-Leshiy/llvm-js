@@ -191,7 +191,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn new_variable<T>(
-        compiler: &mut Compiler<'ctx, T>,
+        compiler: &Compiler<'ctx, T>,
         cur_function: &Function<'ctx, T>,
         variable2: &Self,
     ) -> Self {
