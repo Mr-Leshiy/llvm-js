@@ -1,10 +1,13 @@
-use self::{abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn};
+use self::{
+    abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, strcmp::StrcmpFn,
+};
 use crate::{Compiler, Error};
 
 pub mod abort;
 pub mod assert;
 pub mod assert_eq;
 pub mod printf;
+pub mod strcmp;
 
 pub trait PredefineFunctionName {
     const NAME: &'static str;
@@ -15,6 +18,7 @@ pub struct PredefineFunctions<'ctx> {
     assert: Option<AssertFn>,
     assert_eq: Option<AssertEqFn>,
     abort: Option<AbortFn<'ctx>>,
+    strcmp: Option<StrcmpFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -30,6 +34,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert: None,
             assert_eq: None,
             abort: None,
+            strcmp: None,
         }
     }
 
@@ -44,12 +49,14 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let mut assert = None;
         let mut assert_eq = None;
         let mut abort = None;
+        let mut strcmp = None;
         for function_name in predefined_functions {
             match function_name.as_str() {
                 PrintFn::NAME => printf = Some(PrintFn::declare(compiler)),
                 AssertFn::NAME => assert = Some(AssertFn::declare()),
                 AssertEqFn::NAME => assert_eq = Some(AssertEqFn::declare()),
                 AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
+                StrcmpFn::NAME => strcmp = Some(StrcmpFn::declare(compiler)),
                 _ => return Err(Error::UndeclaredFunction(function_name)),
             }
         }
@@ -58,6 +65,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert,
             assert_eq,
             abort,
+            strcmp,
         })
     }
 
@@ -83,5 +91,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
         self.abort
             .as_ref()
             .ok_or_else(|| Error::UndeclaredFunction(AbortFn::NAME.to_string()))
+    }
+
+    pub fn get_strcmp<T>(&self) -> Result<&StrcmpFn<'ctx>, Error<T>> {
+        self.strcmp
+            .as_ref()
+            .ok_or_else(|| Error::UndeclaredFunction(StrcmpFn::NAME.to_string()))
     }
 }

@@ -50,11 +50,14 @@ impl Compile<Identifier> for FunctionCall {
             AssertEqFn::NAME => {
                 let assert_eq = compiler.predefined_functions().get_assert_eq()?;
                 let abort = compiler.predefined_functions().get_abort()?;
+                let strcmp = compiler.predefined_functions().get_strcmp()?;
+
                 let mut iter = args.into_iter();
                 assert_eq.assert_eq(
                     compiler,
                     cur_function,
                     abort,
+                    strcmp,
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 )

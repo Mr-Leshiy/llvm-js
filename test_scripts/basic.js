@@ -1,10 +1,7 @@
 var a = true;
 
-print(a);
-print(!a);
-print(!!a);
-print(!!!a);
-print(!!!!a);
-print(!!!!!a);
+assert_eq(a, true);
+
+assert_eq("hello", "hello");
 
 print("hello world");
