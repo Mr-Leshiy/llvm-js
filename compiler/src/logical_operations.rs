@@ -1,4 +1,7 @@
-use crate::{variable::Field, Compiler, Error, Function, Variable};
+use crate::{
+    variable::{BooleanField, NumberField},
+    Compiler, Error, Function, Variable,
+};
 
 pub fn logical_not<'ctx, T>(
     compiler: &mut Compiler<'ctx, T>,
@@ -7,11 +10,7 @@ pub fn logical_not<'ctx, T>(
 ) -> Result<Variable<'ctx>, Error<T>> {
     let arg = Variable::new_variable(compiler, cur_function, &arg);
     let number_case_f = |compiler: &Compiler<'ctx, T>| {
-        let number_field = arg.get_field(compiler, Field::Number);
-        let number_field = compiler
-            .builder
-            .build_load(number_field, "")
-            .into_float_value();
+        let number_field = arg.get_field::<T, NumberField>(compiler);
 
         let true_block = compiler
             .context
@@ -25,7 +24,7 @@ pub fn logical_not<'ctx, T>(
 
         let comparison = compiler.builder.build_float_compare(
             inkwell::FloatPredicate::OEQ,
-            number_field,
+            number_field.load_value(compiler),
             compiler.context.f64_type().const_float(0_f64),
             "",
         );
@@ -51,11 +50,7 @@ pub fn logical_not<'ctx, T>(
         // TODO implement
     };
     let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-        let boolean_field = arg.get_field(compiler, Field::Boolean);
-        let boolean_field = compiler
-            .builder
-            .build_load(boolean_field, "")
-            .into_int_value();
+        let boolean_field = arg.get_field::<T, BooleanField>(compiler);
 
         let true_block = compiler
             .context
@@ -67,9 +62,11 @@ pub fn logical_not<'ctx, T>(
             .context
             .append_basic_block(cur_function.function, "");
 
-        compiler
-            .builder
-            .build_conditional_branch(boolean_field, true_block, false_block);
+        compiler.builder.build_conditional_branch(
+            boolean_field.load_value(compiler),
+            true_block,
+            false_block,
+        );
 
         // describe false case
         compiler.builder.position_at_end(false_block);

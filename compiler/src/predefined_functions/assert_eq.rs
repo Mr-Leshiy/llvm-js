@@ -1,5 +1,8 @@
 use super::{abort::AbortFn, Compiler, PredefineFunctionName};
-use crate::{variable::Field, Error, Function, Variable};
+use crate::{
+    variable::{BooleanField, NumberField},
+    Error, Function, Variable,
+};
 use inkwell::{FloatPredicate, IntPredicate};
 
 #[derive(Clone)]
@@ -27,17 +30,8 @@ impl AssertEqFn {
         // number case
         let arg1_number_case_f = |_compiler: &Compiler<'ctx, T>| {
             let arg2_number_case_f = |compiler: &Compiler<'ctx, T>| {
-                let arg1_number_field = arg1.get_field(compiler, Field::Number);
-                let arg1_number_field = compiler
-                    .builder
-                    .build_load(arg1_number_field, "")
-                    .into_float_value();
-
-                let arg2_number_field = arg2.get_field(compiler, Field::Number);
-                let arg2_number_field = compiler
-                    .builder
-                    .build_load(arg2_number_field, "")
-                    .into_float_value();
+                let arg1_number_field = arg1.get_field::<T, NumberField>(compiler);
+                let arg2_number_field = arg2.get_field::<T, NumberField>(compiler);
 
                 let true_block = compiler
                     .context
@@ -49,8 +43,8 @@ impl AssertEqFn {
                 compiler.builder.build_conditional_branch(
                     compiler.builder.build_float_compare(
                         FloatPredicate::OEQ,
-                        arg1_number_field,
-                        arg2_number_field,
+                        arg1_number_field.load_value(compiler),
+                        arg2_number_field.load_value(compiler),
                         "",
                     ),
                     true_block,
@@ -95,17 +89,8 @@ impl AssertEqFn {
                 abort_fn.abort(compiler);
             };
             let arg2_boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-                let arg1_boolean_field = arg1.get_field(compiler, Field::Boolean);
-                let arg1_boolean_field = compiler
-                    .builder
-                    .build_load(arg1_boolean_field, "")
-                    .into_int_value();
-
-                let arg2_boolean_field = arg2.get_field(compiler, Field::Boolean);
-                let arg2_boolean_field = compiler
-                    .builder
-                    .build_load(arg2_boolean_field, "")
-                    .into_int_value();
+                let arg1_boolean_field = arg1.get_field::<T, BooleanField>(compiler);
+                let arg2_boolean_field = arg2.get_field::<T, BooleanField>(compiler);
 
                 let true_block = compiler
                     .context
@@ -117,8 +102,8 @@ impl AssertEqFn {
                 compiler.builder.build_conditional_branch(
                     compiler.builder.build_int_compare(
                         IntPredicate::EQ,
-                        arg1_boolean_field,
-                        arg2_boolean_field,
+                        arg1_boolean_field.load_value(compiler),
+                        arg2_boolean_field.load_value(compiler),
                         "",
                     ),
                     true_block,
