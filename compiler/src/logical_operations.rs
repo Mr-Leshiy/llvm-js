@@ -4,7 +4,7 @@ use crate::{
 };
 
 pub fn logical_not<'ctx, T>(
-    compiler: &mut Compiler<'ctx, T>,
+    compiler: &Compiler<'ctx, T>,
     cur_function: &Function<'ctx, T>,
     arg: Variable<'ctx>,
 ) -> Result<Variable<'ctx>, Error<T>> {

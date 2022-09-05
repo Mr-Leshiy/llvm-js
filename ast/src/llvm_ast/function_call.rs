@@ -37,11 +37,9 @@ impl Compile<Identifier> for FunctionCall {
             }
             AssertFn::NAME => {
                 let assert = compiler.predefined_functions().get_assert()?;
-                let abort = compiler.predefined_functions().get_abort()?;
                 assert.assert(
                     compiler,
                     cur_function,
-                    abort,
                     args.into_iter()
                         .next()
                         .ok_or(compiler::Error::NotEnoughArguments)?,
@@ -49,12 +47,10 @@ impl Compile<Identifier> for FunctionCall {
             }
             AssertEqFn::NAME => {
                 let assert_eq = compiler.predefined_functions().get_assert_eq()?;
-                let abort = compiler.predefined_functions().get_abort()?;
                 let mut iter = args.into_iter();
                 assert_eq.assert_eq(
                     compiler,
                     cur_function,
-                    abort,
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 )
