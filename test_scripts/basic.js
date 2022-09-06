@@ -1,6 +1,8 @@
-var a = 5;
-var b = a;
-a = 6;
-
+var a = "Hello world";
 print(a);
-print(b);
+// var b = a;
+// print(b);
+// a = 6;
+
+// print(a);
+// print(b);

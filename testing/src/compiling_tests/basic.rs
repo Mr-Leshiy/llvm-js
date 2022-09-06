@@ -2,12 +2,15 @@ use crate::compile::CompileSuite;
 
 #[test]
 fn primitive_types_test() {
-    CompileSuite::new("../test_scripts/basic/primitive_types.js", "primitive_types")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+    CompileSuite::new(
+        "../test_scripts/basic/primitive_types.js",
+        "primitive_types",
+    )
+    .compile()
+    .unwrap()
+    .run()
+    .unwrap()
+    .cleanup();
 }
 
 #[test]
