@@ -34,11 +34,12 @@ assert_eq(a3, a1);
 var a5 = a4;
 assert_eq(a5, a4);
 
+a4 = 0;
+assert_eq(a4, 0);
+assert_eq(a5 , false);
+
 a5 = 0;
 assert_eq(a5, 0);
-
-a4 = 0;
-assert_eq(a5, a4);
 
 var _a_1 = true;
 assert_eq(_a_1, true);

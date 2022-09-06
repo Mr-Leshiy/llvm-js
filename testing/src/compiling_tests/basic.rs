@@ -1,13 +1,16 @@
 use crate::compile::CompileSuite;
 
 #[test]
-fn variables_test() {
-    CompileSuite::new("../test_scripts/basic/variables.js", "variables")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+fn primitive_types_test() {
+    CompileSuite::new(
+        "../test_scripts/basic/primitive_types.js",
+        "primitive_types",
+    )
+    .compile()
+    .unwrap()
+    .run()
+    .unwrap()
+    .cleanup();
 }
 
 #[test]
