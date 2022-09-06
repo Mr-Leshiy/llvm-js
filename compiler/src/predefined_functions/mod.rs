@@ -31,7 +31,7 @@ impl<'ctx> Default for PredefineFunctions<'ctx> {
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             printf: None,
             assert: None,
@@ -42,7 +42,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
         }
     }
 
-    pub fn declare<Iter, T>(
+    pub(crate) fn declare<Iter, T>(
         compiler: &mut Compiler<'ctx, T>,
         predefined_functions: Iter,
     ) -> Result<Self, Error<T>>

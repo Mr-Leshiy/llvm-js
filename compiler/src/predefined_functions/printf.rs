@@ -63,10 +63,8 @@ impl<'ctx> PrintFn<'ctx> {
             p_str_fmt,
         }
     }
-}
 
-impl<'ctx> PrintFn<'ctx> {
-    pub fn print<T>(
+    pub fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         cur_function: &Function<'ctx, T>,

@@ -2,8 +2,7 @@ use super::{Identifier, VariableExpression};
 use compiler::{
     self,
     predefined_functions::{
-        abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
-        PredefineFunctionName,
+        assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, PredefineFunctionName,
     },
     Compile, Compiler, Function,
 };
@@ -27,7 +26,7 @@ impl Compile<Identifier> for FunctionCall {
         match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let pritnf = compiler.predefined_functions().get_print()?;
-                pritnf.print(
+                pritnf.call(
                     compiler,
                     cur_function,
                     args.into_iter()
@@ -37,7 +36,7 @@ impl Compile<Identifier> for FunctionCall {
             }
             AssertFn::NAME => {
                 let assert = compiler.predefined_functions().get_assert()?;
-                assert.assert(
+                assert.call(
                     compiler,
                     cur_function,
                     args.into_iter()
@@ -54,11 +53,6 @@ impl Compile<Identifier> for FunctionCall {
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 )
-            }
-            AbortFn::NAME => {
-                let abort = compiler.predefined_functions().get_abort()?;
-                abort.abort(compiler);
-                Ok(())
             }
             _ => {
                 let function = compiler.get_function(self.name)?;

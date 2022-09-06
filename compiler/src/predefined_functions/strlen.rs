@@ -31,10 +31,8 @@ impl<'ctx> StrlenFn<'ctx> {
 
         Self { func }
     }
-}
 
-impl<'ctx> StrlenFn<'ctx> {
-    pub fn strcmp<T>(&self, compiler: &Compiler<'ctx, T>, var: String<'ctx>) -> IntValue<'ctx> {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, var: String<'ctx>) -> IntValue<'ctx> {
         compiler
             .builder
             .build_call(self.func, &[var.load_value(compiler).into()], "")

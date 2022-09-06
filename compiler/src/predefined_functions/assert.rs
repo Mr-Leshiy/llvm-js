@@ -12,10 +12,8 @@ impl AssertFn {
     pub(super) fn declare() -> Self {
         Self
     }
-}
 
-impl AssertFn {
-    pub fn assert<'ctx, T>(
+    pub fn call<'ctx, T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         cur_function: &Function<'ctx, T>,
@@ -25,11 +23,11 @@ impl AssertFn {
 
         let number_case_f = |compiler: &Compiler<'ctx, T>| {
             // TODO implement
-            abort_fn.abort(compiler);
+            abort_fn.call(compiler);
         };
         let string_case_f = |compiler: &Compiler<'ctx, T>| {
             // TODO implement
-            abort_fn.abort(compiler);
+            abort_fn.call(compiler);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx, T>| {
             let boolean_field = arg.get_field::<T, BooleanField>(compiler);
@@ -49,7 +47,7 @@ impl AssertFn {
 
             // describe false case
             compiler.builder.position_at_end(false_block);
-            abort_fn.abort(compiler);
+            abort_fn.call(compiler);
             compiler.builder.build_unconditional_branch(true_block);
 
             // describe true case

@@ -16,9 +16,7 @@ impl AssertEqFn {
     pub(super) fn declare() -> Self {
         Self
     }
-}
 
-impl AssertEqFn {
     pub fn assert_eq<'ctx, T>(
         &self,
         compiler: &Compiler<'ctx, T>,
@@ -54,17 +52,17 @@ impl AssertEqFn {
 
                 // describe false case
                 compiler.builder.position_at_end(false_block);
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
                 compiler.builder.build_unconditional_branch(true_block);
 
                 // describe true case
                 compiler.builder.position_at_end(true_block);
             };
             let arg2_string_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             let arg2_boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             arg2.switch_type(
                 compiler,
@@ -78,13 +76,13 @@ impl AssertEqFn {
         // string case
         let arg1_string_case_f = |_compiler: &Compiler<'ctx, T>| {
             let arg2_number_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             let arg2_string_case_f = |compiler: &Compiler<'ctx, T>| {
                 let arg1_string_field = arg1.get_field::<T, StringField>(compiler);
                 let arg2_string_field = arg2.get_field::<T, StringField>(compiler);
 
-                let ret = strcmp_fn.strcmp(compiler, arg1_string_field, arg2_string_field);
+                let ret = strcmp_fn.call(compiler, arg1_string_field, arg2_string_field);
 
                 let true_block = compiler
                     .context
@@ -106,14 +104,14 @@ impl AssertEqFn {
 
                 // describe false case
                 compiler.builder.position_at_end(false_block);
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
                 compiler.builder.build_unconditional_branch(true_block);
 
                 // describe true case
                 compiler.builder.position_at_end(true_block);
             };
             let arg2_boolean_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             arg2.switch_type(
                 compiler,
@@ -127,10 +125,10 @@ impl AssertEqFn {
         // boolean case
         let arg1_boolean_case_f = |compiler: &Compiler<'ctx, T>| {
             let arg2_number_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             let arg2_string_case_f = |compiler: &Compiler<'ctx, T>| {
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
             };
             let arg2_boolean_case_f = |compiler: &Compiler<'ctx, T>| {
                 let arg1_boolean_field = arg1.get_field::<T, BooleanField>(compiler);
@@ -156,7 +154,7 @@ impl AssertEqFn {
 
                 // describe false case
                 compiler.builder.position_at_end(false_block);
-                abort_fn.abort(compiler);
+                abort_fn.call(compiler);
                 compiler.builder.build_unconditional_branch(true_block);
 
                 // describe true case
