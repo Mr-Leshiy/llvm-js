@@ -258,9 +258,55 @@ impl<R: Read> TokenReader<R> {
         Ok(TokenResult::Result(()))
     }
 
-    // try read logical: '!'
+    // try read logical:
     fn try_read_logical(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
+        if char == '=' {
+            char = match self.char_reader.get_char() {
+                Ok(char) => char,
+                Err(e) if e == char_reader::Error::Eof => return Ok(TokenResult::Result(())),
+                Err(e) => return Err(Error::ReaderError(e)),
+            };
+            if char == '=' {
+                char = match self.char_reader.get_char() {
+                    Ok(char) => char,
+                    Err(e) if e == char_reader::Error::Eof => {
+                        return Ok(TokenResult::Token(Token::Logical(Logical::Eq)))
+                    }
+                    Err(e) => return Err(Error::ReaderError(e)),
+                };
+                if char == '=' {
+                    return Ok(TokenResult::Token(Token::Logical(Logical::SEq)));
+                }
+                self.char_reader.save(char);
+                return Ok(TokenResult::Token(Token::Logical(Logical::Eq)));
+            }
+            self.char_reader.save(char);
+        }
+
         if char == '!' {
+            char = match self.char_reader.get_char() {
+                Ok(char) => char,
+                Err(e) if e == char_reader::Error::Eof => {
+                    return Ok(TokenResult::Token(Token::Logical(Logical::Not)))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            };
+            if char == '=' {
+                char = match self.char_reader.get_char() {
+                    Ok(char) => char,
+                    Err(e) if e == char_reader::Error::Eof => {
+                        return Ok(TokenResult::Token(Token::Logical(Logical::Ne)))
+                    }
+                    Err(e) => return Err(Error::ReaderError(e)),
+                };
+                if char == '=' {
+                    return Ok(TokenResult::Token(Token::Logical(Logical::SNe)));
+                }
+                self.char_reader.save(char);
+                return Ok(TokenResult::Token(Token::Logical(Logical::Ne)));
+            }
+
+            self.char_reader.save(char);
             return Ok(TokenResult::Token(Token::Logical(Logical::Not)));
         }
         if char == '&' {
@@ -407,8 +453,8 @@ impl<R: Read> TokenReader<R> {
             Ok(char) => self.try_skip(char)?.token_or_continue(|char| {
                 self.try_read_identifier(char)?.token_or_continue(|_| {
                     self.try_read_number(char)?.token_or_continue(|_| {
-                        self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                            self.try_read_logical(char)?.token_or_continue(|_| {
+                        self.try_read_logical(char)?.token_or_continue(|_| {
+                            self.try_read_assign_operator(char)?.token_or_continue(|_| {
                                 self.try_read_separator(char)?.token_or_continue(|_| {
                                     self.try_read_string(char)?.token_or_continue(|_| {
                                         Err(Error::UnexpectedSymbol(
