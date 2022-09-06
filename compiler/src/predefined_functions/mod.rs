@@ -76,39 +76,33 @@ impl<'ctx> PredefineFunctions<'ctx> {
         })
     }
 
+    fn get_fn<T, FnType: PredefineFunctionName>(
+        func: Option<&FnType>,
+    ) -> Result<&FnType, Error<T>> {
+        func.ok_or_else(|| Error::UndeclaredFunction(FnType::NAME.to_string()))
+    }
+
     pub fn get_print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
-        self.printf
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(PrintFn::NAME.to_string()))
+        Self::get_fn(self.printf.as_ref())
     }
 
     pub fn get_assert<T>(&self) -> Result<&AssertFn, Error<T>> {
-        self.assert
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(AssertFn::NAME.to_string()))
+        Self::get_fn(self.assert.as_ref())
     }
 
     pub fn get_assert_eq<T>(&self) -> Result<&AssertEqFn, Error<T>> {
-        self.assert_eq
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(AssertEqFn::NAME.to_string()))
+        Self::get_fn(self.assert_eq.as_ref())
     }
 
     pub fn get_abort<T>(&self) -> Result<&AbortFn<'ctx>, Error<T>> {
-        self.abort
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(AbortFn::NAME.to_string()))
+        Self::get_fn(self.abort.as_ref())
     }
 
     pub fn get_strcmp<T>(&self) -> Result<&StrcmpFn<'ctx>, Error<T>> {
-        self.strcmp
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(StrcmpFn::NAME.to_string()))
+        Self::get_fn(self.strcmp.as_ref())
     }
 
     pub fn get_strlen<T>(&self) -> Result<&StrlenFn<'ctx>, Error<T>> {
-        self.strlen
-            .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction(StrlenFn::NAME.to_string()))
+        Self::get_fn(self.strlen.as_ref())
     }
 }

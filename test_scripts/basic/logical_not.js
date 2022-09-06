@@ -32,3 +32,18 @@ assert_eq(!!a, false);
 assert_eq(!!!a, true);
 assert_eq(!!!!a, false);
 assert_eq(!!!!!a, true);
+
+var a = "Hello world";
+assert_eq(!a, false);
+assert_eq(!!a, true);
+assert_eq(!!!a, false);
+assert_eq(!!!!a, true);
+assert_eq(!!!!!a, false);
+
+var a = "";
+assert_eq(!a, true);
+assert_eq(!!a, false);
+assert_eq(!!!a, true);
+assert_eq(!!!!a, false);
+assert_eq(!!!!!a, true);
+
