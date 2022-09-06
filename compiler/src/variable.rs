@@ -215,7 +215,7 @@ impl<'ctx> Variable<'ctx> {
         let string_case_f = |compiler: &Compiler<'ctx, T>| {
             self.update_flag::<T, StringField>(compiler);
             let self_field = self.get_field::<T, StringField>(compiler);
-            let variable_field = self.get_field::<T, StringField>(compiler);
+            let variable_field = variable.get_field::<T, StringField>(compiler);
             self_field.assign_variable(compiler, &variable_field);
         };
         let boolean_case_f = |compiler: &Compiler<'ctx, T>| {

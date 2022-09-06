@@ -19,10 +19,8 @@ impl<'ctx> AbortFn<'ctx> {
 
         Self { func }
     }
-}
 
-impl<'ctx> AbortFn<'ctx> {
-    pub fn abort<T>(&self, compiler: &Compiler<'ctx, T>) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) {
         compiler.builder.build_call(self.func, &[], "");
     }
 }

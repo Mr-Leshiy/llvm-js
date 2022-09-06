@@ -1,8 +1,3 @@
-var a = "Hello world";
-print(a);
-// var b = a;
-// print(b);
-// a = 6;
+var a = "";
 
-// print(a);
-// print(b);
+print(!a);

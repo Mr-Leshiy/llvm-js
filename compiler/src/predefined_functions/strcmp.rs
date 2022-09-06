@@ -38,10 +38,8 @@ impl<'ctx> StrcmpFn<'ctx> {
 
         Self { func }
     }
-}
 
-impl<'ctx> StrcmpFn<'ctx> {
-    pub fn strcmp<T>(
+    pub fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         var1: String<'ctx>,
