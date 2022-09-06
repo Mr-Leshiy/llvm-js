@@ -1,7 +1,6 @@
-var a = true;
+var a = 5;
+var b = a;
+a = 6;
 
-assert_eq(a, true);
-
-assert_eq("hello", "hello");
-
-print("hello world");
+print(a);
+print(b);

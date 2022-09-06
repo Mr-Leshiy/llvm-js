@@ -1,8 +1,8 @@
 use crate::compile::CompileSuite;
 
 #[test]
-fn variables_test() {
-    CompileSuite::new("../test_scripts/basic/variables.js", "variables")
+fn primitive_types_test() {
+    CompileSuite::new("../test_scripts/basic/primitive_types.js", "primitive_types")
         .compile()
         .unwrap()
         .run()
