@@ -1,8 +1,5 @@
 var a = "Hello world";
+var b = a;
+a = "hello";
 print(a);
-// var b = a;
-// print(b);
-// a = 6;
-
-// print(a);
-// print(b);
+print(b);
