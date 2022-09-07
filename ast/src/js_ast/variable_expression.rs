@@ -29,14 +29,14 @@ impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for Vari
             OutputExpression::UnaryExpression(expr) => {
                 Self::UnaryExpression(Box::new(UnaryExpression {
                     exp: expr.exp.into(),
-                    exp_type: expr.op_type,
+                    exp_type: expr.exp_type,
                 }))
             }
             OutputExpression::BinaryExpression(expr) => {
                 Self::BinaryExpression(Box::new(BinaryExpression {
                     left: expr.left.into(),
                     right: expr.right.into(),
-                    op_type: expr.op_type,
+                    exp_type: expr.exp_type,
                 }))
             }
         }
@@ -83,11 +83,11 @@ impl VariableExpression {
             reader.start_saving();
             let parse_binary_op = |reader: &mut TokenReader<R>,
                                    rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
-                                   op_type|
+                                   exp_type|
              -> Result<(), Error> {
                 reader.reset_saving();
                 rpn.build(InputExpression::Value(Value::Operation(
-                    Operation::BinaryOp(op_type),
+                    Operation::BinaryOp(exp_type),
                 )))?;
                 Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
                 Ok(())
@@ -131,7 +131,9 @@ impl VariableExpression {
             Self::UnaryExpression(expr) => Ok(llvm_ast::VariableExpression::UnaryExpression(
                 Box::new(expr.precompile(precompiler)?),
             )),
-            Self::BinaryExpression(_) => todo!("implement"),
+            Self::BinaryExpression(expr) => Ok(llvm_ast::VariableExpression::BinaryExpression(
+                Box::new(expr.precompile(precompiler)?),
+            )),
         }
     }
 }
@@ -187,7 +189,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::And,
+                    exp_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -201,7 +203,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::And,
+                    exp_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -217,7 +219,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::And,
+                    exp_type: BinaryExpType::And,
                 }
             ))),
         );
@@ -232,7 +234,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::Or,
+                    exp_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -246,7 +248,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::Or,
+                    exp_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -262,7 +264,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::Or,
+                    exp_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -277,7 +279,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::Eq,
+                    exp_type: BinaryExpType::Eq,
                 }
             ))),
         );
@@ -291,7 +293,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::Eq,
+                    exp_type: BinaryExpType::Eq,
                 }
             ))),
         );
@@ -307,7 +309,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::Eq,
+                    exp_type: BinaryExpType::Eq,
                 }
             ))),
         );
@@ -322,7 +324,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::Ne,
+                    exp_type: BinaryExpType::Ne,
                 }
             ))),
         );
@@ -336,7 +338,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::Ne,
+                    exp_type: BinaryExpType::Ne,
                 }
             ))),
         );
@@ -352,7 +354,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::Ne,
+                    exp_type: BinaryExpType::Ne,
                 }
             ))),
         );
@@ -367,7 +369,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::SEq,
+                    exp_type: BinaryExpType::SEq,
                 }
             ))),
         );
@@ -381,7 +383,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::SEq,
+                    exp_type: BinaryExpType::SEq,
                 }
             ))),
         );
@@ -397,7 +399,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::SEq,
+                    exp_type: BinaryExpType::SEq,
                 }
             ))),
         );
@@ -412,7 +414,7 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                     right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    op_type: BinaryExpType::SNe,
+                    exp_type: BinaryExpType::SNe,
                 }
             ))),
         );
@@ -426,7 +428,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "a".to_string().into()
                     )),
-                    op_type: BinaryExpType::SNe,
+                    exp_type: BinaryExpType::SNe,
                 }
             ))),
         );
@@ -442,7 +444,7 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
-                    op_type: BinaryExpType::SNe,
+                    exp_type: BinaryExpType::SNe,
                 }
             ))),
         );
@@ -471,9 +473,9 @@ mod tests {
                             )),
                             exp_type: UnaryExpType::Not,
                         })),
-                        op_type: BinaryExpType::And,
+                        exp_type: BinaryExpType::And,
                     })),
-                    op_type: BinaryExpType::Or,
+                    exp_type: BinaryExpType::Or,
                 }
             ))),
         );
@@ -524,9 +526,9 @@ mod tests {
                             )),
                             exp_type: UnaryExpType::Not,
                         })),
-                        op_type: BinaryExpType::And,
+                        exp_type: BinaryExpType::And,
                     })),
-                    op_type: BinaryExpType::Or,
+                    exp_type: BinaryExpType::Or,
                 }
             )))
         );

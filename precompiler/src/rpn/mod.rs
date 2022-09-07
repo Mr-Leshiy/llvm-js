@@ -116,27 +116,27 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                 Value::Value(value) => {
                     stack.push(OutputExpression::Value(value));
                 }
-                Value::Operation(Operation::BinaryOp(op_type)) => {
+                Value::Operation(Operation::BinaryOp(exp_type)) => {
                     let right = stack.pop().unwrap();
                     let left = stack.pop().unwrap();
                     stack.push(OutputExpression::BinaryExpression(Box::new(
                         BinaryExpression {
                             left,
                             right,
-                            op_type,
+                            exp_type,
                         },
                     )));
                 }
-                Value::Operation(Operation::PostfixOp(op_type)) => {
+                Value::Operation(Operation::PostfixOp(exp_type)) => {
                     let exp = stack.pop().unwrap();
                     stack.push(OutputExpression::UnaryExpression(Box::new(
-                        UnaryExpression { exp, op_type },
+                        UnaryExpression { exp, exp_type },
                     )))
                 }
-                Value::Operation(Operation::PrefixOp(op_type)) => {
+                Value::Operation(Operation::PrefixOp(exp_type)) => {
                     let exp = stack.pop().unwrap();
                     stack.push(OutputExpression::UnaryExpression(Box::new(
-                        UnaryExpression { exp, op_type },
+                        UnaryExpression { exp, exp_type },
                     )))
                 }
             }
@@ -258,18 +258,18 @@ mod tests {
                         left: OutputExpression::Value(1),
                         right: OutputExpression::UnaryExpression(Box::new(UnaryExpression {
                             exp: OutputExpression::Value(2),
-                            op_type: UnOp::PrefixInc
+                            exp_type: UnOp::PrefixInc
                         })),
-                        op_type: BinOp::Sum,
+                        exp_type: BinOp::Sum,
                     })),
                     right: OutputExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: OutputExpression::Value(4),
-                        op_type: UnOp::PostfixInc
+                        exp_type: UnOp::PostfixInc
                     })),
-                    op_type: BinOp::Mul
+                    exp_type: BinOp::Mul
                 })),
                 right: OutputExpression::Value(3),
-                op_type: BinOp::Sub,
+                exp_type: BinOp::Sub,
             }))
         );
     }

@@ -145,3 +145,39 @@ pub fn logical_or<'ctx, T>(
 ) -> Result<Variable<'ctx>, Error<T>> {
     todo!("implement");
 }
+
+pub fn logical_eq<'ctx, T>(
+    _compiler: &Compiler<'ctx, T>,
+    _cur_function: &Function<'ctx, T>,
+    _var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
+) -> Result<Variable<'ctx>, Error<T>> {
+    todo!("implement");
+}
+
+pub fn logical_ne<'ctx, T>(
+    _compiler: &Compiler<'ctx, T>,
+    _cur_function: &Function<'ctx, T>,
+    _var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
+) -> Result<Variable<'ctx>, Error<T>> {
+    todo!("implement");
+}
+
+pub fn logical_seq<'ctx, T>(
+    _compiler: &Compiler<'ctx, T>,
+    _cur_function: &Function<'ctx, T>,
+    _var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
+) -> Result<Variable<'ctx>, Error<T>> {
+    todo!("implement");
+}
+
+pub fn logical_sne<'ctx, T>(
+    _compiler: &Compiler<'ctx, T>,
+    _cur_function: &Function<'ctx, T>,
+    _var1: Variable<'ctx>,
+    _var2: Variable<'ctx>,
+) -> Result<Variable<'ctx>, Error<T>> {
+    todo!("implement");
+}
