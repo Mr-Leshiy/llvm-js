@@ -2,7 +2,7 @@ use char_reader::CharReader;
 pub use position::Position;
 use std::io::Read;
 use thiserror::Error;
-pub use tokens::{Keyword, Literal, Logical, Separator, Token};
+pub use tokens::{Arithmetic, Keyword, Literal, Logical, Separator, Token};
 
 mod char_reader;
 mod position;
@@ -86,7 +86,6 @@ impl<R: Read> TokenReader<R> {
     // Skip comments as "// ... ", "/* ... */"
     fn try_skip_comments(&mut self, char: char) -> Result<TokenResult<char>, Error> {
         if char == '/' {
-            let position = self.char_reader.get_position().clone();
             match self.char_reader.get_char() {
                 Ok(mut char) => match char {
                     // handle "// ... " case
@@ -140,14 +139,12 @@ impl<R: Read> TokenReader<R> {
                         };
                         Ok(TokenResult::Result(char))
                     }
-                    char => Err(Error::UnexpectedSymbol(
-                        char,
-                        self.char_reader.get_position().clone(),
-                    )),
+                    char => {
+                        self.char_reader.save(char);
+                        Ok(TokenResult::Result('/'))
+                    }
                 },
-                Err(e) if e == char_reader::Error::Eof => {
-                    Err(Error::UnexpectedSymbol('/', position))
-                }
+                Err(e) if e == char_reader::Error::Eof => Ok(TokenResult::Result('/')),
                 Err(e) => Err(Error::ReaderError(e)),
             }
         } else {
@@ -221,7 +218,7 @@ impl<R: Read> TokenReader<R> {
 
     // try read number: [0-9.]+
     fn try_read_number(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
-        if char.is_ascii_digit() || char == '-' {
+        if char.is_ascii_digit() {
             let mut number = char.to_string();
             loop {
                 char = match self.char_reader.get_char() {
@@ -250,7 +247,7 @@ impl<R: Read> TokenReader<R> {
         Ok(TokenResult::Result(()))
     }
 
-    // try read assign operator: '='
+    // try read assign operator
     fn try_read_assign_operator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
         if char == '=' {
             return Ok(TokenResult::Token(Token::Assign));
@@ -258,7 +255,7 @@ impl<R: Read> TokenReader<R> {
         Ok(TokenResult::Result(()))
     }
 
-    // try read logical:
+    // try read logical
     fn try_read_logical(&mut self, mut char: char) -> Result<TokenResult<()>, Error> {
         if char == '=' {
             char = match self.char_reader.get_char() {
@@ -338,6 +335,23 @@ impl<R: Read> TokenReader<R> {
             } else {
                 return Err(Error::UnexpectedSymbol('|', postion));
             }
+        }
+        Ok(TokenResult::Result(()))
+    }
+
+    // try read arithmetic
+    fn try_read_arithmetic(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+        if char == '+' {
+            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Add)));
+        }
+        if char == '-' {
+            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Sub)));
+        }
+        if char == '*' {
+            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Mul)));
+        }
+        if char == '/' {
+            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Div)));
         }
         Ok(TokenResult::Result(()))
     }
@@ -454,13 +468,15 @@ impl<R: Read> TokenReader<R> {
                 self.try_read_identifier(char)?.token_or_continue(|_| {
                     self.try_read_number(char)?.token_or_continue(|_| {
                         self.try_read_logical(char)?.token_or_continue(|_| {
-                            self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                                self.try_read_separator(char)?.token_or_continue(|_| {
-                                    self.try_read_string(char)?.token_or_continue(|_| {
-                                        Err(Error::UnexpectedSymbol(
-                                            char,
-                                            self.char_reader.get_position().clone(),
-                                        ))
+                            self.try_read_arithmetic(char)?.token_or_continue(|_| {
+                                self.try_read_assign_operator(char)?.token_or_continue(|_| {
+                                    self.try_read_separator(char)?.token_or_continue(|_| {
+                                        self.try_read_string(char)?.token_or_continue(|_| {
+                                            Err(Error::UnexpectedSymbol(
+                                                char,
+                                                self.char_reader.get_position().clone(),
+                                            ))
+                                        })
                                     })
                                 })
                             })

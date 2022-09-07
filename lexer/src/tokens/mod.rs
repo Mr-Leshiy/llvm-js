@@ -1,9 +1,11 @@
+pub use arithmetic::Arithmetic;
 pub use keyword::Keyword;
 pub use literal::Literal;
 pub use logical::Logical;
 pub use separator::Separator;
 use std::fmt::Display;
 
+mod arithmetic;
 mod keyword;
 mod literal;
 mod logical;
@@ -17,6 +19,8 @@ pub enum Token {
     Assign,
     // logical token
     Logical(Logical),
+    // arithmetic token,
+    Arithmetic(Arithmetic),
     /// ident token, e.g. "val1", "car_type"
     Ident(String),
     /// literal token
@@ -33,6 +37,7 @@ impl Display for Token {
             Self::Keyword(val) => val.fmt(f),
             Self::Assign => write!(f, "Assign token"),
             Self::Logical(val) => val.fmt(f),
+            Self::Arithmetic(val) => val.fmt(f),
             Self::Ident(val) => write!(f, "Ident token, val: {}", val),
             Self::Literal(val) => val.fmt(f),
             Self::Separator(val) => val.fmt(f),

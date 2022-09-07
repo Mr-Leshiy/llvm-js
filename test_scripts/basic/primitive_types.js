@@ -1,9 +1,6 @@
 var a = 0;
 assert_eq(a, 0);
 
-var a = -1;
-assert_eq(a, -1);
-
 var a1 = 5;
 assert_eq(a1, 5);
 
