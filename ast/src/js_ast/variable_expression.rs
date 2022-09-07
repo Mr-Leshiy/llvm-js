@@ -2,7 +2,7 @@ use super::{
     BinaryExpType, BinaryExpression, Identifier, UnaryExpType, UnaryExpression, VariableValue,
 };
 use crate::{llvm_ast, Error};
-use lexer::{Logical, Separator, Token, TokenReader, Arithmetic};
+use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
 use precompiler::{
     self,
     rpn::{

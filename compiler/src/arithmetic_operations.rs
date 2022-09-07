@@ -1,6 +1,4 @@
-use crate::{
-    Compiler, Error, Function, Variable,
-};
+use crate::{Compiler, Error, Function, Variable};
 
 pub fn arithmetic_add<'ctx, T>(
     _compiler: &Compiler<'ctx, T>,
