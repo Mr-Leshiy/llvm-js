@@ -5,6 +5,7 @@ use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
 pub use variable::Variable;
 
+pub mod arithmetic_operations;
 mod context;
 mod function;
 pub mod logical_operations;
