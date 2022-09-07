@@ -12,13 +12,21 @@ pub struct BinaryExpression {
 pub enum BinaryExpType {
     And,
     Or,
+    Eq,
+    Ne,
+    SEq,
+    SNe,
 }
 
 impl Priority for BinaryExpType {
     fn priority(&self) -> u8 {
         match self {
-            BinaryExpType::And => 0,
-            BinaryExpType::Or => 0,
+            BinaryExpType::Eq => 8,
+            BinaryExpType::Ne => 8,
+            BinaryExpType::SEq => 8,
+            BinaryExpType::SNe => 8,
+            BinaryExpType::And => 4,
+            BinaryExpType::Or => 3,
         }
     }
 }

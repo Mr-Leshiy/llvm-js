@@ -81,20 +81,36 @@ impl VariableExpression {
         }
         if !is_unary {
             reader.start_saving();
+            let parse_binary_op = |reader: &mut TokenReader<R>,
+                                   rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
+                                   op_type|
+             -> Result<(), Error> {
+                reader.reset_saving();
+                rpn.build(InputExpression::Value(Value::Operation(
+                    Operation::BinaryOp(op_type),
+                )))?;
+                Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
+                Ok(())
+            };
+
             match reader.next_token()? {
                 Token::Logical(Logical::Or) => {
-                    reader.reset_saving();
-                    rpn.build(InputExpression::Value(Value::Operation(
-                        Operation::BinaryOp(BinaryExpType::Or),
-                    )))?;
-                    Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
+                    parse_binary_op(reader, rpn, BinaryExpType::Or)?;
                 }
                 Token::Logical(Logical::And) => {
-                    reader.reset_saving();
-                    rpn.build(InputExpression::Value(Value::Operation(
-                        Operation::BinaryOp(BinaryExpType::And),
-                    )))?;
-                    Self::parse_impl(reader.next_token()?, reader, rpn, false)?;
+                    parse_binary_op(reader, rpn, BinaryExpType::And)?;
+                }
+                Token::Logical(Logical::Eq) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Eq)?;
+                }
+                Token::Logical(Logical::Ne) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Ne)?;
+                }
+                Token::Logical(Logical::SEq) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::SEq)?;
+                }
+                Token::Logical(Logical::SNe) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::SNe)?;
                 }
                 _ => {
                     reader.stop_saving();
@@ -253,31 +269,211 @@ mod tests {
     }
 
     #[test]
+    fn parse_eq_logical_expression_test() {
+        let mut reader = TokenReader::new("true == false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::Eq,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false == a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    op_type: BinaryExpType::Eq,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a == b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    op_type: BinaryExpType::Eq,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_ne_logical_expression_test() {
+        let mut reader = TokenReader::new("true != false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::Ne,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false != a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    op_type: BinaryExpType::Ne,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a != b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    op_type: BinaryExpType::Ne,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_seq_logical_expression_test() {
+        let mut reader = TokenReader::new("true === false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::SEq,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false === a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    op_type: BinaryExpType::SEq,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a === b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    op_type: BinaryExpType::SEq,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_sne_logical_expression_test() {
+        let mut reader = TokenReader::new("true !== false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    op_type: BinaryExpType::SNe,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false !== a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    op_type: BinaryExpType::SNe,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a !== b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    op_type: BinaryExpType::SNe,
+                }
+            ))),
+        );
+    }
+
+    #[test]
     fn parse_logical_expression_test_1() {
         let mut reader = TokenReader::new("!a || b && !c".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                        left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "a".to_string().into()
-                            )),
-                            exp_type: UnaryExpType::Not,
-                        })),
-                        right: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "b".to_string().into()
-                        )),
-                        op_type: BinaryExpType::Or,
-                    })),
-                    right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "c".to_string().into()
+                            "a".to_string().into()
                         )),
                         exp_type: UnaryExpType::Not,
                     })),
-                    op_type: BinaryExpType::And,
+                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
+                        )),
+                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "c".to_string().into()
+                            )),
+                            exp_type: UnaryExpType::Not,
+                        })),
+                        op_type: BinaryExpType::And,
+                    })),
+                    op_type: BinaryExpType::Or,
                 }
             ))),
         );
