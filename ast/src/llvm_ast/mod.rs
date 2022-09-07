@@ -1,3 +1,4 @@
+pub use binary_expression::{BinaryExpType, BinaryExpression};
 use compiler::{self, Compiler, Context};
 pub use expression::Expression;
 pub use function_call::FunctionCall;
@@ -11,6 +12,7 @@ pub use variable_declaration::VariableDeclaration;
 pub use variable_expression::VariableExpression;
 pub use variable_value::VariableValue;
 
+mod binary_expression;
 mod expression;
 mod function_call;
 mod function_declaration;
