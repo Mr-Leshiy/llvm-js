@@ -42,13 +42,3 @@ fn comments_test() {
         .unwrap()
         .cleanup();
 }
-
-#[test]
-fn logical_not_test() {
-    CompileSuite::new("../test_scripts/basic/logical_not.js", "logical_not")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
-}

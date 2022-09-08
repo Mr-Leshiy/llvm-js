@@ -50,7 +50,7 @@ impl<'ctx> FieldTrait<'ctx> for BooleanField {
 }
 
 impl<'ctx> Variable<'ctx> {
-    fn new<T>(compiler: &Compiler<'ctx, T>) -> Self {
+    pub(crate) fn new<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = Self::get_type(compiler);
 
         let value = compiler.builder.build_alloca(var_type, "");
