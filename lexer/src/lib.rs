@@ -35,6 +35,10 @@ fn can_stop(char: &char) -> bool {
         || char.eq(&'&')
         || char.eq(&'|')
         || char.eq(&'!')
+        || char.eq(&'+')
+        || char.eq(&'-')
+        || char.eq(&'*')
+        || char.eq(&'/')
 }
 
 pub struct TokenReader<R: Read> {
