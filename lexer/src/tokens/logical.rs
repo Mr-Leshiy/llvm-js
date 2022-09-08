@@ -64,6 +64,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::And)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a&&b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::And)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
@@ -74,6 +81,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a || b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Or)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a||b".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Or)));
@@ -94,6 +108,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Eq)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a==b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Eq)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
@@ -104,6 +125,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a === b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SEq)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a===b".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SEq)));
@@ -124,6 +152,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Ne)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a!=b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Ne)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
@@ -134,6 +169,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a !== b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SNe)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a!==b".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SNe)));
