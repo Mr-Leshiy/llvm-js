@@ -41,6 +41,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Add)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a+b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Add)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
@@ -51,6 +58,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a - b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Sub)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a-b".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Sub)));
@@ -71,6 +85,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Div)));
         assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a/b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Div)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 
     #[test]
@@ -81,6 +102,13 @@ mod tests {
         assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a * b".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Mul)));
+        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new("a*b".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Arithmetic(Arithmetic::Mul)));
