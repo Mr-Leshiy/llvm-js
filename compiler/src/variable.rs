@@ -74,6 +74,10 @@ impl<'ctx> Variable<'ctx> {
         )
     }
 
+    pub(crate) fn get_type_<T>(compiler: &Compiler<'ctx, T>) -> StructType<'ctx> {
+        compiler.context.opaque_struct_type("VariableType")
+    }
+
     pub(crate) fn get_field<T, Field: FieldTrait<'ctx>>(
         &self,
         compiler: &Compiler<'ctx, T>,

@@ -2,7 +2,7 @@ use super::{Identifier, VariableExpression};
 use compiler::{
     self,
     predefined_functions::{
-        assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, PredefineFunctionName,
+        assert::AssertFn, assert_eq::AssertEqFn, variable::PrintFn, PredefineFunctionName,
     },
     Compile, Compiler, Function,
 };
@@ -28,11 +28,11 @@ impl Compile<Identifier> for FunctionCall {
                 let pritnf = compiler.predefined_functions().get_print()?;
                 pritnf.call(
                     compiler,
-                    cur_function,
                     args.into_iter()
                         .next()
                         .ok_or(compiler::Error::NotEnoughArguments)?,
-                )
+                );
+                Ok(())
             }
             AssertFn::NAME => {
                 let assert = compiler.predefined_functions().get_assert()?;
