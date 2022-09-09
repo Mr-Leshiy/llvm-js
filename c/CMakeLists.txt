@@ -4,5 +4,4 @@ set(SOURCES
         variable.c
         )
 
-set(BUILD STATIC)
-add_library(${LIB_NAME} ${BUILD} ${SOURCES})
+add_library(${LIB_NAME} STATIC ${SOURCES})

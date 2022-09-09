@@ -13,4 +13,6 @@ typedef struct VariableType
 
 VariableType *allocate();
 
+void foo();
+
 #endif
