@@ -2,6 +2,9 @@
 
 /.vscode
 
+/build
+
 *.ll
+basic.js
 
 test_run

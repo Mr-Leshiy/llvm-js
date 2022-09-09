@@ -1,10 +1,11 @@
 use self::{
-    abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, strcmp::StrcmpFn,
-    strlen::StrlenFn,
+    abort::AbortFn, allocate::AllocateFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
+    strcmp::StrcmpFn, strlen::StrlenFn,
 };
 use crate::{Compiler, Error};
 
 pub mod abort;
+pub mod allocate;
 pub mod assert;
 pub mod assert_eq;
 pub mod printf;
@@ -22,6 +23,7 @@ pub struct PredefineFunctions<'ctx> {
     abort: Option<AbortFn<'ctx>>,
     strcmp: Option<StrcmpFn<'ctx>>,
     strlen: Option<StrlenFn<'ctx>>,
+    allocate: Option<AllocateFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -39,6 +41,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             abort: None,
             strcmp: None,
             strlen: None,
+            allocate: None,
         }
     }
 
@@ -55,6 +58,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let mut abort = None;
         let mut strcmp = None;
         let mut strlen = None;
+        let mut allocate = None;
         for function_name in predefined_functions {
             match function_name.as_str() {
                 PrintFn::NAME => printf = Some(PrintFn::declare(compiler)),
@@ -63,6 +67,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
                 AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
                 StrcmpFn::NAME => strcmp = Some(StrcmpFn::declare(compiler)),
                 StrlenFn::NAME => strlen = Some(StrlenFn::declare(compiler)),
+                AllocateFn::NAME => allocate = Some(AllocateFn::declare(compiler)),
                 _ => return Err(Error::UndeclaredFunction(function_name)),
             }
         }
@@ -73,6 +78,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             abort,
             strcmp,
             strlen,
+            allocate,
         })
     }
 
@@ -104,5 +110,9 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_strlen<T>(&self) -> Result<&StrlenFn<'ctx>, Error<T>> {
         Self::get_fn(self.strlen.as_ref())
+    }
+
+    pub fn get_allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
+        Self::get_fn(self.allocate.as_ref())
     }
 }

@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  c-test:
+    name: C tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: [
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DCMAKE_BUILD_TYPE=Release",
+        ]
+    steps:
+      - uses: actions/checkout@v1
+        name: checkout
+        with:
+          submodules: recursive
+          clean: true
+      - name: cmake
+        run: cmake . -Bbuild ${{ matrix.flags }}
+      - name: build
+        run: cmake --build build -- -j2
+      - name: test
+        run: cd build && ctest

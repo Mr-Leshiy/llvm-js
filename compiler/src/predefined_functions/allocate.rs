@@ -1,18 +1,23 @@
 use super::{Compiler, PredefineFunctionName};
-use inkwell::{module::Linkage, values::FunctionValue};
+use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
 
 #[derive(Clone)]
-pub struct AbortFn<'ctx> {
+pub struct AllocateFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AbortFn<'ctx> {
-    const NAME: &'static str = "abort";
+impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
+    const NAME: &'static str = "allocate";
 }
 
-impl<'ctx> AbortFn<'ctx> {
+impl<'ctx> AllocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let function_type = compiler.context.void_type().fn_type(&[], false);
+        let ret_type = compiler
+            .context
+            .opaque_struct_type("js_variable_type")
+            .ptr_type(AddressSpace::Generic);
+
+        let function_type = ret_type.fn_type(&[], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));

@@ -27,7 +27,7 @@ impl<'ctx> StrlenFn<'ctx> {
         );
         let func = compiler
             .module
-            .add_function("strlen", function_type, Some(Linkage::External));
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
 
         Self { func }
     }

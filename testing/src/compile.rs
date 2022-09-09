@@ -1,7 +1,7 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    abort::AbortFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn, strcmp::StrcmpFn,
-    strlen::StrlenFn, PredefineFunctionName,
+    abort::AbortFn, allocate::AllocateFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
+    strcmp::StrcmpFn, strlen::StrlenFn, PredefineFunctionName,
 };
 use std::{
     env::current_dir,
@@ -71,6 +71,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
         AssertEqFn::NAME.to_string(),
         StrcmpFn::NAME.to_string(),
         StrlenFn::NAME.to_string(),
+        AllocateFn::NAME.to_string(),
     ];
 
     let llvm_module = js_module

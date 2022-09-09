@@ -34,7 +34,7 @@ impl<'ctx> StrcmpFn<'ctx> {
         );
         let func = compiler
             .module
-            .add_function("strcmp", function_type, Some(Linkage::External));
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
 
         Self { func }
     }
