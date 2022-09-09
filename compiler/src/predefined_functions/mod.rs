@@ -45,32 +45,14 @@ impl<'ctx> PredefineFunctions<'ctx> {
         }
     }
 
-    pub(crate) fn declare<Iter, T>(
-        compiler: &mut Compiler<'ctx, T>,
-        predefined_functions: Iter,
-    ) -> Result<Self, Error<T>>
-    where
-        Iter: Iterator<Item = String>,
-    {
-        let mut printf = None;
-        let mut assert = None;
-        let mut assert_eq = None;
-        let mut abort = None;
-        let mut strcmp = None;
-        let mut strlen = None;
-        let mut allocate = None;
-        for function_name in predefined_functions {
-            match function_name.as_str() {
-                PrintFn::NAME => printf = Some(PrintFn::declare(compiler)),
-                AssertFn::NAME => assert = Some(AssertFn::declare()),
-                AssertEqFn::NAME => assert_eq = Some(AssertEqFn::declare()),
-                AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
-                StrcmpFn::NAME => strcmp = Some(StrcmpFn::declare(compiler)),
-                StrlenFn::NAME => strlen = Some(StrlenFn::declare(compiler)),
-                AllocateFn::NAME => allocate = Some(AllocateFn::declare(compiler)),
-                _ => return Err(Error::UndeclaredFunction(function_name)),
-            }
-        }
+    pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let printf = Some(PrintFn::declare(compiler));
+        let assert = Some(AssertFn::declare());
+        let assert_eq = Some(AssertEqFn::declare());
+        let abort = Some(AbortFn::declare(compiler));
+        let strcmp = Some(StrcmpFn::declare(compiler));
+        let strlen = Some(StrlenFn::declare(compiler));
+        let allocate = Some(AllocateFn::declare(compiler));
         Ok(Self {
             printf,
             assert,

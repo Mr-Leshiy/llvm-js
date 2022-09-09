@@ -61,14 +61,8 @@ impl<'ctx, T> Compiler<'ctx, T> {
         }
     }
 
-    pub fn declare_extern_functions<Iter>(
-        &mut self,
-        predefined_functions: Iter,
-    ) -> Result<(), Error<T>>
-    where
-        Iter: Iterator<Item = String>,
-    {
-        self.predefined_functions = PredefineFunctions::declare(self, predefined_functions)?;
+    pub fn declare_extern_functions(&mut self) -> Result<(), Error<T>> {
+        self.predefined_functions = PredefineFunctions::declare(self)?;
         Ok(())
     }
 

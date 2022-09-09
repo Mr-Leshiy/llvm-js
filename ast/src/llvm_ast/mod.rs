@@ -30,18 +30,11 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn compile_to<W: Write, Iter>(
-        self,
-        writer: &mut W,
-        extern_functions: Iter,
-    ) -> Result<(), compiler::Error<Identifier>>
-    where
-        Iter: Iterator<Item = String>,
-    {
+    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error<Identifier>> {
         let context = Context::new();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_extern_functions(extern_functions)?;
+        compiler.declare_extern_functions()?;
 
         self.program.compile(&mut compiler)?;
         compiler.write_result_into(writer)

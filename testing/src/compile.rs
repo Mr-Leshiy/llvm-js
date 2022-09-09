@@ -79,7 +79,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
         .map_err(|e| e.to_string())?;
 
     llvm_module
-        .compile_to(&mut out_file, extern_functions.into_iter())
+        .compile_to(&mut out_file)
         .map_err(|e| e.to_string())?;
 
     Ok(())

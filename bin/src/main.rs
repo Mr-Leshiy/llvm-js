@@ -22,7 +22,5 @@ fn main() {
         .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
         .unwrap();
 
-    llvm_module
-        .compile_to(&mut out_file, extern_functions.into_iter())
-        .unwrap()
+    llvm_module.compile_to(&mut out_file).unwrap()
 }
