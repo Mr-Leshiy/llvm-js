@@ -10,7 +10,6 @@ mod context;
 mod function;
 pub mod logical_operations;
 pub mod predefined_functions;
-mod types;
 mod variable;
 
 #[derive(Debug, Error)]

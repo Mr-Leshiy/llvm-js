@@ -28,7 +28,7 @@ where
             .collect();
         let function_type = compiler
             .context
-            .i32_type()
+            .void_type()
             .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 

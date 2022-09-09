@@ -15,7 +15,6 @@ impl Compile<Identifier> for VariableAssigment {
     ) -> Result<(), compiler::Error<Identifier>> {
         let var1 = cur_function.get_variable(self.name)?;
         let var = self.value.compile(compiler, cur_function)?;
-        var1.assign_variable(compiler, cur_function, &var);
-        Ok(())
+        var1.assign_variable(compiler, &var)
     }
 }

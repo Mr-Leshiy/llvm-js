@@ -2,8 +2,6 @@ use self::{
     abort::AbortFn,
     assert::AssertFn,
     assert_eq::AssertEqFn,
-    strcmp::StrcmpFn,
-    strlen::StrlenFn,
     variable::{AllocateFn, PrintFn, SetBooleanFn, SetNumberFn, SetStringFn, SetVariableFn},
 };
 use crate::{Compiler, Error};
@@ -11,8 +9,6 @@ use crate::{Compiler, Error};
 pub mod abort;
 pub mod assert;
 pub mod assert_eq;
-pub mod strcmp;
-pub mod strlen;
 pub mod variable;
 
 pub trait PredefineFunctionName {
@@ -23,8 +19,6 @@ pub struct PredefineFunctions<'ctx> {
     assert: Option<AssertFn>,
     assert_eq: Option<AssertEqFn>,
     abort: Option<AbortFn<'ctx>>,
-    strcmp: Option<StrcmpFn<'ctx>>,
-    strlen: Option<StrlenFn<'ctx>>,
     // variable functions
     allocate: Option<AllocateFn<'ctx>>,
     set_number: Option<SetNumberFn<'ctx>>,
@@ -47,8 +41,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert: None,
             assert_eq: None,
             abort: None,
-            strcmp: None,
-            strlen: None,
             // variable functions
             allocate: None,
             set_number: None,
@@ -62,8 +54,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let assert = Some(AssertFn::declare());
         let assert_eq = Some(AssertEqFn::declare());
         let abort = Some(AbortFn::declare(compiler));
-        let strcmp = Some(StrcmpFn::declare(compiler));
-        let strlen = Some(StrlenFn::declare(compiler));
         // variable functions
         let allocate = Some(AllocateFn::declare(compiler));
         let set_number = Some(SetNumberFn::declare(compiler));
@@ -76,8 +66,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert,
             assert_eq,
             abort,
-            strcmp,
-            strlen,
             allocate,
             set_number,
             set_boolean,
@@ -104,15 +92,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
     pub fn get_abort<T>(&self) -> Result<&AbortFn<'ctx>, Error<T>> {
         Self::get_fn(self.abort.as_ref())
     }
-
-    pub fn get_strcmp<T>(&self) -> Result<&StrcmpFn<'ctx>, Error<T>> {
-        Self::get_fn(self.strcmp.as_ref())
-    }
-
-    pub fn get_strlen<T>(&self) -> Result<&StrlenFn<'ctx>, Error<T>> {
-        Self::get_fn(self.strlen.as_ref())
-    }
-
+    
     // variable functions
     pub fn get_allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
         Self::get_fn(self.allocate.as_ref())

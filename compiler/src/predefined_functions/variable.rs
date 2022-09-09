@@ -1,6 +1,10 @@
 use super::{Compiler, PredefineFunctionName};
 use crate::Variable;
-use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
+use inkwell::{
+    module::Linkage,
+    values::{FunctionValue, PointerValue},
+    AddressSpace,
+};
 
 #[derive(Clone)]
 pub struct AllocateFn<'ctx> {
@@ -13,7 +17,7 @@ impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
 
 impl<'ctx> AllocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let ret_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let ret_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
 
         let function_type = ret_type.fn_type(&[], false);
         let func = compiler
@@ -23,8 +27,14 @@ impl<'ctx> AllocateFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) {
-        compiler.builder.build_call(self.func, &[], "");
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) -> PointerValue<'ctx> {
+        compiler
+            .builder
+            .build_call(self.func, &[], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value()
     }
 }
 
@@ -39,7 +49,7 @@ impl<'ctx> PredefineFunctionName for SetNumberFn<'ctx> {
 
 impl<'ctx> SetNumberFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let self_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
         let number_type = compiler.context.f64_type();
 
         let function_type = compiler
@@ -52,7 +62,7 @@ impl<'ctx> SetNumberFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: Variable<'ctx>, literal: f64) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: f64) {
         compiler.builder.build_call(
             self.func,
             &[
@@ -75,7 +85,7 @@ impl<'ctx> PredefineFunctionName for SetBooleanFn<'ctx> {
 
 impl<'ctx> SetBooleanFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let self_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
         let boolean_type = compiler.context.bool_type();
 
         let function_type = compiler
@@ -88,7 +98,7 @@ impl<'ctx> SetBooleanFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: Variable<'ctx>, literal: bool) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: bool) {
         compiler.builder.build_call(
             self.func,
             &[
@@ -115,7 +125,7 @@ impl<'ctx> PredefineFunctionName for SetStringFn<'ctx> {
 
 impl<'ctx> SetStringFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let self_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
@@ -128,7 +138,7 @@ impl<'ctx> SetStringFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: Variable<'ctx>, literal: &str) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: &str) {
         let literal = compiler.context.const_string(literal.as_bytes(), true);
         let literal = compiler.builder.build_alloca(literal.get_type(), "");
         compiler
@@ -148,7 +158,7 @@ impl<'ctx> PredefineFunctionName for SetVariableFn<'ctx> {
 
 impl<'ctx> SetVariableFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let self_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
             .context
@@ -163,8 +173,8 @@ impl<'ctx> SetVariableFn<'ctx> {
     pub fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
-        val1: Variable<'ctx>,
-        val2: Variable<'ctx>,
+        val1: &Variable<'ctx>,
+        val2: &Variable<'ctx>,
     ) {
         compiler
             .builder
@@ -183,7 +193,7 @@ impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
 
 impl<'ctx> PrintFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = Variable::get_type_(compiler).ptr_type(AddressSpace::Generic);
+        let self_type = Variable::get_type(compiler).ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
             .context
