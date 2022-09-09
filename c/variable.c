@@ -53,3 +53,24 @@ void set_variable(VariableType *self, VariableType *val)
                 break;
         }
 }
+
+void print(VariableType *self)
+{
+        assert(self != NULL);
+
+        switch (self->flag)
+        {
+        case Number:
+                printf("%f\n", self->number_field);
+                break;
+        case Boolean:
+                printf("%d\n", self->boolean_field);
+                break;
+        case String:
+                printf("%s\n", self->string_field);
+                break;
+        default:
+                assert(0);
+                break;
+        }
+}
