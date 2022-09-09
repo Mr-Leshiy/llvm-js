@@ -2,6 +2,8 @@
 
 /.vscode
 
+/build
+
 *.ll
 
 test_run
