@@ -21,12 +21,28 @@ VariableType* logical_not(VariableType* val)
 
 VariableType* logical_and(VariableType* val1, VariableType* val2)
 {
+    assert(val1 != NULL);
+    assert(val2 != NULL);
 
+    VariableType* ret = allocate();
+    val1 = convert_to_boolean(val1);
+    val2 = convert_to_boolean(val2);
+    
+    set_boolean(ret, val1->boolean_field && val2->boolean_field);
+    return ret;
 }
 
 VariableType* logical_or(VariableType* val1, VariableType* val2)
 {
+    assert(val1 != NULL);
+    assert(val2 != NULL);
 
+    VariableType* ret = allocate();
+    val1 = convert_to_boolean(val1);
+    val2 = convert_to_boolean(val2);
+    
+    set_boolean(ret, val1->boolean_field || val2->boolean_field);
+    return ret;
 }
 
 VariableType* logical_eq(VariableType* val1, VariableType* val2)
