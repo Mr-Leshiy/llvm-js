@@ -5,6 +5,8 @@
 /build
 
 *.ll
-basic.js
+*.a
+*.o
 
+basic.js
 test_run

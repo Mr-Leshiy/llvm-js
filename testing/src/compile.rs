@@ -102,9 +102,16 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o{}", out_file_name,);
+    let lib_dir_arg = format!("-L../c/out/");
+    let lib_name_arg = format!("-lllvm-js-lib");
 
     let out = Command::new("clang")
-        .args([out_arg.as_str(), in_arg.as_str()])
+        .args([
+            lib_dir_arg.as_str(),
+            lib_name_arg.as_str(),
+            out_arg.as_str(),
+            in_arg.as_str(),
+        ])
         .output()
         .map_err(|e| e.to_string())?;
     if out.status.success() {
