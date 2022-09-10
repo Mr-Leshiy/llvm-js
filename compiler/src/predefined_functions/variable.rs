@@ -139,8 +139,10 @@ impl<'ctx> SetStringFn<'ctx> {
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: &str) {
-        let literal = compiler.context.const_string(literal.as_bytes(), true);
-        let literal = compiler.builder.build_alloca(literal.get_type(), "");
+        let literal = compiler
+            .builder
+            .build_global_string_ptr(literal, "")
+            .as_pointer_value();
         compiler
             .builder
             .build_call(self.func, &[val.value.into(), literal.into()], "");

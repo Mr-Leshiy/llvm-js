@@ -29,6 +29,16 @@ where
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,
     ) -> Result<(), Error<T>> {
-        self.func.generate_body(compiler, body)
+        let basic_block = compiler
+            .context
+            .append_basic_block(self.func.function, "entry");
+        compiler.builder.position_at_end(basic_block);
+        for expr in body {
+            expr.compile(compiler, &mut self.func)?;
+        }
+        compiler
+            .builder
+            .build_return(Some(&compiler.context.i32_type().const_int(0, false)));
+        Ok(())
     }
 }

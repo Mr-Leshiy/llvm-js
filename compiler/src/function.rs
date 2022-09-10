@@ -1,9 +1,5 @@
 use crate::{Compile, Compiler, Error, Variable};
-use inkwell::{
-    attributes::{Attribute, AttributeLoc},
-    values::FunctionValue,
-    AddressSpace,
-};
+use inkwell::{values::FunctionValue, AddressSpace};
 use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
@@ -33,14 +29,14 @@ where
             .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        // define argument attributes
-        for i in 0..args_type.len() {
-            let attribute = compiler.context.create_type_attribute(
-                Attribute::get_named_enum_kind_id("byval"),
-                compiler.variable_type.into(),
-            );
-            function.add_attribute(AttributeLoc::Param(i as u32), attribute)
-        }
+        // // define argument attributes
+        // for i in 0..args_type.len() {
+        //     let attribute = compiler.context.create_type_attribute(
+        //         Attribute::get_named_enum_kind_id("byval"),
+        //         compiler.variable_type.into(),
+        //     );
+        //     function.add_attribute(AttributeLoc::Param(i as u32), attribute)
+        // }
 
         Self {
             function,
@@ -87,9 +83,7 @@ where
         for expr in body {
             expr.compile(compiler, self)?;
         }
-        compiler
-            .builder
-            .build_return(Some(&compiler.context.i32_type().const_int(0, false)));
+        compiler.builder.build_return(None);
         Ok(())
     }
 
@@ -110,7 +104,7 @@ where
 
         compiler
             .builder
-            .build_call(self.function, vec.as_slice(), "call");
+            .build_call(self.function, vec.as_slice(), "");
         Ok(())
     }
 }
