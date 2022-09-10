@@ -75,9 +75,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
 
     llvm_module
         .compile_to(&mut out_file)
-        .map_err(|e| e.to_string())?;
-
-    Ok(())
+        .map_err(|e| e.to_string())
 }
 
 fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), String> {

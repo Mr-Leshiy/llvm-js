@@ -36,3 +36,34 @@ TEST(VariableType, Basic_test)
     EXPECT_EQ(strcmp(var1->string_field, "foo"), 0);
     EXPECT_EQ(strcmp(var2->string_field, "foo"), 0);
 }
+
+TEST(VariableTest, convert_to_boolean_test)
+{
+    VariableType* res;
+    VariableType* var = allocate();
+
+    set_boolean(var, true);
+    res = convert_to_boolean(var);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_number(var, 2.5);
+    res = convert_to_boolean(var);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_number(var, 0);
+    res = convert_to_boolean(var);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
+
+    set_string(var, "Hello world");
+    res = convert_to_boolean(var);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_string(var, "");
+    res = convert_to_boolean(var);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
+}

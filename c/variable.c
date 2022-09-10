@@ -54,6 +54,43 @@ void set_variable(VariableType *self, VariableType *val)
         }
 }
 
+VariableType* convert_to_boolean(VariableType* val)
+{
+        assert(val != NULL);
+
+        VariableType* ret = allocate();
+        switch (val->flag)
+        {
+        case Number:
+                if(val->number_field == 0) 
+                {
+                        set_boolean(ret, 0);
+                }
+                else 
+                {
+                        set_boolean(ret, 1);
+                }
+                break;
+        case Boolean:
+                set_boolean(ret, val->boolean_field);
+                break;
+        case String:
+                if(strlen(val->string_field) == 0) 
+                {
+                        set_boolean(ret, 0);
+                }
+                else 
+                {
+                        set_boolean(ret, 1);
+                }
+                break;
+        default:
+                assert(0);
+                break;
+        }
+        return ret;
+}
+
 void print(VariableType *self)
 {
         assert(self != NULL);
