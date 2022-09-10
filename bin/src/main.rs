@@ -1,7 +1,6 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    abort::AbortFn, allocate::AllocateFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
-    strcmp::StrcmpFn, strlen::StrlenFn, PredefineFunctionName,
+    assert::AssertFn, assert_eq::AssertEqFn, variable::PrintFn, PredefineFunctionName,
 };
 
 fn main() {
@@ -10,19 +9,13 @@ fn main() {
     let js_module = Module::new("module_1".to_string(), in_file).unwrap();
     let extern_functions = vec![
         PrintFn::NAME.to_string(),
-        AbortFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
         AssertEqFn::NAME.to_string(),
-        StrcmpFn::NAME.to_string(),
-        StrlenFn::NAME.to_string(),
-        AllocateFn::NAME.to_string(),
     ];
 
     let llvm_module = js_module
-        .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
+        .precompile(extern_functions.into_iter().map(|e| e.into()))
         .unwrap();
 
-    llvm_module
-        .compile_to(&mut out_file, extern_functions.into_iter())
-        .unwrap()
+    llvm_module.compile_to(&mut out_file).unwrap()
 }

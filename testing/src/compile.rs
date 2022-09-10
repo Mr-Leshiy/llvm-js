@@ -1,7 +1,6 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    abort::AbortFn, allocate::AllocateFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
-    strcmp::StrcmpFn, strlen::StrlenFn, PredefineFunctionName,
+    assert::AssertFn, assert_eq::AssertEqFn, variable::PrintFn, PredefineFunctionName,
 };
 use std::{
     env::current_dir,
@@ -66,20 +65,16 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
     let js_module = Module::new(module_name, in_file).unwrap();
     let extern_functions = vec![
         PrintFn::NAME.to_string(),
-        AbortFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
         AssertEqFn::NAME.to_string(),
-        StrcmpFn::NAME.to_string(),
-        StrlenFn::NAME.to_string(),
-        AllocateFn::NAME.to_string(),
     ];
 
     let llvm_module = js_module
-        .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
+        .precompile(extern_functions.into_iter().map(|e| e.into()))
         .map_err(|e| e.to_string())?;
 
     llvm_module
-        .compile_to(&mut out_file, extern_functions.into_iter())
+        .compile_to(&mut out_file)
         .map_err(|e| e.to_string())?;
 
     Ok(())
@@ -107,9 +102,16 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o{}", out_file_name,);
+    let lib_dir_arg = "-L../c/out/".to_string();
+    let lib_name_arg = "-lllvm-js-lib".to_string();
 
     let out = Command::new("clang")
-        .args([out_arg.as_str(), in_arg.as_str()])
+        .args([
+            lib_dir_arg.as_str(),
+            lib_name_arg.as_str(),
+            out_arg.as_str(),
+            in_arg.as_str(),
+        ])
         .output()
         .map_err(|e| e.to_string())?;
     if out.status.success() {

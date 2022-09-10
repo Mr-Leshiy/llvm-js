@@ -1,29 +1,31 @@
 use self::{
-    abort::AbortFn, allocate::AllocateFn, assert::AssertFn, assert_eq::AssertEqFn, printf::PrintFn,
-    strcmp::StrcmpFn, strlen::StrlenFn,
+    abort::AbortFn,
+    assert::AssertFn,
+    assert_eq::AssertEqFn,
+    variable::{AllocateFn, PrintFn, SetBooleanFn, SetNumberFn, SetStringFn, SetVariableFn},
 };
 use crate::{Compiler, Error};
 
 pub mod abort;
-pub mod allocate;
 pub mod assert;
 pub mod assert_eq;
-pub mod printf;
-pub mod strcmp;
-pub mod strlen;
+pub mod variable;
 
 pub trait PredefineFunctionName {
     const NAME: &'static str;
 }
 
 pub struct PredefineFunctions<'ctx> {
-    printf: Option<PrintFn<'ctx>>,
     assert: Option<AssertFn>,
     assert_eq: Option<AssertEqFn>,
     abort: Option<AbortFn<'ctx>>,
-    strcmp: Option<StrcmpFn<'ctx>>,
-    strlen: Option<StrlenFn<'ctx>>,
+    // variable functions
     allocate: Option<AllocateFn<'ctx>>,
+    set_number: Option<SetNumberFn<'ctx>>,
+    set_boolean: Option<SetBooleanFn<'ctx>>,
+    set_string: Option<SetStringFn<'ctx>>,
+    set_variable: Option<SetVariableFn<'ctx>>,
+    printf: Option<PrintFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -39,46 +41,37 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert: None,
             assert_eq: None,
             abort: None,
-            strcmp: None,
-            strlen: None,
+            // variable functions
             allocate: None,
+            set_number: None,
+            set_boolean: None,
+            set_string: None,
+            set_variable: None,
         }
     }
 
-    pub(crate) fn declare<Iter, T>(
-        compiler: &mut Compiler<'ctx, T>,
-        predefined_functions: Iter,
-    ) -> Result<Self, Error<T>>
-    where
-        Iter: Iterator<Item = String>,
-    {
-        let mut printf = None;
-        let mut assert = None;
-        let mut assert_eq = None;
-        let mut abort = None;
-        let mut strcmp = None;
-        let mut strlen = None;
-        let mut allocate = None;
-        for function_name in predefined_functions {
-            match function_name.as_str() {
-                PrintFn::NAME => printf = Some(PrintFn::declare(compiler)),
-                AssertFn::NAME => assert = Some(AssertFn::declare()),
-                AssertEqFn::NAME => assert_eq = Some(AssertEqFn::declare()),
-                AbortFn::NAME => abort = Some(AbortFn::declare(compiler)),
-                StrcmpFn::NAME => strcmp = Some(StrcmpFn::declare(compiler)),
-                StrlenFn::NAME => strlen = Some(StrlenFn::declare(compiler)),
-                AllocateFn::NAME => allocate = Some(AllocateFn::declare(compiler)),
-                _ => return Err(Error::UndeclaredFunction(function_name)),
-            }
-        }
+    pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let assert = Some(AssertFn::declare());
+        let assert_eq = Some(AssertEqFn::declare());
+        let abort = Some(AbortFn::declare(compiler));
+        // variable functions
+        let allocate = Some(AllocateFn::declare(compiler));
+        let set_number = Some(SetNumberFn::declare(compiler));
+        let set_boolean = Some(SetBooleanFn::declare(compiler));
+        let set_string = Some(SetStringFn::declare(compiler));
+        let set_variable = Some(SetVariableFn::declare(compiler));
+        let printf = Some(PrintFn::declare(compiler));
+
         Ok(Self {
-            printf,
             assert,
             assert_eq,
             abort,
-            strcmp,
-            strlen,
             allocate,
+            set_number,
+            set_boolean,
+            set_string,
+            set_variable,
+            printf,
         })
     }
 
@@ -86,10 +79,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
         func: Option<&FnType>,
     ) -> Result<&FnType, Error<T>> {
         func.ok_or_else(|| Error::UndeclaredFunction(FnType::NAME.to_string()))
-    }
-
-    pub fn get_print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
-        Self::get_fn(self.printf.as_ref())
     }
 
     pub fn get_assert<T>(&self) -> Result<&AssertFn, Error<T>> {
@@ -104,15 +93,28 @@ impl<'ctx> PredefineFunctions<'ctx> {
         Self::get_fn(self.abort.as_ref())
     }
 
-    pub fn get_strcmp<T>(&self) -> Result<&StrcmpFn<'ctx>, Error<T>> {
-        Self::get_fn(self.strcmp.as_ref())
-    }
-
-    pub fn get_strlen<T>(&self) -> Result<&StrlenFn<'ctx>, Error<T>> {
-        Self::get_fn(self.strlen.as_ref())
-    }
-
+    // variable functions
     pub fn get_allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
         Self::get_fn(self.allocate.as_ref())
+    }
+
+    pub fn get_set_number<T>(&self) -> Result<&SetNumberFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_number.as_ref())
+    }
+
+    pub fn get_set_boolean<T>(&self) -> Result<&SetBooleanFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_boolean.as_ref())
+    }
+
+    pub fn get_set_string<T>(&self) -> Result<&SetStringFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_string.as_ref())
+    }
+
+    pub fn get_set_variable<T>(&self) -> Result<&SetVariableFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_variable.as_ref())
+    }
+
+    pub fn get_print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
+        Self::get_fn(self.printf.as_ref())
     }
 }
