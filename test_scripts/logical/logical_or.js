@@ -11,3 +11,5 @@ assert_eq(0 || false, false);
 assert_eq(false || 0, 0);
 assert_eq(true || "foo", true);
 
+assert_eq(true || 1 || "foo", true);
+assert_eq(0 || false || "foo", "foo");

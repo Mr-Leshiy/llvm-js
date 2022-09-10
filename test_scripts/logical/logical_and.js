@@ -10,3 +10,6 @@ assert_eq(0 && true, 0);
 assert_eq(0 && false, 0);
 assert_eq(false && 0, false);
 assert_eq(true && "foo", "foo");
+
+assert_eq(true && 1 && "foo", "foo");
+assert_eq(0 && false && "", 0);
