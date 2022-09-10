@@ -204,7 +204,7 @@ impl<'ctx> PrintFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: Variable<'ctx>) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
             .builder
             .build_call(self.func, &[val.value.into()], "");

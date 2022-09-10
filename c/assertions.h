@@ -3,7 +3,7 @@
 
 #include "variable.h"
 
-void variable_assert(VariableType* var);
-void variable_assert_eq(VariableType* var1, VariableType* var2);
+void variable_assert(VariableType* val);
+void variable_assert_eq(VariableType* val1, VariableType* val2);
 
 #endif

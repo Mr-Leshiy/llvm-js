@@ -1,7 +1,5 @@
 use self::{
-    abort::AbortFn,
-    assert::AssertFn,
-    assert_eq::AssertEqFn,
+    assertions::{AssertEqFn, AssertFn},
     logical::{
         LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
         LogicalSNeFn,
@@ -10,9 +8,7 @@ use self::{
 };
 use crate::{Compiler, Error};
 
-pub mod abort;
-pub mod assert;
-pub mod assert_eq;
+pub mod assertions;
 pub mod logical;
 pub mod variable;
 
@@ -21,9 +17,9 @@ pub trait PredefineFunctionName {
 }
 
 pub struct PredefineFunctions<'ctx> {
-    assert: Option<AssertFn>,
-    assert_eq: Option<AssertEqFn>,
-    abort: Option<AbortFn<'ctx>>,
+    // assertion functions
+    assert: Option<AssertFn<'ctx>>,
+    assert_eq: Option<AssertEqFn<'ctx>>,
     // variable functions
     allocate: Option<AllocateFn<'ctx>>,
     set_number: Option<SetNumberFn<'ctx>>,
@@ -50,9 +46,9 @@ impl<'ctx> Default for PredefineFunctions<'ctx> {
 impl<'ctx> PredefineFunctions<'ctx> {
     pub(crate) fn new() -> Self {
         Self {
+            // assertion functions
             assert: None,
             assert_eq: None,
-            abort: None,
             // variable functions
             allocate: None,
             set_number: None,
@@ -72,9 +68,9 @@ impl<'ctx> PredefineFunctions<'ctx> {
     }
 
     pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let assert = Some(AssertFn::declare());
-        let assert_eq = Some(AssertEqFn::declare());
-        let abort = Some(AbortFn::declare(compiler));
+        // assertion functions
+        let assert = Some(AssertFn::declare(compiler));
+        let assert_eq = Some(AssertEqFn::declare(compiler));
         // variable functions
         let allocate = Some(AllocateFn::declare(compiler));
         let set_number = Some(SetNumberFn::declare(compiler));
@@ -94,7 +90,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
         Ok(Self {
             assert,
             assert_eq,
-            abort,
             allocate,
             set_number,
             set_boolean,
@@ -117,16 +112,13 @@ impl<'ctx> PredefineFunctions<'ctx> {
         func.ok_or_else(|| Error::UndeclaredFunction(FnType::NAME.to_string()))
     }
 
-    pub fn get_assert<T>(&self) -> Result<&AssertFn, Error<T>> {
+    // assetion functions
+    pub fn get_assert<T>(&self) -> Result<&AssertFn<'ctx>, Error<T>> {
         Self::get_fn(self.assert.as_ref())
     }
 
-    pub fn get_assert_eq<T>(&self) -> Result<&AssertEqFn, Error<T>> {
+    pub fn get_assert_eq<T>(&self) -> Result<&AssertEqFn<'ctx>, Error<T>> {
         Self::get_fn(self.assert_eq.as_ref())
-    }
-
-    pub fn get_abort<T>(&self) -> Result<&AbortFn<'ctx>, Error<T>> {
-        Self::get_fn(self.abort.as_ref())
     }
 
     // variable functions

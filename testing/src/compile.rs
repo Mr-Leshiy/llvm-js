@@ -1,6 +1,8 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    assert::AssertFn, assert_eq::AssertEqFn, variable::PrintFn, PredefineFunctionName,
+    assertions::{AssertEqFn, AssertFn},
+    variable::PrintFn,
+    PredefineFunctionName,
 };
 use std::{
     env::current_dir,
