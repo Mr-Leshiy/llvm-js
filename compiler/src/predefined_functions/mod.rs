@@ -2,6 +2,10 @@ use self::{
     abort::AbortFn,
     assert::AssertFn,
     assert_eq::AssertEqFn,
+    logical::{
+        LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
+        LogicalSNeFn,
+    },
     variable::{AllocateFn, PrintFn, SetBooleanFn, SetNumberFn, SetStringFn, SetVariableFn},
 };
 use crate::{Compiler, Error};
@@ -9,6 +13,7 @@ use crate::{Compiler, Error};
 pub mod abort;
 pub mod assert;
 pub mod assert_eq;
+pub mod logical;
 pub mod variable;
 
 pub trait PredefineFunctionName {
@@ -26,6 +31,14 @@ pub struct PredefineFunctions<'ctx> {
     set_string: Option<SetStringFn<'ctx>>,
     set_variable: Option<SetVariableFn<'ctx>>,
     printf: Option<PrintFn<'ctx>>,
+    // logical functions
+    logical_not: Option<LogicalNotFn<'ctx>>,
+    logical_and: Option<LogicalAndFn<'ctx>>,
+    logical_or: Option<LogicalOrFn<'ctx>>,
+    logical_eq: Option<LogicalEqFn<'ctx>>,
+    logical_ne: Option<LogicalNeFn<'ctx>>,
+    logical_seq: Option<LogicalSEqFn<'ctx>>,
+    logical_sne: Option<LogicalSNeFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -37,7 +50,6 @@ impl<'ctx> Default for PredefineFunctions<'ctx> {
 impl<'ctx> PredefineFunctions<'ctx> {
     pub(crate) fn new() -> Self {
         Self {
-            printf: None,
             assert: None,
             assert_eq: None,
             abort: None,
@@ -47,6 +59,15 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_boolean: None,
             set_string: None,
             set_variable: None,
+            printf: None,
+            // logical functions
+            logical_not: None,
+            logical_and: None,
+            logical_or: None,
+            logical_eq: None,
+            logical_ne: None,
+            logical_seq: None,
+            logical_sne: None,
         }
     }
 
@@ -61,6 +82,14 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let set_string = Some(SetStringFn::declare(compiler));
         let set_variable = Some(SetVariableFn::declare(compiler));
         let printf = Some(PrintFn::declare(compiler));
+        // logical functions
+        let logical_not = Some(LogicalNotFn::declare(compiler));
+        let logical_and = Some(LogicalAndFn::declare(compiler));
+        let logical_or = Some(LogicalOrFn::declare(compiler));
+        let logical_eq = Some(LogicalEqFn::declare(compiler));
+        let logical_ne = Some(LogicalNeFn::declare(compiler));
+        let logical_seq = Some(LogicalSEqFn::declare(compiler));
+        let logical_sne = Some(LogicalSNeFn::declare(compiler));
 
         Ok(Self {
             assert,
@@ -72,6 +101,13 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_string,
             set_variable,
             printf,
+            logical_not,
+            logical_and,
+            logical_or,
+            logical_eq,
+            logical_ne,
+            logical_seq,
+            logical_sne,
         })
     }
 
@@ -116,5 +152,34 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
         Self::get_fn(self.printf.as_ref())
+    }
+
+    // logical functions
+    pub fn get_logical_not<T>(&self) -> Result<&LogicalNotFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_not.as_ref())
+    }
+
+    pub fn get_logical_and<T>(&self) -> Result<&LogicalAndFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_and.as_ref())
+    }
+
+    pub fn get_logical_or<T>(&self) -> Result<&LogicalOrFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_or.as_ref())
+    }
+
+    pub fn get_logical_eq<T>(&self) -> Result<&LogicalEqFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_eq.as_ref())
+    }
+
+    pub fn get_logical_ne<T>(&self) -> Result<&LogicalNeFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_ne.as_ref())
+    }
+
+    pub fn get_logical_seq<T>(&self) -> Result<&LogicalSEqFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_seq.as_ref())
+    }
+
+    pub fn get_logical_sne<T>(&self) -> Result<&LogicalSNeFn<'ctx>, Error<T>> {
+        Self::get_fn(self.logical_sne.as_ref())
     }
 }

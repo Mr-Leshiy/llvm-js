@@ -12,8 +12,7 @@ impl<'ctx> Variable<'ctx> {
 
     pub(crate) fn new<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let allocate_fn = compiler.predefined_functions().get_allocate()?;
-        let value = allocate_fn.call(compiler);
-        Ok(Self { value })
+        Ok(allocate_fn.call(compiler))
     }
 }
 

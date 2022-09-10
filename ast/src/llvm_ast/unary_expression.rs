@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{logical_operations::logical_not, Compiler, Function, Variable};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpression {
@@ -21,7 +21,8 @@ impl UnaryExpression {
         match self.exp_type {
             UnaryExpType::Not => {
                 let var = self.exp.compile(compiler, cur_function)?;
-                logical_not(compiler, cur_function, var)
+                let logical_not_fn = compiler.predefined_functions().get_logical_not()?;
+                Ok(logical_not_fn.call(compiler, &var))
             }
         }
     }
