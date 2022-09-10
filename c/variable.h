@@ -24,6 +24,8 @@ void set_boolean(VariableType* self, uint8_t val);
 void set_string(VariableType* self, const char* val);
 void set_variable(VariableType* self, VariableType* val);
 
+VariableType* convert_to_boolean(VariableType* val);
+
 void print(VariableType* self);
 
 #endif
