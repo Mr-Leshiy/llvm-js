@@ -8,7 +8,7 @@ pub struct AssertFn<'ctx> {
 }
 
 impl<'ctx> PredefineFunctionName for AssertFn<'ctx> {
-    const NAME: &'static str = "variable_assert";
+    const NAME: &'static str = "assert";
 }
 
 impl<'ctx> AssertFn<'ctx> {
@@ -21,7 +21,7 @@ impl<'ctx> AssertFn<'ctx> {
             .fn_type(&[var_type.into()], false);
         let func = compiler
             .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+            .add_function("variable_assert", function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -38,7 +38,7 @@ pub struct AssertEqFn<'ctx> {
 }
 
 impl<'ctx> PredefineFunctionName for AssertEqFn<'ctx> {
-    const NAME: &'static str = "variable_assert_eq";
+    const NAME: &'static str = "assert_eq";
 }
 
 impl<'ctx> AssertEqFn<'ctx> {
@@ -51,7 +51,7 @@ impl<'ctx> AssertEqFn<'ctx> {
             .fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+            .add_function("variable_assert_eq", function_type, Some(Linkage::External));
         Self { func }
     }
 

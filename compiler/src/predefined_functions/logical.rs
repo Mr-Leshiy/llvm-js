@@ -15,10 +15,7 @@ impl<'ctx> LogicalNotFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -50,10 +47,7 @@ impl<'ctx> LogicalAndFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -90,10 +84,7 @@ impl<'ctx> LogicalOrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -130,10 +121,7 @@ impl<'ctx> LogicalEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -170,10 +158,7 @@ impl<'ctx> LogicalNeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -210,10 +195,7 @@ impl<'ctx> LogicalSEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -250,10 +232,7 @@ impl<'ctx> LogicalSNeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
