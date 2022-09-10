@@ -44,7 +44,7 @@ impl BinaryExpression {
             BinaryExpType::Or => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                let logical_or_fn = compiler.predefined_functions().get_logical_and()?;
+                let logical_or_fn = compiler.predefined_functions().get_logical_or()?;
                 Ok(logical_or_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Eq => {
