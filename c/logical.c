@@ -26,10 +26,24 @@ VariableType* logical_and(VariableType* val1, VariableType* val2)
     assert(val2 != NULL);
 
     VariableType* ret = allocate();
-    val1 = convert_to_boolean(val1);
-    val2 = convert_to_boolean(val2);
+    VariableType* val1_ = convert_to_boolean(val1);
+    VariableType* val2_ = convert_to_boolean(val2);
     
-    set_boolean(ret, val1->boolean_field && val2->boolean_field);
+    if(val1_->boolean_field)
+    {
+        if(val2_->boolean_field)
+        {
+            set_variable(ret, val2);
+        }
+        else
+        {
+            set_variable(ret, val2);
+        }
+    }
+    else
+    {
+        set_variable(ret, val1);
+    }
     return ret;
 }
 
