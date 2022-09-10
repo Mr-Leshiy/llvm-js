@@ -1,27 +1,19 @@
 use super::Compiler;
-use crate::{
-    Error,
-};
-use inkwell::{
-    types::StructType,
-    values::{PointerValue},
-};
+use crate::Error;
+use inkwell::values::PointerValue;
 
 #[derive(Clone)]
 pub struct Variable<'ctx> {
     pub(crate) value: PointerValue<'ctx>,
 }
 
-
 impl<'ctx> Variable<'ctx> {
+    pub const TYPE_NAME: &str = "VariableType";
+
     pub(crate) fn new<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let allocate_fn = compiler.predefined_functions().get_allocate()?;
         let value = allocate_fn.call(compiler);
         Ok(Self { value })
-    }
-
-    pub(crate) fn get_type<T>(compiler: &Compiler<'ctx, T>) -> StructType<'ctx> {
-        compiler.context.opaque_struct_type("VariableType")
     }
 }
 

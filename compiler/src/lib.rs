@@ -1,5 +1,7 @@
 pub use context::Context;
 pub use function::Function;
+use inkwell::types::StructType;
+pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
@@ -9,6 +11,7 @@ pub mod arithmetic_operations;
 mod context;
 mod function;
 pub mod logical_operations;
+mod main_function;
 pub mod predefined_functions;
 mod variable;
 
@@ -47,6 +50,7 @@ pub struct Compiler<'ctx, T> {
 
     functions: HashMap<T, Function<'ctx, T>>,
     predefined_functions: PredefineFunctions<'ctx>,
+    variable_type: StructType<'ctx>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -57,6 +61,7 @@ impl<'ctx, T> Compiler<'ctx, T> {
             builder: context.create_builder(),
             functions: HashMap::new(),
             predefined_functions: PredefineFunctions::new(),
+            variable_type: context.opaque_struct_type(Variable::TYPE_NAME),
         }
     }
 

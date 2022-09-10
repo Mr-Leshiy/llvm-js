@@ -92,7 +92,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
     pub fn get_abort<T>(&self) -> Result<&AbortFn<'ctx>, Error<T>> {
         Self::get_fn(self.abort.as_ref())
     }
-    
+
     // variable functions
     pub fn get_allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
         Self::get_fn(self.allocate.as_ref())

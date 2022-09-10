@@ -1,5 +1,5 @@
 use super::{expression::Expression, FunctionDeclaration, Identifier};
-use compiler::{self, Compiler, Function};
+use compiler::{self, Compiler, MainFunction};
 
 pub struct Program {
     pub functions: Vec<FunctionDeclaration>,
@@ -16,7 +16,7 @@ impl Program {
         }
 
         // define main function
-        let mut function = Function::new(compiler, "main", vec![]);
-        function.generate_body(compiler, self.body)
+        let mut main = MainFunction::new(compiler);
+        main.generate_body(compiler, self.body)
     }
 }

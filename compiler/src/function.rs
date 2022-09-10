@@ -21,7 +21,8 @@ where
         let args_type: Vec<_> = arg_names
             .iter()
             .map(|_| {
-                Variable::get_type(compiler)
+                compiler
+                    .variable_type
                     .ptr_type(AddressSpace::Generic)
                     .into()
             })
@@ -36,7 +37,7 @@ where
         for i in 0..args_type.len() {
             let attribute = compiler.context.create_type_attribute(
                 Attribute::get_named_enum_kind_id("byval"),
-                Variable::get_type(compiler).into(),
+                compiler.variable_type.into(),
             );
             function.add_attribute(AttributeLoc::Param(i as u32), attribute)
         }
