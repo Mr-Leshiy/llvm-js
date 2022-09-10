@@ -19,9 +19,10 @@ impl<'ctx> AssertFn<'ctx> {
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function("variable_assert", function_type, Some(Linkage::External));
+        let func =
+            compiler
+                .module
+                .add_function("variable_assert", function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -49,9 +50,11 @@ impl<'ctx> AssertEqFn<'ctx> {
             .context
             .void_type()
             .fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function("variable_assert_eq", function_type, Some(Linkage::External));
+        let func = compiler.module.add_function(
+            "variable_assert_eq",
+            function_type,
+            Some(Linkage::External),
+        );
         Self { func }
     }
 
