@@ -11,6 +11,9 @@ foo(a, b);
 foo(4, true);
 foo("hello", a);
 
+assert_eq(a, 4);
+assert_eq(b, 3);
+
 function foo(arg1, arg2) {}
 
 foo(a, b);
