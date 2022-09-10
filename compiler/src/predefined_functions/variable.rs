@@ -1,10 +1,6 @@
 use super::{Compiler, PredefineFunctionName};
 use crate::Variable;
-use inkwell::{
-    module::Linkage,
-    values::{FunctionValue, PointerValue},
-    AddressSpace,
-};
+use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
 
 #[derive(Clone)]
 pub struct AllocateFn<'ctx> {
@@ -27,14 +23,15 @@ impl<'ctx> AllocateFn<'ctx> {
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) -> PointerValue<'ctx> {
-        compiler
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) -> Variable<'ctx> {
+        let value = compiler
             .builder
             .build_call(self.func, &[], "")
             .try_as_basic_value()
             .left()
             .unwrap()
-            .into_pointer_value()
+            .into_pointer_value();
+        Variable { value }
     }
 }
 
@@ -49,13 +46,13 @@ impl<'ctx> PredefineFunctionName for SetNumberFn<'ctx> {
 
 impl<'ctx> SetNumberFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let number_type = compiler.context.f64_type();
 
         let function_type = compiler
             .context
             .void_type()
-            .fn_type(&[self_type.into(), number_type.into()], false);
+            .fn_type(&[var_type.into(), number_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -85,13 +82,13 @@ impl<'ctx> PredefineFunctionName for SetBooleanFn<'ctx> {
 
 impl<'ctx> SetBooleanFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let boolean_type = compiler.context.bool_type();
 
         let function_type = compiler
             .context
             .void_type()
-            .fn_type(&[self_type.into(), boolean_type.into()], false);
+            .fn_type(&[var_type.into(), boolean_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -125,13 +122,13 @@ impl<'ctx> PredefineFunctionName for SetStringFn<'ctx> {
 
 impl<'ctx> SetStringFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
             .context
             .void_type()
-            .fn_type(&[self_type.into(), string_type.into()], false);
+            .fn_type(&[var_type.into(), string_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -160,12 +157,12 @@ impl<'ctx> PredefineFunctionName for SetVariableFn<'ctx> {
 
 impl<'ctx> SetVariableFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
             .context
             .void_type()
-            .fn_type(&[self_type.into(), self_type.into()], false);
+            .fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -195,19 +192,19 @@ impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
 
 impl<'ctx> PrintFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let self_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
         let function_type = compiler
             .context
             .void_type()
-            .fn_type(&[self_type.into()], false);
+            .fn_type(&[var_type.into()], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: Variable<'ctx>) {
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
             .builder
             .build_call(self.func, &[val.value.into()], "");

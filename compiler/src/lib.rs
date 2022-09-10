@@ -10,7 +10,6 @@ pub use variable::Variable;
 pub mod arithmetic_operations;
 mod context;
 mod function;
-pub mod logical_operations;
 mod main_function;
 pub mod predefined_functions;
 mod variable;

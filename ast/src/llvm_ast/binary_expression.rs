@@ -1,9 +1,6 @@
 use super::{Identifier, VariableExpression};
 use compiler::{
     arithmetic_operations::{arithmetic_add, arithmetic_div, arithmetic_mul, arithmetic_sub},
-    logical_operations::{
-        logical_and, logical_eq, logical_ne, logical_or, logical_seq, logical_sne,
-    },
     Compiler, Function, Variable,
 };
 
@@ -41,32 +38,38 @@ impl BinaryExpression {
             BinaryExpType::And => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_and(compiler, cur_function, var1, var2)
+                let logical_and_fn = compiler.predefined_functions().get_logical_and()?;
+                Ok(logical_and_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Or => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_or(compiler, cur_function, var1, var2)
+                let logical_or_fn = compiler.predefined_functions().get_logical_or()?;
+                Ok(logical_or_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Eq => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_eq(compiler, cur_function, var1, var2)
+                let logical_eq_fn = compiler.predefined_functions().get_logical_eq()?;
+                Ok(logical_eq_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Ne => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_ne(compiler, cur_function, var1, var2)
+                let logical_ne_fn = compiler.predefined_functions().get_logical_ne()?;
+                Ok(logical_ne_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::SEq => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_seq(compiler, cur_function, var1, var2)
+                let logical_seq_fn = compiler.predefined_functions().get_logical_seq()?;
+                Ok(logical_seq_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::SNe => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                logical_sne(compiler, cur_function, var1, var2)
+                let logical_sne_fn = compiler.predefined_functions().get_logical_sne()?;
+                Ok(logical_sne_fn.call(compiler, &var1, &var2))
             }
             // Arithmetic
             BinaryExpType::Add => {
