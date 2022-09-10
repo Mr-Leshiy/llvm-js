@@ -26,7 +26,7 @@ jobs:
       - name: cmake
         run: cmake . -Bbuild ${{ matrix.flags }}
       - name: build
-        run: cmake --build build -- -j2
+        run: cmake --build build --parallel 2
       - name: test
         run: cd build && ctest
   c-test-macos:
@@ -48,7 +48,7 @@ jobs:
       - name: cmake
         run: cmake . -Bbuild ${{ matrix.flags }}
       - name: build
-        run: cmake --build build -- -j2
+        run: cmake --build build --parallel 2
       - name: test
         run: cd build && ctest
   c-test-windows:
@@ -70,6 +70,6 @@ jobs:
       - name: cmake
         run: cmake . -Bbuild ${{ matrix.flags }}
       - name: build
-        run: cmake --build build --
+        run: cmake --build build --parallel 2
       - name: test
-        run: cd build && ctest
+        run: cd build && ctest -C Debug
