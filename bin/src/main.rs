@@ -14,7 +14,7 @@ fn main() {
     ];
 
     let llvm_module = js_module
-        .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
+        .precompile(extern_functions.into_iter().map(|e| e.into()))
         .unwrap();
 
     llvm_module.compile_to(&mut out_file).unwrap()
