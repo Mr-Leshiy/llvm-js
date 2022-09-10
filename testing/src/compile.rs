@@ -70,7 +70,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
     ];
 
     let llvm_module = js_module
-        .precompile(extern_functions.clone().into_iter().map(|e| e.into()))
+        .precompile(extern_functions.into_iter().map(|e| e.into()))
         .map_err(|e| e.to_string())?;
 
     llvm_module
@@ -102,8 +102,8 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
     let out_arg = format!("-o{}", out_file_name,);
-    let lib_dir_arg = format!("-L../c/out/");
-    let lib_name_arg = format!("-lllvm-js-lib");
+    let lib_dir_arg = "-L../c/out/".to_string();
+    let lib_name_arg = "-lllvm-js-lib".to_string();
 
     let out = Command::new("clang")
         .args([
