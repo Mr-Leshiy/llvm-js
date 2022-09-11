@@ -95,6 +95,26 @@ VariableType* logical_seq(VariableType* val1, VariableType* val2)
 
     switch (val1->flag)
     {
+        case Undefined:
+            if(val2->flag == Undefined)
+            {
+                set_boolean(ret, 1);
+            }
+            else
+            {
+                set_boolean(ret, 0);
+            }
+            break;
+        case Null:
+            if(val2->flag == Null)
+            {
+                set_boolean(ret, 1);
+            }
+            else
+            {
+                set_boolean(ret, 0);
+            }
+            break;
         case Number:
             if(val2->flag == Number)
             {
