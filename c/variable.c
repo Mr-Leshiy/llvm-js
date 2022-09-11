@@ -105,7 +105,14 @@ void print(VariableType *self)
             printf("%f\n", self->number_field);
             break;
         case Boolean:
-            printf("%d\n", self->boolean_field);
+            if(self->boolean_field)
+            {
+                printf("true\n");
+            }
+            else
+            {
+                printf("false\n");
+            }
             break;
         case String:
             printf("%s\n", self->string_field);

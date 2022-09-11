@@ -49,8 +49,8 @@ TEST(Logical, logical_and_test)
     VariableType* val1 = allocate();
     VariableType* val2 = allocate();
 
-    set_boolean(val2, true);
     set_boolean(val1, true);
+    set_boolean(val2, true);
     res = logical_and(val1, val2);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, true);
@@ -61,8 +61,8 @@ TEST(Logical, logical_and_test)
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);
 
-    set_boolean(val2, true);
-    set_boolean(val1, false);
+    set_boolean(val1, true);
+    set_boolean(val2, false);
     res = logical_and(val1, val2);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);
@@ -72,6 +72,42 @@ TEST(Logical, logical_and_test)
     res = logical_and(val1, val2);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);
+
+    set_number(val1, 11);
+    set_boolean(val2, true);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_boolean(val1, true);
+    set_number(val2, 11);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 11);
+
+    set_number(val1, 0);
+    set_boolean(val2, true);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_boolean(val1, true);
+    set_number(val2, 0);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_boolean(val1, false);
+    set_number(val2, 0);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
+
+    set_number(val1, 0);
+    set_boolean(val2, false);
+    res = logical_and(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
 }
 
 TEST(Logical, logical_or_test)
@@ -80,8 +116,8 @@ TEST(Logical, logical_or_test)
     VariableType* val1 = allocate();
     VariableType* val2 = allocate();
 
-    set_boolean(val2, true);
     set_boolean(val1, true);
+    set_boolean(val2, true);
     res = logical_or(val1, val2);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, true);
@@ -92,8 +128,8 @@ TEST(Logical, logical_or_test)
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, true);
 
-    set_boolean(val2, true);
-    set_boolean(val1, false);
+    set_boolean(val1, true);
+    set_boolean(val2, false);
     res = logical_or(val1, val2);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, true);
@@ -104,7 +140,41 @@ TEST(Logical, logical_or_test)
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);
 
-    // TODO add more test cases
+    set_number(val1, 11);
+    set_boolean(val2, true);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 11);
+
+    set_boolean(val1, true);
+    set_number(val2, 11);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_number(val1, 0);
+    set_boolean(val2, true);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_boolean(val1, true);
+    set_number(val2, 0);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_boolean(val1, false);
+    set_number(val2, 0);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_number(val1, 0);
+    set_boolean(val2, false);
+    res = logical_or(val1, val2);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
 }
 
 TEST(Logical, logical_seq_test)
