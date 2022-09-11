@@ -4,7 +4,10 @@ use self::{
         LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
         LogicalSNeFn,
     },
-    variable::{AllocateFn, PrintFn, SetBooleanFn, SetNumberFn, SetStringFn, SetVariableFn},
+    variable::{
+        AllocateFn, PrintFn, SetBooleanFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn,
+        SetVariableFn,
+    },
 };
 use crate::{Compiler, Error};
 
@@ -22,6 +25,8 @@ pub struct PredefineFunctions<'ctx> {
     assert_eq: Option<AssertEqFn<'ctx>>,
     // variable functions
     allocate: Option<AllocateFn<'ctx>>,
+    set_undefined: Option<SetUndefinedFn<'ctx>>,
+    set_null: Option<SetNullFn<'ctx>>,
     set_number: Option<SetNumberFn<'ctx>>,
     set_boolean: Option<SetBooleanFn<'ctx>>,
     set_string: Option<SetStringFn<'ctx>>,
@@ -51,6 +56,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert_eq: None,
             // variable functions
             allocate: None,
+            set_undefined: None,
+            set_null: None,
             set_number: None,
             set_boolean: None,
             set_string: None,
@@ -73,6 +80,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let assert_eq = Some(AssertEqFn::declare(compiler));
         // variable functions
         let allocate = Some(AllocateFn::declare(compiler));
+        let set_undefined = Some(SetUndefinedFn::declare(compiler));
+        let set_null = Some(SetNullFn::declare(compiler));
         let set_number = Some(SetNumberFn::declare(compiler));
         let set_boolean = Some(SetBooleanFn::declare(compiler));
         let set_string = Some(SetStringFn::declare(compiler));
@@ -91,6 +100,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert,
             assert_eq,
             allocate,
+            set_undefined,
+            set_null,
             set_number,
             set_boolean,
             set_string,
@@ -124,6 +135,14 @@ impl<'ctx> PredefineFunctions<'ctx> {
     // variable functions
     pub fn get_allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
         Self::get_fn(self.allocate.as_ref())
+    }
+
+    pub fn get_set_undefined<T>(&self) -> Result<&SetUndefinedFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_undefined.as_ref())
+    }
+
+    pub fn get_set_null<T>(&self) -> Result<&SetNullFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_null.as_ref())
     }
 
     pub fn get_set_number<T>(&self) -> Result<&SetNumberFn<'ctx>, Error<T>> {

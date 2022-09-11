@@ -17,6 +17,30 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
+    pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let variable = Self::new(compiler)?;
+        variable.assign_undefined(compiler)?;
+        Ok(variable)
+    }
+
+    pub fn assign_undefined<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
+        let set_undefined_fn = compiler.predefined_functions().get_set_undefined()?;
+        set_undefined_fn.call(compiler, self);
+        Ok(())
+    }
+
+    pub fn new_null<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let variable = Self::new(compiler)?;
+        variable.assign_null(compiler)?;
+        Ok(variable)
+    }
+
+    pub fn assign_null<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
+        let set_null_fn = compiler.predefined_functions().get_set_null()?;
+        set_null_fn.call(compiler, self);
+        Ok(())
+    }
+
     pub fn new_number<T>(compiler: &Compiler<'ctx, T>, number: f64) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
         variable.assign_number(compiler, number)?;
