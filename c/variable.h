@@ -12,13 +12,17 @@ typedef struct VariableType
 } VariableType;
 
 enum Type {
-    Number = 1,
-    Boolean = 2,
-    String = 3,
+    Undefined = 0,
+    Null = 1,
+    Number = 2,
+    Boolean = 3,
+    String = 4,
 };
 
 VariableType *allocate();
 
+void set_undefined(VariableType* self);
+void set_null(VariableType* self);
 void set_number(VariableType* self, double val);
 void set_boolean(VariableType* self, uint8_t val);
 void set_string(VariableType* self, const char* val);
