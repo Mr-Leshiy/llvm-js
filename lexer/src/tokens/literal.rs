@@ -8,6 +8,10 @@ pub enum Literal {
     Number(f64),
     /// string token, e.g. "hello^world!"
     String(String),
+    /// "undefined"
+    Undefined,
+    /// "null"
+    Null,
 }
 
 impl Display for Literal {
@@ -16,6 +20,8 @@ impl Display for Literal {
             Self::Boolean(val) => write!(f, "Literal boolean token, val: {}", val),
             Self::Number(val) => write!(f, "Literal number token, val: {}", val),
             Self::String(val) => write!(f, "Literal string token, val: {}", val),
+            Self::Undefined => write!(f, "Literal undefined token"),
+            Self::Null => write!(f, "Literal null token"),
         }
     }
 }
@@ -77,6 +83,22 @@ mod tests {
                 "Hello World__414f$$@#!@$$!%%!".to_string()
             )))
         );
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn literal_undefined_test() {
+        let mut reader = TokenReader::new("undefined".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Literal(Literal::Undefined)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn literal_null_test() {
+        let mut reader = TokenReader::new("null".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Literal(Literal::Null)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }

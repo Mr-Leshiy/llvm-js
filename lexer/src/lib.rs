@@ -218,6 +218,14 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(false))));
             }
 
+            if ident == "undefined" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::Undefined)));
+            }
+
+            if ident == "null" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::Null)));
+            }
+
             return Ok(TokenResult::Token(Token::Ident(ident)));
         }
         Ok(TokenResult::Result(()))
