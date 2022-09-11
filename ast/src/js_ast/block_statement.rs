@@ -77,8 +77,8 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: VariableExpression::VariableValue(VariableValue::Identifier(
-                        "name2".to_string().into()
+                    right: Some(VariableExpression::VariableValue(
+                        VariableValue::Identifier("name2".to_string().into())
                     ))
                 })]
             })
@@ -93,23 +93,23 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "name2".to_string().into()
+                        right: Some(VariableExpression::VariableValue(
+                            VariableValue::Identifier("name2".to_string().into())
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::VariableValue(
+                                right: Some(VariableExpression::VariableValue(
                                     VariableValue::Identifier("name2".to_string().into())
-                                )
+                                ))
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::VariableValue(
+                                right: Some(VariableExpression::VariableValue(
                                     VariableValue::Identifier("name2".to_string().into())
-                                )
+                                ))
                             }),
                         ]
                     })
@@ -126,7 +126,9 @@ mod tests {
             body: vec![Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name_1".to_string().into(),
-                    right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
+                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                        64_f64,
+                    ))),
                 },
             ))],
         };
@@ -136,9 +138,9 @@ mod tests {
             Ok(vec![llvm_ast::Expression::VariableDeclaration(
                 llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                     name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                    value: llvm_ast::VariableExpression::VariableValue(
+                    value: Some(llvm_ast::VariableExpression::VariableValue(
                         llvm_ast::VariableValue::FloatNumber(64_f64)
-                    ),
+                    )),
                 })
             )])
         );

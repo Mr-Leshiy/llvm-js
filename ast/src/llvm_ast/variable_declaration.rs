@@ -1,5 +1,5 @@
 use super::{Identifier, VariableAssigment};
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{self, Compile, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
@@ -12,7 +12,15 @@ impl Compile<Identifier> for VariableDeclaration {
     ) -> Result<(), compiler::Error<Identifier>> {
         let variable = self.0;
 
-        let var = variable.value.compile(compiler, cur_function)?;
-        cur_function.insert_variable(variable.name, var)
+        match variable.value {
+            Some(value) => {
+                let var = value.compile(compiler, cur_function)?;
+                cur_function.insert_variable(variable.name, var)
+            }
+            None => {
+                let var = Variable::new_undefined(compiler)?;
+                cur_function.insert_variable(variable.name, var)
+            }
+        }
     }
 }

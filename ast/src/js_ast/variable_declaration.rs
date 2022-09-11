@@ -25,7 +25,10 @@ impl VariableDeclaration {
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
     ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
-        let value = self.0.right.precompile(precompiler)?;
+        let value = match self.0.right {
+            Some(expr) => Some(expr.precompile(precompiler)?),
+            None => None,
+        };
         let index = precompiler.variables.insert(self.0.left.clone());
         let res = llvm_ast::VariableAssigment {
             name: llvm_ast::Identifier::new(self.0.left.name, index),
@@ -47,7 +50,9 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name".to_string().into(),
-                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
+                right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    12_f64
+                )))
             }))
         );
 
@@ -56,8 +61,8 @@ mod tests {
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableDeclaration(VariableAssigment {
                 left: "name1".to_string().into(),
-                right: VariableExpression::VariableValue(VariableValue::Identifier(
-                    "name2".to_string().into()
+                right: Some(VariableExpression::VariableValue(
+                    VariableValue::Identifier("name2".to_string().into())
                 ))
             }))
         );
@@ -69,16 +74,18 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
+            right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                64_f64,
+            ))),
         });
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableExpression::VariableValue(
+                value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
-                ),
+                )),
             }))
         );
         assert_eq!(
@@ -94,8 +101,8 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::VariableValue(VariableValue::Identifier(
-                "name_2".to_string().into(),
+            right: Some(VariableExpression::VariableValue(
+                VariableValue::Identifier("name_2".to_string().into()),
             )),
         });
 
@@ -103,12 +110,12 @@ mod tests {
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: llvm_ast::VariableExpression::VariableValue(
+                value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
                         "name_2".to_string(),
                         0
                     ))
-                ),
+                )),
             }))
         );
         assert_eq!(
@@ -124,16 +131,18 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
+            right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                64_f64,
+            ))),
         });
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
             Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 1),
-                value: llvm_ast::VariableExpression::VariableValue(
+                value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
-                ),
+                )),
             }))
         );
     }
@@ -144,8 +153,8 @@ mod tests {
 
         let variable_declaration = VariableDeclaration(VariableAssigment {
             left: "name_1".to_string().into(),
-            right: VariableExpression::VariableValue(VariableValue::Identifier(
-                "name_2".to_string().into(),
+            right: Some(VariableExpression::VariableValue(
+                VariableValue::Identifier("name_2".to_string().into()),
             )),
         });
 
