@@ -67,7 +67,6 @@ mod tests {
             }))
         );
 
-
         let mut reader = TokenReader::new("var name1;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),

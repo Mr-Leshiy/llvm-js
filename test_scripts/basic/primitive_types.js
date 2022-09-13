@@ -1,3 +1,12 @@
+var a;
+assert_eq(a, undefined);
+
+var a = undefined;
+assert_eq(a, undefined);
+
+var a = null;
+assert_eq(a, null);
+
 var a = 0;
 assert_eq(a, 0);
 
