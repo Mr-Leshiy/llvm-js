@@ -699,7 +699,7 @@ mod tests {
 
     #[test]
     fn parse_grouping_test() {
-        let mut reader = TokenReader::new("(!a || (b && !c))".as_bytes());
+        let mut reader = TokenReader::new("(!a || (b && !c) && d && g)".as_bytes());
         assert_eq!(
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
@@ -711,15 +711,31 @@ mod tests {
                         exp_type: UnaryExpType::Not,
                     })),
                     right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                        left: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "b".to_string().into()
-                        )),
-                        right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "c".to_string().into()
+                        left: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                            left: VariableExpression::BinaryExpression(Box::new(
+                                BinaryExpression {
+                                    left: VariableExpression::VariableValue(
+                                        VariableValue::Identifier("b".to_string().into())
+                                    ),
+                                    right: VariableExpression::UnaryExpression(Box::new(
+                                        UnaryExpression {
+                                            exp: VariableExpression::VariableValue(
+                                                VariableValue::Identifier("c".to_string().into())
+                                            ),
+                                            exp_type: UnaryExpType::Not,
+                                        }
+                                    )),
+                                    exp_type: BinaryExpType::And,
+                                }
                             )),
-                            exp_type: UnaryExpType::Not,
+                            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "d".to_string().into()
+                            )),
+                            exp_type: BinaryExpType::And,
                         })),
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "g".to_string().into()
+                        )),
                         exp_type: BinaryExpType::And,
                     })),
                     exp_type: BinaryExpType::Or,

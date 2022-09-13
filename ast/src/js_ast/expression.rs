@@ -92,7 +92,9 @@ mod tests {
             Ok(Expression::VariableDeclaration(VariableDeclaration(
                 VariableAssigment {
                     left: "name".to_string().into(),
-                    right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
+                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                        12_f64
+                    )))
                 }
             )))
         );
@@ -105,7 +107,9 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
                 left: "name".to_string().into(),
-                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
+                right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    12_f64
+                )))
             })
         );
     }
@@ -124,8 +128,8 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
-                    right: VariableExpression::VariableValue(VariableValue::Identifier(
-                        "name2".to_string().into()
+                    right: Some(VariableExpression::VariableValue(
+                        VariableValue::Identifier("name2".to_string().into())
                     ))
                 })]
             })
@@ -140,23 +144,23 @@ mod tests {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
-                        right: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "name2".to_string().into()
+                        right: Some(VariableExpression::VariableValue(
+                            VariableValue::Identifier("name2".to_string().into())
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::VariableValue(
+                                right: Some(VariableExpression::VariableValue(
                                     VariableValue::Identifier("name2".to_string().into())
-                                )
+                                ))
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
-                                right: VariableExpression::VariableValue(
+                                right: Some(VariableExpression::VariableValue(
                                     VariableValue::Identifier("name2".to_string().into())
-                                )
+                                ))
                             }),
                         ]
                     })
@@ -186,7 +190,9 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableAssigment(VariableAssigment {
                 left: "a".to_string().into(),
-                right: VariableExpression::VariableValue(VariableValue::Number(6_f64))
+                right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    6_f64
+                )))
             }))
         );
     }

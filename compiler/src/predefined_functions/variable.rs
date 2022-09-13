@@ -36,6 +36,66 @@ impl<'ctx> AllocateFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct SetUndefinedFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetUndefinedFn<'ctx> {
+    const NAME: &'static str = "set_undefined";
+}
+
+impl<'ctx> SetUndefinedFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
+pub struct SetNullFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetNullFn<'ctx> {
+    const NAME: &'static str = "set_null";
+}
+
+impl<'ctx> SetNullFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
 pub struct SetNumberFn<'ctx> {
     func: FunctionValue<'ctx>,
 }

@@ -7,6 +7,8 @@ use std::io::Read;
 /// VariableValue
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableValue {
+    Undefined,
+    Null,
     Boolean(bool),
     Number(f64),
     String(String),
@@ -16,10 +18,12 @@ pub enum VariableValue {
 impl VariableValue {
     pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
         match cur_token {
-            Token::Literal(Literal::Boolean(boolean)) => Ok(VariableValue::Boolean(boolean)),
-            Token::Literal(Literal::Number(val)) => Ok(VariableValue::Number(val)),
-            Token::Literal(Literal::String(val)) => Ok(VariableValue::String(val)),
-            Token::Ident(name) => Ok(VariableValue::Identifier(Identifier { name })),
+            Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
+            Token::Literal(Literal::Null) => Ok(Self::Null),
+            Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
+            Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
+            Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
+            Token::Ident(name) => Ok(Self::Identifier(Identifier { name })),
             token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
@@ -31,6 +35,8 @@ impl VariableValue {
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
     ) -> Result<llvm_ast::VariableValue, precompiler::Error<Identifier>> {
         match self {
+            Self::Undefined => Ok(llvm_ast::VariableValue::Undefined),
+            Self::Null => Ok(llvm_ast::VariableValue::Null),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
             Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
                 Some(index) => Ok(llvm_ast::VariableValue::Identifier(
@@ -50,6 +56,18 @@ mod tests {
 
     #[test]
     fn parse_variable_value_test() {
+        let mut reader = TokenReader::new("undefined".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Undefined),
+        );
+
+        let mut reader = TokenReader::new("null".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Null),
+        );
+
         let mut reader = TokenReader::new("true".as_bytes());
         assert_eq!(
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),

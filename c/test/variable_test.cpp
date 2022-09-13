@@ -12,8 +12,18 @@ TEST(VariableType, Basic_test)
 
     EXPECT_NE(val1, nullptr);
     EXPECT_NE(val2, nullptr);
-    EXPECT_EQ(val1->flag, 0);
-    EXPECT_EQ(val2->flag, 0);
+    EXPECT_EQ(val1->flag, Undefined);
+    EXPECT_EQ(val2->flag, Undefined);
+
+    set_undefined(val1);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, Undefined);
+    EXPECT_EQ(val2->flag, Undefined);
+
+    set_null(val1);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, Null);
+    EXPECT_EQ(val2->flag, Null);
 
     set_number(val1, 2.0);
     set_variable(val2, val1);
@@ -41,6 +51,16 @@ TEST(VariableTest, convert_to_boolean_test)
 {
     VariableType* res;
     VariableType* val = allocate();
+
+    set_undefined(val);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
+
+    set_null(val);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
 
     set_boolean(val, true);
     res = convert_to_boolean(val);

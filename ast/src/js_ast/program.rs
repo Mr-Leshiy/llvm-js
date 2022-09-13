@@ -63,7 +63,9 @@ mod tests {
             Ok(Program {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name".to_string().into(),
-                    right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
+                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                        12_f64
+                    )))
                 })]
             })
         );

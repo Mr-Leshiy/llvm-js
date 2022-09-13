@@ -45,6 +45,7 @@ pub struct TokenReader<R: Read> {
     char_reader: CharReader<R>,
     // used as FIFO collection
     saved_tokens: Vec<Vec<Token>>,
+    next_to_read_tokens: Vec<Vec<Token>>,
     saved_flag: u8,
 }
 
@@ -53,6 +54,7 @@ impl<R: Read> TokenReader<R> {
         Self {
             char_reader: CharReader::new(reader),
             saved_tokens: Vec::new(),
+            next_to_read_tokens: Vec::new(),
             saved_flag: 0,
         }
     }
@@ -216,6 +218,14 @@ impl<R: Read> TokenReader<R> {
 
             if ident == "false" {
                 return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(false))));
+            }
+
+            if ident == "undefined" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::Undefined)));
+            }
+
+            if ident == "null" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::Null)));
             }
 
             return Ok(TokenResult::Token(Token::Ident(ident)));
@@ -422,10 +432,6 @@ impl<R: Read> TokenReader<R> {
 }
 
 impl<R: Read> TokenReader<R> {
-    pub fn saved_flag(&self) -> u8 {
-        self.saved_flag
-    }
-
     pub fn start_saving(&mut self) -> u8 {
         self.saved_flag += 1;
         self.saved_tokens.push(Vec::new());
@@ -435,6 +441,10 @@ impl<R: Read> TokenReader<R> {
     pub fn stop_saving(&mut self) {
         if self.saved_flag != 0 {
             self.saved_flag -= 1;
+            let saved = self.saved_tokens.pop().unwrap();
+            if !saved.is_empty() {
+                self.next_to_read_tokens.push(saved);
+            }
         }
     }
 
@@ -446,27 +456,28 @@ impl<R: Read> TokenReader<R> {
     }
 
     pub fn next_token(&mut self) -> Result<Token, Error> {
-        if self.saved_flag > 0 && self.saved_flag == self.saved_tokens.len() as u8 {
-            let token = self.read_token()?;
+        let token = if let Some(next_to_read) = self.next_to_read_tokens.first_mut() {
+            if next_to_read.is_empty() {
+                self.next_to_read_tokens.remove(0);
+                self.read_token()?
+            } else {
+                // remove first element
+                let token = next_to_read.remove(0);
+                if next_to_read.is_empty() {
+                    self.next_to_read_tokens.remove(0);
+                }
+                token
+            }
+        } else {
+            self.read_token()?
+        };
+        if self.saved_flag > 0 {
             self.saved_tokens
                 .last_mut()
                 .expect("saved tokens should not be empty")
                 .push(token.clone());
-            Ok(token)
-        } else if let Some(saved_tokens) = self.saved_tokens.last_mut() {
-            if saved_tokens.is_empty() {
-                self.read_token()
-            } else {
-                // remove first element
-                let token = saved_tokens.remove(0);
-                if saved_tokens.is_empty() {
-                    self.saved_tokens.pop();
-                }
-                Ok(token)
-            }
-        } else {
-            self.read_token()
         }
+        Ok(token)
     }
 
     fn read_token(&mut self) -> Result<Token, Error> {
@@ -502,11 +513,70 @@ mod tests {
     use super::*;
 
     #[test]
-    fn token_reader_saving_test() {
-        // TODO update test cases
+    fn token_reader_saving_test1() {
         let mut reader = TokenReader::new("name1 name2 name3 name4".as_bytes());
 
         assert_eq!(reader.next_token(), Ok(Token::Ident("name1".to_string())));
+
+        reader.start_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name2".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        reader.stop_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name2".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        assert_eq!(reader.next_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn token_reader_saving_test2() {
+        let mut reader = TokenReader::new("name1 name2 name3 name4".as_bytes());
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name1".to_string())));
+
+        reader.start_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name2".to_string())));
+
+        reader.start_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        reader.stop_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        assert_eq!(reader.next_token(), Ok(Token::Eof));
+
+        reader.stop_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name2".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        assert_eq!(reader.next_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn token_reader_saving_test3() {
+        let mut reader = TokenReader::new("name1 name2 name3 name4".as_bytes());
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name1".to_string())));
+
+        reader.start_saving();
+
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name2".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name3".to_string())));
+        assert_eq!(reader.next_token(), Ok(Token::Ident("name4".to_string())));
+
+        reader.stop_saving();
 
         reader.start_saving();
 

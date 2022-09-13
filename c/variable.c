@@ -8,9 +8,22 @@
 VariableType *allocate()
 {
     VariableType *res = (VariableType *)malloc(sizeof(VariableType));
-    // setup default value
-    res->flag = 0;
+    res->flag = Undefined;
     return res;
+}
+
+void set_undefined(VariableType* self)
+{
+    assert(self != NULL);
+
+    self->flag = Undefined;
+}
+
+void set_null(VariableType* self)
+{
+    assert(self != NULL);
+
+    self->flag = Null;
 }
 
 void set_number(VariableType *self, double val)
@@ -39,10 +52,17 @@ void set_string(VariableType *self, const char *val)
 
 void set_variable(VariableType *self, VariableType *val)
 {
+    assert(self != NULL);    
     assert(val != NULL);
 
     switch (val->flag)
     {
+        case Undefined:
+            set_undefined(self);
+            break;
+        case Null:
+            set_null(self);
+            break;
         case Number:
             set_number(self, val->number_field);
             break;
@@ -65,6 +85,12 @@ VariableType* convert_to_boolean(VariableType* val)
     VariableType* ret = allocate();
     switch (val->flag)
     {
+        case Undefined:
+            set_boolean(ret, 0);
+            break;
+        case Null:
+            set_boolean(ret, 0);
+            break;
         case Number:
             if(val->number_field == 0) 
             {
@@ -101,6 +127,12 @@ void print(VariableType *self)
 
     switch (self->flag)
     {
+        case Undefined:
+            printf("undefined\n");
+            break;
+        case Null:
+            printf("null\n");
+            break;
         case Number:
             printf("%f\n", self->number_field);
             break;
