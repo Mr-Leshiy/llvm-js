@@ -15,13 +15,16 @@ impl VariableAssigment {
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let left = Identifier::parse(cur_token, reader)?;
 
+        reader.start_saving();
         match reader.next_token()? {
             Token::Assign => {
+                reader.reset_saving();
                 let right = Some(VariableExpression::parse(reader.next_token()?, reader)?);
                 Ok(Self { left, right })
             }
-            token => {
-                Err(Error::UnexpectedToken(token))
+            _ => {
+                reader.stop_saving();
+                Ok(Self { left, right: None })
             }
         }
     }
@@ -74,6 +77,15 @@ mod tests {
                 right: Some(VariableExpression::VariableValue(
                     VariableValue::Identifier("name2".to_string().into())
                 ))
+            })
+        );
+
+        let mut reader = TokenReader::new("name1;".as_bytes());
+        assert_eq!(
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableAssigment {
+                left: "name1".to_string().into(),
+                right: None
             })
         );
     }
