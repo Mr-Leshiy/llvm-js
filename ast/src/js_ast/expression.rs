@@ -25,6 +25,9 @@ impl Expression {
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
+            Token::Keyword(Keyword::Let) => Ok(Self::VariableDeclaration(
+                VariableDeclaration::parse(cur_token, reader)?,
+            )),
             Token::Ident(_) => {
                 reader.start_saving();
                 match FunctionCall::parse(cur_token.clone(), reader) {
@@ -102,6 +105,22 @@ mod tests {
 
     #[test]
     fn parse_expression_test2() {
+        let mut reader = TokenReader::new("let name = 12;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Expression::VariableDeclaration(VariableDeclaration(
+                VariableAssigment {
+                    left: "name".to_string().into(),
+                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                        12_f64
+                    )))
+                }
+            )))
+        );
+    }
+
+    #[test]
+    fn parse_expression_test3() {
         let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -115,7 +134,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_expression_test3() {
+    fn parse_expression_test4() {
         let mut reader = TokenReader::new("{ }".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -170,7 +189,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_expression_test4() {
+    fn parse_expression_test5() {
         let mut reader = TokenReader::new("foo(a, b); a = 6;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
