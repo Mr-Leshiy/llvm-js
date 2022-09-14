@@ -208,8 +208,16 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Keyword(Keyword::Var)));
             }
 
+            if ident == "let" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Let)));
+            }
+
             if ident == "function" {
                 return Ok(TokenResult::Token(Token::Keyword(Keyword::Function)));
+            }
+
+            if ident == "return" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Return)));
             }
 
             if ident == "true" {
