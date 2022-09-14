@@ -14,19 +14,9 @@ where
     T: Clone + Hash + PartialEq + Eq,
 {
     pub fn new(compiler: &mut Compiler<'ctx, T>, name: &str, arg_names: Vec<T>) -> Self {
-        let args_type: Vec<_> = arg_names
-            .iter()
-            .map(|_| {
-                compiler
-                    .variable_type
-                    .ptr_type(AddressSpace::Generic)
-                    .into()
-            })
-            .collect();
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(args_type.as_slice(), false);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let args_type: Vec<_> = arg_names.iter().map(|_| var_type.into()).collect();
+        let function_type = var_type.fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
         Self {
@@ -74,8 +64,13 @@ where
         for expr in body {
             expr.compile(compiler, self)?;
         }
-        compiler.builder.build_return(None);
+        let ret = Variable::new_undefined(compiler)?;
+        compiler.builder.build_return(Some(&ret.value));
         Ok(())
+    }
+
+    pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: Variable<'ctx>) {
+        compiler.builder.build_return(Some(&ret.value));
     }
 
     pub fn call(
