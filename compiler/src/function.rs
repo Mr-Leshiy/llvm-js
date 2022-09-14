@@ -29,15 +29,6 @@ where
             .fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        // // define argument attributes
-        // for i in 0..args_type.len() {
-        //     let attribute = compiler.context.create_type_attribute(
-        //         Attribute::get_named_enum_kind_id("byval"),
-        //         compiler.variable_type.into(),
-        //     );
-        //     function.add_attribute(AttributeLoc::Param(i as u32), attribute)
-        // }
-
         Self {
             function,
             arg_names,
@@ -87,7 +78,7 @@ where
         Ok(())
     }
 
-    pub fn generate_call(
+    pub fn call(
         &self,
         compiler: &mut Compiler<'ctx, T>,
         args: Vec<Variable<'ctx>>,

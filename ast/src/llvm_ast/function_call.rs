@@ -56,7 +56,7 @@ impl Compile<Identifier> for FunctionCall {
             }
             _ => {
                 let function = compiler.get_function(self.name)?;
-                function.generate_call(compiler, args)
+                function.call(compiler, args)
             }
         }
     }

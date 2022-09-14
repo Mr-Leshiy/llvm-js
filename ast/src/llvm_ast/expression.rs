@@ -1,4 +1,4 @@
-use super::{FunctionCall, Identifier, VariableAssigment, VariableDeclaration};
+use super::{FunctionCall, Identifier, ReturnStatement, VariableAssigment, VariableDeclaration};
 use compiler::{self, Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -6,6 +6,7 @@ pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
     FunctionCall(FunctionCall),
+    ReturnStatement(ReturnStatement),
 }
 
 impl Compile<Identifier> for Expression {
@@ -22,6 +23,9 @@ impl Compile<Identifier> for Expression {
                 variable_assigment.compile(compiler, cur_function)
             }
             Self::FunctionCall(function_call) => function_call.compile(compiler, cur_function),
+            Self::ReturnStatement(return_statement) => {
+                return_statement.compile(compiler, cur_function)
+            }
         }
     }
 }

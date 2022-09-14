@@ -50,7 +50,7 @@ impl VariableExpression {
         Ok(rpn.finish()?.evaluate().into())
     }
 
-    pub fn parse_impl<R: Read>(
+    fn parse_impl<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
         rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
