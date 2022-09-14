@@ -10,4 +10,4 @@ collections = { path = "../collections" }
 precompiler = { path = "../precompiler" }
 compiler = { path = "../compiler" }
 lexer = { path = "../lexer" }
-thiserror = { version = "1.0.34" }
+thiserror = { version = "1.0.35" }
