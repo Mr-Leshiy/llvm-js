@@ -25,6 +25,11 @@ TEST(VariableType, Basic_test)
     EXPECT_EQ(val1->flag, Null);
     EXPECT_EQ(val2->flag, Null);
 
+    set_nan(val1);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, NaN);
+    EXPECT_EQ(val2->flag, NaN);
+
     set_number(val1, 2.0);
     set_variable(val2, val1);
     EXPECT_EQ(val1->flag, Number);
@@ -58,6 +63,11 @@ TEST(VariableTest, convert_to_boolean_test)
     EXPECT_EQ(res->boolean_field, false);
 
     set_null(val);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Boolean);
+    EXPECT_EQ(res->boolean_field, false);
+
+    set_nan(val);
     res = convert_to_boolean(val);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);

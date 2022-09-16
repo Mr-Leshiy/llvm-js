@@ -115,6 +115,16 @@ VariableType *logical_seq(VariableType *val1, VariableType *val2)
             set_boolean(ret, 0);
         }
         break;
+    case NaN:
+        if (val2->flag == NaN)
+        {
+            set_boolean(ret, 1);
+        }
+        else
+        {
+            set_boolean(ret, 0);
+        }
+        break;
     case Number:
         if (val2->flag == Number)
         {

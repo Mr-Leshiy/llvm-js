@@ -26,6 +26,13 @@ void set_null(VariableType *self)
     self->flag = Null;
 }
 
+void set_nan(VariableType *self)
+{
+    assert(self != NULL);
+
+    self->flag = NaN;
+}
+
 void set_number(VariableType *self, double val)
 {
     assert(self != NULL);
@@ -63,6 +70,9 @@ void set_variable(VariableType *self, VariableType *val)
     case Null:
         set_null(self);
         break;
+    case NaN:
+        set_nan(self);
+        break;
     case Number:
         set_number(self, val->number_field);
         break;
@@ -89,6 +99,9 @@ VariableType *convert_to_boolean(VariableType *val)
         set_boolean(ret, 0);
         break;
     case Null:
+        set_boolean(ret, 0);
+        break;
+    case NaN:
         set_boolean(ret, 0);
         break;
     case Number:
@@ -132,6 +145,9 @@ void print(VariableType *self)
         break;
     case Null:
         printf("null\n");
+        break;
+    case NaN:
+        printf("NaN\n");
         break;
     case Number:
         printf("%f\n", self->number_field);
