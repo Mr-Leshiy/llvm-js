@@ -185,9 +185,9 @@ impl VariableExpression {
             Self::BinaryExpression(expr) => Ok(llvm_ast::VariableExpression::BinaryExpression(
                 Box::new(expr.precompile(precompiler)?),
             )),
-            Self::FunctionCall(_call) => {
-                todo!("implement");
-            }
+            Self::FunctionCall(function_call) => Ok(llvm_ast::VariableExpression::FunctionCall(
+                function_call.precompile(precompiler)?,
+            )),
         }
     }
 }

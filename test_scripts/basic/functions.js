@@ -19,3 +19,6 @@ function foo(arg1, arg2) {}
 foo(a, b);
 foo(4, true);
 foo("hello", a);
+
+var res = foo(4, 5);
+assert_eq(res, undefined);
