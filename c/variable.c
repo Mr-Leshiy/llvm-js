@@ -12,14 +12,14 @@ VariableType *allocate()
     return res;
 }
 
-void set_undefined(VariableType* self)
+void set_undefined(VariableType *self)
 {
     assert(self != NULL);
 
     self->flag = Undefined;
 }
 
-void set_null(VariableType* self)
+void set_null(VariableType *self)
 {
     assert(self != NULL);
 
@@ -52,73 +52,73 @@ void set_string(VariableType *self, const char *val)
 
 void set_variable(VariableType *self, VariableType *val)
 {
-    assert(self != NULL);    
+    assert(self != NULL);
     assert(val != NULL);
 
     switch (val->flag)
     {
-        case Undefined:
-            set_undefined(self);
-            break;
-        case Null:
-            set_null(self);
-            break;
-        case Number:
-            set_number(self, val->number_field);
-            break;
-        case Boolean:
-            set_boolean(self, val->boolean_field);
-            break;
-        case String:
-            set_string(self, strdup(val->string_field));
-            break;
-        default:
-            assert(0);
-            break;
-        }
+    case Undefined:
+        set_undefined(self);
+        break;
+    case Null:
+        set_null(self);
+        break;
+    case Number:
+        set_number(self, val->number_field);
+        break;
+    case Boolean:
+        set_boolean(self, val->boolean_field);
+        break;
+    case String:
+        set_string(self, strdup(val->string_field));
+        break;
+    default:
+        assert(0);
+        break;
+    }
 }
 
-VariableType* convert_to_boolean(VariableType* val)
+VariableType *convert_to_boolean(VariableType *val)
 {
     assert(val != NULL);
 
-    VariableType* ret = allocate();
+    VariableType *ret = allocate();
     switch (val->flag)
     {
-        case Undefined:
+    case Undefined:
+        set_boolean(ret, 0);
+        break;
+    case Null:
+        set_boolean(ret, 0);
+        break;
+    case Number:
+        if (val->number_field == 0)
+        {
             set_boolean(ret, 0);
-            break;
-        case Null:
-            set_boolean(ret, 0);
-            break;
-        case Number:
-            if(val->number_field == 0) 
-            {
-                set_boolean(ret, 0);
-            }
-            else 
-            {
-                set_boolean(ret, 1);
-            }
-            break;
-        case Boolean:
-            set_boolean(ret, val->boolean_field);
-            break;
-        case String:
-            if(strlen(val->string_field) == 0) 
-            {
-                set_boolean(ret, 0);
-            }
-            else 
-            {
-                set_boolean(ret, 1);
-            }
-            break;
-        default:
-            assert(0);
-            break;
         }
-        return ret;
+        else
+        {
+            set_boolean(ret, 1);
+        }
+        break;
+    case Boolean:
+        set_boolean(ret, val->boolean_field);
+        break;
+    case String:
+        if (strlen(val->string_field) == 0)
+        {
+            set_boolean(ret, 0);
+        }
+        else
+        {
+            set_boolean(ret, 1);
+        }
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    return ret;
 }
 
 void print(VariableType *self)
@@ -127,30 +127,30 @@ void print(VariableType *self)
 
     switch (self->flag)
     {
-        case Undefined:
-            printf("undefined\n");
-            break;
-        case Null:
-            printf("null\n");
-            break;
-        case Number:
-            printf("%f\n", self->number_field);
-            break;
-        case Boolean:
-            if(self->boolean_field)
-            {
-                printf("true\n");
-            }
-            else
-            {
-                printf("false\n");
-            }
-            break;
-        case String:
-            printf("%s\n", self->string_field);
-            break;
-        default:
-            assert(0);
-            break;
+    case Undefined:
+        printf("undefined\n");
+        break;
+    case Null:
+        printf("null\n");
+        break;
+    case Number:
+        printf("%f\n", self->number_field);
+        break;
+    case Boolean:
+        if (self->boolean_field)
+        {
+            printf("true\n");
+        }
+        else
+        {
+            printf("false\n");
+        }
+        break;
+    case String:
+        printf("%s\n", self->string_field);
+        break;
+    default:
+        assert(0);
+        break;
     }
 }

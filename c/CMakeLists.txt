@@ -4,6 +4,7 @@ set(SOURCES
         variable.c
         assertions.c
         logical.c
+        arithmetic.c
         )
 
 add_library(${LIB_NAME} STATIC ${SOURCES})
