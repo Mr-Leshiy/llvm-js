@@ -134,6 +134,38 @@ VariableType *convert_to_boolean(VariableType *val)
     return ret;
 }
 
+VariableType *convert_to_number(VariableType *val)
+{
+    assert(val != NULL);
+
+    VariableType *ret = allocate();
+    switch (val->flag)
+    {
+    case Undefined:
+        set_nan(ret);
+        break;
+    case Null:
+        set_number(ret, 0);
+        break;
+    case NaN:
+        set_nan(ret);
+        break;
+    case Number:
+        set_number(ret, val->number_field);
+        break;
+    case Boolean:
+        set_number(ret, val->boolean_field ? 1 : 0 );
+        break;
+    case String:
+        set_nan(ret);
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    return ret;
+}
+
 void print(VariableType *self)
 {
     assert(self != NULL);

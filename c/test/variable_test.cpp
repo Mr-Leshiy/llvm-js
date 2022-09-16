@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
 #include <string.h>
 
-extern "C" {
+extern "C"
+{
 #include "variable.h"
 }
 
 TEST(VariableType, Basic_test)
 {
-    VariableType* val1 = allocate();
-    VariableType* val2 = allocate();
+    VariableType *val1 = allocate();
+    VariableType *val2 = allocate();
 
     EXPECT_NE(val1, nullptr);
     EXPECT_NE(val2, nullptr);
@@ -54,8 +55,8 @@ TEST(VariableType, Basic_test)
 
 TEST(VariableTest, convert_to_boolean_test)
 {
-    VariableType* res;
-    VariableType* val = allocate();
+    VariableType *res;
+    VariableType *val = allocate();
 
     set_undefined(val);
     res = convert_to_boolean(val);
@@ -101,4 +102,52 @@ TEST(VariableTest, convert_to_boolean_test)
     res = convert_to_boolean(val);
     EXPECT_EQ(res->flag, Boolean);
     EXPECT_EQ(res->boolean_field, false);
+}
+
+TEST(VariableTest, convert_to_number_test)
+{
+    VariableType *res;
+    VariableType *val = allocate();
+
+    set_undefined(val);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, NaN);
+
+    set_null(val);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_nan(val);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, NaN);
+
+    set_boolean(val, true);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 1);
+
+    set_boolean(val, false);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_number(val, 2.5);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 2.5);
+
+    set_number(val, 0);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_string(val, "Hello world");
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, NaN);
+
+    set_string(val, "");
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, NaN);
+    // EXPECT_EQ(res->boolean_field, false);
 }
