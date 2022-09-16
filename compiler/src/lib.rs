@@ -39,7 +39,7 @@ pub trait Compile<T> {
         self,
         compiler: &mut Compiler<'ctx, T>,
         cur_function: &mut Function<'ctx, T>,
-    ) -> Result<(), Error<T>>;
+    ) -> Result<bool, Error<T>>;
 }
 
 pub struct Compiler<'ctx, T> {

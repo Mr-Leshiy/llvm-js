@@ -14,20 +14,23 @@ impl Compile<Identifier> for Expression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<bool, compiler::Error<Identifier>> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
-                variable_declaration.compile(compiler, cur_function)
+                variable_declaration.compile(compiler, cur_function)?;
+                Ok(false)
             }
             Self::VariableAssigment(variable_assigment) => {
-                variable_assigment.compile(compiler, cur_function)
+                variable_assigment.compile(compiler, cur_function)?;
+                Ok(false)
             }
             Self::FunctionCall(function_call) => {
                 function_call.compile(compiler, cur_function)?;
-                Ok(())
+                Ok(false)
             }
             Self::ReturnStatement(return_statement) => {
-                return_statement.compile(compiler, cur_function)
+                return_statement.compile(compiler, cur_function)?;
+                Ok(true)
             }
         }
     }

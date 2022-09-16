@@ -1,11 +1,11 @@
 use super::{Identifier, VariableAssigment};
-use compiler::{self, Compile, Compiler, Function, Variable};
+use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration(pub VariableAssigment);
 
-impl Compile<Identifier> for VariableDeclaration {
-    fn compile<'ctx>(
+impl VariableDeclaration {
+    pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,

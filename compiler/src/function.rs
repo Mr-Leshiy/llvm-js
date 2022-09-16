@@ -61,11 +61,18 @@ where
     ) -> Result<(), Error<T>> {
         let basic_block = compiler.context.append_basic_block(self.function, "entry");
         compiler.builder.position_at_end(basic_block);
+        let mut is_returned = false;
         for expr in body {
-            expr.compile(compiler, self)?;
+            let is_return = expr.compile(compiler, self)?;
+            if is_return {
+                is_returned = true;
+                break;
+            }
         }
-        let ret = Variable::new_undefined(compiler)?;
-        compiler.builder.build_return(Some(&ret.value));
+        if !is_returned {
+            let ret = Variable::new_undefined(compiler)?;
+            compiler.builder.build_return(Some(&ret.value));
+        }
         Ok(())
     }
 

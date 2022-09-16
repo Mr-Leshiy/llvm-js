@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{self, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
@@ -7,8 +7,8 @@ pub struct VariableAssigment {
     pub value: Option<VariableExpression>,
 }
 
-impl Compile<Identifier> for VariableAssigment {
-    fn compile<'ctx>(
+impl VariableAssigment {
+    pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
