@@ -77,7 +77,7 @@ where
         &self,
         compiler: &mut Compiler<'ctx, T>,
         args: Vec<Variable<'ctx>>,
-    ) -> Result<(), Error<T>> {
+    ) -> Result<Variable<'ctx>, Error<T>> {
         let args_num = self.function.get_type().get_param_types().len();
         let mut vec = Vec::with_capacity(args_num);
         for (i, arg) in args.into_iter().enumerate() {
@@ -88,9 +88,13 @@ where
             vec.push(arg.value.into());
         }
 
-        compiler
+        let value = compiler
             .builder
-            .build_call(self.function, vec.as_slice(), "");
-        Ok(())
+            .build_call(self.function, vec.as_slice(), "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Ok(Variable { value })
     }
 }

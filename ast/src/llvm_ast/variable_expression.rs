@@ -1,4 +1,4 @@
-use super::{BinaryExpression, Identifier, UnaryExpression, VariableValue};
+use super::{BinaryExpression, FunctionCall, Identifier, UnaryExpression, VariableValue};
 use compiler::{self, Compiler, Function, Variable};
 
 /// VariableExpression
@@ -7,6 +7,7 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
+    FunctionCall(FunctionCall),
 }
 
 impl VariableExpression {
@@ -19,6 +20,7 @@ impl VariableExpression {
             Self::VariableValue(value) => value.compile(compiler, cur_function),
             Self::UnaryExpression(expr) => expr.compile(compiler, cur_function),
             Self::BinaryExpression(expr) => expr.compile(compiler, cur_function),
+            Self::FunctionCall(function_call) => function_call.compile(compiler, cur_function),
         }
     }
 }

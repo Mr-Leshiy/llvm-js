@@ -22,7 +22,10 @@ impl Compile<Identifier> for Expression {
             Self::VariableAssigment(variable_assigment) => {
                 variable_assigment.compile(compiler, cur_function)
             }
-            Self::FunctionCall(function_call) => function_call.compile(compiler, cur_function),
+            Self::FunctionCall(function_call) => {
+                function_call.compile(compiler, cur_function)?;
+                Ok(())
+            }
             Self::ReturnStatement(return_statement) => {
                 return_statement.compile(compiler, cur_function)
             }
