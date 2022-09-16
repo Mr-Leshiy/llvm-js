@@ -14,29 +14,10 @@ where
     T: Clone + Hash + PartialEq + Eq,
 {
     pub fn new(compiler: &mut Compiler<'ctx, T>, name: &str, arg_names: Vec<T>) -> Self {
-        let args_type: Vec<_> = arg_names
-            .iter()
-            .map(|_| {
-                compiler
-                    .variable_type
-                    .ptr_type(AddressSpace::Generic)
-                    .into()
-            })
-            .collect();
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(args_type.as_slice(), false);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let args_type: Vec<_> = arg_names.iter().map(|_| var_type.into()).collect();
+        let function_type = var_type.fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
-
-        // // define argument attributes
-        // for i in 0..args_type.len() {
-        //     let attribute = compiler.context.create_type_attribute(
-        //         Attribute::get_named_enum_kind_id("byval"),
-        //         compiler.variable_type.into(),
-        //     );
-        //     function.add_attribute(AttributeLoc::Param(i as u32), attribute)
-        // }
 
         Self {
             function,
@@ -80,18 +61,30 @@ where
     ) -> Result<(), Error<T>> {
         let basic_block = compiler.context.append_basic_block(self.function, "entry");
         compiler.builder.position_at_end(basic_block);
+        let mut is_returned = false;
         for expr in body {
-            expr.compile(compiler, self)?;
+            let is_return = expr.compile(compiler, self)?;
+            if is_return {
+                is_returned = true;
+                break;
+            }
         }
-        compiler.builder.build_return(None);
+        if !is_returned {
+            let ret = Variable::new_undefined(compiler)?;
+            compiler.builder.build_return(Some(&ret.value));
+        }
         Ok(())
     }
 
-    pub fn generate_call(
+    pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: Variable<'ctx>) {
+        compiler.builder.build_return(Some(&ret.value));
+    }
+
+    pub fn call(
         &self,
         compiler: &mut Compiler<'ctx, T>,
         args: Vec<Variable<'ctx>>,
-    ) -> Result<(), Error<T>> {
+    ) -> Result<Variable<'ctx>, Error<T>> {
         let args_num = self.function.get_type().get_param_types().len();
         let mut vec = Vec::with_capacity(args_num);
         for (i, arg) in args.into_iter().enumerate() {
@@ -102,9 +95,13 @@ where
             vec.push(arg.value.into());
         }
 
-        compiler
+        let value = compiler
             .builder
-            .build_call(self.function, vec.as_slice(), "");
-        Ok(())
+            .build_call(self.function, vec.as_slice(), "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Ok(Variable { value })
     }
 }

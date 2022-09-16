@@ -1,5 +1,6 @@
 use super::{
-    BinaryExpType, BinaryExpression, Identifier, UnaryExpType, UnaryExpression, VariableValue,
+    BinaryExpType, BinaryExpression, FunctionCall, Identifier, UnaryExpType, UnaryExpression,
+    VariableValue,
 };
 use crate::{llvm_ast, Error};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
@@ -20,12 +21,16 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
+    FunctionCall(FunctionCall),
 }
 
-impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for VariableExpression {
-    fn from(val: OutputExpression<VariableValue, UnaryExpType, BinaryExpType>) -> Self {
+impl From<OutputExpression<RpnValue, UnaryExpType, BinaryExpType>> for VariableExpression {
+    fn from(val: OutputExpression<RpnValue, UnaryExpType, BinaryExpType>) -> Self {
         match val {
-            OutputExpression::Value(value) => Self::VariableValue(value),
+            OutputExpression::Value(RpnValue::VariableValue(value)) => Self::VariableValue(value),
+            OutputExpression::Value(RpnValue::FunctionCall(function_call)) => {
+                Self::FunctionCall(function_call)
+            }
             OutputExpression::UnaryExpression(expr) => {
                 Self::UnaryExpression(Box::new(UnaryExpression {
                     exp: expr.exp.into(),
@@ -43,6 +48,23 @@ impl From<OutputExpression<VariableValue, UnaryExpType, BinaryExpType>> for Vari
     }
 }
 
+enum RpnValue {
+    VariableValue(VariableValue),
+    FunctionCall(FunctionCall),
+}
+
+impl From<FunctionCall> for RpnValue {
+    fn from(val: FunctionCall) -> Self {
+        Self::FunctionCall(val)
+    }
+}
+
+impl From<VariableValue> for RpnValue {
+    fn from(val: VariableValue) -> Self {
+        Self::VariableValue(val)
+    }
+}
+
 impl VariableExpression {
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let mut rpn = RPN::new();
@@ -50,10 +72,10 @@ impl VariableExpression {
         Ok(rpn.finish()?.evaluate().into())
     }
 
-    pub fn parse_impl<R: Read>(
+    fn parse_impl<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
-        rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
+        rpn: &mut RPN<RpnValue, UnaryExpType, BinaryExpType>,
         is_unary: bool,
     ) -> Result<(), Error> {
         match cur_token {
@@ -73,16 +95,31 @@ impl VariableExpression {
                     token => return Err(Error::UnexpectedToken(token)),
                 }
             }
+            Token::Ident(_) => {
+                reader.start_saving();
+                match FunctionCall::parse(cur_token.clone(), reader) {
+                    Ok(function_call) => {
+                        reader.reset_saving();
+                        rpn.build(InputExpression::Value(Value::Value(function_call.into())))?;
+                    }
+                    Err(_) => {
+                        reader.stop_saving();
+                        rpn.build(InputExpression::Value(Value::Value(
+                            VariableValue::parse(cur_token, reader)?.into(),
+                        )))?;
+                    }
+                }
+            }
             token => {
-                rpn.build(InputExpression::Value(Value::Value(VariableValue::parse(
-                    token, reader,
-                )?)))?;
+                rpn.build(InputExpression::Value(Value::Value(
+                    VariableValue::parse(token, reader)?.into(),
+                )))?;
             }
         }
         if !is_unary {
             reader.start_saving();
             let parse_binary_op = |reader: &mut TokenReader<R>,
-                                   rpn: &mut RPN<VariableValue, UnaryExpType, BinaryExpType>,
+                                   rpn: &mut RPN<RpnValue, UnaryExpType, BinaryExpType>,
                                    exp_type|
              -> Result<(), Error> {
                 reader.reset_saving();
@@ -147,6 +184,9 @@ impl VariableExpression {
             )),
             Self::BinaryExpression(expr) => Ok(llvm_ast::VariableExpression::BinaryExpression(
                 Box::new(expr.precompile(precompiler)?),
+            )),
+            Self::FunctionCall(function_call) => Ok(llvm_ast::VariableExpression::FunctionCall(
+                function_call.precompile(precompiler)?,
             )),
         }
     }
@@ -754,6 +794,27 @@ mod tests {
                     exp_type: UnaryExpType::Not
                 }
             )))
+        );
+    }
+
+    #[test]
+    fn parse_function_call_test() {
+        let mut reader = TokenReader::new(r#"foo(a, b, "val", 5)"#.as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::FunctionCall(FunctionCall {
+                name: "foo".to_string().into(),
+                args: vec![
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
+                    )),
+                    VariableExpression::VariableValue(VariableValue::String("val".to_string())),
+                    VariableExpression::VariableValue(VariableValue::Number(5_f64)),
+                ]
+            })),
         );
     }
 }

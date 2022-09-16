@@ -6,4 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 collections = { path = "../collections" }
-thiserror = { version = "1.0.34" }
+thiserror = { version = "1.0.35" }

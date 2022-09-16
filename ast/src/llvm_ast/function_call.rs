@@ -6,7 +6,7 @@ use compiler::{
         variable::PrintFn,
         PredefineFunctionName,
     },
-    Compile, Compiler, Function,
+    Compiler, Function, Variable,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,12 +15,12 @@ pub struct FunctionCall {
     pub args: Vec<VariableExpression>,
 }
 
-impl Compile<Identifier> for FunctionCall {
-    fn compile<'ctx>(
+impl FunctionCall {
+    pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         let mut args = Vec::new();
         for arg in self.args.into_iter() {
             args.push(arg.compile(compiler, cur_function)?);
@@ -33,7 +33,7 @@ impl Compile<Identifier> for FunctionCall {
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(())
+                Ok(Variable::new_undefined(compiler)?)
             }
             AssertFn::NAME => {
                 let mut iter = args.into_iter();
@@ -42,7 +42,7 @@ impl Compile<Identifier> for FunctionCall {
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(())
+                Ok(Variable::new_undefined(compiler)?)
             }
             AssertEqFn::NAME => {
                 let mut iter = args.into_iter();
@@ -52,11 +52,11 @@ impl Compile<Identifier> for FunctionCall {
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(())
+                Ok(Variable::new_undefined(compiler)?)
             }
             _ => {
                 let function = compiler.get_function(self.name)?;
-                function.generate_call(compiler, args)
+                function.call(compiler, args)
             }
         }
     }

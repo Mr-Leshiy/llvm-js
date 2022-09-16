@@ -22,6 +22,7 @@ mod function_call;
 mod function_declaration;
 mod identifier;
 mod program;
+mod return_statement;
 mod unary_expression;
 mod variable_assigment;
 mod variable_declaration;

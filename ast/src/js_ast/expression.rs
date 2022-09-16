@@ -1,6 +1,6 @@
 use super::{
-    BlockStatement, FunctionCall, FunctionDeclaration, Identifier, VariableAssigment,
-    VariableDeclaration,
+    return_statement::ReturnStatement, BlockStatement, FunctionCall, FunctionDeclaration,
+    Identifier, VariableAssigment, VariableDeclaration,
 };
 use crate::{llvm_ast, Error};
 use lexer::{Keyword, Separator, Token, TokenReader};
@@ -14,6 +14,7 @@ pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
     BlockStatement(BlockStatement),
+    ReturnStatement(ReturnStatement),
 }
 
 impl Expression {
@@ -23,6 +24,9 @@ impl Expression {
                 FunctionDeclaration::parse(cur_token, reader)?,
             )),
             Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
+                VariableDeclaration::parse(cur_token, reader)?,
+            )),
+            Token::Keyword(Keyword::Let) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
             Token::Ident(_) => {
@@ -43,6 +47,9 @@ impl Expression {
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
+            Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
+                cur_token, reader,
+            )?)),
             token => Err(Error::UnexpectedToken(token)),
         }
     }
@@ -54,27 +61,30 @@ impl Expression {
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
     ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
         match self {
-            Expression::FunctionDeclaration(function_declaration) => {
+            Self::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;
                 precompiler.function_declarations.push(function_declaration);
                 Ok(Vec::new())
             }
-            Expression::FunctionCall(function_call) => {
-                Ok(vec![llvm_ast::Expression::FunctionCall(
-                    function_call.precompile(precompiler)?,
-                )])
-            }
-            Expression::VariableDeclaration(variable_declaration) => {
+            Self::FunctionCall(function_call) => Ok(vec![llvm_ast::Expression::FunctionCall(
+                function_call.precompile(precompiler)?,
+            )]),
+            Self::VariableDeclaration(variable_declaration) => {
                 Ok(vec![llvm_ast::Expression::VariableDeclaration(
                     variable_declaration.precompile(precompiler)?,
                 )])
             }
-            Expression::VariableAssigment(variable_assigment) => {
+            Self::VariableAssigment(variable_assigment) => {
                 Ok(vec![llvm_ast::Expression::VariableAssigment(
                     variable_assigment.precompile(precompiler)?,
                 )])
             }
-            Expression::BlockStatement(block_statement) => block_statement.precompile(precompiler),
+            Self::ReturnStatement(return_statement) => {
+                Ok(vec![llvm_ast::Expression::ReturnStatement(
+                    return_statement.precompile(precompiler)?,
+                )])
+            }
+            Self::BlockStatement(block_statement) => block_statement.precompile(precompiler),
         }
     }
 }
@@ -102,6 +112,22 @@ mod tests {
 
     #[test]
     fn parse_expression_test2() {
+        let mut reader = TokenReader::new("let name = 12;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Expression::VariableDeclaration(VariableDeclaration(
+                VariableAssigment {
+                    left: "name".to_string().into(),
+                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
+                        12_f64
+                    )))
+                }
+            )))
+        );
+    }
+
+    #[test]
+    fn parse_expression_test3() {
         let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -115,7 +141,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_expression_test3() {
+    fn parse_expression_test4() {
         let mut reader = TokenReader::new("{ }".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
@@ -170,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_expression_test4() {
+    fn parse_expression_test5() {
         let mut reader = TokenReader::new("foo(a, b); a = 6;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
