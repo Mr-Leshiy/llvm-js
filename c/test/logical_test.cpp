@@ -8,8 +8,8 @@ extern "C"
 
 TEST(Logical, logical_not_test)
 {
-    VariableType *res;
-    VariableType *val = allocate();
+    Variable *res;
+    Variable *val = allocate();
 
     set_boolean(val, true);
     res = logical_not(val);
@@ -46,9 +46,9 @@ TEST(Logical, logical_not_test)
 
 TEST(Logical, logical_and_test)
 {
-    VariableType *res;
-    VariableType *val1 = allocate();
-    VariableType *val2 = allocate();
+    Variable *res;
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
 
     set_boolean(val1, true);
     set_boolean(val2, true);
@@ -113,9 +113,9 @@ TEST(Logical, logical_and_test)
 
 TEST(Logical, logical_or_test)
 {
-    VariableType *res;
-    VariableType *val1 = allocate();
-    VariableType *val2 = allocate();
+    Variable *res;
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
 
     set_boolean(val1, true);
     set_boolean(val2, true);
@@ -180,9 +180,9 @@ TEST(Logical, logical_or_test)
 
 TEST(Logical, logical_seq_test)
 {
-    VariableType *res;
-    VariableType *val1 = allocate();
-    VariableType *val2 = allocate();
+    Variable *res;
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
 
     set_number(val2, 3);
     set_number(val1, 3);
@@ -241,9 +241,9 @@ TEST(Logical, logical_seq_test)
 
 TEST(Logical, logical_sne_test)
 {
-    VariableType *res;
-    VariableType *val1 = allocate();
-    VariableType *val2 = allocate();
+    Variable *res;
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
 
     set_number(val2, 3);
     set_number(val1, 3);

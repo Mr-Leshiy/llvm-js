@@ -6,10 +6,10 @@ extern "C"
 #include "variable.h"
 }
 
-TEST(VariableType, Basic_test)
+TEST(Variable, Basic_test)
 {
-    VariableType *val1 = allocate();
-    VariableType *val2 = allocate();
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
 
     EXPECT_NE(val1, nullptr);
     EXPECT_NE(val2, nullptr);
@@ -55,8 +55,8 @@ TEST(VariableType, Basic_test)
 
 TEST(VariableTest, convert_to_boolean_test)
 {
-    VariableType *res;
-    VariableType *val = allocate();
+    Variable *res;
+    Variable *val = allocate();
 
     set_undefined(val);
     res = convert_to_boolean(val);
@@ -106,8 +106,8 @@ TEST(VariableTest, convert_to_boolean_test)
 
 TEST(VariableTest, convert_to_number_test)
 {
-    VariableType *res;
-    VariableType *val = allocate();
+    Variable *res;
+    Variable *val = allocate();
 
     set_undefined(val);
     res = convert_to_number(val);

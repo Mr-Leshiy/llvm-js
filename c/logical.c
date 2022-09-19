@@ -4,11 +4,11 @@
 
 #include "logical.h"
 
-VariableType *logical_not(VariableType *val)
+Variable *logical_not(Variable *val)
 {
     assert(val != NULL);
 
-    VariableType *ret = convert_to_boolean(val);
+    Variable *ret = convert_to_boolean(val);
     if (ret->boolean_field)
     {
         ret->boolean_field = 0;
@@ -20,14 +20,14 @@ VariableType *logical_not(VariableType *val)
     return ret;
 }
 
-VariableType *logical_and(VariableType *val1, VariableType *val2)
+Variable *logical_and(Variable *val1, Variable *val2)
 {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    VariableType *ret = allocate();
-    VariableType *val1_ = convert_to_boolean(val1);
-    VariableType *val2_ = convert_to_boolean(val2);
+    Variable *ret = allocate();
+    Variable *val1_ = convert_to_boolean(val1);
+    Variable *val2_ = convert_to_boolean(val2);
 
     if (val1_->boolean_field)
     {
@@ -47,14 +47,14 @@ VariableType *logical_and(VariableType *val1, VariableType *val2)
     return ret;
 }
 
-VariableType *logical_or(VariableType *val1, VariableType *val2)
+Variable *logical_or(Variable *val1, Variable *val2)
 {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    VariableType *ret = allocate();
-    VariableType *val1_ = convert_to_boolean(val1);
-    VariableType *val2_ = convert_to_boolean(val2);
+    Variable *ret = allocate();
+    Variable *val1_ = convert_to_boolean(val1);
+    Variable *val2_ = convert_to_boolean(val2);
 
     if (val1_->boolean_field)
     {
@@ -74,24 +74,24 @@ VariableType *logical_or(VariableType *val1, VariableType *val2)
     return ret;
 }
 
-VariableType *logical_eq(VariableType *val1, VariableType *val2)
+Variable *logical_eq(Variable *val1, Variable *val2)
 {
     // TODO implement
     return logical_seq(val1, val2);
 }
 
-VariableType *logical_ne(VariableType *val1, VariableType *val2)
+Variable *logical_ne(Variable *val1, Variable *val2)
 {
     // TODO implement
     return logical_sne(val1, val2);
 }
 
-VariableType *logical_seq(VariableType *val1, VariableType *val2)
+Variable *logical_seq(Variable *val1, Variable *val2)
 {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    VariableType *ret = allocate();
+    Variable *ret = allocate();
 
     switch (val1->flag)
     {
@@ -162,12 +162,12 @@ VariableType *logical_seq(VariableType *val1, VariableType *val2)
     return ret;
 }
 
-VariableType *logical_sne(VariableType *val1, VariableType *val2)
+Variable *logical_sne(Variable *val1, Variable *val2)
 {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    VariableType *ret = logical_seq(val1, val2);
+    Variable *ret = logical_seq(val1, val2);
     ret->boolean_field = !ret->boolean_field;
     return ret;
 }

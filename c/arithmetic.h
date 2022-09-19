@@ -3,9 +3,9 @@
 
 #include "variable.h"
 
-VariableType *arithmetic_addition(VariableType *val1, VariableType *val2);
-VariableType *arithmetic_substraction(VariableType *val1, VariableType *val2);
-VariableType *arithmetic_multiplication(VariableType *val1, VariableType *val2);
-VariableType *arithmetic_division(VariableType *val1, VariableType *val2);
+Variable *arithmetic_addition(Variable *val1, Variable *val2);
+Variable *arithmetic_substraction(Variable *val1, Variable *val2);
+Variable *arithmetic_multiplication(Variable *val1, Variable *val2);
+Variable *arithmetic_division(Variable *val1, Variable *val2);
 
 #endif

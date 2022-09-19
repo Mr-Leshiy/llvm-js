@@ -4,23 +4,23 @@
 #include "assertions.h"
 #include "logical.h"
 
-void variable_assert(VariableType *val)
+void variable_assert(Variable *val)
 {
     assert(val != NULL);
 
-    VariableType *ret = convert_to_boolean(val);
+    Variable *ret = convert_to_boolean(val);
     if (!ret->boolean_field)
     {
         abort();
     }
 }
 
-void variable_assert_eq(VariableType *val1, VariableType *val2)
+void variable_assert_eq(Variable *val1, Variable *val2)
 {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    VariableType *ret = logical_seq(val1, val2);
+    Variable *ret = logical_seq(val1, val2);
     if (!ret->boolean_field)
     {
         abort();

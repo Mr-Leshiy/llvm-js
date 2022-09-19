@@ -5,35 +5,35 @@
 
 #include "variable.h"
 
-VariableType *allocate()
+Variable *allocate()
 {
-    VariableType *res = (VariableType *)malloc(sizeof(VariableType));
+    Variable *res = (Variable *)malloc(sizeof(Variable));
     res->flag = Undefined;
     return res;
 }
 
-void set_undefined(VariableType *self)
+void set_undefined(Variable *self)
 {
     assert(self != NULL);
 
     self->flag = Undefined;
 }
 
-void set_null(VariableType *self)
+void set_null(Variable *self)
 {
     assert(self != NULL);
 
     self->flag = Null;
 }
 
-void set_nan(VariableType *self)
+void set_nan(Variable *self)
 {
     assert(self != NULL);
 
     self->flag = NaN;
 }
 
-void set_number(VariableType *self, double val)
+void set_number(Variable *self, double val)
 {
     assert(self != NULL);
 
@@ -41,7 +41,7 @@ void set_number(VariableType *self, double val)
     self->number_field = val;
 }
 
-void set_boolean(VariableType *self, uint8_t val)
+void set_boolean(Variable *self, uint8_t val)
 {
     assert(self != NULL);
 
@@ -49,7 +49,7 @@ void set_boolean(VariableType *self, uint8_t val)
     self->boolean_field = val;
 }
 
-void set_string(VariableType *self, const char *val)
+void set_string(Variable *self, const char *val)
 {
     assert(self != NULL);
 
@@ -57,7 +57,7 @@ void set_string(VariableType *self, const char *val)
     self->string_field = val;
 }
 
-void set_variable(VariableType *self, VariableType *val)
+void set_variable(Variable *self, Variable *val)
 {
     assert(self != NULL);
     assert(val != NULL);
@@ -88,11 +88,11 @@ void set_variable(VariableType *self, VariableType *val)
     }
 }
 
-VariableType *convert_to_boolean(VariableType *val)
+Variable *convert_to_boolean(Variable *val)
 {
     assert(val != NULL);
 
-    VariableType *ret = allocate();
+    Variable *ret = allocate();
     switch (val->flag)
     {
     case Undefined:
@@ -134,11 +134,11 @@ VariableType *convert_to_boolean(VariableType *val)
     return ret;
 }
 
-VariableType *convert_to_number(VariableType *val)
+Variable *convert_to_number(Variable *val)
 {
     assert(val != NULL);
 
-    VariableType *ret = allocate();
+    Variable *ret = allocate();
     switch (val->flag)
     {
     case Undefined:
@@ -166,7 +166,7 @@ VariableType *convert_to_number(VariableType *val)
     return ret;
 }
 
-void print(VariableType *self)
+void print(Variable *self)
 {
     assert(self != NULL);
 
