@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "logical.h"
+#include "logical.hpp"
+#include "variable.hpp"
 
 Variable *logical_not(Variable *val)
 {

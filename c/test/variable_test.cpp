@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 #include <string.h>
 
-extern "C"
-{
-#include "variable.h"
-}
+#include "variable.hpp"
 
 TEST(Variable, Basic_test)
 {

@@ -1,8 +1,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "assertions.h"
-#include "logical.h"
+#include "assertions.hpp"
+#include "logical.hpp"
+#include "variable.hpp"
 
 void variable_assert(Variable *val)
 {

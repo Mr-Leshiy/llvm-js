@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 #include <string.h>
 
-extern "C"
-{
-#include "logical.h"
-}
+#include "logical.hpp"
 
 TEST(Logical, logical_not_test)
 {

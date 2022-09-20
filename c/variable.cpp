@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "variable.h"
+#include "variable.hpp"
 
 Variable *allocate()
 {
