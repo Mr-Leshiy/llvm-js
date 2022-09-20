@@ -96,36 +96,22 @@ Variable *convert_to_boolean(Variable *val)
     switch (val->flag)
     {
     case Type::Undefined:
-        set_boolean(ret, 0);
+        set_boolean(ret, false);
         break;
     case Type::Null:
-        set_boolean(ret, 0);
+        set_boolean(ret, false);
         break;
     case Type::NaN:
-        set_boolean(ret, 0);
+        set_boolean(ret, false);
         break;
     case Type::Number:
-        if (val->number_field == 0)
-        {
-            set_boolean(ret, 0);
-        }
-        else
-        {
-            set_boolean(ret, 1);
-        }
+        set_boolean(ret, val->number_field != 0);
         break;
     case Type::Boolean:
         set_boolean(ret, val->boolean_field);
         break;
     case Type::String:
-        if (strlen(val->string_field) == 0)
-        {
-            set_boolean(ret, 0);
-        }
-        else
-        {
-            set_boolean(ret, 1);
-        }
+        set_boolean(ret, strlen(val->string_field) != 0);
         break;
     default:
         assert(0);
@@ -154,7 +140,7 @@ Variable *convert_to_number(Variable *val)
         set_number(ret, val->number_field);
         break;
     case Type::Boolean:
-        set_number(ret, val->boolean_field ? 1 : 0 );
+        set_number(ret, val->boolean_field ? 1 : 0);
         break;
     case Type::String:
         set_nan(ret);

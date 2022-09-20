@@ -1,6 +1,9 @@
 #ifndef C_VARIABLE_HPP
 #define C_VARIABLE_HPP
 
+#include <stdint.h>
+#include <string>
+
 extern "C"
 {
 #include "variable.h"
@@ -20,7 +23,7 @@ struct Variable
 {
     Type flag;
     double number_field;
-    uint8_t boolean_field;
+    bool boolean_field;
     const char *string_field;
 };
 

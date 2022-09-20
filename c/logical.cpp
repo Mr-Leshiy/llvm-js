@@ -97,34 +97,13 @@ Variable *logical_seq(Variable *val1, Variable *val2)
     switch (val1->flag)
     {
     case Type::Undefined:
-        if (val2->flag == Type::Undefined)
-        {
-            set_boolean(ret, 1);
-        }
-        else
-        {
-            set_boolean(ret, 0);
-        }
+        set_boolean(ret, val2->flag == Type::Undefined);
         break;
     case Type::Null:
-        if (val2->flag == Type::Null)
-        {
-            set_boolean(ret, 1);
-        }
-        else
-        {
-            set_boolean(ret, 0);
-        }
+        set_boolean(ret, val2->flag == Type::Null);
         break;
     case Type::NaN:
-        if (val2->flag == Type::NaN)
-        {
-            set_boolean(ret, 1);
-        }
-        else
-        {
-            set_boolean(ret, 0);
-        }
+        set_boolean(ret, val2->flag == Type::Null);
         break;
     case Type::Number:
         if (val2->flag == Type::Number)
@@ -133,7 +112,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
         }
         else
         {
-            set_boolean(ret, 0);
+            set_boolean(ret, false);
         }
         break;
     case Type::Boolean:
@@ -143,7 +122,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
         }
         else
         {
-            set_boolean(ret, 0);
+            set_boolean(ret, false);
         }
         break;
     case Type::String:
@@ -153,7 +132,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
         }
         else
         {
-            set_boolean(ret, 0);
+            set_boolean(ret, false);
         }
         break;
     default:
