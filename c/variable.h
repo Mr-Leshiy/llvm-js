@@ -1,6 +1,8 @@
 #ifndef C_VARIABLE_H
 #define C_VARIABLE_H
 
+#include <stdint.h>
+
 typedef struct Variable Variable;
 
 Variable *allocate();

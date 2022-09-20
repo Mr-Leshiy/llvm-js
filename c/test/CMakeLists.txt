@@ -6,3 +6,4 @@ target_link_libraries(test_main gtest)
 
 addtest(variable_test variable_test.cpp)
 addtest(logical_test logical_test.cpp)
+addtest(arithmetic_test arithmetic_test.cpp)

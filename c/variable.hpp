@@ -1,7 +1,6 @@
 #ifndef C_VARIABLE_HPP
 #define C_VARIABLE_HPP
 
-#include <stdint.h>
 #include <string>
 
 extern "C"
