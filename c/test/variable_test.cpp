@@ -46,8 +46,8 @@ TEST(Variable, Basic_test)
     set_variable(val2, val1);
     EXPECT_EQ(val1->flag, Type::String);
     EXPECT_EQ(val2->flag, Type::String);
-    EXPECT_EQ(strcmp(val1->string_field, "foo"), 0);
-    EXPECT_EQ(strcmp(val2->string_field, "foo"), 0);
+    EXPECT_EQ(val1->string_field, "foo");
+    EXPECT_EQ(val2->string_field, "foo");
 }
 
 TEST(VariableTest, convert_to_boolean_test)

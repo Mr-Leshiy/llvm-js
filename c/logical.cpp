@@ -128,7 +128,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
     case Type::String:
         if (val2->flag == Type::String)
         {
-            set_boolean(ret, strcmp(val1->string_field, val2->string_field) == 0);
+            set_boolean(ret, val1->string_field == val2->string_field);
         }
         else
         {

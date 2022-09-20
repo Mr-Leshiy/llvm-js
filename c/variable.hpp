@@ -24,7 +24,7 @@ struct Variable
     Type flag;
     double number_field;
     bool boolean_field;
-    const char *string_field;
+    std::string string_field;
 };
 
 #endif

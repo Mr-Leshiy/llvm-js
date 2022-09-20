@@ -80,7 +80,7 @@ void set_variable(Variable *self, Variable *val)
         set_boolean(self, val->boolean_field);
         break;
     case Type::String:
-        set_string(self, strdup(val->string_field));
+        set_string(self, val->string_field.c_str());
         break;
     default:
         assert(0);
@@ -111,7 +111,7 @@ Variable *convert_to_boolean(Variable *val)
         set_boolean(ret, val->boolean_field);
         break;
     case Type::String:
-        set_boolean(ret, strlen(val->string_field) != 0);
+        set_boolean(ret, !val->string_field.empty());
         break;
     default:
         assert(0);
@@ -181,7 +181,7 @@ void print(Variable *self)
         }
         break;
     case Type::String:
-        printf("%s\n", self->string_field);
+        printf("%s\n", self->string_field.c_str());
         break;
     default:
         assert(0);
