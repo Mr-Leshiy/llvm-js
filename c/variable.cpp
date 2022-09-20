@@ -8,7 +8,7 @@
 Variable *allocate()
 {
     Variable *res = (Variable *)malloc(sizeof(Variable));
-    res->flag = Undefined;
+    res->flag = Type::Undefined;
     return res;
 }
 
@@ -16,28 +16,28 @@ void set_undefined(Variable *self)
 {
     assert(self != NULL);
 
-    self->flag = Undefined;
+    self->flag = Type::Undefined;
 }
 
 void set_null(Variable *self)
 {
     assert(self != NULL);
 
-    self->flag = Null;
+    self->flag = Type::Null;
 }
 
 void set_nan(Variable *self)
 {
     assert(self != NULL);
 
-    self->flag = NaN;
+    self->flag = Type::NaN;
 }
 
 void set_number(Variable *self, double val)
 {
     assert(self != NULL);
 
-    self->flag = Number;
+    self->flag = Type::Number;
     self->number_field = val;
 }
 
@@ -45,7 +45,7 @@ void set_boolean(Variable *self, uint8_t val)
 {
     assert(self != NULL);
 
-    self->flag = Boolean;
+    self->flag = Type::Boolean;
     self->boolean_field = val;
 }
 
@@ -53,7 +53,7 @@ void set_string(Variable *self, const char *val)
 {
     assert(self != NULL);
 
-    self->flag = String;
+    self->flag = Type::String;
     self->string_field = val;
 }
 
@@ -64,22 +64,22 @@ void set_variable(Variable *self, Variable *val)
 
     switch (val->flag)
     {
-    case Undefined:
+    case Type::Undefined:
         set_undefined(self);
         break;
-    case Null:
+    case Type::Null:
         set_null(self);
         break;
-    case NaN:
+    case Type::NaN:
         set_nan(self);
         break;
-    case Number:
+    case Type::Number:
         set_number(self, val->number_field);
         break;
-    case Boolean:
+    case Type::Boolean:
         set_boolean(self, val->boolean_field);
         break;
-    case String:
+    case Type::String:
         set_string(self, strdup(val->string_field));
         break;
     default:
@@ -95,16 +95,16 @@ Variable *convert_to_boolean(Variable *val)
     Variable *ret = allocate();
     switch (val->flag)
     {
-    case Undefined:
+    case Type::Undefined:
         set_boolean(ret, 0);
         break;
-    case Null:
+    case Type::Null:
         set_boolean(ret, 0);
         break;
-    case NaN:
+    case Type::NaN:
         set_boolean(ret, 0);
         break;
-    case Number:
+    case Type::Number:
         if (val->number_field == 0)
         {
             set_boolean(ret, 0);
@@ -114,10 +114,10 @@ Variable *convert_to_boolean(Variable *val)
             set_boolean(ret, 1);
         }
         break;
-    case Boolean:
+    case Type::Boolean:
         set_boolean(ret, val->boolean_field);
         break;
-    case String:
+    case Type::String:
         if (strlen(val->string_field) == 0)
         {
             set_boolean(ret, 0);
@@ -141,22 +141,22 @@ Variable *convert_to_number(Variable *val)
     Variable *ret = allocate();
     switch (val->flag)
     {
-    case Undefined:
+    case Type::Undefined:
         set_nan(ret);
         break;
-    case Null:
+    case Type::Null:
         set_number(ret, 0);
         break;
-    case NaN:
+    case Type::NaN:
         set_nan(ret);
         break;
-    case Number:
+    case Type::Number:
         set_number(ret, val->number_field);
         break;
-    case Boolean:
+    case Type::Boolean:
         set_number(ret, val->boolean_field ? 1 : 0 );
         break;
-    case String:
+    case Type::String:
         set_nan(ret);
         break;
     default:
@@ -172,19 +172,19 @@ void print(Variable *self)
 
     switch (self->flag)
     {
-    case Undefined:
+    case Type::Undefined:
         printf("undefined\n");
         break;
-    case Null:
+    case Type::Null:
         printf("null\n");
         break;
-    case NaN:
-        printf("NaN\n");
+    case Type::NaN:
+        printf("Type::NaN\n");
         break;
-    case Number:
+    case Type::Number:
         printf("%f\n", self->number_field);
         break;
-    case Boolean:
+    case Type::Boolean:
         if (self->boolean_field)
         {
             printf("true\n");
@@ -194,7 +194,7 @@ void print(Variable *self)
             printf("false\n");
         }
         break;
-    case String:
+    case Type::String:
         printf("%s\n", self->string_field);
         break;
     default:

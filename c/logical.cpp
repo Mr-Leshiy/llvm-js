@@ -96,8 +96,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
 
     switch (val1->flag)
     {
-    case Undefined:
-        if (val2->flag == Undefined)
+    case Type::Undefined:
+        if (val2->flag == Type::Undefined)
         {
             set_boolean(ret, 1);
         }
@@ -106,8 +106,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
             set_boolean(ret, 0);
         }
         break;
-    case Null:
-        if (val2->flag == Null)
+    case Type::Null:
+        if (val2->flag == Type::Null)
         {
             set_boolean(ret, 1);
         }
@@ -116,8 +116,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
             set_boolean(ret, 0);
         }
         break;
-    case NaN:
-        if (val2->flag == NaN)
+    case Type::NaN:
+        if (val2->flag == Type::NaN)
         {
             set_boolean(ret, 1);
         }
@@ -126,8 +126,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
             set_boolean(ret, 0);
         }
         break;
-    case Number:
-        if (val2->flag == Number)
+    case Type::Number:
+        if (val2->flag == Type::Number)
         {
             set_boolean(ret, val1->number_field == val2->number_field);
         }
@@ -136,8 +136,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
             set_boolean(ret, 0);
         }
         break;
-    case Boolean:
-        if (val2->flag == Boolean)
+    case Type::Boolean:
+        if (val2->flag == Type::Boolean)
         {
             set_boolean(ret, val1->boolean_field == val2->boolean_field);
         }
@@ -146,8 +146,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
             set_boolean(ret, 0);
         }
         break;
-    case String:
-        if (val2->flag == String)
+    case Type::String:
+        if (val2->flag == Type::String)
         {
             set_boolean(ret, strcmp(val1->string_field, val2->string_field) == 0);
         }
