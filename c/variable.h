@@ -10,6 +10,8 @@ Variable *allocate();
 void set_undefined(Variable *self);
 void set_null(Variable *self);
 void set_nan(Variable *self);
+void set_infinity(Variable *self);
+void set_neginfinity(Variable *self);
 void set_number(Variable *self, double val);
 void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);

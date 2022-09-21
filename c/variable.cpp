@@ -33,6 +33,20 @@ void set_nan(Variable *self)
     self->flag = Type::NaN;
 }
 
+void set_infinity(Variable *self)
+{
+    assert(self != NULL);
+
+    self->flag = Type::Infinity;
+}
+
+void set_neginfinity(Variable *self)
+{
+    assert(self != NULL);
+
+    self->flag = Type::NegInfinity;
+}
+
 void set_number(Variable *self, double val)
 {
     assert(self != NULL);
@@ -73,6 +87,12 @@ void set_variable(Variable *self, Variable *val)
     case Type::NaN:
         set_nan(self);
         break;
+    case Type::Infinity:
+        set_infinity(self);
+        break;
+    case Type::NegInfinity:
+        set_neginfinity(self);
+        break;
     case Type::Number:
         set_number(self, val->number_field);
         break;
@@ -103,6 +123,12 @@ Variable *convert_to_boolean(Variable *val)
         break;
     case Type::NaN:
         set_boolean(ret, false);
+        break;
+    case Type::Infinity:
+        set_boolean(ret, true);
+        break;
+    case Type::NegInfinity:
+        set_boolean(ret, true);
         break;
     case Type::Number:
         set_boolean(ret, val->number_field != 0);
@@ -136,6 +162,12 @@ Variable *convert_to_number(Variable *val)
     case Type::NaN:
         set_nan(ret);
         break;
+    case Type::Infinity:
+        set_infinity(ret);
+        break;
+    case Type::NegInfinity:
+        set_neginfinity(ret);
+        break;
     case Type::Number:
         set_number(ret, val->number_field);
         break;
@@ -165,7 +197,13 @@ void print(Variable *self)
         printf("null\n");
         break;
     case Type::NaN:
-        printf("Type::NaN\n");
+        printf("NaN\n");
+        break;
+    case Type::Infinity:
+        printf("Infinity\n");
+        break;
+    case Type::NegInfinity:
+        printf("-Infinity\n");
         break;
     case Type::Number:
         printf("%f\n", self->number_field);

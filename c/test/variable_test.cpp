@@ -28,6 +28,16 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val1->flag, Type::NaN);
     EXPECT_EQ(val2->flag, Type::NaN);
 
+    set_infinity(val1);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, Type::Infinity);
+    EXPECT_EQ(val2->flag, Type::Infinity);
+
+    set_neginfinity(val1);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, Type::NegInfinity);
+    EXPECT_EQ(val2->flag, Type::NegInfinity);
+
     set_number(val1, 2.0);
     set_variable(val2, val1);
     EXPECT_EQ(val1->flag, Type::Number);
@@ -69,6 +79,16 @@ TEST(VariableTest, convert_to_boolean_test)
     res = convert_to_boolean(val);
     EXPECT_EQ(res->flag, Type::Boolean);
     EXPECT_EQ(res->boolean_field, false);
+
+    set_infinity(val);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Type::Boolean);
+    EXPECT_EQ(res->boolean_field, true);
+
+    set_neginfinity(val);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Type::Boolean);
+    EXPECT_EQ(res->boolean_field, true);
 
     set_boolean(val, true);
     res = convert_to_boolean(val);
@@ -119,6 +139,14 @@ TEST(VariableTest, convert_to_number_test)
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
 
+    set_infinity(val);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Type::Infinity);
+
+    set_neginfinity(val);
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Type::NegInfinity);
+
     set_boolean(val, true);
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::Number);
@@ -146,5 +174,4 @@ TEST(VariableTest, convert_to_number_test)
     set_string(val, "");
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
-    // EXPECT_EQ(res->boolean_field, false);
 }

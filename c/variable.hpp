@@ -10,12 +10,14 @@ extern "C"
 
 enum class Type
 {
-    Undefined = 0,
-    Null = 1,
-    NaN = 2,
-    Number = 3,
-    Boolean = 4,
-    String = 5,
+    Undefined,
+    Null,
+    NaN,
+    Infinity,
+    NegInfinity,
+    Number,
+    Boolean,
+    String,
 };
 
 struct Variable
