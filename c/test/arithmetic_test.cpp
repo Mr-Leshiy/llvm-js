@@ -16,6 +16,18 @@ TEST(Logical, arithmetic_addition_test)
     EXPECT_EQ(res->flag, Type::Number);
     EXPECT_EQ(res->number_field, 5);
 
+    set_number(val1, 2);
+    set_number(val2, 0);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 2);
+
+    set_number(val1, 0);
+    set_number(val2, 2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 2);
+
     set_number(val1, -2);
     set_number(val2, 3);
     res = arithmetic_addition(val1, val2);
@@ -37,6 +49,46 @@ TEST(Logical, arithmetic_addition_test)
     set_nan(val2);
     res = arithmetic_addition(val1, val2);
     EXPECT_EQ(res->flag, Type::NaN);
+
+    set_infinity(val1);
+    set_nan(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_neginfinity(val1);
+    set_nan(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_infinity(val1);
+    set_number(val2, -4.5);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::Infinity);
+
+    set_neginfinity(val1);
+    set_number(val2, -4.5);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NegInfinity);
+
+    set_infinity(val1);
+    set_neginfinity(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_neginfinity(val1);
+    set_infinity(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_infinity(val1);
+    set_infinity(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::Infinity);
+
+    set_neginfinity(val1);
+    set_neginfinity(val2);
+    res = arithmetic_addition(val1, val2);
+    EXPECT_EQ(res->flag, Type::NegInfinity);
 }
 
 TEST(Logical, arithmetic_substraction_test)
@@ -50,6 +102,18 @@ TEST(Logical, arithmetic_substraction_test)
     res = arithmetic_substraction(val1, val2);
     EXPECT_EQ(res->flag, Type::Number);
     EXPECT_EQ(res->number_field, -1);
+
+    set_number(val1, 2);
+    set_number(val2, 0);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 2);
+
+    set_number(val1, 0);
+    set_number(val2, 2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, -2);
 
     set_number(val1, -2);
     set_number(val2, 3);
@@ -72,6 +136,46 @@ TEST(Logical, arithmetic_substraction_test)
     set_nan(val2);
     res = arithmetic_substraction(val1, val2);
     EXPECT_EQ(res->flag, Type::NaN);
+
+    set_infinity(val1);
+    set_nan(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_neginfinity(val1);
+    set_nan(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_infinity(val1);
+    set_number(val2, -4.5);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::Infinity);
+
+    set_neginfinity(val1);
+    set_number(val2, -4.5);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NegInfinity);
+
+    set_infinity(val1);
+    set_neginfinity(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::Infinity);
+
+    set_neginfinity(val1);
+    set_infinity(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NegInfinity);
+
+    set_infinity(val1);
+    set_infinity(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_neginfinity(val1);
+    set_neginfinity(val2);
+    res = arithmetic_substraction(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
 }
 
 TEST(Logical, arithmetic_multiplication_test)
@@ -85,6 +189,65 @@ TEST(Logical, arithmetic_multiplication_test)
     res = arithmetic_multiplication(val1, val2);
     EXPECT_EQ(res->flag, Type::Number);
     EXPECT_EQ(res->number_field, 6);
+
+    set_number(val1, 2);
+    set_number(val2, 0);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_number(val1, 0);
+    set_number(val2, 2);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_number(val1, -2);
+    set_number(val2, 3);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, -6);
+
+    set_number(val1, -2.5);
+    set_number(val2, -4.5);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 11.25);
+
+    set_nan(val1);
+    set_number(val2, -4.5);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    set_number(val1, -4.5);
+    set_nan(val2);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::NaN);
+}
+
+TEST(Logical, arithmetic_division_test)
+{
+    Variable *res;
+    Variable *val1 = allocate();
+    Variable *val2 = allocate();
+
+    set_number(val1, 2);
+    set_number(val2, 3);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 6);
+
+    set_number(val1, 2);
+    set_number(val2, 0);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 0);
+
+    set_number(val1, 0);
+    set_number(val2, 2);
+    res = arithmetic_multiplication(val1, val2);
+    EXPECT_EQ(res->flag, Type::Number);
+    EXPECT_EQ(res->number_field, 0);
 
     set_number(val1, -2);
     set_number(val2, 3);
