@@ -7,7 +7,7 @@
 
 Variable *allocate()
 {
-    Variable *res = (Variable *)malloc(sizeof(Variable));
+    Variable *res = new Variable;
     res->flag = Type::Undefined;
     return res;
 }
