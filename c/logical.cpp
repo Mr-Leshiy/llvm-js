@@ -7,7 +7,7 @@
 
 Variable *logical_not(Variable *val)
 {
-    assert(val != NULL);
+    assert(val != nullptr);
 
     Variable *ret = convert_to_boolean(val);
     if (ret->boolean_field)
@@ -23,8 +23,8 @@ Variable *logical_not(Variable *val)
 
 Variable *logical_and(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     Variable *val1_ = convert_to_boolean(val1);
@@ -50,8 +50,8 @@ Variable *logical_and(Variable *val1, Variable *val2)
 
 Variable *logical_or(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     Variable *val1_ = convert_to_boolean(val1);
@@ -89,8 +89,8 @@ Variable *logical_ne(Variable *val1, Variable *val2)
 
 Variable *logical_seq(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
 
@@ -144,8 +144,8 @@ Variable *logical_seq(Variable *val1, Variable *val2)
 
 Variable *logical_sne(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = logical_seq(val1, val2);
     ret->boolean_field = !ret->boolean_field;

@@ -14,42 +14,42 @@ Variable *allocate()
 
 void set_undefined(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::Undefined;
 }
 
 void set_null(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::Null;
 }
 
 void set_nan(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::NaN;
 }
 
 void set_infinity(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::Infinity;
 }
 
 void set_neginfinity(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::NegInfinity;
 }
 
 void set_number(Variable *self, double val)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::Number;
     self->number_field = val;
@@ -57,7 +57,7 @@ void set_number(Variable *self, double val)
 
 void set_boolean(Variable *self, uint8_t val)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::Boolean;
     self->boolean_field = val;
@@ -65,7 +65,7 @@ void set_boolean(Variable *self, uint8_t val)
 
 void set_string(Variable *self, const char *val)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     self->flag = Type::String;
     self->string_field = val;
@@ -73,8 +73,8 @@ void set_string(Variable *self, const char *val)
 
 void set_variable(Variable *self, Variable *val)
 {
-    assert(self != NULL);
-    assert(val != NULL);
+    assert(self != nullptr);
+    assert(val != nullptr);
 
     switch (val->flag)
     {
@@ -110,7 +110,7 @@ void set_variable(Variable *self, Variable *val)
 
 Variable *convert_to_boolean(Variable *val)
 {
-    assert(val != NULL);
+    assert(val != nullptr);
 
     Variable *ret = allocate();
     switch (val->flag)
@@ -148,7 +148,7 @@ Variable *convert_to_boolean(Variable *val)
 
 Variable *convert_to_number(Variable *val)
 {
-    assert(val != NULL);
+    assert(val != nullptr);
 
     Variable *ret = allocate();
     switch (val->flag)
@@ -186,7 +186,7 @@ Variable *convert_to_number(Variable *val)
 
 void print(Variable *self)
 {
-    assert(self != NULL);
+    assert(self != nullptr);
 
     switch (self->flag)
     {

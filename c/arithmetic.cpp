@@ -5,8 +5,8 @@
 
 Variable *arithmetic_addition(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     val1 = convert_to_number(val1);
@@ -69,8 +69,8 @@ Variable *arithmetic_addition(Variable *val1, Variable *val2)
 
 Variable *arithmetic_substraction(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     val1 = convert_to_number(val1);
@@ -149,8 +149,8 @@ Variable *arithmetic_substraction(Variable *val1, Variable *val2)
 
 Variable *arithmetic_multiplication(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     val1 = convert_to_number(val1);
@@ -273,8 +273,8 @@ Variable *arithmetic_multiplication(Variable *val1, Variable *val2)
 
 Variable *arithmetic_division(Variable *val1, Variable *val2)
 {
-    assert(val1 != NULL);
-    assert(val2 != NULL);
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
 
     Variable *ret = allocate();
     val1 = convert_to_number(val1);
