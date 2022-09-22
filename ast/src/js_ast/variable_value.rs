@@ -1,6 +1,6 @@
 use super::Identifier;
 use crate::llvm_ast;
-use lexer::{Literal, Token, TokenReader};
+use lexer::{Arithmetic, Literal, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
@@ -19,7 +19,10 @@ pub enum VariableValue {
 }
 
 impl VariableValue {
-    pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, lexer::Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, lexer::Error> {
         match cur_token {
             Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
             Token::Literal(Literal::Null) => Ok(Self::Null),
@@ -29,6 +32,12 @@ impl VariableValue {
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
             Token::Ident(name) => Ok(Self::Identifier(Identifier { name })),
+            // negative
+            Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
+                Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
+                Token::Literal(Literal::Number(val)) => Ok(Self::Number(-val)),
+                token => Err(lexer::Error::UnexpectedToken(token)),
+            },
             token => Err(lexer::Error::UnexpectedToken(token)),
         }
     }
@@ -76,6 +85,24 @@ mod tests {
             Ok(VariableValue::Null),
         );
 
+        let mut reader = TokenReader::new("NaN".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::NaN),
+        );
+
+        let mut reader = TokenReader::new("Infinity".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Infinity),
+        );
+
+        let mut reader = TokenReader::new("-Infinity".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::NegInfinity),
+        );
+
         let mut reader = TokenReader::new("true".as_bytes());
         assert_eq!(
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),
@@ -92,6 +119,12 @@ mod tests {
         assert_eq!(
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableValue::Number(12_f64)),
+        );
+
+        let mut reader = TokenReader::new("-12".as_bytes());
+        assert_eq!(
+            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableValue::Number(-12_f64)),
         );
 
         let mut reader = TokenReader::new(r#""name""#.as_bytes());

@@ -1,4 +1,4 @@
-// assert_eq(1 - 4, -3);
+assert_eq(1 - 4, -3);
 assert_eq(4 - 1, 3);
 
 assert_eq(1 - NaN, NaN);
