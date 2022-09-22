@@ -1,4 +1,8 @@
 use self::{
+    arithmetic::{
+        ArithmeticAdditionFn, ArithmeticDivisionFn, ArithmeticMultiplicationFn,
+        ArithmeticSubstractionFn,
+    },
     assertions::{AssertEqFn, AssertFn},
     logical::{
         LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
@@ -11,6 +15,7 @@ use self::{
 };
 use crate::{Compiler, Error};
 
+pub mod arithmetic;
 pub mod assertions;
 pub mod logical;
 pub mod variable;
@@ -40,6 +45,11 @@ pub struct PredefineFunctions<'ctx> {
     logical_ne: Option<LogicalNeFn<'ctx>>,
     logical_seq: Option<LogicalSEqFn<'ctx>>,
     logical_sne: Option<LogicalSNeFn<'ctx>>,
+    // arithmetic functions
+    arithmetic_addition: Option<ArithmeticAdditionFn<'ctx>>,
+    arithmetic_substraction: Option<ArithmeticSubstractionFn<'ctx>>,
+    arithmetic_multiplication: Option<ArithmeticMultiplicationFn<'ctx>>,
+    arithmetic_division: Option<ArithmeticDivisionFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -71,6 +81,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_ne: None,
             logical_seq: None,
             logical_sne: None,
+            // arithmetic functions
+            arithmetic_addition: None,
+            arithmetic_substraction: None,
+            arithmetic_multiplication: None,
+            arithmetic_division: None,
         }
     }
 
@@ -95,6 +110,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let logical_ne = Some(LogicalNeFn::declare(compiler));
         let logical_seq = Some(LogicalSEqFn::declare(compiler));
         let logical_sne = Some(LogicalSNeFn::declare(compiler));
+        // arithmetic functions
+        let arithmetic_addition = Some(ArithmeticAdditionFn::declare(compiler));
+        let arithmetic_substraction = Some(ArithmeticSubstractionFn::declare(compiler));
+        let arithmetic_multiplication = Some(ArithmeticMultiplicationFn::declare(compiler));
+        let arithmetic_division = Some(ArithmeticDivisionFn::declare(compiler));
 
         Ok(Self {
             assert,
@@ -114,6 +134,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_ne,
             logical_seq,
             logical_sne,
+            arithmetic_addition,
+            arithmetic_substraction,
+            arithmetic_multiplication,
+            arithmetic_division,
         })
     }
 
@@ -192,5 +216,26 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_logical_sne<T>(&self) -> Result<&LogicalSNeFn<'ctx>, Error<T>> {
         Self::get_fn(self.logical_sne.as_ref())
+    }
+
+    // arithmetic functions
+    pub fn get_arithmetic_addition<T>(&self) -> Result<&ArithmeticAdditionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_addition.as_ref())
+    }
+
+    pub fn get_arithmetic_substraction<T>(
+        &self,
+    ) -> Result<&ArithmeticSubstractionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_substraction.as_ref())
+    }
+
+    pub fn get_arithmetic_multiplication<T>(
+        &self,
+    ) -> Result<&ArithmeticMultiplicationFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_multiplication.as_ref())
+    }
+
+    pub fn get_arithmetic_division<T>(&self) -> Result<&ArithmeticDivisionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_division.as_ref())
     }
 }
