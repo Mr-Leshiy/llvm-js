@@ -1,8 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{
-    arithmetic_operations::{arithmetic_add, arithmetic_div, arithmetic_mul, arithmetic_sub},
-    Compiler, Function, Variable,
-};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct BinaryExpression {
@@ -75,22 +72,32 @@ impl BinaryExpression {
             BinaryExpType::Add => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                arithmetic_add(compiler, cur_function, var1, var2)
+                let arithmetic_addition_fn =
+                    compiler.predefined_functions().get_arithmetic_addition()?;
+                Ok(arithmetic_addition_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Sub => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                arithmetic_sub(compiler, cur_function, var1, var2)
-            }
-            BinaryExpType::Div => {
-                let var1 = self.left.compile(compiler, cur_function)?;
-                let var2 = self.right.compile(compiler, cur_function)?;
-                arithmetic_div(compiler, cur_function, var1, var2)
+                let arithmetic_substraction_fn = compiler
+                    .predefined_functions()
+                    .get_arithmetic_substraction()?;
+                Ok(arithmetic_substraction_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Mul => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                arithmetic_mul(compiler, cur_function, var1, var2)
+                let arithmetic_multiplication_fn = compiler
+                    .predefined_functions()
+                    .get_arithmetic_multiplication()?;
+                Ok(arithmetic_multiplication_fn.call(compiler, &var1, &var2))
+            }
+            BinaryExpType::Div => {
+                let var1 = self.left.compile(compiler, cur_function)?;
+                let var2 = self.right.compile(compiler, cur_function)?;
+                let arithmetic_division_fn =
+                    compiler.predefined_functions().get_arithmetic_division()?;
+                Ok(arithmetic_division_fn.call(compiler, &var1, &var2))
             }
         }
     }

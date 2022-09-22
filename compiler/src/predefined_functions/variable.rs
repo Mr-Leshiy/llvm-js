@@ -96,6 +96,96 @@ impl<'ctx> SetNullFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct SetNaNFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetNaNFn<'ctx> {
+    const NAME: &'static str = "set_nan";
+}
+
+impl<'ctx> SetNaNFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
+pub struct SetInfinityFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetInfinityFn<'ctx> {
+    const NAME: &'static str = "set_infinity";
+}
+
+impl<'ctx> SetInfinityFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
+pub struct SetNegInfinityFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetNegInfinityFn<'ctx> {
+    const NAME: &'static str = "set_neginfinity";
+}
+
+impl<'ctx> SetNegInfinityFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
 pub struct SetNumberFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -163,7 +253,7 @@ impl<'ctx> SetBooleanFn<'ctx> {
                 compiler
                     .context
                     .bool_type()
-                    .const_int(literal.then_some(1_u64).unwrap_or(0_u64), false)
+                    .const_int(if literal { 1_u64 } else { 0_u64 }, false)
                     .into(),
             ],
             "",

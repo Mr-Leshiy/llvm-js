@@ -5,6 +5,7 @@ fn main() {
         .file("../c/variable.cpp")
         .file("../c/logical.cpp")
         .file("../c/assertions.cpp")
+        .file("../c/arithmetic.cpp")
         .out_dir("../c/out")
         .cargo_metadata(false)
         .compile("llvm-js")

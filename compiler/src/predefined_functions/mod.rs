@@ -1,16 +1,21 @@
 use self::{
+    arithmetic::{
+        ArithmeticAdditionFn, ArithmeticDivisionFn, ArithmeticMultiplicationFn,
+        ArithmeticSubstractionFn,
+    },
     assertions::{AssertEqFn, AssertFn},
     logical::{
         LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
         LogicalSNeFn,
     },
     variable::{
-        AllocateFn, PrintFn, SetBooleanFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn,
-        SetVariableFn,
+        AllocateFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
+        SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::{Compiler, Error};
 
+pub mod arithmetic;
 pub mod assertions;
 pub mod logical;
 pub mod variable;
@@ -27,6 +32,9 @@ pub struct PredefineFunctions<'ctx> {
     allocate: Option<AllocateFn<'ctx>>,
     set_undefined: Option<SetUndefinedFn<'ctx>>,
     set_null: Option<SetNullFn<'ctx>>,
+    set_nan: Option<SetNaNFn<'ctx>>,
+    set_infinity: Option<SetInfinityFn<'ctx>>,
+    set_neginfinity: Option<SetNegInfinityFn<'ctx>>,
     set_number: Option<SetNumberFn<'ctx>>,
     set_boolean: Option<SetBooleanFn<'ctx>>,
     set_string: Option<SetStringFn<'ctx>>,
@@ -40,6 +48,11 @@ pub struct PredefineFunctions<'ctx> {
     logical_ne: Option<LogicalNeFn<'ctx>>,
     logical_seq: Option<LogicalSEqFn<'ctx>>,
     logical_sne: Option<LogicalSNeFn<'ctx>>,
+    // arithmetic functions
+    arithmetic_addition: Option<ArithmeticAdditionFn<'ctx>>,
+    arithmetic_substraction: Option<ArithmeticSubstractionFn<'ctx>>,
+    arithmetic_multiplication: Option<ArithmeticMultiplicationFn<'ctx>>,
+    arithmetic_division: Option<ArithmeticDivisionFn<'ctx>>,
 }
 
 impl<'ctx> Default for PredefineFunctions<'ctx> {
@@ -58,6 +71,9 @@ impl<'ctx> PredefineFunctions<'ctx> {
             allocate: None,
             set_undefined: None,
             set_null: None,
+            set_nan: None,
+            set_infinity: None,
+            set_neginfinity: None,
             set_number: None,
             set_boolean: None,
             set_string: None,
@@ -71,6 +87,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_ne: None,
             logical_seq: None,
             logical_sne: None,
+            // arithmetic functions
+            arithmetic_addition: None,
+            arithmetic_substraction: None,
+            arithmetic_multiplication: None,
+            arithmetic_division: None,
         }
     }
 
@@ -82,6 +103,9 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let allocate = Some(AllocateFn::declare(compiler));
         let set_undefined = Some(SetUndefinedFn::declare(compiler));
         let set_null = Some(SetNullFn::declare(compiler));
+        let set_nan = Some(SetNaNFn::declare(compiler));
+        let set_infinity = Some(SetInfinityFn::declare(compiler));
+        let set_neginfinity = Some(SetNegInfinityFn::declare(compiler));
         let set_number = Some(SetNumberFn::declare(compiler));
         let set_boolean = Some(SetBooleanFn::declare(compiler));
         let set_string = Some(SetStringFn::declare(compiler));
@@ -95,6 +119,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
         let logical_ne = Some(LogicalNeFn::declare(compiler));
         let logical_seq = Some(LogicalSEqFn::declare(compiler));
         let logical_sne = Some(LogicalSNeFn::declare(compiler));
+        // arithmetic functions
+        let arithmetic_addition = Some(ArithmeticAdditionFn::declare(compiler));
+        let arithmetic_substraction = Some(ArithmeticSubstractionFn::declare(compiler));
+        let arithmetic_multiplication = Some(ArithmeticMultiplicationFn::declare(compiler));
+        let arithmetic_division = Some(ArithmeticDivisionFn::declare(compiler));
 
         Ok(Self {
             assert,
@@ -102,6 +131,9 @@ impl<'ctx> PredefineFunctions<'ctx> {
             allocate,
             set_undefined,
             set_null,
+            set_nan,
+            set_infinity,
+            set_neginfinity,
             set_number,
             set_boolean,
             set_string,
@@ -114,6 +146,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_ne,
             logical_seq,
             logical_sne,
+            arithmetic_addition,
+            arithmetic_substraction,
+            arithmetic_multiplication,
+            arithmetic_division,
         })
     }
 
@@ -143,6 +179,18 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_set_null<T>(&self) -> Result<&SetNullFn<'ctx>, Error<T>> {
         Self::get_fn(self.set_null.as_ref())
+    }
+
+    pub fn get_set_nan<T>(&self) -> Result<&SetNaNFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_nan.as_ref())
+    }
+
+    pub fn get_set_infinity<T>(&self) -> Result<&SetInfinityFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_infinity.as_ref())
+    }
+
+    pub fn get_set_neginfinity<T>(&self) -> Result<&SetNegInfinityFn<'ctx>, Error<T>> {
+        Self::get_fn(self.set_neginfinity.as_ref())
     }
 
     pub fn get_set_number<T>(&self) -> Result<&SetNumberFn<'ctx>, Error<T>> {
@@ -192,5 +240,26 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_logical_sne<T>(&self) -> Result<&LogicalSNeFn<'ctx>, Error<T>> {
         Self::get_fn(self.logical_sne.as_ref())
+    }
+
+    // arithmetic functions
+    pub fn get_arithmetic_addition<T>(&self) -> Result<&ArithmeticAdditionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_addition.as_ref())
+    }
+
+    pub fn get_arithmetic_substraction<T>(
+        &self,
+    ) -> Result<&ArithmeticSubstractionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_substraction.as_ref())
+    }
+
+    pub fn get_arithmetic_multiplication<T>(
+        &self,
+    ) -> Result<&ArithmeticMultiplicationFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_multiplication.as_ref())
+    }
+
+    pub fn get_arithmetic_division<T>(&self) -> Result<&ArithmeticDivisionFn<'ctx>, Error<T>> {
+        Self::get_fn(self.arithmetic_division.as_ref())
     }
 }

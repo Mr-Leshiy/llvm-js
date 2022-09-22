@@ -9,6 +9,9 @@ use std::io::Read;
 pub enum VariableValue {
     Undefined,
     Null,
+    NaN,
+    Infinity,
+    NegInfinity,
     Boolean(bool),
     Number(f64),
     String(String),
@@ -20,6 +23,8 @@ impl VariableValue {
         match cur_token {
             Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
             Token::Literal(Literal::Null) => Ok(Self::Null),
+            Token::Literal(Literal::NaN) => Ok(Self::NaN),
+            Token::Literal(Literal::Infinity) => Ok(Self::Infinity),
             Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
@@ -37,6 +42,9 @@ impl VariableValue {
         match self {
             Self::Undefined => Ok(llvm_ast::VariableValue::Undefined),
             Self::Null => Ok(llvm_ast::VariableValue::Null),
+            Self::NaN => Ok(llvm_ast::VariableValue::NaN),
+            Self::Infinity => Ok(llvm_ast::VariableValue::Infinity),
+            Self::NegInfinity => Ok(llvm_ast::VariableValue::NegInfinity),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
             Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
                 Some(index) => Ok(llvm_ast::VariableValue::Identifier(
