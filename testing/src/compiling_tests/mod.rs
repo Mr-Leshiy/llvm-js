@@ -1,3 +1,3 @@
+mod arithmetic;
 mod basic;
 mod logical;
-mod arithmetic;
