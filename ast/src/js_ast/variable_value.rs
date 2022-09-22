@@ -9,6 +9,9 @@ use std::io::Read;
 pub enum VariableValue {
     Undefined,
     Null,
+    NaN,
+    Infinity,
+    NegInfinity,
     Boolean(bool),
     Number(f64),
     String(String),
@@ -37,6 +40,9 @@ impl VariableValue {
         match self {
             Self::Undefined => Ok(llvm_ast::VariableValue::Undefined),
             Self::Null => Ok(llvm_ast::VariableValue::Null),
+            Self::NaN => Ok(llvm_ast::VariableValue::NaN),
+            Self::Infinity => Ok(llvm_ast::VariableValue::Infinity),
+            Self::NegInfinity => Ok(llvm_ast::VariableValue::NegInfinity),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
             Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
                 Some(index) => Ok(llvm_ast::VariableValue::Identifier(

@@ -12,6 +12,13 @@ pub enum Literal {
     Undefined,
     /// "null"
     Null,
+    /// "NaN"
+    NaN,
+    /// "Infinity"
+    Infinity,
+    // TODO need implement parsing for this one
+    /// "-Infinity"
+    NegInfinity,
 }
 
 impl Display for Literal {
@@ -22,6 +29,9 @@ impl Display for Literal {
             Self::String(val) => write!(f, "Literal string token, val: {}", val),
             Self::Undefined => write!(f, "Literal undefined token"),
             Self::Null => write!(f, "Literal null token"),
+            Self::NaN => write!(f, "Literal NaN token"),
+            Self::Infinity => write!(f, "Literal Infinity token"),
+            Self::NegInfinity => write!(f, "Literal -Infinity token"),
         }
     }
 }
@@ -99,6 +109,22 @@ mod tests {
         let mut reader = TokenReader::new("null".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Literal(Literal::Null)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn literal_nan_test() {
+        let mut reader = TokenReader::new("NaN".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Literal(Literal::NaN)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn literal_infinity_test() {
+        let mut reader = TokenReader::new("Infinity".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Literal(Literal::Infinity)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }

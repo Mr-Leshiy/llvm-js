@@ -236,6 +236,14 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Literal(Literal::Null)));
             }
 
+            if ident == "NaN" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::NaN)));
+            }
+
+            if ident == "Infinity" {
+                return Ok(TokenResult::Token(Token::Literal(Literal::Infinity)));
+            }
+
             return Ok(TokenResult::Token(Token::Ident(ident)));
         }
         Ok(TokenResult::Result(()))
