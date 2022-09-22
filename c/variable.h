@@ -3,33 +3,23 @@
 
 #include <stdint.h>
 
-typedef struct VariableType
-{
-    uint8_t flag;
-    double number_field;
-    uint8_t boolean_field;
-    const char* string_field;
-} VariableType;
+typedef struct Variable Variable;
 
-enum Type {
-    Undefined = 0,
-    Null = 1,
-    Number = 2,
-    Boolean = 3,
-    String = 4,
-};
+Variable *allocate();
 
-VariableType *allocate();
+void set_undefined(Variable *self);
+void set_null(Variable *self);
+void set_nan(Variable *self);
+void set_infinity(Variable *self);
+void set_neginfinity(Variable *self);
+void set_number(Variable *self, double val);
+void set_boolean(Variable *self, uint8_t val);
+void set_string(Variable *self, const char *val);
+void set_variable(Variable *self, Variable *val);
 
-void set_undefined(VariableType* self);
-void set_null(VariableType* self);
-void set_number(VariableType* self, double val);
-void set_boolean(VariableType* self, uint8_t val);
-void set_string(VariableType* self, const char* val);
-void set_variable(VariableType* self, VariableType* val);
+Variable *convert_to_boolean(Variable *val);
+Variable *convert_to_number(Variable *val);
 
-VariableType* convert_to_boolean(VariableType* val);
-
-void print(VariableType* self);
+void print(Variable *self);
 
 #endif

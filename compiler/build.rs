@@ -1,9 +1,11 @@
 fn main() {
     cc::Build::new()
-        .file("../c/variable.c")
-        .file("../c/logical.c")
-        .file("../c/assertions.c")
+        .cpp(true)
+        .flag("-std=c++17")
+        .file("../c/variable.cpp")
+        .file("../c/logical.cpp")
+        .file("../c/assertions.cpp")
         .out_dir("../c/out")
         .cargo_metadata(false)
-        .compile("llvm-js-lib")
+        .compile("llvm-js")
 }
