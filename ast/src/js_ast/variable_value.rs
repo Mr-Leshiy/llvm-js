@@ -23,6 +23,8 @@ impl VariableValue {
         match cur_token {
             Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
             Token::Literal(Literal::Null) => Ok(Self::Null),
+            Token::Literal(Literal::NaN) => Ok(Self::NaN),
+            Token::Literal(Literal::Infinity) => Ok(Self::Infinity),
             Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),

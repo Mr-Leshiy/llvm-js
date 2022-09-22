@@ -7,6 +7,12 @@ assert_eq(a, undefined);
 let a = null;
 assert_eq(a, null);
 
+let a = NaN;
+assert_eq(a, NaN);
+
+let a = Infinity;
+assert_eq(a, Infinity);
+
 let a = 0;
 assert_eq(a, 0);
 

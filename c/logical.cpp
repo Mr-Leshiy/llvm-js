@@ -103,7 +103,13 @@ Variable *logical_seq(Variable *val1, Variable *val2)
         set_boolean(ret, val2->flag == Type::Null);
         break;
     case Type::NaN:
-        set_boolean(ret, val2->flag == Type::Null);
+        set_boolean(ret, val2->flag == Type::NaN);
+        break;
+    case Type::Infinity:
+        set_boolean(ret, val2->flag == Type::Infinity);
+        break;
+    case Type::NegInfinity:
+        set_boolean(ret, val2->flag == Type::NegInfinity);
         break;
     case Type::Number:
         if (val2->flag == Type::Number)

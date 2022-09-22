@@ -16,9 +16,6 @@ pub enum Literal {
     NaN,
     /// "Infinity"
     Infinity,
-    // TODO need implement parsing for this one
-    /// "-Infinity"
-    NegInfinity,
 }
 
 impl Display for Literal {
@@ -31,7 +28,6 @@ impl Display for Literal {
             Self::Null => write!(f, "Literal null token"),
             Self::NaN => write!(f, "Literal NaN token"),
             Self::Infinity => write!(f, "Literal Infinity token"),
-            Self::NegInfinity => write!(f, "Literal -Infinity token"),
         }
     }
 }
