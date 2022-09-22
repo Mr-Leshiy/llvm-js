@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "arithmetic.hpp"
 #include "variable.hpp"
 
