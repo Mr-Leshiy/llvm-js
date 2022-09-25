@@ -184,6 +184,44 @@ Variable *convert_to_number(Variable *val)
     return ret;
 }
 
+Variable *convert_to_string(Variable *val)
+{
+    assert(val != nullptr);
+
+    Variable *ret = allocate();
+    switch (val->flag)
+    {
+    case Type::Undefined:
+        set_string(ret, "undefined");
+        break;
+    case Type::Null:
+        set_string(ret, "null");
+        break;
+    case Type::NaN:
+        set_string(ret, "NaN");
+        break;
+    case Type::Infinity:
+        set_string(ret, "Infinity");
+        break;
+    case Type::NegInfinity:
+        set_string(ret, "-Infinity");
+        break;
+    case Type::Number:
+        set_string(ret, std::to_string(val->number_field).c_str());
+        break;
+    case Type::Boolean:
+        set_string(ret, val->boolean_field ? "true" : "false");
+        break;
+    case Type::String:
+        set_string(ret, val->string_field.c_str());
+        break;
+    default:
+        assert(0);
+        break;
+    }
+    return ret;
+}
+
 void print(Variable *self)
 {
     assert(self != nullptr);
@@ -209,14 +247,7 @@ void print(Variable *self)
         printf("%f\n", self->number_field);
         break;
     case Type::Boolean:
-        if (self->boolean_field)
-        {
-            printf("true\n");
-        }
-        else
-        {
-            printf("false\n");
-        }
+        printf("%s\n", self->boolean_field ? "true" : "false");
         break;
     case Type::String:
         printf("%s\n", self->string_field.c_str());

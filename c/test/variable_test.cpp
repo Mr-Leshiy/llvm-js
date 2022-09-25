@@ -175,3 +175,64 @@ TEST(VariableTest, convert_to_number_test)
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
 }
+
+TEST(VariableTest, convert_to_string_test)
+{
+    Variable *res;
+    Variable *val = allocate();
+
+    set_undefined(val);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "undefined");
+
+    set_null(val);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "null");
+
+    set_nan(val);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "NaN");
+
+    set_infinity(val);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "Infinity");
+
+    set_neginfinity(val);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "-Infinity");
+
+    set_boolean(val, true);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "true");
+
+    set_boolean(val, false);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "false");
+
+    set_number(val, 2.5);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "2.500000");
+
+    set_number(val, 0);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "0.000000");
+
+    set_string(val, "Hello world");
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "Hello world");
+
+    set_string(val, "");
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "");
+}
