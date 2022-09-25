@@ -58,9 +58,9 @@ impl IfElseStatement {
             condition: self.condition.precompile(precompiler)?,
             if_clause: self.if_clause.precompile(precompiler)?,
             else_clause: if self.else_clause.is_some() {
-                Some(self.else_clause.unwrap().precompile(precompiler)?)
+                self.else_clause.unwrap().precompile(precompiler)?
             } else {
-                None
+                Vec::new()
             },
         })
     }
@@ -110,7 +110,7 @@ mod tests {
                     llvm_ast::VariableValue::Boolean(true)
                 ),
                 if_clause: vec![],
-                else_clause: None,
+                else_clause: vec![],
             })
         );
 
@@ -126,7 +126,7 @@ mod tests {
                     llvm_ast::VariableValue::Boolean(true)
                 ),
                 if_clause: vec![],
-                else_clause: Some(vec![]),
+                else_clause: vec![],
             })
         );
     }
