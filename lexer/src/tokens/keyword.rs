@@ -10,6 +10,10 @@ pub enum Keyword {
     Function,
     /// "return",
     Return,
+    /// "if"
+    If,
+    /// "else"
+    Else,
 }
 
 impl Display for Keyword {
@@ -19,6 +23,8 @@ impl Display for Keyword {
             Self::Let => write!(f, "Keyword let token"),
             Self::Function => write!(f, "Keyword function token"),
             Self::Return => write!(f, "Keyword return token"),
+            Self::If => write!(f, "Keyword if token"),
+            Self::Else => write!(f, "Keyword else token"),
         }
     }
 }
@@ -57,6 +63,22 @@ mod tests {
         let mut reader = TokenReader::new("return".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Return)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn keyword_if_test() {
+        let mut reader = TokenReader::new("if".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::If)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn keyword_else_test() {
+        let mut reader = TokenReader::new("else".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Else)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }
