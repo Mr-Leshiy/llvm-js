@@ -19,6 +19,7 @@ void set_variable(Variable *self, Variable *val);
 
 Variable *convert_to_boolean(Variable *val);
 Variable *convert_to_number(Variable *val);
+Variable *convert_to_string(Variable *val);
 
 void print(Variable *self);
 

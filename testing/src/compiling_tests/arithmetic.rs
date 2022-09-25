@@ -11,6 +11,19 @@ fn addition_test() {
 }
 
 #[test]
+fn string_concat_test() {
+    CompileSuite::new(
+        "../test_scripts/arithmetic/string_concat.js",
+        "string_concat",
+    )
+    .compile()
+    .unwrap()
+    .run()
+    .unwrap()
+    .cleanup();
+}
+
+#[test]
 fn substraction_test() {
     CompileSuite::new("../test_scripts/arithmetic/substraction.js", "substraction")
         .compile()
