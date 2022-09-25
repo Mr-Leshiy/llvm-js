@@ -9,60 +9,71 @@ Variable *arithmetic_addition(Variable *val1, Variable *val2)
     assert(val2 != nullptr);
 
     Variable *ret = allocate();
-    val1 = convert_to_number(val1);
-    val2 = convert_to_number(val2);
 
-    if (val1->flag == Type::NaN || val2->flag == Type::NaN)
+    if (val1->flag == Type::String || val2->flag == Type::String)
     {
-        set_nan(ret);
-    }
-    else if (val1->flag == Type::Infinity)
-    {
-        if (val2->flag == Type::NegInfinity)
-        {
-            set_nan(ret);
-        }
-        else
-        {
-            set_infinity(ret);
-        }
-    }
-    else if (val2->flag == Type::Infinity)
-    {
-        if (val1->flag == Type::NegInfinity)
-        {
-            set_nan(ret);
-        }
-        else
-        {
-            set_infinity(ret);
-        }
-    }
-    else if (val1->flag == Type::NegInfinity)
-    {
-        if (val2->flag == Type::Infinity)
-        {
-            set_nan(ret);
-        }
-        else
-        {
-            set_neginfinity(ret);
-        }
-    }
-    else if (val2->flag == Type::NegInfinity)
-    {
-        if (val1->flag == Type::Infinity)
-        {
-            set_nan(ret);
-        }
-        else
-        {
-            set_neginfinity(ret);
-        }
+        val1 = convert_to_string(val1);
+        val2 = convert_to_string(val2);
+
+        set_string(ret, (val1->string_field + val2->string_field).c_str());
     }
     else
     {
-        set_number(ret, val1->number_field + val2->number_field);
+        val1 = convert_to_number(val1);
+        val2 = convert_to_number(val2);
+
+        if (val1->flag == Type::NaN || val2->flag == Type::NaN)
+        {
+            set_nan(ret);
+        }
+        else if (val1->flag == Type::Infinity)
+        {
+            if (val2->flag == Type::NegInfinity)
+            {
+                set_nan(ret);
+            }
+            else
+            {
+                set_infinity(ret);
+            }
+        }
+        else if (val2->flag == Type::Infinity)
+        {
+            if (val1->flag == Type::NegInfinity)
+            {
+                set_nan(ret);
+            }
+            else
+            {
+                set_infinity(ret);
+            }
+        }
+        else if (val1->flag == Type::NegInfinity)
+        {
+            if (val2->flag == Type::Infinity)
+            {
+                set_nan(ret);
+            }
+            else
+            {
+                set_neginfinity(ret);
+            }
+        }
+        else if (val2->flag == Type::NegInfinity)
+        {
+            if (val1->flag == Type::Infinity)
+            {
+                set_nan(ret);
+            }
+            else
+            {
+                set_neginfinity(ret);
+            }
+        }
+        else
+        {
+            set_number(ret, val1->number_field + val2->number_field);
+        }
     }
     return ret;
 }
