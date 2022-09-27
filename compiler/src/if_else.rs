@@ -32,7 +32,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
 
     compiler
         .builder
-        .build_conditional_branch(condition.into(), true_block, false_block);
+        .build_conditional_branch(condition, true_block, false_block);
 
     // describe true case
     compiler.builder.position_at_end(true_block);
