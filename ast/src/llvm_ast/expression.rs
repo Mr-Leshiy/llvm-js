@@ -1,6 +1,6 @@
 use super::{
     FunctionCall, Identifier, IfElseStatement, ReturnStatement, VariableAssigment,
-    VariableDeclaration,
+    VariableDeclaration, WhileLoop,
 };
 use compiler::{self, Compile, Compiler, Function};
 
@@ -11,6 +11,7 @@ pub enum Expression {
     FunctionCall(FunctionCall),
     ReturnStatement(ReturnStatement),
     IfElseStatement(IfElseStatement),
+    WhileLoop(WhileLoop),
 }
 
 impl Compile<Identifier> for Expression {
@@ -38,6 +39,10 @@ impl Compile<Identifier> for Expression {
             }
             Self::IfElseStatement(if_else_statement) => {
                 if_else_statement.compile(compiler, cur_function)?;
+                Ok(false)
+            }
+            Self::WhileLoop(while_loop) => {
+                while_loop.compile(compiler, cur_function)?;
                 Ok(false)
             }
         }
