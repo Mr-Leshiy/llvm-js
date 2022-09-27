@@ -14,7 +14,7 @@ use self::{
         SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
-use crate::{Compiler, Error};
+use crate::Compiler;
 
 pub mod arithmetic;
 pub mod assertions;
@@ -28,274 +28,193 @@ pub trait PredefineFunctionName {
 
 pub struct PredefineFunctions<'ctx> {
     // assertion functions
-    assert: Option<AssertFn<'ctx>>,
-    assert_eq: Option<AssertEqFn<'ctx>>,
+    assert: AssertFn<'ctx>,
+    assert_eq: AssertEqFn<'ctx>,
     // variable functions
-    allocate: Option<AllocateFn<'ctx>>,
-    set_undefined: Option<SetUndefinedFn<'ctx>>,
-    set_null: Option<SetNullFn<'ctx>>,
-    set_nan: Option<SetNaNFn<'ctx>>,
-    set_infinity: Option<SetInfinityFn<'ctx>>,
-    set_neginfinity: Option<SetNegInfinityFn<'ctx>>,
-    set_number: Option<SetNumberFn<'ctx>>,
-    set_boolean: Option<SetBooleanFn<'ctx>>,
-    set_string: Option<SetStringFn<'ctx>>,
-    set_variable: Option<SetVariableFn<'ctx>>,
-    get_boolean: Option<GetBooleanFn<'ctx>>,
-    printf: Option<PrintFn<'ctx>>,
+    allocate: AllocateFn<'ctx>,
+    set_undefined: SetUndefinedFn<'ctx>,
+    set_null: SetNullFn<'ctx>,
+    set_nan: SetNaNFn<'ctx>,
+    set_infinity: SetInfinityFn<'ctx>,
+    set_neginfinity: SetNegInfinityFn<'ctx>,
+    set_number: SetNumberFn<'ctx>,
+    set_boolean: SetBooleanFn<'ctx>,
+    set_string: SetStringFn<'ctx>,
+    set_variable: SetVariableFn<'ctx>,
+    get_boolean: GetBooleanFn<'ctx>,
+    printf: PrintFn<'ctx>,
     // logical functions
-    logical_not: Option<LogicalNotFn<'ctx>>,
-    logical_and: Option<LogicalAndFn<'ctx>>,
-    logical_or: Option<LogicalOrFn<'ctx>>,
-    logical_eq: Option<LogicalEqFn<'ctx>>,
-    logical_ne: Option<LogicalNeFn<'ctx>>,
-    logical_seq: Option<LogicalSEqFn<'ctx>>,
-    logical_sne: Option<LogicalSNeFn<'ctx>>,
+    logical_not: LogicalNotFn<'ctx>,
+    logical_and: LogicalAndFn<'ctx>,
+    logical_or: LogicalOrFn<'ctx>,
+    logical_eq: LogicalEqFn<'ctx>,
+    logical_ne: LogicalNeFn<'ctx>,
+    logical_seq: LogicalSEqFn<'ctx>,
+    logical_sne: LogicalSNeFn<'ctx>,
     // arithmetic functions
-    arithmetic_addition: Option<ArithmeticAdditionFn<'ctx>>,
-    arithmetic_substraction: Option<ArithmeticSubstractionFn<'ctx>>,
-    arithmetic_multiplication: Option<ArithmeticMultiplicationFn<'ctx>>,
-    arithmetic_division: Option<ArithmeticDivisionFn<'ctx>>,
+    arithmetic_addition: ArithmeticAdditionFn<'ctx>,
+    arithmetic_substraction: ArithmeticSubstractionFn<'ctx>,
+    arithmetic_multiplication: ArithmeticMultiplicationFn<'ctx>,
+    arithmetic_division: ArithmeticDivisionFn<'ctx>,
     // convert
-    convert_to_boolean: Option<ConvertToBooleanFn<'ctx>>,
-    convert_to_number: Option<ConvertToNumberFn<'ctx>>,
-    convert_to_string: Option<ConvertToStringFn<'ctx>>,
-}
-
-impl<'ctx> Default for PredefineFunctions<'ctx> {
-    fn default() -> Self {
-        Self::new()
-    }
+    convert_to_boolean: ConvertToBooleanFn<'ctx>,
+    convert_to_number: ConvertToNumberFn<'ctx>,
+    convert_to_string: ConvertToStringFn<'ctx>,
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Self {
         Self {
             // assertion functions
-            assert: None,
-            assert_eq: None,
+            assert: AssertFn::declare(compiler),
+            assert_eq: AssertEqFn::declare(compiler),
             // variable functions
-            allocate: None,
-            set_undefined: None,
-            set_null: None,
-            set_nan: None,
-            set_infinity: None,
-            set_neginfinity: None,
-            set_number: None,
-            set_boolean: None,
-            set_string: None,
-            set_variable: None,
-            get_boolean: None,
-            printf: None,
+            allocate: AllocateFn::declare(compiler),
+            set_undefined: SetUndefinedFn::declare(compiler),
+            set_null: SetNullFn::declare(compiler),
+            set_nan: SetNaNFn::declare(compiler),
+            set_infinity: SetInfinityFn::declare(compiler),
+            set_neginfinity: SetNegInfinityFn::declare(compiler),
+            set_number: SetNumberFn::declare(compiler),
+            set_boolean: SetBooleanFn::declare(compiler),
+            set_string: SetStringFn::declare(compiler),
+            set_variable: SetVariableFn::declare(compiler),
+            get_boolean: GetBooleanFn::declare(compiler),
+            printf: PrintFn::declare(compiler),
             // logical functions
-            logical_not: None,
-            logical_and: None,
-            logical_or: None,
-            logical_eq: None,
-            logical_ne: None,
-            logical_seq: None,
-            logical_sne: None,
+            logical_not: LogicalNotFn::declare(compiler),
+            logical_and: LogicalAndFn::declare(compiler),
+            logical_or: LogicalOrFn::declare(compiler),
+            logical_eq: LogicalEqFn::declare(compiler),
+            logical_ne: LogicalNeFn::declare(compiler),
+            logical_seq: LogicalSEqFn::declare(compiler),
+            logical_sne: LogicalSNeFn::declare(compiler),
             // arithmetic functions
-            arithmetic_addition: None,
-            arithmetic_substraction: None,
-            arithmetic_multiplication: None,
-            arithmetic_division: None,
+            arithmetic_addition: ArithmeticAdditionFn::declare(compiler),
+            arithmetic_substraction: ArithmeticSubstractionFn::declare(compiler),
+            arithmetic_multiplication: ArithmeticMultiplicationFn::declare(compiler),
+            arithmetic_division: ArithmeticDivisionFn::declare(compiler),
             // convert
-            convert_to_boolean: None,
-            convert_to_number: None,
-            convert_to_string: None,
+            convert_to_boolean: ConvertToBooleanFn::declare(compiler),
+            convert_to_number: ConvertToNumberFn::declare(compiler),
+            convert_to_string: ConvertToStringFn::declare(compiler),
         }
     }
 
-    pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        // assertion functions
-        let assert = Some(AssertFn::declare(compiler));
-        let assert_eq = Some(AssertEqFn::declare(compiler));
-        // variable functions
-        let allocate = Some(AllocateFn::declare(compiler));
-        let set_undefined = Some(SetUndefinedFn::declare(compiler));
-        let set_null = Some(SetNullFn::declare(compiler));
-        let set_nan = Some(SetNaNFn::declare(compiler));
-        let set_infinity = Some(SetInfinityFn::declare(compiler));
-        let set_neginfinity = Some(SetNegInfinityFn::declare(compiler));
-        let set_number = Some(SetNumberFn::declare(compiler));
-        let set_boolean = Some(SetBooleanFn::declare(compiler));
-        let set_string = Some(SetStringFn::declare(compiler));
-        let set_variable = Some(SetVariableFn::declare(compiler));
-        let get_boolean = Some(GetBooleanFn::declare(compiler));
-        let printf = Some(PrintFn::declare(compiler));
-        // logical functions
-        let logical_not = Some(LogicalNotFn::declare(compiler));
-        let logical_and = Some(LogicalAndFn::declare(compiler));
-        let logical_or = Some(LogicalOrFn::declare(compiler));
-        let logical_eq = Some(LogicalEqFn::declare(compiler));
-        let logical_ne = Some(LogicalNeFn::declare(compiler));
-        let logical_seq = Some(LogicalSEqFn::declare(compiler));
-        let logical_sne = Some(LogicalSNeFn::declare(compiler));
-        // arithmetic functions
-        let arithmetic_addition = Some(ArithmeticAdditionFn::declare(compiler));
-        let arithmetic_substraction = Some(ArithmeticSubstractionFn::declare(compiler));
-        let arithmetic_multiplication = Some(ArithmeticMultiplicationFn::declare(compiler));
-        let arithmetic_division = Some(ArithmeticDivisionFn::declare(compiler));
-        // convert
-        let convert_to_boolean = Some(ConvertToBooleanFn::declare(compiler));
-        let convert_to_number = Some(ConvertToNumberFn::declare(compiler));
-        let convert_to_string = Some(ConvertToStringFn::declare(compiler));
-
-        Ok(Self {
-            assert,
-            assert_eq,
-            allocate,
-            set_undefined,
-            set_null,
-            set_nan,
-            set_infinity,
-            set_neginfinity,
-            set_number,
-            set_boolean,
-            set_string,
-            set_variable,
-            get_boolean,
-            printf,
-            logical_not,
-            logical_and,
-            logical_or,
-            logical_eq,
-            logical_ne,
-            logical_seq,
-            logical_sne,
-            arithmetic_addition,
-            arithmetic_substraction,
-            arithmetic_multiplication,
-            arithmetic_division,
-            convert_to_boolean,
-            convert_to_number,
-            convert_to_string,
-        })
-    }
-
-    fn get_fn<T, FnType: PredefineFunctionName>(
-        func: Option<&FnType>,
-    ) -> Result<&FnType, Error<T>> {
-        func.ok_or_else(|| Error::UndeclaredFunction(FnType::NAME.to_string()))
-    }
-
     // assetion functions
-    pub fn assert<T>(&self) -> Result<&AssertFn<'ctx>, Error<T>> {
-        Self::get_fn(self.assert.as_ref())
+    pub fn assert(&self) -> &AssertFn<'ctx> {
+        &self.assert
     }
 
-    pub fn assert_eq<T>(&self) -> Result<&AssertEqFn<'ctx>, Error<T>> {
-        Self::get_fn(self.assert_eq.as_ref())
+    pub fn assert_eq(&self) -> &AssertEqFn<'ctx> {
+        &self.assert_eq
     }
 
     // variable functions
-    pub fn allocate<T>(&self) -> Result<&AllocateFn<'ctx>, Error<T>> {
-        Self::get_fn(self.allocate.as_ref())
+    pub fn allocate(&self) -> &AllocateFn<'ctx> {
+        &self.allocate
     }
 
-    pub fn set_undefined<T>(&self) -> Result<&SetUndefinedFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_undefined.as_ref())
+    pub fn set_undefined(&self) -> &SetUndefinedFn<'ctx> {
+        &self.set_undefined
     }
 
-    pub fn set_null<T>(&self) -> Result<&SetNullFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_null.as_ref())
+    pub fn set_null(&self) -> &SetNullFn<'ctx> {
+        &self.set_null
     }
 
-    pub fn set_nan<T>(&self) -> Result<&SetNaNFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_nan.as_ref())
+    pub fn set_nan(&self) -> &SetNaNFn<'ctx> {
+        &self.set_nan
     }
 
-    pub fn set_infinity<T>(&self) -> Result<&SetInfinityFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_infinity.as_ref())
+    pub fn set_infinity(&self) -> &SetInfinityFn<'ctx> {
+        &self.set_infinity
     }
 
-    pub fn set_neginfinity<T>(&self) -> Result<&SetNegInfinityFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_neginfinity.as_ref())
+    pub fn set_neginfinity(&self) -> &SetNegInfinityFn<'ctx> {
+        &self.set_neginfinity
     }
 
-    pub fn set_number<T>(&self) -> Result<&SetNumberFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_number.as_ref())
+    pub fn set_number(&self) -> &SetNumberFn<'ctx> {
+        &self.set_number
     }
 
-    pub fn set_boolean<T>(&self) -> Result<&SetBooleanFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_boolean.as_ref())
+    pub fn set_boolean(&self) -> &SetBooleanFn<'ctx> {
+        &self.set_boolean
     }
 
-    pub fn set_string<T>(&self) -> Result<&SetStringFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_string.as_ref())
+    pub fn set_string(&self) -> &SetStringFn<'ctx> {
+        &self.set_string
     }
 
-    pub fn set_variable<T>(&self) -> Result<&SetVariableFn<'ctx>, Error<T>> {
-        Self::get_fn(self.set_variable.as_ref())
+    pub fn set_variable(&self) -> &SetVariableFn<'ctx> {
+        &self.set_variable
     }
 
-    pub fn get_boolean<T>(&self) -> Result<&GetBooleanFn<'ctx>, Error<T>> {
-        Self::get_fn(self.get_boolean.as_ref())
+    pub fn get_boolean(&self) -> &GetBooleanFn<'ctx> {
+        &self.get_boolean
     }
 
-    pub fn print<T>(&self) -> Result<&PrintFn<'ctx>, Error<T>> {
-        Self::get_fn(self.printf.as_ref())
+    pub fn print(&self) -> &PrintFn<'ctx> {
+        &self.printf
     }
 
     // logical functions
-    pub fn logical_not<T>(&self) -> Result<&LogicalNotFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_not.as_ref())
+    pub fn logical_not(&self) -> &LogicalNotFn<'ctx> {
+        &self.logical_not
     }
 
-    pub fn logical_and<T>(&self) -> Result<&LogicalAndFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_and.as_ref())
+    pub fn logical_and(&self) -> &LogicalAndFn<'ctx> {
+        &self.logical_and
     }
 
-    pub fn logical_or<T>(&self) -> Result<&LogicalOrFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_or.as_ref())
+    pub fn logical_or(&self) -> &LogicalOrFn<'ctx> {
+        &self.logical_or
     }
 
-    pub fn logical_eq<T>(&self) -> Result<&LogicalEqFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_eq.as_ref())
+    pub fn logical_eq(&self) -> &LogicalEqFn<'ctx> {
+        &self.logical_eq
     }
 
-    pub fn logical_ne<T>(&self) -> Result<&LogicalNeFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_ne.as_ref())
+    pub fn logical_ne(&self) -> &LogicalNeFn<'ctx> {
+        &self.logical_ne
     }
 
-    pub fn logical_seq<T>(&self) -> Result<&LogicalSEqFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_seq.as_ref())
+    pub fn logical_seq(&self) -> &LogicalSEqFn<'ctx> {
+        &self.logical_seq
     }
 
-    pub fn logical_sne<T>(&self) -> Result<&LogicalSNeFn<'ctx>, Error<T>> {
-        Self::get_fn(self.logical_sne.as_ref())
+    pub fn logical_sne(&self) -> &LogicalSNeFn<'ctx> {
+        &self.logical_sne
     }
 
     // arithmetic functions
-    pub fn arithmetic_addition<T>(&self) -> Result<&ArithmeticAdditionFn<'ctx>, Error<T>> {
-        Self::get_fn(self.arithmetic_addition.as_ref())
+    pub fn arithmetic_addition(&self) -> &ArithmeticAdditionFn<'ctx> {
+        &self.arithmetic_addition
     }
 
-    pub fn arithmetic_substraction<T>(&self) -> Result<&ArithmeticSubstractionFn<'ctx>, Error<T>> {
-        Self::get_fn(self.arithmetic_substraction.as_ref())
+    pub fn arithmetic_substraction(&self) -> &ArithmeticSubstractionFn<'ctx> {
+        &self.arithmetic_substraction
     }
 
-    pub fn arithmetic_multiplication<T>(
-        &self,
-    ) -> Result<&ArithmeticMultiplicationFn<'ctx>, Error<T>> {
-        Self::get_fn(self.arithmetic_multiplication.as_ref())
+    pub fn arithmetic_multiplication(&self) -> &ArithmeticMultiplicationFn<'ctx> {
+        &self.arithmetic_multiplication
     }
 
-    pub fn arithmetic_division<T>(&self) -> Result<&ArithmeticDivisionFn<'ctx>, Error<T>> {
-        Self::get_fn(self.arithmetic_division.as_ref())
+    pub fn arithmetic_division(&self) -> &ArithmeticDivisionFn<'ctx> {
+        &self.arithmetic_division
     }
 
     // convert
-    pub fn convert_to_boolean<T>(&self) -> Result<&ConvertToBooleanFn<'ctx>, Error<T>> {
-        Self::get_fn(self.convert_to_boolean.as_ref())
+    pub fn convert_to_boolean(&self) -> &ConvertToBooleanFn<'ctx> {
+        &self.convert_to_boolean
     }
 
-    pub fn convert_to_number<T>(&self) -> Result<&ConvertToNumberFn<'ctx>, Error<T>> {
-        Self::get_fn(self.convert_to_number.as_ref())
+    pub fn convert_to_number(&self) -> &ConvertToNumberFn<'ctx> {
+        &self.convert_to_number
     }
 
-    pub fn convert_to_string<T>(&self) -> Result<&ConvertToStringFn<'ctx>, Error<T>> {
-        Self::get_fn(self.convert_to_string.as_ref())
+    pub fn convert_to_string(&self) -> &ConvertToStringFn<'ctx> {
+        &self.convert_to_string
     }
 }

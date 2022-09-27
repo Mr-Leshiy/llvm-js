@@ -28,7 +28,7 @@ impl FunctionCall {
         match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let mut iter = args.into_iter();
-                let pritnf = compiler.predefined_functions().print()?;
+                let pritnf = compiler.predefined_functions()?.print();
                 pritnf.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
@@ -37,7 +37,7 @@ impl FunctionCall {
             }
             AssertFn::NAME => {
                 let mut iter = args.into_iter();
-                let assert_fn = compiler.predefined_functions().assert()?;
+                let assert_fn = compiler.predefined_functions()?.assert();
                 assert_fn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
@@ -46,7 +46,7 @@ impl FunctionCall {
             }
             AssertEqFn::NAME => {
                 let mut iter = args.into_iter();
-                let assert_eq_fn = compiler.predefined_functions().assert_eq()?;
+                let assert_eq_fn = compiler.predefined_functions()?.assert_eq();
                 assert_eq_fn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
