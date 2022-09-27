@@ -71,10 +71,9 @@ impl<'ctx, T> Compiler<'ctx, T> {
     }
 
     pub fn predefined_functions(&self) -> Result<&PredefineFunctions<'ctx>, Error<T>> {
-        Ok(self
-            .predefined_functions
+        self.predefined_functions
             .as_ref()
-            .ok_or_else(|| Error::UndeclaredFunction("predefined functions".to_string()))?)
+            .ok_or_else(|| Error::UndeclaredFunction("predefined functions".to_string()))
     }
 }
 
