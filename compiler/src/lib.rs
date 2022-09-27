@@ -49,8 +49,9 @@ pub struct Compiler<'ctx, T> {
     builder: inkwell::builder::Builder<'ctx>,
 
     functions: HashMap<T, Function<'ctx, T>>,
-    predefined_functions: PredefineFunctions<'ctx>,
     variable_type: StructType<'ctx>,
+
+    predefined_functions: Option<PredefineFunctions<'ctx>>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -60,18 +61,20 @@ impl<'ctx, T> Compiler<'ctx, T> {
             module: context.create_module(module_name),
             builder: context.create_builder(),
             functions: HashMap::new(),
-            predefined_functions: PredefineFunctions::new(),
+            predefined_functions: None,
             variable_type: context.opaque_struct_type(Variable::TYPE_NAME),
         }
     }
 
-    pub fn declare_extern_functions(&mut self) -> Result<(), Error<T>> {
-        self.predefined_functions = PredefineFunctions::declare(self)?;
-        Ok(())
+    pub fn declare_extern_functions(&mut self) {
+        self.predefined_functions = Some(PredefineFunctions::declare(self));
     }
 
-    pub fn predefined_functions(&self) -> &PredefineFunctions<'ctx> {
-        &self.predefined_functions
+    pub fn predefined_functions(&self) -> Result<&PredefineFunctions<'ctx>, Error<T>> {
+        Ok(self
+            .predefined_functions
+            .as_ref()
+            .ok_or_else(|| Error::UndeclaredFunction("predefined functions".to_string()))?)
     }
 }
 
@@ -98,7 +101,7 @@ where
     }
 
     pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {
-        // self.verify()?;
+        self.verify()?;
         writer
             .write(self.module.print_to_string().to_bytes())
             .map_err(|e| Error::CannotWriteModule(e.to_string()))?;

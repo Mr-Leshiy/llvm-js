@@ -38,7 +38,7 @@ impl Module {
         let context = Context::new();
         let mut compiler = Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_extern_functions()?;
+        compiler.declare_extern_functions();
 
         self.program.compile(&mut compiler)?;
         compiler.write_result_into(writer)
