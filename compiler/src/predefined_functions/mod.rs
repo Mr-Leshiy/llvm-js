@@ -272,9 +272,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
         Self::get_fn(self.arithmetic_addition.as_ref())
     }
 
-    pub fn arithmetic_substraction<T>(
-        &self,
-    ) -> Result<&ArithmeticSubstractionFn<'ctx>, Error<T>> {
+    pub fn arithmetic_substraction<T>(&self) -> Result<&ArithmeticSubstractionFn<'ctx>, Error<T>> {
         Self::get_fn(self.arithmetic_substraction.as_ref())
     }
 

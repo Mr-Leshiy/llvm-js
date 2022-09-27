@@ -79,9 +79,8 @@ impl BinaryExpression {
             BinaryExpType::Sub => {
                 let var1 = self.left.compile(compiler, cur_function)?;
                 let var2 = self.right.compile(compiler, cur_function)?;
-                let arithmetic_substraction_fn = compiler
-                    .predefined_functions()
-                    .arithmetic_substraction()?;
+                let arithmetic_substraction_fn =
+                    compiler.predefined_functions().arithmetic_substraction()?;
                 Ok(arithmetic_substraction_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Mul => {
