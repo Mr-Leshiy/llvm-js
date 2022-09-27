@@ -19,4 +19,3 @@ assert_eq(-Infinity + Infinity, NaN);
 
 assert_eq(Infinity + Infinity, Infinity);
 assert_eq(-Infinity + -Infinity, -Infinity);
-

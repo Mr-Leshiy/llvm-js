@@ -17,6 +17,8 @@ void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);
 void set_variable(Variable *self, Variable *val);
 
+uint8_t get_boolean(Variable *self);
+
 Variable *convert_to_boolean(Variable *val);
 Variable *convert_to_number(Variable *val);
 Variable *convert_to_string(Variable *val);

@@ -21,7 +21,7 @@ impl UnaryExpression {
         match self.exp_type {
             UnaryExpType::Not => {
                 let var = self.exp.compile(compiler, cur_function)?;
-                let logical_not_fn = compiler.predefined_functions().get_logical_not()?;
+                let logical_not_fn = compiler.predefined_functions().logical_not()?;
                 Ok(logical_not_fn.call(compiler, &var))
             }
         }

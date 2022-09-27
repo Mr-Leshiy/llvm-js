@@ -1,6 +1,10 @@
 use super::{Compiler, PredefineFunctionName};
 use crate::Variable;
-use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
+use inkwell::{
+    module::Linkage,
+    values::{FunctionValue, IntValue},
+    AddressSpace,
+};
 
 #[derive(Clone)]
 pub struct AllocateFn<'ctx> {
@@ -328,6 +332,44 @@ impl<'ctx> SetVariableFn<'ctx> {
         compiler
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
+pub struct GetBooleanFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for GetBooleanFn<'ctx> {
+    const NAME: &'static str = "get_boolean";
+}
+
+impl<'ctx> GetBooleanFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .i8_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+    ) -> IntValue<'ctx> {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_int_value()
     }
 }
 

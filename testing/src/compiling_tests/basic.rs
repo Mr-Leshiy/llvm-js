@@ -47,6 +47,16 @@ fn block_test() {
 }
 
 #[test]
+fn if_else_test() {
+    CompileSuite::new("../test_scripts/basic/if_else.js", "if_else")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
 fn comments_test() {
     CompileSuite::new("../test_scripts/basic/comments.js", "comments")
         .compile()
