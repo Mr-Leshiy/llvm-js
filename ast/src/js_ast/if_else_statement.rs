@@ -8,7 +8,7 @@ use std::io::Read;
 pub struct IfElseStatement {
     pub condition: VariableExpression,
     pub if_clause: BlockStatement,
-    pub else_clause: Option<BlockStatement>,
+    pub else_clause: BlockStatement,
 }
 
 impl IfElseStatement {
@@ -25,11 +25,11 @@ impl IfElseStatement {
                             let else_clause = match reader.next_token()? {
                                 Token::Keyword(Keyword::Else) => {
                                     reader.reset_saving();
-                                    Some(BlockStatement::parse(reader.next_token()?, reader)?)
+                                    BlockStatement::parse(reader.next_token()?, reader)?
                                 }
                                 _ => {
                                     reader.stop_saving();
-                                    None
+                                    BlockStatement { body: Vec::new() }
                                 }
                             };
 
@@ -57,11 +57,7 @@ impl IfElseStatement {
         Ok(llvm_ast::IfElseStatement {
             condition: self.condition.precompile(precompiler)?,
             if_clause: self.if_clause.precompile(precompiler)?,
-            else_clause: if self.else_clause.is_some() {
-                self.else_clause.unwrap().precompile(precompiler)?
-            } else {
-                Vec::new()
-            },
+            else_clause: self.else_clause.precompile(precompiler)?,
         })
     }
 }
@@ -79,7 +75,7 @@ mod tests {
             Ok(IfElseStatement {
                 condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                 if_clause: BlockStatement { body: Vec::new() },
-                else_clause: None
+                else_clause: BlockStatement { body: Vec::new() }
             })
         );
 
@@ -89,7 +85,7 @@ mod tests {
             Ok(IfElseStatement {
                 condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
                 if_clause: BlockStatement { body: Vec::new() },
-                else_clause: Some(BlockStatement { body: Vec::new() })
+                else_clause: BlockStatement { body: Vec::new() }
             })
         );
     }
@@ -101,7 +97,7 @@ mod tests {
         let if_else_statement = IfElseStatement {
             condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
             if_clause: BlockStatement { body: Vec::new() },
-            else_clause: None,
+            else_clause: BlockStatement { body: Vec::new() },
         };
         assert_eq!(
             if_else_statement.precompile(&mut precompiler),
@@ -117,7 +113,7 @@ mod tests {
         let if_else_statement = IfElseStatement {
             condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
             if_clause: BlockStatement { body: Vec::new() },
-            else_clause: Some(BlockStatement { body: Vec::new() }),
+            else_clause: BlockStatement { body: Vec::new() },
         };
         assert_eq!(
             if_else_statement.precompile(&mut precompiler),
