@@ -14,7 +14,9 @@ assert_eq(foo("hello", a), undefined);
 assert_eq(a, 4);
 assert_eq(b, 3);
 
-function foo(arg1, arg2) {return 5;}
+function foo(arg1, arg2) {
+  return 5;
+}
 
 assert_eq(foo(a, b), 5);
 assert_eq(foo(4, true), 5);

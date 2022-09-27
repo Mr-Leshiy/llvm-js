@@ -1,4 +1,4 @@
-var a = undefined
+var a = undefined;
 assert_eq(!a, true);
 assert_eq(!!a, false);
 assert_eq(!!!a, true);
