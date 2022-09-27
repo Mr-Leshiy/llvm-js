@@ -14,6 +14,8 @@ pub enum Keyword {
     If,
     /// "else"
     Else,
+    /// "while"
+    While,
 }
 
 impl Display for Keyword {
@@ -25,6 +27,7 @@ impl Display for Keyword {
             Self::Return => write!(f, "Keyword return token"),
             Self::If => write!(f, "Keyword if token"),
             Self::Else => write!(f, "Keyword else token"),
+            Self::While => write!(f, "Keyword while token"),
         }
     }
 }
@@ -79,6 +82,14 @@ mod tests {
         let mut reader = TokenReader::new("else".as_bytes());
 
         assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::Else)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+    }
+
+    #[test]
+    fn keyword_while_test() {
+        let mut reader = TokenReader::new("while".as_bytes());
+
+        assert_eq!(reader.read_token(), Ok(Token::Keyword(Keyword::While)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }
