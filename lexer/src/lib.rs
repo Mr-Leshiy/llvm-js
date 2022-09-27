@@ -220,6 +220,14 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Keyword(Keyword::Return)));
             }
 
+            if ident == "if" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::If)));
+            }
+
+            if ident == "else" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Else)));
+            }
+
             if ident == "true" {
                 return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(true))));
             }

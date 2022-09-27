@@ -47,7 +47,7 @@ assert_eq(a5, a4);
 
 a4 = 0;
 assert_eq(a4, 0);
-assert_eq(a5 , false);
+assert_eq(a5, false);
 
 a5 = 0;
 assert_eq(a5, 0);

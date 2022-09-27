@@ -108,6 +108,14 @@ void set_variable(Variable *self, Variable *val)
     }
 }
 
+uint8_t get_boolean(Variable *self)
+{
+    assert(self != nullptr);
+    assert(self->flag == Type::Boolean);
+
+    return self->boolean_field;
+}
+
 Variable *convert_to_boolean(Variable *val)
 {
     assert(val != nullptr);

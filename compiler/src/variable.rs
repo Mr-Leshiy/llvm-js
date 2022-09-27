@@ -11,7 +11,7 @@ impl<'ctx> Variable<'ctx> {
     pub const TYPE_NAME: &'static str = "Variable";
 
     pub(crate) fn new<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let allocate_fn = compiler.predefined_functions().get_allocate()?;
+        let allocate_fn = compiler.predefined_functions().allocate()?;
         Ok(allocate_fn.call(compiler))
     }
 }
@@ -24,7 +24,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_undefined<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
-        let set_undefined_fn = compiler.predefined_functions().get_set_undefined()?;
+        let set_undefined_fn = compiler.predefined_functions().set_undefined()?;
         set_undefined_fn.call(compiler, self);
         Ok(())
     }
@@ -36,7 +36,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_null<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
-        let set_null_fn = compiler.predefined_functions().get_set_null()?;
+        let set_null_fn = compiler.predefined_functions().set_null()?;
         set_null_fn.call(compiler, self);
         Ok(())
     }
@@ -48,7 +48,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_nan<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
-        let set_nan_fn = compiler.predefined_functions().get_set_nan()?;
+        let set_nan_fn = compiler.predefined_functions().set_nan()?;
         set_nan_fn.call(compiler, self);
         Ok(())
     }
@@ -60,7 +60,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_infinity<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
-        let set_infinity_fn = compiler.predefined_functions().get_set_infinity()?;
+        let set_infinity_fn = compiler.predefined_functions().set_infinity()?;
         set_infinity_fn.call(compiler, self);
         Ok(())
     }
@@ -72,7 +72,7 @@ impl<'ctx> Variable<'ctx> {
     }
 
     pub fn assign_neginfinity<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
-        let set_neginfinity_fn = compiler.predefined_functions().get_set_neginfinity()?;
+        let set_neginfinity_fn = compiler.predefined_functions().set_neginfinity()?;
         set_neginfinity_fn.call(compiler, self);
         Ok(())
     }
@@ -88,7 +88,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &Compiler<'ctx, T>,
         literal: f64,
     ) -> Result<(), Error<T>> {
-        let set_number_fn = compiler.predefined_functions().get_set_number()?;
+        let set_number_fn = compiler.predefined_functions().set_number()?;
         set_number_fn.call(compiler, self, literal);
         Ok(())
     }
@@ -104,7 +104,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &Compiler<'ctx, T>,
         literal: bool,
     ) -> Result<(), Error<T>> {
-        let set_boolean_fn = compiler.predefined_functions().get_set_boolean()?;
+        let set_boolean_fn = compiler.predefined_functions().set_boolean()?;
         set_boolean_fn.call(compiler, self, literal);
         Ok(())
     }
@@ -120,7 +120,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &Compiler<'ctx, T>,
         literal: &str,
     ) -> Result<(), Error<T>> {
-        let set_string_fn = compiler.predefined_functions().get_set_string()?;
+        let set_string_fn = compiler.predefined_functions().set_string()?;
         set_string_fn.call(compiler, self, literal);
         Ok(())
     }
@@ -139,7 +139,7 @@ impl<'ctx> Variable<'ctx> {
         compiler: &Compiler<'ctx, T>,
         variable: &Self,
     ) -> Result<(), Error<T>> {
-        let set_variable_fn = compiler.predefined_functions().get_set_variable()?;
+        let set_variable_fn = compiler.predefined_functions().set_variable()?;
         set_variable_fn.call(compiler, self, variable);
         Ok(())
     }

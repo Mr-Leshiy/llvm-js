@@ -1,5 +1,6 @@
 pub use context::Context;
 pub use function::Function;
+pub use if_else::generate_if_else;
 use inkwell::types::StructType;
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
@@ -9,6 +10,7 @@ pub use variable::Variable;
 
 mod context;
 mod function;
+mod if_else;
 mod main_function;
 pub mod predefined_functions;
 mod variable;
@@ -96,7 +98,7 @@ where
     }
 
     pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {
-        self.verify()?;
+        // self.verify()?;
         writer
             .write(self.module.print_to_string().to_bytes())
             .map_err(|e| Error::CannotWriteModule(e.to_string()))?;

@@ -1,6 +1,6 @@
 var a = true || false;
-var a = true|| false;
-var a = true ||false;
+var a = true || false;
+var a = true || false;
 
 assert_eq(true || true, true);
 assert_eq(true || false, true);
