@@ -22,8 +22,6 @@ impl IfElseStatement {
             cur_function,
             self.if_clause,
             self.else_clause,
-        )?;
-
-        Ok(())
+        )
     }
 }

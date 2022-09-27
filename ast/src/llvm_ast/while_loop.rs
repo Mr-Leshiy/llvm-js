@@ -1,5 +1,5 @@
 use super::{Expression, Identifier, VariableExpression};
-use compiler::{Compiler, Function};
+use compiler::{generate_while_loop, Compiler, Function};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct WhileLoop {
@@ -13,9 +13,11 @@ impl WhileLoop {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let _condition = self.condition.compile(compiler, cur_function)?;
-        // TODO implement
+        let condition = |compiler: &mut Compiler<'ctx, Identifier>,
+                         cur_function: &mut Function<'ctx, Identifier>| {
+            self.condition.compile(compiler, cur_function)
+        };
 
-        Ok(())
+        generate_while_loop(compiler, condition, cur_function, self.body)
     }
 }
