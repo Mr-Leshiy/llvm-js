@@ -23,3 +23,24 @@ if (false) {
   a = "world!!!!";
 }
 assert_eq(a, "world!!!!");
+
+function foo(a) {
+  if(a) {
+    if(a || true) {
+      if(!a) {
+        return "here 1";
+      } else {
+        return "here 2";
+      }
+      return "here 3";
+    } else {
+      return "here 4";
+    }
+  } else {
+    return "here 5";
+  }
+  return "does not reach";
+}
+assert_eq(foo(true), "here 2");
+assert_eq(foo(false), "here 5");
+

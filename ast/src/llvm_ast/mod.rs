@@ -13,6 +13,7 @@ pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
 pub use variable_expression::VariableExpression;
 pub use variable_value::VariableValue;
+pub use while_loop::WhileLoop;
 
 mod binary_expression;
 mod expression;
@@ -27,6 +28,7 @@ mod variable_assigment;
 mod variable_declaration;
 mod variable_expression;
 mod variable_value;
+mod while_loop;
 
 pub struct Module {
     pub name: String,

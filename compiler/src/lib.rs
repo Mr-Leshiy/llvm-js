@@ -7,6 +7,7 @@ use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
 pub use variable::Variable;
+pub use while_loop::generate_while_loop;
 
 mod context;
 mod function;
@@ -14,6 +15,7 @@ mod if_else;
 mod main_function;
 pub mod predefined_functions;
 mod variable;
+mod while_loop;
 
 #[derive(Debug, Error)]
 pub enum Error<T> {

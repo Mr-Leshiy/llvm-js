@@ -1,6 +1,6 @@
 use super::{
     return_statement::ReturnStatement, BlockStatement, FunctionCall, FunctionDeclaration,
-    Identifier, IfElseStatement, VariableAssigment, VariableDeclaration,
+    Identifier, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop,
 };
 use crate::{llvm_ast, Error};
 use lexer::{Keyword, Separator, Token, TokenReader};
@@ -15,6 +15,7 @@ pub enum Expression {
     VariableAssigment(VariableAssigment),
     BlockStatement(BlockStatement),
     IfElseStatement(IfElseStatement),
+    WhileLoop(WhileLoop),
     ReturnStatement(ReturnStatement),
 }
 
@@ -51,6 +52,9 @@ impl Expression {
             Token::Keyword(Keyword::If) => Ok(Self::IfElseStatement(IfElseStatement::parse(
                 cur_token, reader,
             )?)),
+            Token::Keyword(Keyword::While) => {
+                Ok(Self::WhileLoop(WhileLoop::parse(cur_token, reader)?))
+            }
             Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
                 cur_token, reader,
             )?)),
@@ -94,6 +98,9 @@ impl Expression {
                     if_else_statement.precompile(precompiler)?,
                 )])
             }
+            Self::WhileLoop(while_loop) => Ok(vec![llvm_ast::Expression::WhileLoop(
+                while_loop.precompile(precompiler)?,
+            )]),
         }
     }
 }
