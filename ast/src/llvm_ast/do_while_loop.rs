@@ -1,13 +1,13 @@
 use super::{Expression, Identifier, VariableExpression};
-use compiler::{loops::generate_while_loop, Compiler, Function};
+use compiler::{loops::generate_do_while_loop, Compiler, Function};
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct WhileLoop {
+pub struct DoWhileLoop {
     pub condition: VariableExpression,
     pub body: Vec<Expression>,
 }
 
-impl WhileLoop {
+impl DoWhileLoop {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
@@ -18,6 +18,6 @@ impl WhileLoop {
             self.condition.compile(compiler, cur_function)
         };
 
-        generate_while_loop(compiler, condition, cur_function, self.body)
+        generate_do_while_loop(compiler, condition, cur_function, self.body)
     }
 }

@@ -1,5 +1,5 @@
 use super::{Expression, Identifier, VariableExpression};
-use compiler::{generate_if_else, Compiler, Function};
+use compiler::{if_else::generate_if_else, Compiler, Function};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IfElseStatement {

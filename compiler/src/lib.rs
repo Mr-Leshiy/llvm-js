@@ -1,21 +1,19 @@
 pub use context::Context;
 pub use function::Function;
-pub use if_else::generate_if_else;
 use inkwell::types::StructType;
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
 pub use variable::Variable;
-pub use while_loop::generate_while_loop;
 
 mod context;
 mod function;
-mod if_else;
+pub mod if_else;
+pub mod loops;
 mod main_function;
 pub mod predefined_functions;
 mod variable;
-mod while_loop;
 
 #[derive(Debug, Error)]
 pub enum Error<T> {

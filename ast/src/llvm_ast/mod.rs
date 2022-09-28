@@ -1,5 +1,6 @@
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 use compiler::{self, Compiler, Context};
+pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
@@ -16,6 +17,7 @@ pub use variable_value::VariableValue;
 pub use while_loop::WhileLoop;
 
 mod binary_expression;
+mod do_while_loop;
 mod expression;
 mod function_call;
 mod function_declaration;
