@@ -26,7 +26,9 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
     let false_block = compiler
         .context
         .append_basic_block(cur_function.function, "");
-    let continue_block = None;
+    let continue_block = compiler
+        .context
+        .append_basic_block(cur_function.function, "");
 
     compiler
         .builder
@@ -43,13 +45,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
         }
     }
     if !is_true_returned {
-        compiler
-            .builder
-            .build_unconditional_branch(continue_block.unwrap_or_else(|| {
-                compiler
-                    .context
-                    .append_basic_block(cur_function.function, "")
-            }));
+        compiler.builder.build_unconditional_branch(continue_block);
     }
 
     // describe false case
@@ -63,26 +59,10 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
         }
     }
     if !is_else_returned {
-        compiler
-            .builder
-            .build_unconditional_branch(continue_block.unwrap_or_else(|| {
-                compiler
-                    .context
-                    .append_basic_block(cur_function.function, "")
-            }));
+        compiler.builder.build_unconditional_branch(continue_block);
     }
 
     //
-    if is_else_returned && is_true_returned {
-        Ok(true)
-    } else {
-        compiler
-            .builder
-            .position_at_end(continue_block.unwrap_or_else(|| {
-                compiler
-                    .context
-                    .append_basic_block(cur_function.function, "")
-            }));
-        Ok(false)
-    }
+    compiler.builder.position_at_end(continue_block);
+    Ok(false)
 }
