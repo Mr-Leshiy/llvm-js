@@ -1,6 +1,7 @@
 use super::{
-    return_statement::ReturnStatement, BlockStatement, FunctionCall, FunctionDeclaration,
-    Identifier, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop, DoWhileLoop,
+    return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionCall,
+    FunctionDeclaration, Identifier, IfElseStatement, VariableAssigment, VariableDeclaration,
+    WhileLoop,
 };
 use crate::{llvm_ast, Error};
 use lexer::{Keyword, Separator, Token, TokenReader};
