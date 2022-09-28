@@ -38,8 +38,7 @@ impl Compile<Identifier> for Expression {
                 Ok(true)
             }
             Self::IfElseStatement(if_else_statement) => {
-                if_else_statement.compile(compiler, cur_function)?;
-                Ok(false)
+                if_else_statement.compile(compiler, cur_function)
             }
             Self::WhileLoop(while_loop) => {
                 while_loop.compile(compiler, cur_function)?;

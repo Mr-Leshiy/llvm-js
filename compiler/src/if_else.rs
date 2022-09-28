@@ -6,7 +6,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
     cur_function: &mut Function<'ctx, T>,
     true_case_body: Vec<Expr>,
     else_case_body: Vec<Expr>,
-) -> Result<(), Error<T>> {
+) -> Result<bool, Error<T>> {
     let get_boolean_fn = compiler.predefined_functions()?.get_boolean();
     let convert_to_boolean = compiler.predefined_functions()?.convert_to_boolean();
 
@@ -26,9 +26,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
     let false_block = compiler
         .context
         .append_basic_block(cur_function.function, "");
-    let continue_block = compiler
-        .context
-        .append_basic_block(cur_function.function, "");
+    let continue_block = None;
 
     compiler
         .builder
@@ -36,34 +34,55 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
 
     // describe true case
     compiler.builder.position_at_end(true_block);
-    let mut is_returned = false;
+    let mut is_true_returned = false;
     for expr in true_case_body {
         let is_return = expr.compile(compiler, cur_function)?;
         if is_return {
-            is_returned = true;
+            is_true_returned = true;
             break;
         }
     }
-    if !is_returned {
-        compiler.builder.build_unconditional_branch(continue_block);
+    if !is_true_returned {
+        compiler
+            .builder
+            .build_unconditional_branch(continue_block.unwrap_or_else(|| {
+                compiler
+                    .context
+                    .append_basic_block(cur_function.function, "")
+            }));
     }
 
     // describe false case
     compiler.builder.position_at_end(false_block);
-    let mut is_returned = false;
+    let mut is_else_returned = false;
     for expr in else_case_body {
         let is_return = expr.compile(compiler, cur_function)?;
         if is_return {
-            is_returned = true;
+            is_else_returned = true;
             break;
         }
     }
-    if !is_returned {
-        compiler.builder.build_unconditional_branch(continue_block);
+    if !is_else_returned {
+        compiler
+            .builder
+            .build_unconditional_branch(continue_block.unwrap_or_else(|| {
+                compiler
+                    .context
+                    .append_basic_block(cur_function.function, "")
+            }));
     }
 
     //
-    compiler.builder.position_at_end(continue_block);
-
-    Ok(())
+    if is_else_returned && is_true_returned {
+        Ok(true)
+    } else {
+        compiler
+            .builder
+            .position_at_end(continue_block.unwrap_or_else(|| {
+                compiler
+                    .context
+                    .append_basic_block(cur_function.function, "")
+            }));
+        Ok(false)
+    }
 }

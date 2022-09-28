@@ -13,7 +13,7 @@ impl IfElseStatement {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<bool, compiler::Error<Identifier>> {
         let condition = self.condition.compile(compiler, cur_function)?;
 
         generate_if_else(
