@@ -49,7 +49,7 @@ pub fn generate_while_loop<'ctx, T, Expr: Compile<T>>(
         }
     }
     if !is_returned {
-        compiler.builder.build_unconditional_branch(continue_block);
+        compiler.builder.build_unconditional_branch(condition_block);
     }
 
     //

@@ -57,6 +57,16 @@ fn if_else_test() {
 }
 
 #[test]
+fn loops_test() {
+    CompileSuite::new("../test_scripts/basic/loops.js", "loops")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
 fn comments_test() {
     CompileSuite::new("../test_scripts/basic/comments.js", "comments")
         .compile()
