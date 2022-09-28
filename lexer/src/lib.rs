@@ -232,6 +232,10 @@ impl<R: Read> TokenReader<R> {
                 return Ok(TokenResult::Token(Token::Keyword(Keyword::While)));
             }
 
+            if ident == "do" {
+                return Ok(TokenResult::Token(Token::Keyword(Keyword::Do)));
+            }
+
             if ident == "true" {
                 return Ok(TokenResult::Token(Token::Literal(Literal::Boolean(true))));
             }
