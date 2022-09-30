@@ -32,6 +32,7 @@ fn can_stop(char: &char) -> bool {
         || char.eq(&'[')
         || char.eq(&']')
         || char.eq(&',')
+        || char.eq(&':')
         || char.eq(&'&')
         || char.eq(&'|')
         || char.eq(&'!')
@@ -423,6 +424,7 @@ impl<R: Read> TokenReader<R> {
                 Separator::CloseSquareBracket,
             ))),
             ',' => Ok(TokenResult::Token(Token::Separator(Separator::Comma))),
+            ':' => Ok(TokenResult::Token(Token::Separator(Separator::Colon))),
             _ => Ok(TokenResult::Result(())),
         }
     }
