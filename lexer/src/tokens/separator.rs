@@ -55,10 +55,7 @@ mod tests {
             reader.read_token(),
             Ok(Token::Separator(Separator::OpenBrace))
         );
-        assert_eq!(
-            reader.read_token(),
-            Ok(Token::Separator(Separator::Colon))
-        );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::OpenCurlyBrace))
@@ -75,18 +72,12 @@ mod tests {
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
-        assert_eq!(
-            reader.read_token(),
-            Ok(Token::Separator(Separator::Colon))
-        );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
-        assert_eq!(
-            reader.read_token(),
-            Ok(Token::Separator(Separator::Colon))
-        );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
