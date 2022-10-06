@@ -26,6 +26,7 @@ mod function_call;
 mod function_declaration;
 mod identifier;
 mod if_else_statement;
+mod object_expression;
 mod program;
 mod return_statement;
 mod unary_expression;
