@@ -1,10 +1,8 @@
 Set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
         llvm
-        GIT_REPOSITORY https://github.com/llvm/llvm-project.git
-        GIT_TAG        release/14.x
-        GIT_PROGRESS   FALSE
-        SOURCE_SUBDIR  llvm
+        URL https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-14.0.6.src.tar.xz
+        SOURCE_SUBDIR  llvm-14.0.6.src
 )
 
 set(LLVM_ENABLE_PROJECTS    "lld;libc")
