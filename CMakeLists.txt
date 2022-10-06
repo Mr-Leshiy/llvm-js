@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(LIB_NAME llvm-js-lib)
+set(LIB_NAME llvm-js)
 set(VERSION 0.1)
 
 project(${LIB_NAME} VERSION ${VERSION} LANGUAGES C CXX)

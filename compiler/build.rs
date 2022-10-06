@@ -2,7 +2,7 @@ fn main() {
     let cmake = cmake::Config::new("..")
         .out_dir("..")
         .define("TESTING", "OFF")
-        .build_target("")
+        .no_build_target(true)
         .build();
     println!("{}", cmake.display());
 
