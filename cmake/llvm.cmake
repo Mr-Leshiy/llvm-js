@@ -13,4 +13,12 @@ set(LLVM_INCLUDE_BENCHMARKS OFF)
 set(LLVM_INCLUDE_DOCS       OFF)
 set(LLVM_ENABLE_OCAMLDOC    OFF)
 
-FetchContent_MakeAvailable(llvm)
+
+# Check if population has already been performed
+FetchContent_GetProperties(llvm)
+if(NOT llvm_POPULATED)
+        FetchContent_Populate(llvm)
+
+        # Bring the populated content into the build
+        add_subdirectory(${llvm_SOURCE_DIR}/llvm-14.0.6.src ${CMAKE_BINARY_DIR}/llvm-build)
+endif()
