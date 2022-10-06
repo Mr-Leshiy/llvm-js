@@ -1,5 +1,5 @@
 use super::Identifier;
-use crate::llvm_ast;
+use crate::{llvm_ast, Error};
 use lexer::{Arithmetic, Literal, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
@@ -19,10 +19,7 @@ pub enum VariableValue {
 }
 
 impl VariableValue {
-    pub fn parse<R: Read>(
-        cur_token: Token,
-        reader: &mut TokenReader<R>,
-    ) -> Result<Self, lexer::Error> {
+    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         match cur_token {
             Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
             Token::Literal(Literal::Null) => Ok(Self::Null),
@@ -36,9 +33,9 @@ impl VariableValue {
             Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
                 Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
                 Token::Literal(Literal::Number(val)) => Ok(Self::Number(-val)),
-                token => Err(lexer::Error::UnexpectedToken(token)),
+                token => Err(Error::UnexpectedToken(token)),
             },
-            token => Err(lexer::Error::UnexpectedToken(token)),
+            token => Err(Error::UnexpectedToken(token)),
         }
     }
 }
