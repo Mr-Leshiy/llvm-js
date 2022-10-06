@@ -8,7 +8,7 @@
 ## Build
 ### Macos/Linux
 ```
-cmake -B build
+cmake -B build -DLLVM=ON
 cd build
 make
 make install
