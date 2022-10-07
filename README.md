@@ -7,9 +7,14 @@
 
 ## Build
 ### Macos/Linux
+Install llvm library
 ```
 cmake -B build -DLLVM=ON
 cd build
 make
 make install
+```
+
+```
+cargo b
 ```

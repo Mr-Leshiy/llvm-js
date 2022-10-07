@@ -1,8 +1,8 @@
-/target
+target
 
-/.vscode
+.vscode
 
-/build
+build
 
 *.ll
 *.a

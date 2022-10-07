@@ -1,8 +1,7 @@
 Set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
         llvm
-        URL https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-14.0.6.src.tar.xz
-        SOURCE_SUBDIR  llvm-14.0.6.src
+        URL https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-project-14.0.6.src.tar.xz
 )
 
 # set(LLVM_ENABLE_PROJECTS    "lld;libc")
@@ -20,5 +19,5 @@ if(NOT llvm_POPULATED)
         FetchContent_Populate(llvm)
 
         # Bring the populated content into the build
-        add_subdirectory(${llvm_SOURCE_DIR}/llvm-14.0.6.src ${CMAKE_BINARY_DIR}/llvm-build)
+        add_subdirectory(${llvm_SOURCE_DIR}/llvm ${CMAKE_BINARY_DIR}/llvm-build)
 endif()
