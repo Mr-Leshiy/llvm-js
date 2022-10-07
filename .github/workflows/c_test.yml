@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
           clean: true
       - name: cmake
-        run: cmake . -Bbuild ${{ matrix.flags }}
+        run: cmake . -Bbuild -DTESTING=ON ${{ matrix.flags }}
       - name: build
         run: cmake --build build --parallel 2
       - name: test
@@ -46,7 +46,7 @@ jobs:
           submodules: recursive
           clean: true
       - name: cmake
-        run: cmake . -Bbuild ${{ matrix.flags }}
+        run: cmake . -Bbuild -DTESTING=ON ${{ matrix.flags }}
       - name: build
         run: cmake --build build --parallel 2
       - name: test
@@ -68,7 +68,7 @@ jobs:
           submodules: recursive
           clean: true
       - name: cmake
-        run: cmake . -Bbuild ${{ matrix.flags }}
+        run: cmake . -Bbuild -DTESTING=ON ${{ matrix.flags }}
       - name: build
         run: cmake --build build --parallel 2
       - name: test
