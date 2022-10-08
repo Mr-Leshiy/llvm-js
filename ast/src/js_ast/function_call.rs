@@ -18,8 +18,7 @@ impl FunctionCall {
         // parse function name
         let name = Identifier::parse(cur_token, reader)?;
 
-        // parse function args
-        let args = match reader.next_token()? {
+        match reader.next_token()? {
             Token::Separator(Separator::OpenBrace) => {
                 let mut args = Vec::new();
                 cur_token = reader.next_token()?;
@@ -36,11 +35,10 @@ impl FunctionCall {
                         token => return Err(Error::UnexpectedToken(token)),
                     };
                 }
-                Ok(args)
+                Ok(Self { name, args })
             }
             token => Err(Error::UnexpectedToken(token)),
-        }?;
-        Ok(Self { name, args })
+        }
     }
 }
 

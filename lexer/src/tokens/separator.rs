@@ -16,6 +16,10 @@ pub enum Separator {
     CloseSquareBracket,
     /// ","
     Comma,
+    /// ":"
+    Colon,
+    /// ";"
+    SemiColon,
 }
 
 impl Display for Separator {
@@ -28,6 +32,8 @@ impl Display for Separator {
             Self::OpenSquareBracket => write!(f, r#"Separator token, "[""#),
             Self::CloseSquareBracket => write!(f, r#"Separator token, "]""#),
             Self::Comma => write!(f, r#"Separator token, ",""#),
+            Self::Colon => write!(f, r#"Separator token, ":""#),
+            Self::SemiColon => write!(f, r#"Separator token, ";""#),
         }
     }
 }
@@ -39,7 +45,7 @@ mod tests {
 
     #[test]
     fn separator_test_1() {
-        let mut reader = TokenReader::new(r#" )({[]]  }})[],,, "#.as_bytes());
+        let mut reader = TokenReader::new(r#" )(:{[]]:  }:})[],,, "#.as_bytes());
 
         assert_eq!(
             reader.read_token(),
@@ -49,6 +55,7 @@ mod tests {
             reader.read_token(),
             Ok(Token::Separator(Separator::OpenBrace))
         );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::OpenCurlyBrace))
@@ -65,10 +72,12 @@ mod tests {
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseSquareBracket))
         );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
         );
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(
             reader.read_token(),
             Ok(Token::Separator(Separator::CloseCurlyBrace))
@@ -132,6 +141,11 @@ mod tests {
         let mut reader = TokenReader::new(r#"name,"#.as_bytes());
         assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
         assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Comma)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
+
+        let mut reader = TokenReader::new(r#"name:"#.as_bytes());
+        assert_eq!(reader.read_token(), Ok(Token::Ident("name".to_string())));
+        assert_eq!(reader.read_token(), Ok(Token::Separator(Separator::Colon)));
         assert_eq!(reader.read_token(), Ok(Token::Eof));
     }
 }

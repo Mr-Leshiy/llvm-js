@@ -1,4 +1,4 @@
-use super::Identifier;
+use super::{Identifier, ObjectExpression};
 use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,6 +12,7 @@ pub enum VariableValue {
     FloatNumber(f64),
     String(String),
     Identifier(Identifier),
+    ObjectExpression(ObjectExpression),
 }
 
 impl VariableValue {
@@ -32,6 +33,7 @@ impl VariableValue {
             Self::Identifier(name) => {
                 Variable::new_variable(compiler, &cur_function.get_variable(name)?)
             }
+            Self::ObjectExpression(_) => todo!("implement"),
         }
     }
 }
