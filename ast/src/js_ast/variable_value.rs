@@ -1,6 +1,6 @@
-use super::Identifier;
+use super::{Identifier, ObjectExpression};
 use crate::{llvm_ast, Error};
-use lexer::{Arithmetic, Literal, Token, TokenReader};
+use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
@@ -16,6 +16,7 @@ pub enum VariableValue {
     Number(f64),
     String(String),
     Identifier(Identifier),
+    ObjectExpression(ObjectExpression),
 }
 
 impl VariableValue {
@@ -35,6 +36,9 @@ impl VariableValue {
                 Token::Literal(Literal::Number(val)) => Ok(Self::Number(-val)),
                 token => Err(Error::UnexpectedToken(token)),
             },
+            Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::ObjectExpression(
+                ObjectExpression::parse(cur_token, reader)?,
+            )),
             token => Err(Error::UnexpectedToken(token)),
         }
     }
@@ -60,6 +64,11 @@ impl VariableValue {
             },
             Self::Number(number) => Ok(llvm_ast::VariableValue::FloatNumber(number)),
             Self::String(string) => Ok(llvm_ast::VariableValue::String(string)),
+            Self::ObjectExpression(object_expression) => {
+                Ok(llvm_ast::VariableValue::ObjectExpression(
+                    object_expression.precompile(precompiler)?,
+                ))
+            }
         }
     }
 }
