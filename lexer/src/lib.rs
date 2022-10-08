@@ -14,8 +14,6 @@ pub enum Error {
     ReaderError(char_reader::Error),
     #[error("Unected symbol: {0}, position: {1}")]
     UnexpectedSymbol(char, Position),
-    #[error("Unexpected token provided: {0}")]
-    UnexpectedToken(Token),
 }
 
 fn is_skip(char: &char) -> bool {

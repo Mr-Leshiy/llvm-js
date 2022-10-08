@@ -38,7 +38,7 @@ impl FunctionCall {
                 }
                 Ok(args)
             }
-            token => Err(lexer::Error::UnexpectedToken(token)),
+            token => Err(Error::UnexpectedToken(token)),
         }?;
         Ok(Self { name, args })
     }
