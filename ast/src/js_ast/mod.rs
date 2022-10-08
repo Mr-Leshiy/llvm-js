@@ -7,9 +7,8 @@ pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
-use lexer::TokenReader;
+use lexer::{Token, TokenReader};
 use precompiler::{self, Precompiler};
-pub use program::Program;
 use std::io::Read;
 pub use unary_expression::{UnaryExpType, UnaryExpression};
 pub use variable_assigment::VariableAssigment;
@@ -26,7 +25,6 @@ mod function_call;
 mod function_declaration;
 mod identifier;
 mod if_else_statement;
-mod program;
 mod return_statement;
 mod unary_expression;
 mod variable_assigment;
@@ -37,15 +35,27 @@ mod while_loop;
 
 /// Module
 pub struct Module {
-    pub name: String,
-    pub program: Program,
+    name: String,
+    body: Vec<Expression>,
 }
 
 impl Module {
     pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
         let mut reader = TokenReader::new(input);
-        let program = Program::parse(reader.next_token()?, &mut reader)?;
-        Ok(Self { name, program })
+
+        let mut body = Vec::new();
+        let mut cur_token = reader.next_token()?;
+
+        loop {
+            let expr = match cur_token {
+                Token::Eof => break,
+                cur_token => Expression::parse(cur_token, &mut reader)?,
+            };
+
+            cur_token = reader.next_token()?;
+            body.push(expr);
+        }
+        Ok(Self { name, body })
     }
 
     pub fn precompile<Iter>(
@@ -55,11 +65,19 @@ impl Module {
     where
         Iter: Iterator<Item = Identifier>,
     {
-        let precompiler = Precompiler::new(predefined_functions);
+        let mut precompiler = Precompiler::new(predefined_functions);
 
-        Ok(llvm_ast::Module {
-            name: self.name,
-            program: self.program.precompile(precompiler)?,
-        })
+        let mut body = Vec::new();
+        for expr in self.body {
+            expr.precompile(&mut precompiler)?
+                .into_iter()
+                .for_each(|expr| body.push(expr));
+        }
+
+        Ok(llvm_ast::Module::new(
+            self.name,
+            precompiler.function_declarations,
+            body,
+        ))
     }
 }
