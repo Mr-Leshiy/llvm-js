@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "object.hpp"
+
 extern "C"
 {
 #include "variable.h"
@@ -18,6 +20,7 @@ enum class Type
     Number,
     Boolean,
     String,
+    Object,
 };
 
 struct Variable
@@ -26,6 +29,9 @@ struct Variable
     double number_field;
     bool boolean_field;
     std::string string_field;
+    Object object_field;
+
+    std::string to_string() const;
 };
 
 #endif
