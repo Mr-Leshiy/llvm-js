@@ -7,6 +7,7 @@ edition = "2021"
 
 [build-dependencies]
 cc = { version = "1.0.73" }
+cmake = { version = "0.1" }
 
 [dependencies]
 thiserror = { version = "1.0.37" }

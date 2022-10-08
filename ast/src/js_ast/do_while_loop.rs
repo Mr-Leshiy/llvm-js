@@ -65,37 +65,4 @@ mod tests {
             })
         );
     }
-
-    #[test]
-    fn precompile_while_loop_test() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-
-        let if_else_statement = DoWhileLoop {
-            condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-            body: BlockStatement { body: Vec::new() },
-        };
-        assert_eq!(
-            if_else_statement.precompile(&mut precompiler),
-            Ok(llvm_ast::DoWhileLoop {
-                condition: llvm_ast::VariableExpression::VariableValue(
-                    llvm_ast::VariableValue::Boolean(true)
-                ),
-                body: vec![],
-            })
-        );
-
-        let if_else_statement = DoWhileLoop {
-            condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-            body: BlockStatement { body: Vec::new() },
-        };
-        assert_eq!(
-            if_else_statement.precompile(&mut precompiler),
-            Ok(llvm_ast::DoWhileLoop {
-                condition: llvm_ast::VariableExpression::VariableValue(
-                    llvm_ast::VariableValue::Boolean(true)
-                ),
-                body: vec![],
-            })
-        );
-    }
 }

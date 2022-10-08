@@ -1,5 +1,20 @@
 # The JavaScript to LLVM IR Compiler
 
-## Dependencies
+## Requirements
+[rust](https://www.rust-lang.org)
 
-Need to instal [llvm-project](https://github.com/llvm/llvm-project) library
+[cmake > 3.5](https://cmake.org)
+
+## Build
+### Macos/Linux
+Install llvm library
+```
+cmake -B build -DLLVM=ON
+cd build
+make
+make install
+```
+
+```
+cargo b
+```

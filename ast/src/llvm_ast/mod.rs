@@ -1,12 +1,11 @@
 pub use binary_expression::{BinaryExpType, BinaryExpression};
-use compiler::{self, Compiler, Context};
+use compiler::{self, Compiler, Context, MainFunction};
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
-pub use program::Program;
 pub use return_statement::ReturnStatement;
 use std::io::Write;
 pub use unary_expression::{UnaryExpType, UnaryExpression};
@@ -23,7 +22,6 @@ mod function_call;
 mod function_declaration;
 mod identifier;
 mod if_else_statement;
-mod program;
 mod return_statement;
 mod unary_expression;
 mod variable_assigment;
@@ -33,18 +31,33 @@ mod variable_value;
 mod while_loop;
 
 pub struct Module {
-    pub name: String,
-    pub program: Program,
+    name: String,
+    functions: Vec<FunctionDeclaration>,
+    body: Vec<Expression>,
 }
 
 impl Module {
+    pub fn new(name: String, functions: Vec<FunctionDeclaration>, body: Vec<Expression>) -> Self {
+        Self {
+            name,
+            functions,
+            body,
+        }
+    }
+
     pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error<Identifier>> {
         let context = Context::new();
-        let mut compiler = Compiler::new(&context, self.name.as_str());
+        let compiler = &mut Compiler::new(&context, self.name.as_str());
 
         compiler.declare_extern_functions();
 
-        self.program.compile(&mut compiler)?;
+        for func in self.functions {
+            func.compile(compiler)?;
+        }
+        // define main function
+        let mut main = MainFunction::new(compiler);
+        main.generate_body(compiler, self.body)?;
+
         compiler.write_result_into(writer)
     }
 }
