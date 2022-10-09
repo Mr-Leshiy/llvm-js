@@ -1,29 +1,29 @@
 #include "object.hpp"
 #include "variable.hpp"
 
-void add_property(Object &self, std::string key, Variable *val)
+void Object::add_property(std::string key, Variable *val)
 {
-    self.properties[key] = val;
+    this->properties[key] = val;
 }
 
-Variable *get_property(Object &self, std::string key)
+Variable *Object::get_property(std::string key)
 {
-    auto it = self.properties.find(key);
-    if (it != self.properties.end())
+    auto it = this->properties.find(key);
+    if (it != this->properties.end())
     {
         return it->second;
     }
     else
     {
-        auto *ret = variable_allocate();
+        auto *ret = allocate();
         set_undefined(ret);
         return ret;
     }
 }
 
-void remove_property(Object &self, std::string key)
+void Object::remove_property(std::string key)
 {
-    self.properties.erase(key);
+    this->properties.erase(key);
 }
 
 bool operator==(const Object &a, const Object &b)

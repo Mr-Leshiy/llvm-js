@@ -7,15 +7,15 @@ use inkwell::{
 };
 
 #[derive(Clone)]
-pub struct VariableAllocateFn<'ctx> {
+pub struct AllocateFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for VariableAllocateFn<'ctx> {
-    const NAME: &'static str = "variable_allocate";
+impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
+    const NAME: &'static str = "allocate";
 }
 
-impl<'ctx> VariableAllocateFn<'ctx> {
+impl<'ctx> AllocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let ret_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 

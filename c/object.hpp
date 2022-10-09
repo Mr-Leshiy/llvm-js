@@ -11,9 +11,10 @@ extern "C"
 
 struct Object
 {
-    friend void add_property(Object &object, std::string key, Variable *val);
-    friend Variable *get_property(Object &object, std::string key);
-    friend void remove_property(Object &object, std::string key);
+    void add_property(std::string key, Variable *val);
+    Variable *get_property(std::string key);
+    void remove_property(std::string key);
+
     std::string to_string() const;
 
     friend bool operator==(const Object &a, const Object &b);

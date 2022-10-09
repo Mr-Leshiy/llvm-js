@@ -10,7 +10,7 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        VariableAllocateFn, GetBooleanFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
+        AllocateFn, GetBooleanFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
         SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
@@ -31,7 +31,7 @@ pub struct PredefineFunctions<'ctx> {
     assert: AssertFn<'ctx>,
     assert_eq: AssertEqFn<'ctx>,
     // variable functions
-    variable_allocate: VariableAllocateFn<'ctx>,
+    allocate: AllocateFn<'ctx>,
     set_undefined: SetUndefinedFn<'ctx>,
     set_null: SetNullFn<'ctx>,
     set_nan: SetNaNFn<'ctx>,
@@ -69,7 +69,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert: AssertFn::declare(compiler),
             assert_eq: AssertEqFn::declare(compiler),
             // variable functions
-            variable_allocate: VariableAllocateFn::declare(compiler),
+            allocate: AllocateFn::declare(compiler),
             set_undefined: SetUndefinedFn::declare(compiler),
             set_null: SetNullFn::declare(compiler),
             set_nan: SetNaNFn::declare(compiler),
@@ -111,8 +111,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
     }
 
     // variable functions
-    pub fn variable_allocate(&self) -> &VariableAllocateFn<'ctx> {
-        &self.variable_allocate
+    pub fn allocate(&self) -> &AllocateFn<'ctx> {
+        &self.allocate
     }
 
     pub fn set_undefined(&self) -> &SetUndefinedFn<'ctx> {

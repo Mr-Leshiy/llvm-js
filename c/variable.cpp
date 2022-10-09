@@ -43,7 +43,13 @@ std::string Variable::to_string() const
     }
 }
 
-Variable *variable_allocate()
+void Variable::set_object(Object &object)
+{
+    this->flag = Type::Object;
+    this->object_field = object;
+}
+
+Variable *allocate()
 {
     Variable *res = new Variable;
     res->flag = Type::Undefined;
@@ -109,14 +115,6 @@ void set_string(Variable *self, const char *val)
     self->string_field = val;
 }
 
-void set_object(Variable *self, Object &object)
-{
-    assert(self != nullptr);
-
-    self->flag = Type::Object;
-    self->object_field = object;
-}
-
 void set_variable(Variable *self, Variable *val)
 {
     assert(self != nullptr);
@@ -149,12 +147,19 @@ void set_variable(Variable *self, Variable *val)
         set_string(self, val->string_field.c_str());
         break;
     case Type::Object:
-        set_object(self, val->object_field);
+        self->set_object(val->object_field);
         break;
     default:
         assert(0);
         break;
     }
+}
+
+void init_object(Variable *self)
+{
+    assert(self != nullptr);
+
+    self->flag = Type::Object;
 }
 
 uint8_t get_boolean(Variable *self)
@@ -169,7 +174,7 @@ Variable *convert_to_boolean(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
     switch (val->flag)
     {
     case Type::Undefined:
@@ -210,7 +215,7 @@ Variable *convert_to_number(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
     switch (val->flag)
     {
     case Type::Undefined:
@@ -251,7 +256,7 @@ Variable *convert_to_string(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
     set_string(ret, val->to_string().c_str());
     return ret;
 }

@@ -9,18 +9,18 @@ TEST(Object, Basic_test)
 
     auto *value = allocate();
     set_number(value, 12);
-    add_property(object, "name", value);
+    object.add_property("name", value);
 
-    auto *prop = get_property(object, "name");
+    auto *prop = object.get_property("name");
     EXPECT_EQ(prop->flag, value->flag);
     EXPECT_EQ(prop->number_field, value->number_field);
 
-    prop = get_property(object, "age");
+    prop = object.get_property("age");
     EXPECT_EQ(prop->flag, Type::Undefined);
 
     EXPECT_EQ(object.to_string(), "{name: 12.000000}");
 
-    remove_property(object, "name");
-    prop = get_property(object, "name");
+    object.remove_property("name");
+    prop = object.get_property("name");
     EXPECT_EQ(prop->flag, Type::Undefined);
 }

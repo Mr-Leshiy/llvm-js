@@ -26,7 +26,7 @@ Variable *logical_and(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
     Variable *val1_ = convert_to_boolean(val1);
     Variable *val2_ = convert_to_boolean(val2);
 
@@ -53,7 +53,7 @@ Variable *logical_or(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
     Variable *val1_ = convert_to_boolean(val1);
     Variable *val2_ = convert_to_boolean(val2);
 
@@ -92,7 +92,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = variable_allocate();
+    Variable *ret = allocate();
 
     switch (val1->flag)
     {

@@ -6,7 +6,7 @@
 typedef struct Variable Variable;
 typedef struct Object Object;
 
-Variable *variable_allocate();
+Variable *allocate();
 
 void set_undefined(Variable *self);
 void set_null(Variable *self);
@@ -16,8 +16,13 @@ void set_neginfinity(Variable *self);
 void set_number(Variable *self, double val);
 void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);
-void set_object(Variable *self, Object &obj);
 void set_variable(Variable *self, Variable *val);
+
+// object
+void init_object(Variable *self);
+void add_property(Variable *object, const char *key, Variable *val);
+Variable *get_property(Variable *object, const char *key);
+void remove_property(Variable *object, const char *key);
 
 uint8_t get_boolean(Variable *self);
 
