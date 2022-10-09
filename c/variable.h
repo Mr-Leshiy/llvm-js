@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef struct Variable Variable;
+typedef struct Object Object;
 
 Variable *allocate();
 
@@ -15,6 +16,7 @@ void set_neginfinity(Variable *self);
 void set_number(Variable *self, double val);
 void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);
+void set_object(Variable *self, Object &obj);
 void set_variable(Variable *self, Variable *val);
 
 uint8_t get_boolean(Variable *self);

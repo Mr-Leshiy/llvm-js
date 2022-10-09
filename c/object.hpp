@@ -11,9 +11,13 @@ extern "C"
 
 struct Object
 {
-    void add_property(std::string key, Variable *val);
-    Variable* get_property(std::string key);
+    friend void add_property(Object &object, std::string key, Variable *val);
+    friend Variable *get_property(Object &object, std::string key);
+    friend void remove_property(Object &object, std::string key);
     std::string to_string() const;
+
+    friend bool operator==(const Object &a, const Object &b);
+    friend bool operator!=(const Object &a, const Object &b);
 
 private:
     std::unordered_map<std::string, Variable *> properties;

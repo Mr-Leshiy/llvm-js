@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "variable.hpp"
+#include "object.hpp"
 
 std::string Variable::to_string() const
 {
@@ -108,6 +109,14 @@ void set_string(Variable *self, const char *val)
     self->string_field = val;
 }
 
+void set_object(Variable *self, Object &object)
+{
+    assert(self != nullptr);
+
+    self->flag = Type::Object;
+    self->object_field = object;
+}
+
 void set_variable(Variable *self, Variable *val)
 {
     assert(self != nullptr);
@@ -138,6 +147,9 @@ void set_variable(Variable *self, Variable *val)
         break;
     case Type::String:
         set_string(self, val->string_field.c_str());
+        break;
+    case Type::Object:
+        set_object(self, val->object_field);
         break;
     default:
         assert(0);

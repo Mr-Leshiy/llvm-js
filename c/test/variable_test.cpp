@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "variable.hpp"
+#include "object.hpp"
 
 TEST(Variable, Basic_test)
 {
@@ -57,6 +58,14 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val2->flag, Type::String);
     EXPECT_EQ(val1->string_field, "foo");
     EXPECT_EQ(val2->string_field, "foo");
+
+    Object object;
+    set_object(val1, object);
+    set_variable(val2, val1);
+    EXPECT_EQ(val1->flag, Type::Object);
+    EXPECT_EQ(val2->flag, Type::Object);
+    EXPECT_EQ(val1->object_field, object);
+    EXPECT_EQ(val2->object_field, object);
 }
 
 TEST(VariableTest, convert_to_boolean_test)
@@ -118,6 +127,12 @@ TEST(VariableTest, convert_to_boolean_test)
     res = convert_to_boolean(val);
     EXPECT_EQ(res->flag, Type::Boolean);
     EXPECT_EQ(res->boolean_field, false);
+
+    Object object;
+    set_object(val, object);
+    res = convert_to_boolean(val);
+    EXPECT_EQ(res->flag, Type::Boolean);
+    EXPECT_EQ(res->boolean_field, true);
 }
 
 TEST(VariableTest, convert_to_number_test)
@@ -171,6 +186,11 @@ TEST(VariableTest, convert_to_number_test)
     EXPECT_EQ(res->flag, Type::NaN);
 
     set_string(val, "");
+    res = convert_to_number(val);
+    EXPECT_EQ(res->flag, Type::NaN);
+
+    Object object;
+    set_object(val, object);
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
 }
@@ -234,4 +254,10 @@ TEST(VariableTest, convert_to_string_test)
     res = convert_to_string(val);
     EXPECT_EQ(res->flag, Type::String);
     EXPECT_EQ(res->string_field, "");
+
+    Object object;
+    set_object(val, object);
+    res = convert_to_string(val);
+    EXPECT_EQ(res->flag, Type::String);
+    EXPECT_EQ(res->string_field, "{}");
 }
