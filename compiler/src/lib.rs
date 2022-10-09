@@ -49,9 +49,9 @@ pub struct Compiler<'ctx, T> {
     builder: inkwell::builder::Builder<'ctx>,
 
     functions: HashMap<T, Function<'ctx, T>>,
-    variable_type: StructType<'ctx>,
-
     predefined_functions: Option<PredefineFunctions<'ctx>>,
+
+    variable_type: StructType<'ctx>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {

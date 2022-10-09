@@ -2,6 +2,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 set(SOURCES
         variable.cpp
+        object.cpp
         assertions.cpp
         logical.cpp
         arithmetic.cpp

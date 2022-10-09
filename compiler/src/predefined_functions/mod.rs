@@ -10,8 +10,9 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AllocateFn, GetBooleanFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
-        SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyFn, InitObjectFn, PrintFn,
+        RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
+        SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -43,6 +44,11 @@ pub struct PredefineFunctions<'ctx> {
     set_variable: SetVariableFn<'ctx>,
     get_boolean: GetBooleanFn<'ctx>,
     printf: PrintFn<'ctx>,
+    // object functions
+    init_object: InitObjectFn<'ctx>,
+    add_property: AddPropertyFn<'ctx>,
+    get_property: GetPropertyFn<'ctx>,
+    remove_property: RemovePropertyFn<'ctx>,
     // logical functions
     logical_not: LogicalNotFn<'ctx>,
     logical_and: LogicalAndFn<'ctx>,
@@ -81,6 +87,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_variable: SetVariableFn::declare(compiler),
             get_boolean: GetBooleanFn::declare(compiler),
             printf: PrintFn::declare(compiler),
+            // object functions
+            init_object: InitObjectFn::declare(compiler),
+            add_property: AddPropertyFn::declare(compiler),
+            get_property: GetPropertyFn::declare(compiler),
+            remove_property: RemovePropertyFn::declare(compiler),
             // logical functions
             logical_not: LogicalNotFn::declare(compiler),
             logical_and: LogicalAndFn::declare(compiler),
@@ -157,6 +168,23 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn print(&self) -> &PrintFn<'ctx> {
         &self.printf
+    }
+
+    // object functions
+    pub fn init_object(&self) -> &InitObjectFn<'ctx> {
+        &self.init_object
+    }
+
+    pub fn add_property(&self) -> &AddPropertyFn<'ctx> {
+        &self.add_property
+    }
+
+    pub fn get_property(&self) -> &GetPropertyFn<'ctx> {
+        &self.get_property
+    }
+
+    pub fn remove_property(&self) -> &RemovePropertyFn<'ctx> {
+        &self.remove_property
     }
 
     // logical functions

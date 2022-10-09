@@ -19,110 +19,58 @@ impl<'ctx> Variable<'ctx> {
 impl<'ctx> Variable<'ctx> {
     pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_undefined(compiler)?;
-        Ok(variable)
-    }
-
-    pub fn assign_undefined<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let set_undefined_fn = compiler.predefined_functions()?.set_undefined();
-        set_undefined_fn.call(compiler, self);
-        Ok(())
+        set_undefined_fn.call(compiler, &variable);
+        Ok(variable)
     }
 
     pub fn new_null<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_null(compiler)?;
-        Ok(variable)
-    }
-
-    pub fn assign_null<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let set_null_fn = compiler.predefined_functions()?.set_null();
-        set_null_fn.call(compiler, self);
-        Ok(())
+        set_null_fn.call(compiler, &variable);
+        Ok(variable)
     }
 
     pub fn new_nan<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_nan(compiler)?;
-        Ok(variable)
-    }
-
-    pub fn assign_nan<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let set_nan_fn = compiler.predefined_functions()?.set_nan();
-        set_nan_fn.call(compiler, self);
-        Ok(())
+        set_nan_fn.call(compiler, &variable);
+        Ok(variable)
     }
 
     pub fn new_infinity<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_infinity(compiler)?;
-        Ok(variable)
-    }
-
-    pub fn assign_infinity<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let set_infinity_fn = compiler.predefined_functions()?.set_infinity();
-        set_infinity_fn.call(compiler, self);
-        Ok(())
+        set_infinity_fn.call(compiler, &variable);
+        Ok(variable)
     }
 
     pub fn new_neginfinity<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_neginfinity(compiler)?;
-        Ok(variable)
-    }
-
-    pub fn assign_neginfinity<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let set_neginfinity_fn = compiler.predefined_functions()?.set_neginfinity();
-        set_neginfinity_fn.call(compiler, self);
-        Ok(())
+        set_neginfinity_fn.call(compiler, &variable);
+        Ok(variable)
     }
 
     pub fn new_number<T>(compiler: &Compiler<'ctx, T>, number: f64) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_number(compiler, number)?;
-        Ok(variable)
-    }
-
-    pub fn assign_number<T>(
-        &self,
-        compiler: &Compiler<'ctx, T>,
-        literal: f64,
-    ) -> Result<(), Error<T>> {
         let set_number_fn = compiler.predefined_functions()?.set_number();
-        set_number_fn.call(compiler, self, literal);
-        Ok(())
+        set_number_fn.call(compiler, &variable, number);
+        Ok(variable)
     }
 
     pub fn new_boolean<T>(compiler: &Compiler<'ctx, T>, boolean: bool) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_boolean(compiler, boolean)?;
-        Ok(variable)
-    }
-
-    pub fn assign_boolean<T>(
-        &self,
-        compiler: &Compiler<'ctx, T>,
-        literal: bool,
-    ) -> Result<(), Error<T>> {
         let set_boolean_fn = compiler.predefined_functions()?.set_boolean();
-        set_boolean_fn.call(compiler, self, literal);
-        Ok(())
+        set_boolean_fn.call(compiler, &variable, boolean);
+        Ok(variable)
     }
 
     pub fn new_string<T>(compiler: &Compiler<'ctx, T>, string: &str) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
-        variable.assign_string(compiler, string)?;
-        Ok(variable)
-    }
-
-    pub fn assign_string<T>(
-        &self,
-        compiler: &Compiler<'ctx, T>,
-        literal: &str,
-    ) -> Result<(), Error<T>> {
         let set_string_fn = compiler.predefined_functions()?.set_string();
-        set_string_fn.call(compiler, self, literal);
-        Ok(())
+        set_string_fn.call(compiler, &variable, string);
+        Ok(variable)
     }
 
     pub fn new_variable<T>(
@@ -141,6 +89,45 @@ impl<'ctx> Variable<'ctx> {
     ) -> Result<(), Error<T>> {
         let set_variable_fn = compiler.predefined_functions()?.set_variable();
         set_variable_fn.call(compiler, self, variable);
+        Ok(())
+    }
+}
+
+impl<'ctx> Variable<'ctx> {
+    pub fn init_object<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let variable = Self::new(compiler)?;
+        let init_object_fn = compiler.predefined_functions()?.init_object();
+        init_object_fn.call(compiler, &variable);
+        Ok(variable)
+    }
+
+    pub fn add_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+        value: &Self,
+    ) -> Result<(), Error<T>> {
+        let add_property_fn = compiler.predefined_functions()?.add_property();
+        add_property_fn.call(compiler, self, key, value);
+        Ok(())
+    }
+
+    pub fn get_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+    ) -> Result<Self, Error<T>> {
+        let get_property_fn = compiler.predefined_functions()?.get_property();
+        Ok(get_property_fn.call(compiler, self, key))
+    }
+
+    pub fn remove_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+    ) -> Result<(), Error<T>> {
+        let remove_property_fn = compiler.predefined_functions()?.remove_property();
+        remove_property_fn.call(compiler, self, key);
         Ok(())
     }
 }

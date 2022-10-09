@@ -4,6 +4,50 @@
 #include <string.h>
 
 #include "variable.hpp"
+#include "object.hpp"
+
+std::string Variable::to_string() const
+{
+    switch (this->flag)
+    {
+    case Type::Undefined:
+        return "undefined";
+        break;
+    case Type::Null:
+        return "null";
+        break;
+    case Type::NaN:
+        return "NaN";
+        break;
+    case Type::Infinity:
+        return "Infinity";
+        break;
+    case Type::NegInfinity:
+        return "-Infinity";
+        break;
+    case Type::Number:
+        return std::to_string(this->number_field);
+        break;
+    case Type::Boolean:
+        return this->boolean_field ? "true" : "false";
+        break;
+    case Type::String:
+        return this->string_field;
+        break;
+    case Type::Object:
+        return this->object_field.to_string();
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
+void Variable::set_object(Object &object)
+{
+    this->flag = Type::Object;
+    this->object_field = object;
+}
 
 Variable *allocate()
 {
@@ -102,10 +146,46 @@ void set_variable(Variable *self, Variable *val)
     case Type::String:
         set_string(self, val->string_field.c_str());
         break;
+    case Type::Object:
+        self->set_object(val->object_field);
+        break;
     default:
         assert(0);
         break;
     }
+}
+
+// object
+void init_object(Variable *self)
+{
+    assert(self != nullptr);
+
+    self->flag = Type::Object;
+}
+
+void add_property(Variable *self, const char *key, Variable *val)
+{
+    assert(self != nullptr);
+
+    // TODO print runtime error message
+    if (self->flag == Type::Object)
+    {
+        self->object_field.add_property(key, val);
+    }
+}
+
+Variable *get_property(Variable *self, const char *key)
+{
+    assert(self != nullptr);
+
+    return self->object_field.get_property(key);
+}
+
+void remove_property(Variable *self, const char *key)
+{
+    assert(self != nullptr);
+
+    self->object_field.remove_property(key);
 }
 
 uint8_t get_boolean(Variable *self)
@@ -147,6 +227,9 @@ Variable *convert_to_boolean(Variable *val)
     case Type::String:
         set_boolean(ret, !val->string_field.empty());
         break;
+    case Type::Object:
+        set_boolean(ret, true);
+        break;
     default:
         assert(0);
         break;
@@ -185,6 +268,9 @@ Variable *convert_to_number(Variable *val)
     case Type::String:
         set_nan(ret);
         break;
+    case Type::Object:
+        set_nan(ret);
+        break;
     default:
         assert(0);
         break;
@@ -197,36 +283,7 @@ Variable *convert_to_string(Variable *val)
     assert(val != nullptr);
 
     Variable *ret = allocate();
-    switch (val->flag)
-    {
-    case Type::Undefined:
-        set_string(ret, "undefined");
-        break;
-    case Type::Null:
-        set_string(ret, "null");
-        break;
-    case Type::NaN:
-        set_string(ret, "NaN");
-        break;
-    case Type::Infinity:
-        set_string(ret, "Infinity");
-        break;
-    case Type::NegInfinity:
-        set_string(ret, "-Infinity");
-        break;
-    case Type::Number:
-        set_string(ret, std::to_string(val->number_field).c_str());
-        break;
-    case Type::Boolean:
-        set_string(ret, val->boolean_field ? "true" : "false");
-        break;
-    case Type::String:
-        set_string(ret, val->string_field.c_str());
-        break;
-    default:
-        assert(0);
-        break;
-    }
+    set_string(ret, val->to_string().c_str());
     return ret;
 }
 
@@ -234,34 +291,5 @@ void print(Variable *self)
 {
     assert(self != nullptr);
 
-    switch (self->flag)
-    {
-    case Type::Undefined:
-        printf("undefined\n");
-        break;
-    case Type::Null:
-        printf("null\n");
-        break;
-    case Type::NaN:
-        printf("NaN\n");
-        break;
-    case Type::Infinity:
-        printf("Infinity\n");
-        break;
-    case Type::NegInfinity:
-        printf("-Infinity\n");
-        break;
-    case Type::Number:
-        printf("%f\n", self->number_field);
-        break;
-    case Type::Boolean:
-        printf("%s\n", self->boolean_field ? "true" : "false");
-        break;
-    case Type::String:
-        printf("%s\n", self->string_field.c_str());
-        break;
-    default:
-        assert(0);
-        break;
-    }
+    printf("%s\n", self->to_string().c_str());
 }
