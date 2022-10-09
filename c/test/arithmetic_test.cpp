@@ -7,8 +7,8 @@
 TEST(Arithmetic, arithmetic_addition_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     // 2 + 3 = 5
     set_number(val1, 2);
@@ -109,8 +109,8 @@ TEST(Arithmetic, arithmetic_addition_test)
 TEST(Arithmetic, arithmetic_addition_string_concat_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     // "Hello " + "world" = "Hello world"
     set_string(val1, "Hello ");
@@ -186,8 +186,8 @@ TEST(Arithmetic, arithmetic_addition_string_concat_test)
 TEST(Arithmetic, arithmetic_substraction_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     // 2 - 3 = -1
     set_number(val1, 2);
@@ -288,8 +288,8 @@ TEST(Arithmetic, arithmetic_substraction_test)
 TEST(Arithmetic, arithmetic_multiplication_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     // 2 * 3 = 6
     set_number(val1, 2);
@@ -450,8 +450,8 @@ TEST(Arithmetic, arithmetic_multiplication_test)
 TEST(Arithmetic, arithmetic_division_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     // 6 / 3 = 2
     set_number(val1, 6);

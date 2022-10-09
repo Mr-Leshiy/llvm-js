@@ -8,7 +8,7 @@ Variable *arithmetic_addition(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
 
     if (val1->flag == Type::String || val2->flag == Type::String)
     {
@@ -83,7 +83,7 @@ Variable *arithmetic_substraction(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     val1 = convert_to_number(val1);
     val2 = convert_to_number(val2);
 
@@ -163,7 +163,7 @@ Variable *arithmetic_multiplication(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     val1 = convert_to_number(val1);
     val2 = convert_to_number(val2);
 
@@ -287,7 +287,7 @@ Variable *arithmetic_division(Variable *val1, Variable *val2)
     assert(val1 != nullptr);
     assert(val2 != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     val1 = convert_to_number(val1);
     val2 = convert_to_number(val2);
 

@@ -11,7 +11,7 @@ impl<'ctx> Variable<'ctx> {
     pub const TYPE_NAME: &'static str = "Variable";
 
     pub(crate) fn new<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let allocate_fn = compiler.predefined_functions()?.allocate();
+        let allocate_fn = compiler.predefined_functions()?.variable_allocate();
         Ok(allocate_fn.call(compiler))
     }
 }

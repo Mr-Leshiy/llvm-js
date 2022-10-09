@@ -2,6 +2,7 @@ pub use context::Context;
 pub use function::Function;
 use inkwell::types::StructType;
 pub use main_function::MainFunction;
+pub use object::Object;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
 use thiserror::Error;
@@ -12,6 +13,7 @@ mod function;
 pub mod if_else;
 pub mod loops;
 mod main_function;
+mod object;
 pub mod predefined_functions;
 mod variable;
 
@@ -49,9 +51,10 @@ pub struct Compiler<'ctx, T> {
     builder: inkwell::builder::Builder<'ctx>,
 
     functions: HashMap<T, Function<'ctx, T>>,
-    variable_type: StructType<'ctx>,
-
     predefined_functions: Option<PredefineFunctions<'ctx>>,
+
+    variable_type: StructType<'ctx>,
+    object_type: StructType<'ctx>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -63,6 +66,7 @@ impl<'ctx, T> Compiler<'ctx, T> {
             functions: HashMap::new(),
             predefined_functions: None,
             variable_type: context.opaque_struct_type(Variable::TYPE_NAME),
+            object_type: context.opaque_struct_type(Object::TYPE_NAME),
         }
     }
 

@@ -6,7 +6,7 @@
 typedef struct Variable Variable;
 typedef struct Object Object;
 
-Variable *allocate();
+Variable *variable_allocate();
 
 void set_undefined(Variable *self);
 void set_null(Variable *self);

@@ -43,7 +43,7 @@ std::string Variable::to_string() const
     }
 }
 
-Variable *allocate()
+Variable *variable_allocate()
 {
     Variable *res = new Variable;
     res->flag = Type::Undefined;
@@ -169,7 +169,7 @@ Variable *convert_to_boolean(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     switch (val->flag)
     {
     case Type::Undefined:
@@ -210,7 +210,7 @@ Variable *convert_to_number(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     switch (val->flag)
     {
     case Type::Undefined:
@@ -251,7 +251,7 @@ Variable *convert_to_string(Variable *val)
 {
     assert(val != nullptr);
 
-    Variable *ret = allocate();
+    Variable *ret = variable_allocate();
     set_string(ret, val->to_string().c_str());
     return ret;
 }

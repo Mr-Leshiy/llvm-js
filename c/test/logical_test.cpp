@@ -7,7 +7,7 @@
 TEST(Logical, logical_not_test)
 {
     Variable *res;
-    Variable *val = allocate();
+    Variable *val = variable_allocate();
 
     set_boolean(val, true);
     res = logical_not(val);
@@ -45,8 +45,8 @@ TEST(Logical, logical_not_test)
 TEST(Logical, logical_and_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     set_boolean(val1, true);
     set_boolean(val2, true);
@@ -112,8 +112,8 @@ TEST(Logical, logical_and_test)
 TEST(Logical, logical_or_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     set_boolean(val1, true);
     set_boolean(val2, true);
@@ -179,8 +179,8 @@ TEST(Logical, logical_or_test)
 TEST(Logical, logical_seq_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     set_number(val2, 3);
     set_number(val1, 3);
@@ -240,8 +240,8 @@ TEST(Logical, logical_seq_test)
 TEST(Logical, logical_sne_test)
 {
     Variable *res;
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     set_number(val2, 3);
     set_number(val1, 3);

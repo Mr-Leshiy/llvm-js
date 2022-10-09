@@ -5,8 +5,8 @@
 
 TEST(Variable, Basic_test)
 {
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable *val1 = variable_allocate();
+    Variable *val2 = variable_allocate();
 
     EXPECT_NE(val1, nullptr);
     EXPECT_NE(val2, nullptr);
@@ -71,7 +71,7 @@ TEST(Variable, Basic_test)
 TEST(VariableTest, convert_to_boolean_test)
 {
     Variable *res;
-    Variable *val = allocate();
+    Variable *val = variable_allocate();
 
     set_undefined(val);
     res = convert_to_boolean(val);
@@ -138,7 +138,7 @@ TEST(VariableTest, convert_to_boolean_test)
 TEST(VariableTest, convert_to_number_test)
 {
     Variable *res;
-    Variable *val = allocate();
+    Variable *val = variable_allocate();
 
     set_undefined(val);
     res = convert_to_number(val);
@@ -198,7 +198,7 @@ TEST(VariableTest, convert_to_number_test)
 TEST(VariableTest, convert_to_string_test)
 {
     Variable *res;
-    Variable *val = allocate();
+    Variable *val = variable_allocate();
 
     set_undefined(val);
     res = convert_to_string(val);
