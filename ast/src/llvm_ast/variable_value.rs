@@ -33,7 +33,9 @@ impl VariableValue {
             Self::Identifier(name) => {
                 Variable::new_variable(compiler, &cur_function.get_variable(name)?)
             }
-            Self::ObjectExpression(_) => todo!("implement"),
+            Self::ObjectExpression(object_expression) => {
+                object_expression.compile(compiler, cur_function)
+            }
         }
     }
 }

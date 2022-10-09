@@ -10,8 +10,8 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AllocateFn, GetBooleanFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
-        SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AllocateFn, GetBooleanFn, InitObjectFn, PrintFn, SetBooleanFn, SetInfinityFn, SetNaNFn,
+        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -43,6 +43,8 @@ pub struct PredefineFunctions<'ctx> {
     set_variable: SetVariableFn<'ctx>,
     get_boolean: GetBooleanFn<'ctx>,
     printf: PrintFn<'ctx>,
+    // object functions
+    init_object: InitObjectFn<'ctx>,
     // logical functions
     logical_not: LogicalNotFn<'ctx>,
     logical_and: LogicalAndFn<'ctx>,
@@ -81,6 +83,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_variable: SetVariableFn::declare(compiler),
             get_boolean: GetBooleanFn::declare(compiler),
             printf: PrintFn::declare(compiler),
+            // object functions
+            init_object: InitObjectFn::declare(compiler),
             // logical functions
             logical_not: LogicalNotFn::declare(compiler),
             logical_and: LogicalAndFn::declare(compiler),
@@ -157,6 +161,11 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn print(&self) -> &PrintFn<'ctx> {
         &self.printf
+    }
+
+    // object functions
+    pub fn init_object(&self) -> &InitObjectFn<'ctx> {
+        &self.init_object
     }
 
     // logical functions
