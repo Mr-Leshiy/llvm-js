@@ -11,8 +11,13 @@ impl ObjectExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
-        _cur_function: &mut Function<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
-        Variable::init_object(compiler)
+        let res = Variable::init_object(compiler)?;
+        for (key, value) in self.properties {
+            let value = value.compile(compiler, cur_function)?;
+            res.add_property(compiler, &String::from(key), &value)?;
+        }
+        Ok(res)
     }
 }

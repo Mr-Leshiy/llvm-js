@@ -432,3 +432,123 @@ impl<'ctx> InitObjectFn<'ctx> {
             .build_call(self.func, &[val.value.into()], "");
     }
 }
+
+#[derive(Clone)]
+pub struct AddPropertyFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for AddPropertyFn<'ctx> {
+    const NAME: &'static str = "add_property";
+}
+
+impl<'ctx> AddPropertyFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler.context.void_type().fn_type(
+            &[var_type.into(), string_type.into(), var_type.into()],
+            false,
+        );
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: &str,
+        value: &Variable<'ctx>,
+    ) {
+        let key = compiler
+            .builder
+            .build_global_string_ptr(key, "")
+            .as_pointer_value();
+        compiler.builder.build_call(
+            self.func,
+            &[val.value.into(), key.into(), value.value.into()],
+            "",
+        );
+    }
+}
+
+#[derive(Clone)]
+pub struct GetPropertyFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for GetPropertyFn<'ctx> {
+    const NAME: &'static str = "get_property";
+}
+
+impl<'ctx> GetPropertyFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+
+        let function_type = var_type.fn_type(&[var_type.into(), string_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: &str,
+    ) -> Variable<'ctx> {
+        let key = compiler
+            .builder
+            .build_global_string_ptr(key, "")
+            .as_pointer_value();
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val.value.into(), key.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable { value }
+    }
+}
+
+#[derive(Clone)]
+pub struct RemovePropertyFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for RemovePropertyFn<'ctx> {
+    const NAME: &'static str = "remove_property";
+}
+
+impl<'ctx> RemovePropertyFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into(), string_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, key: &str) {
+        let key = compiler
+            .builder
+            .build_global_string_ptr(key, "")
+            .as_pointer_value();
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into(), key.into()], "");
+    }
+}

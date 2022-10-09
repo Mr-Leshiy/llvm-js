@@ -100,4 +100,34 @@ impl<'ctx> Variable<'ctx> {
         init_object_fn.call(compiler, &variable);
         Ok(variable)
     }
+
+    pub fn add_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+        value: &Self,
+    ) -> Result<(), Error<T>> {
+        let add_property_fn = compiler.predefined_functions()?.add_property();
+        add_property_fn.call(compiler, self, key, value);
+        Ok(())
+    }
+
+    pub fn get_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+    ) -> Result<Self, Error<T>> {
+        let get_property_fn = compiler.predefined_functions()?.get_property();
+        Ok(get_property_fn.call(compiler, self, key))
+    }
+
+    pub fn remove_property<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+    ) -> Result<(), Error<T>> {
+        let remove_property_fn = compiler.predefined_functions()?.remove_property();
+        remove_property_fn.call(compiler, self, key);
+        Ok(())
+    }
 }
