@@ -20,9 +20,9 @@ void set_variable(Variable *self, Variable *val);
 
 // object
 void init_object(Variable *self);
-void add_property(Variable *object, const char *key, Variable *val);
-Variable *get_property(Variable *object, const char *key);
-void remove_property(Variable *object, const char *key);
+void add_property(Variable *self, const char *key, Variable *val);
+Variable *get_property(Variable *self, const char *key);
+void remove_property(Variable *self, const char *key);
 
 uint8_t get_boolean(Variable *self);
 
