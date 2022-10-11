@@ -1,4 +1,4 @@
-use crate::compile::CompileSuite;
+use crate::CompileSuite;
 
 #[test]
 fn not_test() {
