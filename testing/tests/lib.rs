@@ -1,3 +1,5 @@
+mod compiling_tests;
+
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
     assertions::{AssertEqFn, AssertFn},
