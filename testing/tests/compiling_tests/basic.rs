@@ -1,4 +1,4 @@
-use crate::compile::CompileSuite;
+use crate::CompileSuite;
 
 #[test]
 fn primitive_types_1_test() {

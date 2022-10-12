@@ -94,6 +94,12 @@ Variable *logical_seq(Variable *val1, Variable *val2)
 
     Variable *ret = allocate();
 
+    if (val1 == val2)
+    {
+        set_boolean(ret, true);
+        return ret;
+    }
+
     switch (val1->flag)
     {
     case Type::Undefined:
@@ -140,6 +146,9 @@ Variable *logical_seq(Variable *val1, Variable *val2)
         {
             set_boolean(ret, false);
         }
+        break;
+    case Type::Object:
+        set_boolean(ret, false);
         break;
     default:
         assert(0);

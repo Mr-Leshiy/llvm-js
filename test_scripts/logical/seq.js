@@ -7,6 +7,11 @@ assert_eq(true === true, true);
 assert_eq("hello" === "hello", true);
 assert_eq("hello" === "hell", false);
 
+assert_eq({name: "Alex", age: 27} === {name: "Alex", age: 27}, false);
+assert_eq({name: "Alex", age: 27} === {name: "alex", age_: 27}, false);
+// var a = {name: "Alex", age: 27};
+// assert_eq(a === a, true);
+
 assert_eq(undefined === undefined, true);
 assert_eq(null === null, true);
 assert_eq(NaN === NaN, true);
