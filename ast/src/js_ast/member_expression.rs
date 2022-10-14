@@ -15,10 +15,10 @@ impl MemberExpression {
         cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Option<Box<Self>>, Error> {
-        reader.start_saving();
         match cur_token {
             Token::Separator(Separator::Dot) => {
                 let object = Identifier::parse(reader.next_token()?, reader)?;
+                reader.start_saving();
                 let property = Self::parse_impl(reader.next_token()?, reader)?;
                 Ok(Some(Self { object, property }.into()))
             }
@@ -31,6 +31,7 @@ impl MemberExpression {
 
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let object = Identifier::parse(cur_token, reader)?;
+        reader.start_saving();
         let property = Self::parse_impl(reader.next_token()?, reader)?;
         Ok(Self { object, property })
     }
