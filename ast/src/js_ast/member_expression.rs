@@ -22,6 +22,17 @@ impl MemberExpression {
                 let property = Self::parse_impl(reader.next_token()?, reader)?;
                 Ok(Some(Self { object, property }.into()))
             }
+            Token::Separator(Separator::OpenSquareBracket) => {
+                let object = Identifier::parse(reader.next_token()?, reader)?;
+                match reader.next_token()? {
+                    Token::Separator(Separator::CloseSquareBracket) => {
+                        reader.start_saving();
+                        let property = Self::parse_impl(reader.next_token()?, reader)?;
+                        Ok(Some(Self { object, property }.into()))
+                    }
+                    token => Err(Error::UnexpectedToken(token)),
+                }
+            }
             _ => {
                 reader.stop_saving();
                 Ok(None)
@@ -115,6 +126,72 @@ mod tests {
         );
 
         let mut reader = TokenReader::new("name.name.name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: Some(
+                            MemberExpression {
+                                object: "name".to_string().into(),
+                                property: Some(
+                                    MemberExpression {
+                                        object: "name".to_string().into(),
+                                        property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+    }
+
+    #[test]
+    fn parse_member_expression_test2() {
+        let mut reader = TokenReader::new("name[name]".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: None
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name[name][name]".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: Some(
+                            MemberExpression {
+                                object: "name".to_string().into(),
+                                property: None
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name[name][name][name]".as_bytes());
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
