@@ -497,7 +497,7 @@ impl<'ctx> GetPropertyFn<'ctx> {
         Self { func }
     }
 
-    pub(crate) fn call<T>(
+    pub fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,

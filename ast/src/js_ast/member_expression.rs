@@ -29,6 +29,15 @@ impl MemberExpression {
 }
 
 impl MemberExpression {
+    fn precompile_impl(self) -> llvm_ast::MemberExpression {
+        llvm_ast::MemberExpression {
+            object: llvm_ast::Identifier::new(self.object.name, 0),
+            property: self
+                .property
+                .map(|property| property.precompile_impl().into()),
+        }
+    }
+
     pub fn precompile(
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
@@ -36,7 +45,9 @@ impl MemberExpression {
         match precompiler.variables.get(&self.object) {
             Some(index) => Ok(llvm_ast::MemberExpression {
                 object: llvm_ast::Identifier::new(self.object.name, index),
-                property: None,
+                property: self
+                    .property
+                    .map(|property| property.precompile_impl().into()),
             }),
             None => Err(precompiler::Error::UndefinedVariable(self.object.clone())),
         }
