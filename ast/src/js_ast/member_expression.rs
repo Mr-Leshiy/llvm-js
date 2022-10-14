@@ -11,19 +11,27 @@ pub struct MemberExpression {
 }
 
 impl MemberExpression {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
-        let object = Identifier::parse(cur_token, reader)?;
+    fn parse_impl<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Option<Box<Self>>, Error> {
         reader.start_saving();
-        let property = match reader.next_token()? {
+        match cur_token {
             Token::Separator(Separator::Dot) => {
-                Some(Self::parse(reader.next_token()?, reader)?.into())
+                let object = Identifier::parse(reader.next_token()?, reader)?;
+                let property = Self::parse_impl(reader.next_token()?, reader)?;
+                Ok(Some(Self { object, property }.into()))
             }
             _ => {
                 reader.stop_saving();
-                None
+                Ok(None)
             }
-        };
+        }
+    }
 
+    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+        let object = Identifier::parse(cur_token, reader)?;
+        let property = Self::parse_impl(reader.next_token()?, reader)?;
         Ok(Self { object, property })
     }
 }
