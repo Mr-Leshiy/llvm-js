@@ -1,4 +1,4 @@
-use super::{Identifier, ObjectExpression};
+use super::{Identifier, MemberExpression, ObjectExpression};
 use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -11,7 +11,7 @@ pub enum VariableValue {
     Boolean(bool),
     FloatNumber(f64),
     String(String),
-    Identifier(Identifier),
+    MemberExpression(MemberExpression),
     ObjectExpression(ObjectExpression),
 }
 
@@ -30,8 +30,8 @@ impl VariableValue {
             Self::Boolean(boolean) => Variable::new_boolean(compiler, boolean),
             Self::String(string) => Variable::new_string(compiler, &string),
             Self::FloatNumber(number) => Variable::new_number(compiler, number),
-            Self::Identifier(name) => {
-                Variable::new_variable(compiler, &cur_function.get_variable(name)?)
+            Self::MemberExpression(member_expression) => {
+                member_expression.compile(compiler, cur_function)
             }
             Self::ObjectExpression(object_expression) => {
                 object_expression.compile(compiler, cur_function)

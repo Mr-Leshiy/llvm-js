@@ -54,7 +54,7 @@ impl VariableAssigment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{VariableExpression, VariableValue};
+    use crate::js_ast::{MemberExpression, VariableExpression, VariableValue};
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -75,7 +75,10 @@ mod tests {
             Ok(VariableAssigment {
                 left: "name1".to_string().into(),
                 right: Some(VariableExpression::VariableValue(
-                    VariableValue::Identifier("name2".to_string().into())
+                    VariableValue::MemberExpression(MemberExpression {
+                        object: "name2".to_string().into(),
+                        property: None
+                    })
                 ))
             })
         );
@@ -126,7 +129,10 @@ mod tests {
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
             right: Some(VariableExpression::VariableValue(
-                VariableValue::Identifier("name_2".to_string().into()),
+                VariableValue::MemberExpression(MemberExpression {
+                    object: "name_2".to_string().into(),
+                    property: None,
+                }),
             )),
         };
 
@@ -135,10 +141,10 @@ mod tests {
             Ok(llvm_ast::VariableAssigment {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
-                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                        "name_2".to_string(),
-                        0
-                    ))
+                    llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
+                        object: llvm_ast::Identifier::new("name_2".to_string(), 0),
+                        property: None,
+                    })
                 )),
             })
         );
@@ -198,7 +204,10 @@ mod tests {
         let variable_assigment = VariableAssigment {
             left: "name_1".to_string().into(),
             right: Some(VariableExpression::VariableValue(
-                VariableValue::Identifier("name_2".to_string().into()),
+                VariableValue::MemberExpression(MemberExpression {
+                    object: "name_2".to_string().into(),
+                    property: None,
+                }),
             )),
         };
 
