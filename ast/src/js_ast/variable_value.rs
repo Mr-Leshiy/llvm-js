@@ -139,13 +139,5 @@ mod tests {
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableValue::String("name".to_string())),
         );
-
-        // let mut reader = TokenReader::new("name".as_bytes());
-        // assert_eq!(
-        //     VariableValue::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(VariableValue::Identifier(Identifier {
-        //         name: "name".to_string()
-        //     })),
-        // );
     }
 }

@@ -1,6 +1,6 @@
 use super::Identifier;
 use crate::{llvm_ast, Error};
-use lexer::{Token, TokenReader};
+use lexer::{Separator, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
@@ -13,10 +13,18 @@ pub struct MemberExpression {
 impl MemberExpression {
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         let object = Identifier::parse(cur_token, reader)?;
-        Ok(Self {
-            object,
-            property: None,
-        })
+        reader.start_saving();
+        let property = match reader.next_token()? {
+            Token::Separator(Separator::Dot) => {
+                Some(Self::parse(reader.next_token()?, reader)?.into())
+            }
+            _ => {
+                reader.stop_saving();
+                None
+            }
+        };
+
+        Ok(Self { object, property })
     }
 }
 
@@ -32,5 +40,85 @@ impl MemberExpression {
             }),
             None => Err(precompiler::Error::UndefinedVariable(self.object.clone())),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_member_expression_test() {
+        let mut reader = TokenReader::new("name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: None
+            }),
+        );
+
+        let mut reader = TokenReader::new("name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: None
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name.name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: Some(
+                            MemberExpression {
+                                object: "name".to_string().into(),
+                                property: None
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name.name.name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: "name".to_string().into(),
+                property: Some(
+                    MemberExpression {
+                        object: "name".to_string().into(),
+                        property: Some(
+                            MemberExpression {
+                                object: "name".to_string().into(),
+                                property: Some(
+                                    MemberExpression {
+                                        object: "name".to_string().into(),
+                                        property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
     }
 }
