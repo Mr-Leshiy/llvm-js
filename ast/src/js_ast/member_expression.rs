@@ -1,4 +1,4 @@
-use super::{Identifier, VariableExpression};
+use super::{Identifier, VariableExpression, VariableValue};
 use crate::{llvm_ast, Error};
 use lexer::{Separator, Token, TokenReader};
 use precompiler::Precompiler;
@@ -17,7 +17,10 @@ impl Property {
     ) -> Result<Option<Box<Self>>, Error> {
         match cur_token {
             Token::Separator(Separator::Dot) => {
-                let object = VariableExpression::parse(reader.next_token()?, reader)?;
+                // Actually it is as a hack how we are representing Indetifier
+                let object = VariableExpression::VariableValue(VariableValue::String(
+                    Identifier::parse(reader.next_token()?, reader)?.name,
+                ));
                 reader.start_saving();
                 let property = Self::parse(reader.next_token()?, reader)?;
                 Ok(Some(Self { object, property }.into()))
@@ -111,133 +114,157 @@ mod tests {
             }),
         );
 
-        // let mut reader = TokenReader::new("name.name".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: None
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new("name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: None
+                    }
+                    .into()
+                )
+            }),
+        );
 
-        // let mut reader = TokenReader::new("name.name.name".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: Some(
-        //                     MemberExpression {
-        //                         object: "name".to_string().into(),
-        //                         property: None
-        //                     }
-        //                     .into()
-        //                 )
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new("name.name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: Some(
+                            Property {
+                                object: VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                )),
+                                property: None
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
 
-        // let mut reader = TokenReader::new("name.name.name.name".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: Some(
-        //                     MemberExpression {
-        //                         object: "name".to_string().into(),
-        //                         property: Some(
-        //                             MemberExpression {
-        //                                 object: "name".to_string().into(),
-        //                                 property: None
-        //                             }
-        //                             .into()
-        //                         )
-        //                     }
-        //                     .into()
-        //                 )
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new("name.name.name.name".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: Some(
+                            Property {
+                                object: VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                )),
+                                property: Some(
+                                    Property {
+                                        object: VariableExpression::VariableValue(
+                                            VariableValue::String("name".to_string())
+                                        ),
+                                        property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
     }
 
     #[test]
     fn parse_member_expression_test2() {
-        // let mut reader = TokenReader::new("name[name]".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: None
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new("name[name]".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: None
+                    }
+                    .into()
+                )
+            }),
+        );
 
-        // let mut reader = TokenReader::new("name[name][name]".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: Some(
-        //                     MemberExpression {
-        //                         object: "name".to_string().into(),
-        //                         property: None
-        //                     }
-        //                     .into()
-        //                 )
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new(r#"name[name]["name"]"#.as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: Some(
+                            Property {
+                                object: VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                )),
+                                property: None
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
 
-        // let mut reader = TokenReader::new("name[name][name][name]".as_bytes());
-        // assert_eq!(
-        //     MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-        //     Ok(MemberExpression {
-        //         object: "name".to_string().into(),
-        //         property: Some(
-        //             MemberExpression {
-        //                 object: "name".to_string().into(),
-        //                 property: Some(
-        //                     MemberExpression {
-        //                         object: "name".to_string().into(),
-        //                         property: Some(
-        //                             MemberExpression {
-        //                                 object: "name".to_string().into(),
-        //                                 property: None
-        //                             }
-        //                             .into()
-        //                         )
-        //                     }
-        //                     .into()
-        //                 )
-        //             }
-        //             .into()
-        //         )
-        //     }),
-        // );
+        let mut reader = TokenReader::new(r#"name[name]["name"][name]"#.as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::String(
+                            "name".to_string()
+                        )),
+                        property: Some(
+                            Property {
+                                object: VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                )),
+                                property: Some(
+                                    Property {
+                                        object: VariableExpression::VariableValue(
+                                            VariableValue::String("name".to_string())
+                                        ),
+                                        property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
     }
 }
