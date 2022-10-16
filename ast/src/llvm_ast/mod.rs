@@ -6,7 +6,7 @@ pub use function_call::FunctionCall;
 pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
-pub use member_expression::MemberExpression;
+pub use member_expression::{MemberExpression, Property};
 pub use object_expression::ObjectExpression;
 pub use return_statement::ReturnStatement;
 use std::io::Write;

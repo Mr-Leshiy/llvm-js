@@ -104,7 +104,7 @@ mod tests {
                         left: "a".to_string().into(),
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
-                                object: "b".to_string().into(),
+                                variable_name: "b".to_string().into(),
                                 property: None
                             })
                         )),
@@ -126,7 +126,7 @@ mod tests {
                     left: "a".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None,
                         }),
                     )),
@@ -147,7 +147,7 @@ mod tests {
                         name: llvm_ast::Identifier::new("a".to_string(), 0),
                         value: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                                object: llvm_ast::Identifier::new("b".to_string(), 0),
+                                variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
                                 property: None
                             })
                         ))
@@ -176,7 +176,7 @@ mod tests {
                     left: "a".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None,
                         }),
                     )),
@@ -197,7 +197,7 @@ mod tests {
                         name: llvm_ast::Identifier::new("a".to_string(), 1),
                         value: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                                object: llvm_ast::Identifier::new("b".to_string(), 1),
+                                variable_name: llvm_ast::Identifier::new("b".to_string(), 1),
                                 property: None
                             })
                         ))

@@ -228,7 +228,7 @@ mod tests {
                 UnaryExpression {
                     exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -260,7 +260,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None,
                         }
                     )),
@@ -276,13 +276,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -314,7 +314,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None,
                         }
                     )),
@@ -330,13 +330,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -368,7 +368,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None,
                         }
                     )),
@@ -384,13 +384,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -422,7 +422,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -438,13 +438,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -476,7 +476,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None,
                         }
                     )),
@@ -492,13 +492,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -530,7 +530,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -546,13 +546,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -584,7 +584,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -600,13 +600,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -638,7 +638,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -654,13 +654,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -692,7 +692,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -708,13 +708,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None,
                         }
                     )),
@@ -746,7 +746,7 @@ mod tests {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -762,13 +762,13 @@ mod tests {
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -788,7 +788,7 @@ mod tests {
                     left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
-                                object: "a".to_string().into(),
+                                variable_name: "a".to_string().into(),
                                 property: None
                             }
                         )),
@@ -797,14 +797,14 @@ mod tests {
                     right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
                         left: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
-                                object: "b".to_string().into(),
+                                variable_name: "b".to_string().into(),
                                 property: None
                             }
                         )),
                         right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                             exp: VariableExpression::VariableValue(
                                 VariableValue::MemberExpression(MemberExpression {
-                                    object: "c".to_string().into(),
+                                    variable_name: "c".to_string().into(),
                                     property: None,
                                 })
                             ),
@@ -827,7 +827,7 @@ mod tests {
                             exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                                 exp: VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
-                                        object: "a".to_string().into(),
+                                        variable_name: "a".to_string().into(),
                                         property: None
                                     })
                                 ),
@@ -853,7 +853,7 @@ mod tests {
                     left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
-                                object: "a".to_string().into(),
+                                variable_name: "a".to_string().into(),
                                 property: None
                             }
                         )),
@@ -865,7 +865,7 @@ mod tests {
                                 BinaryExpression {
                                     left: VariableExpression::VariableValue(
                                         VariableValue::MemberExpression(MemberExpression {
-                                            object: "b".to_string().into(),
+                                            variable_name: "b".to_string().into(),
                                             property: None
                                         })
                                     ),
@@ -873,7 +873,7 @@ mod tests {
                                         UnaryExpression {
                                             exp: VariableExpression::VariableValue(
                                                 VariableValue::MemberExpression(MemberExpression {
-                                                    object: "c".to_string().into(),
+                                                    variable_name: "c".to_string().into(),
                                                     property: None
                                                 })
                                             ),
@@ -885,7 +885,7 @@ mod tests {
                             )),
                             right: VariableExpression::VariableValue(
                                 VariableValue::MemberExpression(MemberExpression {
-                                    object: "d".to_string().into(),
+                                    variable_name: "d".to_string().into(),
                                     property: None
                                 })
                             ),
@@ -893,7 +893,7 @@ mod tests {
                         })),
                         right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
-                                object: "g".to_string().into(),
+                                variable_name: "g".to_string().into(),
                                 property: None
                             }
                         )),
@@ -911,7 +911,7 @@ mod tests {
                 UnaryExpression {
                     exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
@@ -931,13 +931,13 @@ mod tests {
                 args: vec![
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),

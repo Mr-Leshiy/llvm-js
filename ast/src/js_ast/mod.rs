@@ -8,7 +8,7 @@ pub use function_declaration::FunctionDeclaration;
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
 use lexer::{Token, TokenReader};
-pub use member_expression::MemberExpression;
+pub use member_expression::{MemberExpression, Property};
 pub use object_expression::ObjectExpression;
 use precompiler::{self, Precompiler};
 use std::io::Read;

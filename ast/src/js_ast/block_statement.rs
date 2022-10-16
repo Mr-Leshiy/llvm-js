@@ -79,7 +79,7 @@ mod tests {
                     left: "name1".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
-                            object: "name2".to_string().into(),
+                            variable_name: "name2".to_string().into(),
                             property: None
                         })
                     ))
@@ -98,7 +98,7 @@ mod tests {
                         left: "name1".to_string().into(),
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
-                                object: "name2".to_string().into(),
+                                variable_name: "name2".to_string().into(),
                                 property: None
                             })
                         ))
@@ -109,7 +109,7 @@ mod tests {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
-                                        object: "name2".to_string().into(),
+                                        variable_name: "name2".to_string().into(),
                                         property: None
                                     })
                                 ))
@@ -118,7 +118,7 @@ mod tests {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
-                                        object: "name2".to_string().into(),
+                                        variable_name: "name2".to_string().into(),
                                         property: None
                                     })
                                 ))

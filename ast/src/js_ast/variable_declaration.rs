@@ -67,7 +67,7 @@ mod tests {
                 left: "name1".to_string().into(),
                 right: Some(VariableExpression::VariableValue(
                     VariableValue::MemberExpression(MemberExpression {
-                        object: "name2".to_string().into(),
+                        variable_name: "name2".to_string().into(),
                         property: None
                     })
                 ))
@@ -104,7 +104,7 @@ mod tests {
                 left: "name1".to_string().into(),
                 right: Some(VariableExpression::VariableValue(
                     VariableValue::MemberExpression(MemberExpression {
-                        object: "name2".to_string().into(),
+                        variable_name: "name2".to_string().into(),
                         property: None
                     })
                 ))
@@ -156,7 +156,7 @@ mod tests {
             left: "name_1".to_string().into(),
             right: Some(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
-                    object: "name_2".to_string().into(),
+                    variable_name: "name_2".to_string().into(),
                     property: None,
                 }),
             )),
@@ -168,7 +168,7 @@ mod tests {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                        object: llvm_ast::Identifier::new("name_2".to_string(), 0),
+                        variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
                         property: None,
                     })
                 )),
@@ -211,7 +211,7 @@ mod tests {
             left: "name_1".to_string().into(),
             right: Some(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
-                    object: "name_2".to_string().into(),
+                    variable_name: "name_2".to_string().into(),
                     property: None,
                 }),
             )),

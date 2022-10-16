@@ -80,13 +80,13 @@ mod tests {
                 args: vec![
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None
                         }
                     )),
@@ -110,13 +110,13 @@ mod tests {
             args: vec![
                 VariableExpression::VariableValue(VariableValue::MemberExpression(
                     MemberExpression {
-                        object: "a".to_string().into(),
+                        variable_name: "a".to_string().into(),
                         property: None,
                     },
                 )),
                 VariableExpression::VariableValue(VariableValue::MemberExpression(
                     MemberExpression {
-                        object: "b".to_string().into(),
+                        variable_name: "b".to_string().into(),
                         property: None,
                     },
                 )),
@@ -132,13 +132,13 @@ mod tests {
                 args: vec![
                     llvm_ast::VariableExpression::VariableValue(
                         llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                            object: llvm_ast::Identifier::new("a".to_string(), 0),
+                            variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
                             property: None
                         })
                     ),
                     llvm_ast::VariableExpression::VariableValue(
                         llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                            object: llvm_ast::Identifier::new("b".to_string(), 0),
+                            variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
                             property: None
                         })
                     ),

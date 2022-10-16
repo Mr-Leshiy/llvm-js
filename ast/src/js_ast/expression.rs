@@ -180,7 +180,7 @@ mod tests {
                     left: "name1".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
-                            object: "name2".to_string().into(),
+                            variable_name: "name2".to_string().into(),
                             property: None,
                         })
                     ))
@@ -199,7 +199,7 @@ mod tests {
                         left: "name1".to_string().into(),
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
-                                object: "name2".to_string().into(),
+                                variable_name: "name2".to_string().into(),
                                 property: None
                             })
                         ))
@@ -210,7 +210,7 @@ mod tests {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
-                                        object: "name2".to_string().into(),
+                                        variable_name: "name2".to_string().into(),
                                         property: None
                                     })
                                 ))
@@ -219,7 +219,7 @@ mod tests {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
-                                        object: "name2".to_string().into(),
+                                        variable_name: "name2".to_string().into(),
                                         property: None
                                     })
                                 ))
@@ -241,13 +241,13 @@ mod tests {
                 args: vec![
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "a".to_string().into(),
+                            variable_name: "a".to_string().into(),
                             property: None
                         }
                     )),
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
                         MemberExpression {
-                            object: "b".to_string().into(),
+                            variable_name: "b".to_string().into(),
                             property: None,
                         }
                     ))
