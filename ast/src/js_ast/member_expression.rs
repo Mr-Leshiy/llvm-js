@@ -199,8 +199,11 @@ mod tests {
                 variable_name: "name".to_string().into(),
                 property: Some(
                     Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
+                        object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
+                                variable_name: "name".to_string().into(),
+                                property: None
+                            },
                         )),
                         property: None
                     }
@@ -216,8 +219,11 @@ mod tests {
                 variable_name: "name".to_string().into(),
                 property: Some(
                     Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
+                        object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
+                                variable_name: "name".to_string().into(),
+                                property: None
+                            },
                         )),
                         property: Some(
                             Property {
@@ -234,15 +240,18 @@ mod tests {
             }),
         );
 
-        let mut reader = TokenReader::new(r#"name[name]["name"][name]"#.as_bytes());
+        let mut reader = TokenReader::new(r#"name[name]["name"][name.name]"#.as_bytes());
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
                     Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
+                        object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
+                                variable_name: "name".to_string().into(),
+                                property: None
+                            },
                         )),
                         property: Some(
                             Property {
@@ -252,9 +261,97 @@ mod tests {
                                 property: Some(
                                     Property {
                                         object: VariableExpression::VariableValue(
-                                            VariableValue::String("name".to_string())
+                                            VariableValue::MemberExpression(MemberExpression {
+                                                variable_name: "name".to_string().into(),
+                                                property: Some(
+                                                    Property {
+                                                        object: VariableExpression::VariableValue(
+                                                            VariableValue::String(
+                                                                "name".to_string()
+                                                            )
+                                                        ),
+                                                        property: None
+                                                    }
+                                                    .into()
+                                                )
+                                            },)
                                         ),
                                         property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader =
+            TokenReader::new(r#"name[name]["name"][name.name][name["name"].name]"#.as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
+                                variable_name: "name".to_string().into(),
+                                property: None
+                            },
+                        )),
+                        property: Some(
+                            Property {
+                                object: VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                )),
+                                property: Some(
+                                    Property {
+                                        object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                                            MemberExpression {
+                                                variable_name: "name".to_string().into(),
+                                                property: Some(
+                                                    Property {
+                                                        object: VariableExpression::VariableValue(
+                                                            VariableValue::String("name".to_string())
+                                                        ),
+                                                        property: None
+                                                    }
+                                                    .into()
+                                                )
+                                            },
+                                        )),
+                                        property: Some(
+                                            Property {
+                                                object: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                                                    MemberExpression {
+                                                        variable_name: "name".to_string().into(),
+                                                        property: Some(
+                                                            Property {
+                                                                object: VariableExpression::VariableValue(
+                                                                    VariableValue::String("name".to_string())
+                                                                ),
+                                                                property: Some(
+                                                                    Property {
+                                                                        object: VariableExpression::VariableValue(
+                                                                            VariableValue::String("name".to_string())
+                                                                        ),
+                                                                        property: None
+                                                                    }
+                                                                    .into()
+                                                                )
+                                                            }
+                                                            .into()
+                                                        )
+                                                    },
+                                                )),
+                                                property: None
+                                            }
+                                            .into()
+                                        )
                                     }
                                     .into()
                                 )
