@@ -11,13 +11,13 @@ impl Property {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
+        cur_function: &mut Function<'ctx, Identifier>,
         variable: &Variable<'ctx>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
-        let get_property_fn = compiler.predefined_functions()?.get_property();
-        // TODO fix compile
-        let variable = get_property_fn.call(compiler, variable, "hello");
+        let key = self.object.compile(compiler, cur_function)?;
+        let variable = variable.get_property_by_var(compiler, &key)?;
         if let Some(property) = self.property {
-            property.compile(compiler, &variable)
+            property.compile(compiler, cur_function, &variable)
         } else {
             Ok(variable)
         }
@@ -39,7 +39,7 @@ impl MemberExpression {
         let variable =
             Variable::new_variable(compiler, &cur_function.get_variable(self.variable_name)?)?;
         if let Some(property) = self.property {
-            property.compile(compiler, &variable)
+            property.compile(compiler, cur_function, &variable)
         } else {
             Ok(variable)
         }
