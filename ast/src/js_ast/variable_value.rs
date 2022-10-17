@@ -1,4 +1,4 @@
-use super::{Identifier, ObjectExpression};
+use super::{Identifier, MemberExpression, ObjectExpression};
 use crate::{llvm_ast, Error};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use precompiler::Precompiler;
@@ -15,7 +15,7 @@ pub enum VariableValue {
     Boolean(bool),
     Number(f64),
     String(String),
-    Identifier(Identifier),
+    MemberExpression(MemberExpression),
     ObjectExpression(ObjectExpression),
 }
 
@@ -29,7 +29,9 @@ impl VariableValue {
             Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
-            Token::Ident(name) => Ok(Self::Identifier(Identifier { name })),
+            Token::Ident(_) => Ok(Self::MemberExpression(MemberExpression::parse(
+                cur_token, reader,
+            )?)),
             // negative
             Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
                 Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
@@ -56,12 +58,11 @@ impl VariableValue {
             Self::Infinity => Ok(llvm_ast::VariableValue::Infinity),
             Self::NegInfinity => Ok(llvm_ast::VariableValue::NegInfinity),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
-            Self::Identifier(identifier) => match precompiler.variables.get(&identifier) {
-                Some(index) => Ok(llvm_ast::VariableValue::Identifier(
-                    llvm_ast::Identifier::new(identifier.name, index),
-                )),
-                None => Err(precompiler::Error::UndefinedVariable(identifier.clone())),
-            },
+            Self::MemberExpression(member_expression) => {
+                Ok(llvm_ast::VariableValue::MemberExpression(
+                    member_expression.precompile(precompiler)?,
+                ))
+            }
             Self::Number(number) => Ok(llvm_ast::VariableValue::FloatNumber(number)),
             Self::String(string) => Ok(llvm_ast::VariableValue::String(string)),
             Self::ObjectExpression(object_expression) => {
@@ -137,14 +138,6 @@ mod tests {
         assert_eq!(
             VariableValue::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableValue::String("name".to_string())),
-        );
-
-        let mut reader = TokenReader::new("name".as_bytes());
-        assert_eq!(
-            VariableValue::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableValue::Identifier(Identifier {
-                name: "name".to_string()
-            })),
         );
     }
 }

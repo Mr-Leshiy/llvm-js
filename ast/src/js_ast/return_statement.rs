@@ -6,7 +6,7 @@ use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ReturnStatement {
-    pub ret: VariableExpression,
+    ret: VariableExpression,
 }
 
 impl ReturnStatement {

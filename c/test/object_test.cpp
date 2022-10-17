@@ -15,6 +15,12 @@ TEST(Object, Basic_test)
     EXPECT_EQ(prop->flag, value->flag);
     EXPECT_EQ(prop->number_field, value->number_field);
 
+    Variable key;
+    set_string(&key, "name");
+    prop = object.get_property(key);
+    EXPECT_EQ(prop->flag, value->flag);
+    EXPECT_EQ(prop->number_field, value->number_field);
+
     prop = object.get_property("age");
     EXPECT_EQ(prop->flag, Type::Undefined);
 

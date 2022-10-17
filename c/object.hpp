@@ -13,6 +13,7 @@ struct Object
 {
     void add_property(std::string key, Variable *val);
     Variable *get_property(std::string key);
+    Variable *get_property(const Variable &key);
     void remove_property(std::string key);
 
     std::string to_string() const;
