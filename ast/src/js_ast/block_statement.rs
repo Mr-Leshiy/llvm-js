@@ -59,8 +59,8 @@ impl BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableExpression,
-        VariableValue,
+        FunctionDeclaration, MemberExpression, VariableAssigment, VariableDeclaration,
+        VariableExpression, VariableValue,
     };
 
     #[test]
@@ -78,7 +78,10 @@ mod tests {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "name1".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
-                        VariableValue::Identifier("name2".to_string().into())
+                        VariableValue::MemberExpression(MemberExpression {
+                            variable_name: "name2".to_string().into(),
+                            property: None
+                        })
                     ))
                 })]
             })
@@ -94,7 +97,10 @@ mod tests {
                     Expression::VariableAssigment(VariableAssigment {
                         left: "name1".to_string().into(),
                         right: Some(VariableExpression::VariableValue(
-                            VariableValue::Identifier("name2".to_string().into())
+                            VariableValue::MemberExpression(MemberExpression {
+                                variable_name: "name2".to_string().into(),
+                                property: None
+                            })
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
@@ -102,13 +108,19 @@ mod tests {
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
-                                    VariableValue::Identifier("name2".to_string().into())
+                                    VariableValue::MemberExpression(MemberExpression {
+                                        variable_name: "name2".to_string().into(),
+                                        property: None
+                                    })
                                 ))
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: "name1".to_string().into(),
                                 right: Some(VariableExpression::VariableValue(
-                                    VariableValue::Identifier("name2".to_string().into())
+                                    VariableValue::MemberExpression(MemberExpression {
+                                        variable_name: "name2".to_string().into(),
+                                        property: None
+                                    })
                                 ))
                             }),
                         ]

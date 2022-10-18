@@ -10,9 +10,9 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyFn, InitObjectFn, PrintFn,
-        RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
-        SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn,
+        InitObjectFn, PrintFn, RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn,
+        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -47,7 +47,8 @@ pub struct PredefineFunctions<'ctx> {
     // object functions
     init_object: InitObjectFn<'ctx>,
     add_property: AddPropertyFn<'ctx>,
-    get_property: GetPropertyFn<'ctx>,
+    get_property_by_str: GetPropertyByStrFn<'ctx>,
+    get_property_by_var: GetPropertyByVarFn<'ctx>,
     remove_property: RemovePropertyFn<'ctx>,
     // logical functions
     logical_not: LogicalNotFn<'ctx>,
@@ -90,7 +91,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             // object functions
             init_object: InitObjectFn::declare(compiler),
             add_property: AddPropertyFn::declare(compiler),
-            get_property: GetPropertyFn::declare(compiler),
+            get_property_by_str: GetPropertyByStrFn::declare(compiler),
+            get_property_by_var: GetPropertyByVarFn::declare(compiler),
             remove_property: RemovePropertyFn::declare(compiler),
             // logical functions
             logical_not: LogicalNotFn::declare(compiler),
@@ -179,8 +181,12 @@ impl<'ctx> PredefineFunctions<'ctx> {
         &self.add_property
     }
 
-    pub fn get_property(&self) -> &GetPropertyFn<'ctx> {
-        &self.get_property
+    pub fn get_property_by_str(&self) -> &GetPropertyByStrFn<'ctx> {
+        &self.get_property_by_str
+    }
+
+    pub fn get_property_by_var(&self) -> &GetPropertyByVarFn<'ctx> {
+        &self.get_property_by_var
     }
 
     pub fn remove_property(&self) -> &RemovePropertyFn<'ctx> {

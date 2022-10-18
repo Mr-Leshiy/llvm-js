@@ -27,6 +27,8 @@ assert_eq(a1, a2);
 
 var a2 = "Hello world";
 
+var a2 = {name: "Alex", age: 13};
+
 var a3 = true;
 assert_eq(a3, true);
 

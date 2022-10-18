@@ -87,7 +87,9 @@ impl FunctionDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{Expression, VariableAssigment, VariableExpression, VariableValue};
+    use crate::js_ast::{
+        Expression, MemberExpression, VariableAssigment, VariableExpression, VariableValue,
+    };
 
     #[test]
     fn parse_function_declaration_test() {
@@ -101,7 +103,10 @@ mod tests {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
                         left: "a".to_string().into(),
                         right: Some(VariableExpression::VariableValue(
-                            VariableValue::Identifier("b".to_string().into())
+                            VariableValue::MemberExpression(MemberExpression {
+                                variable_name: "b".to_string().into(),
+                                property: None
+                            })
                         )),
                     })]
                 }
@@ -120,7 +125,10 @@ mod tests {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
-                        VariableValue::Identifier("b".to_string().into()),
+                        VariableValue::MemberExpression(MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None,
+                        }),
                     )),
                 })],
             },
@@ -138,10 +146,10 @@ mod tests {
                     llvm_ast::VariableAssigment {
                         name: llvm_ast::Identifier::new("a".to_string(), 0),
                         value: Some(llvm_ast::VariableExpression::VariableValue(
-                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                                "b".to_string(),
-                                0
-                            ))
+                            llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
+                                variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
+                                property: None
+                            })
                         ))
                     }
                 )]
@@ -167,7 +175,10 @@ mod tests {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
                     left: "a".to_string().into(),
                     right: Some(VariableExpression::VariableValue(
-                        VariableValue::Identifier("b".to_string().into()),
+                        VariableValue::MemberExpression(MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None,
+                        }),
                     )),
                 })],
             },
@@ -185,10 +196,10 @@ mod tests {
                     llvm_ast::VariableAssigment {
                         name: llvm_ast::Identifier::new("a".to_string(), 1),
                         value: Some(llvm_ast::VariableExpression::VariableValue(
-                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                                "b".to_string(),
-                                1
-                            ))
+                            llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
+                                variable_name: llvm_ast::Identifier::new("b".to_string(), 1),
+                                property: None
+                            })
                         ))
                     }
                 )]
