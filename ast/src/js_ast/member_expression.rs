@@ -1,13 +1,19 @@
-use super::{Identifier, VariableExpression, VariableValue};
+use super::{Identifier, VariableExpression};
 use crate::{llvm_ast, Error};
 use lexer::{Separator, Token, TokenReader};
 use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Property {
-    pub object: VariableExpression,
-    pub property: Option<Box<Property>>,
+pub enum Property {
+    Identifier {
+        object: Identifier,
+        property: Option<Box<Property>>,
+    },
+    Expression {
+        object: VariableExpression,
+        property: Option<Box<Property>>,
+    },
 }
 
 impl Property {
@@ -17,13 +23,10 @@ impl Property {
     ) -> Result<Option<Box<Self>>, Error> {
         match cur_token {
             Token::Separator(Separator::Dot) => {
-                // Actually it is as a hack how we are representing Indetifier
-                let object = VariableExpression::VariableValue(VariableValue::String(
-                    Identifier::parse(reader.next_token()?, reader)?.name,
-                ));
+                let object = Identifier::parse(reader.next_token()?, reader)?;
                 reader.start_saving();
                 let property = Self::parse(reader.next_token()?, reader)?;
-                Ok(Some(Self { object, property }.into()))
+                Ok(Some(Self::Identifier { object, property }.into()))
             }
             Token::Separator(Separator::OpenSquareBracket) => {
                 let object = VariableExpression::parse(reader.next_token()?, reader)?;
@@ -31,7 +34,7 @@ impl Property {
                     Token::Separator(Separator::CloseSquareBracket) => {
                         reader.start_saving();
                         let property = Self::parse(reader.next_token()?, reader)?;
-                        Ok(Some(Self { object, property }.into()))
+                        Ok(Some(Self::Expression { object, property }.into()))
                     }
                     token => Err(Error::UnexpectedToken(token)),
                 }
@@ -47,13 +50,26 @@ impl Property {
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
     ) -> Result<llvm_ast::Property, precompiler::Error<Identifier>> {
-        let object = self.object.precompile(precompiler)?;
-        let property = if let Some(property) = self.property {
-            Some(property.precompile(precompiler)?.into())
-        } else {
-            None
-        };
-        Ok(llvm_ast::Property { object, property })
+        match self {
+            Self::Identifier { object, property } => {
+                let object = llvm_ast::Identifier::new(object.name, 0);
+                let property = if let Some(property) = property {
+                    Some(property.precompile(precompiler)?.into())
+                } else {
+                    None
+                };
+                Ok(llvm_ast::Property::Identifier { object, property })
+            }
+            Self::Expression { object, property } => {
+                let object = object.precompile(precompiler)?;
+                let property = if let Some(property) = property {
+                    Some(property.precompile(precompiler)?.into())
+                } else {
+                    None
+                };
+                Ok(llvm_ast::Property::Expression { object, property })
+            }
+        }
     }
 }
 
@@ -102,6 +118,7 @@ impl MemberExpression {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_member_expression_test() {
@@ -120,10 +137,8 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
-                        )),
+                    Property::Identifier {
+                        object: "name".to_string().into(),
                         property: None
                     }
                     .into()
@@ -137,15 +152,11 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
-                        )),
+                    Property::Identifier {
+                        object: "name".to_string().into(),
                         property: Some(
-                            Property {
-                                object: VariableExpression::VariableValue(VariableValue::String(
-                                    "name".to_string()
-                                )),
+                            Property::Identifier {
+                                object: "name".to_string().into(),
                                 property: None
                             }
                             .into()
@@ -162,20 +173,14 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
-                        object: VariableExpression::VariableValue(VariableValue::String(
-                            "name".to_string()
-                        )),
+                    Property::Identifier {
+                        object: "name".to_string().into(),
                         property: Some(
-                            Property {
-                                object: VariableExpression::VariableValue(VariableValue::String(
-                                    "name".to_string()
-                                )),
+                            Property::Identifier {
+                                object: "name".to_string().into(),
                                 property: Some(
-                                    Property {
-                                        object: VariableExpression::VariableValue(
-                                            VariableValue::String("name".to_string())
-                                        ),
+                                    Property::Identifier {
+                                        object: "name".to_string().into(),
                                         property: None
                                     }
                                     .into()
@@ -198,7 +203,7 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
+                    Property::Expression {
                         object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
                                 variable_name: "name".to_string().into(),
@@ -218,7 +223,7 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
+                    Property::Expression {
                         object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
                                 variable_name: "name".to_string().into(),
@@ -226,7 +231,7 @@ mod tests {
                             },
                         )),
                         property: Some(
-                            Property {
+                            Property::Expression {
                                 object: VariableExpression::VariableValue(VariableValue::String(
                                     "name".to_string()
                                 )),
@@ -246,7 +251,7 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
+                    Property::Expression {
                         object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
                                 variable_name: "name".to_string().into(),
@@ -254,22 +259,18 @@ mod tests {
                             },
                         )),
                         property: Some(
-                            Property {
+                            Property::Expression {
                                 object: VariableExpression::VariableValue(VariableValue::String(
                                     "name".to_string()
                                 )),
                                 property: Some(
-                                    Property {
+                                    Property::Expression {
                                         object: VariableExpression::VariableValue(
                                             VariableValue::MemberExpression(MemberExpression {
                                                 variable_name: "name".to_string().into(),
                                                 property: Some(
-                                                    Property {
-                                                        object: VariableExpression::VariableValue(
-                                                            VariableValue::String(
-                                                                "name".to_string()
-                                                            )
-                                                        ),
+                                                    Property::Identifier {
+                                                        object: "name".to_string().into(),
                                                         property: None
                                                     }
                                                     .into()
@@ -296,7 +297,7 @@ mod tests {
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
                 property: Some(
-                    Property {
+                    Property::Expression {
                         object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                             MemberExpression {
                                 variable_name: "name".to_string().into(),
@@ -304,20 +305,18 @@ mod tests {
                             },
                         )),
                         property: Some(
-                            Property {
+                            Property::Expression {
                                 object: VariableExpression::VariableValue(VariableValue::String(
                                     "name".to_string()
                                 )),
                                 property: Some(
-                                    Property {
+                                    Property::Expression {
                                         object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                                             MemberExpression {
                                                 variable_name: "name".to_string().into(),
                                                 property: Some(
-                                                    Property {
-                                                        object: VariableExpression::VariableValue(
-                                                            VariableValue::String("name".to_string())
-                                                        ),
+                                                    Property::Identifier {
+                                                        object: "name".to_string().into(),
                                                         property: None
                                                     }
                                                     .into()
@@ -325,20 +324,18 @@ mod tests {
                                             },
                                         )),
                                         property: Some(
-                                            Property {
+                                            Property::Expression {
                                                 object: VariableExpression::VariableValue(VariableValue::MemberExpression(
                                                     MemberExpression {
                                                         variable_name: "name".to_string().into(),
                                                         property: Some(
-                                                            Property {
+                                                            Property::Expression {
                                                                 object: VariableExpression::VariableValue(
                                                                     VariableValue::String("name".to_string())
                                                                 ),
                                                                 property: Some(
-                                                                    Property {
-                                                                        object: VariableExpression::VariableValue(
-                                                                            VariableValue::String("name".to_string())
-                                                                        ),
+                                                                    Property::Identifier {
+                                                                        object: "name".to_string().into(),
                                                                         property: None
                                                                     }
                                                                     .into()

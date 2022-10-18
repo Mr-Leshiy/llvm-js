@@ -2,9 +2,15 @@ use super::{Identifier, VariableExpression};
 use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Property {
-    pub object: VariableExpression,
-    pub property: Option<Box<Property>>,
+pub enum Property {
+    Identifier {
+        object: Identifier,
+        property: Option<Box<Property>>,
+    },
+    Expression {
+        object: VariableExpression,
+        property: Option<Box<Property>>,
+    },
 }
 
 impl Property {
@@ -14,12 +20,24 @@ impl Property {
         cur_function: &mut Function<'ctx, Identifier>,
         variable: &Variable<'ctx>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
-        let key = self.object.compile(compiler, cur_function)?;
-        let variable = variable.get_property_by_var(compiler, &key)?;
-        if let Some(property) = self.property {
-            property.compile(compiler, cur_function, &variable)
-        } else {
-            Ok(variable)
+        match self {
+            Self::Identifier { object, property } => {
+                let variable = variable.get_property_by_str(compiler, &String::from(object))?;
+                if let Some(property) = property {
+                    property.compile(compiler, cur_function, &variable)
+                } else {
+                    Ok(variable)
+                }
+            }
+            Self::Expression { object, property } => {
+                let key = object.compile(compiler, cur_function)?;
+                let variable = variable.get_property_by_var(compiler, &key)?;
+                if let Some(property) = property {
+                    property.compile(compiler, cur_function, &variable)
+                } else {
+                    Ok(variable)
+                }
+            }
         }
     }
 }
