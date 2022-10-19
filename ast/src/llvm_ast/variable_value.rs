@@ -1,4 +1,4 @@
-use super::{Identifier, MemberExpression, ObjectExpression};
+use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
 use compiler::{self, Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,6 +13,7 @@ pub enum VariableValue {
     String(String),
     MemberExpression(MemberExpression),
     ObjectExpression(ObjectExpression),
+    ArrayExpression(ArrayExpression),
 }
 
 impl VariableValue {
@@ -35,6 +36,10 @@ impl VariableValue {
             }
             Self::ObjectExpression(object_expression) => {
                 object_expression.compile(compiler, cur_function)
+            }
+            Self::ArrayExpression(array_expression) => {
+                array_expression.compile(compiler, cur_function)?;
+                todo!("");
             }
         }
     }
