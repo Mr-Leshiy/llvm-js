@@ -16,7 +16,7 @@ pub enum Separator {
     CloseSquareBracket,
     /// ","
     Comma,
-    /// ","
+    /// "."
     Dot,
     /// ":"
     Colon,
