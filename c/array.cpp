@@ -20,9 +20,12 @@ Variable *Array::pop()
 
 Variable *Array::get(uint32_t index)
 {
-    auto *ret = allocate();
+    if (index < this->len())
+    {
+        return this->values[index];
+    }
 
-    return ret;
+    return allocate();
 }
 
 Variable *Array::get(Variable &index)
@@ -49,7 +52,7 @@ std::string Array::to_string() const
     std::string res = "[";
     for (const auto &value : this->values)
     {
-        res += " " + value->to_string() + ",";
+        res += value->to_string() + ",";
     }
     res += "]";
     return res;
