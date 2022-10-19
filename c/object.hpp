@@ -6,7 +6,7 @@
 
 extern "C"
 {
-#include "variable.h"
+    #include "object.h"
 }
 
 struct Object
