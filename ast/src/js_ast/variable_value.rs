@@ -1,4 +1,4 @@
-use super::{Identifier, MemberExpression, ObjectExpression};
+use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
 use crate::{llvm_ast, Error};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use precompiler::Precompiler;
@@ -17,6 +17,7 @@ pub enum VariableValue {
     String(String),
     MemberExpression(MemberExpression),
     ObjectExpression(ObjectExpression),
+    ArrayExpression(ArrayExpression),
 }
 
 impl VariableValue {
@@ -40,6 +41,9 @@ impl VariableValue {
             },
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::ObjectExpression(
                 ObjectExpression::parse(cur_token, reader)?,
+            )),
+            Token::Separator(Separator::OpenSquareBracket) => Ok(Self::ArrayExpression(
+                ArrayExpression::parse(cur_token, reader)?,
             )),
             token => Err(Error::UnexpectedToken(token)),
         }
@@ -70,6 +74,9 @@ impl VariableValue {
                     object_expression.precompile(precompiler)?,
                 ))
             }
+            Self::ArrayExpression(array_expression) => Ok(
+                llvm_ast::VariableValue::ArrayExpression(array_expression.precompile(precompiler)?),
+            ),
         }
     }
 }
