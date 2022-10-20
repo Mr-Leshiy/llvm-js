@@ -59,7 +59,7 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val1->string_field, "foo");
     EXPECT_EQ(val2->string_field, "foo");
 
-    init_object(val1);
+    set_object(val1);
     set_variable(val2, val1);
     EXPECT_EQ(val1->flag, Type::Object);
     EXPECT_EQ(val2->flag, Type::Object);
@@ -127,7 +127,7 @@ TEST(VariableTest, convert_to_boolean_test)
     EXPECT_EQ(res->flag, Type::Boolean);
     EXPECT_EQ(res->boolean_field, false);
 
-    init_object(val);
+    set_object(val);
     res = convert_to_boolean(val);
     EXPECT_EQ(res->flag, Type::Boolean);
     EXPECT_EQ(res->boolean_field, true);
@@ -187,7 +187,7 @@ TEST(VariableTest, convert_to_number_test)
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
 
-    init_object(val);
+    set_object(val);
     res = convert_to_number(val);
     EXPECT_EQ(res->flag, Type::NaN);
 }
@@ -252,7 +252,7 @@ TEST(VariableTest, convert_to_string_test)
     EXPECT_EQ(res->flag, Type::String);
     EXPECT_EQ(res->string_field, "");
 
-    init_object(val);
+    set_object(val);
     res = convert_to_string(val);
     EXPECT_EQ(res->flag, Type::String);
     EXPECT_EQ(res->string_field, "{}");

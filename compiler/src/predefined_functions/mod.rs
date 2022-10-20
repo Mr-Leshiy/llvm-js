@@ -11,7 +11,7 @@ use self::{
     },
     variable::{
         AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn,
-        InitObjectFn, PrintFn, RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn,
+        SetObjectFn, PrintFn, RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn,
         SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
@@ -45,7 +45,7 @@ pub struct PredefineFunctions<'ctx> {
     get_boolean: GetBooleanFn<'ctx>,
     printf: PrintFn<'ctx>,
     // object functions
-    init_object: InitObjectFn<'ctx>,
+    init_object: SetObjectFn<'ctx>,
     add_property: AddPropertyFn<'ctx>,
     get_property_by_str: GetPropertyByStrFn<'ctx>,
     get_property_by_var: GetPropertyByVarFn<'ctx>,
@@ -89,7 +89,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             get_boolean: GetBooleanFn::declare(compiler),
             printf: PrintFn::declare(compiler),
             // object functions
-            init_object: InitObjectFn::declare(compiler),
+            init_object: SetObjectFn::declare(compiler),
             add_property: AddPropertyFn::declare(compiler),
             get_property_by_str: GetPropertyByStrFn::declare(compiler),
             get_property_by_var: GetPropertyByVarFn::declare(compiler),
@@ -173,7 +173,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
     }
 
     // object functions
-    pub fn init_object(&self) -> &InitObjectFn<'ctx> {
+    pub fn set_object(&self) -> &SetObjectFn<'ctx> {
         &self.init_object
     }
 

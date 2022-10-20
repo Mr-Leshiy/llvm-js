@@ -77,6 +77,13 @@ void set_nan(Variable *self)
     self->flag = Type::NaN;
 }
 
+void set_object(Variable *self)
+{
+    assert(self != nullptr);
+
+    self->flag = Type::Object;
+}
+
 void set_infinity(Variable *self)
 {
     assert(self != nullptr);
@@ -153,6 +160,39 @@ void set_variable(Variable *self, Variable *val)
         assert(0);
         break;
     }
+}
+
+void add_property(Variable *self, const char *key, Variable *val)
+{
+    assert(self != nullptr);
+
+    // TODO print runtime error message
+    if (self->flag == Type::Object)
+    {
+        self->object_field.add_property(key, val);
+    }
+}
+
+Variable *get_property_by_str(Variable *self, const char *key)
+{
+    assert(self != nullptr);
+
+    return self->object_field.get_property(key);
+}
+
+Variable *get_property_by_var(Variable *self, Variable *key)
+{
+    assert(self != nullptr);
+    assert(key != nullptr);
+
+    return self->object_field.get_property(*key);
+}
+
+void remove_property(Variable *self, const char *key)
+{
+    assert(self != nullptr);
+
+    self->object_field.remove_property(key);
 }
 
 uint8_t get_boolean(Variable *self)
