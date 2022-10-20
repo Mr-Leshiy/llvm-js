@@ -4,6 +4,7 @@
 #include <string>
 
 #include "object.hpp"
+#include "array.hpp"
 
 extern "C"
 {
@@ -21,18 +22,33 @@ enum class Type
     Boolean,
     String,
     Object,
+    Array,
 };
 
 struct Variable
 {
+    Variable();
+    Variable &operator=(const Variable &);
+
+    void set_undefined();
+    void set_null();
+    void set_nan();
+    void set_infinity();
+    void set_neginfinity();
+    void set_number(double);
+    void set_boolean(bool);
+    void set_string(std::string);
+    void set_object(const Object &);
+    void set_variable(const Variable &);
+
     std::string to_string() const;
-    void set_object(Object &object);
 
     Type flag;
     double number_field;
     bool boolean_field;
     std::string string_field;
     Object object_field;
+    Array array_field;
 };
 
 #endif
