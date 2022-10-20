@@ -6,6 +6,70 @@
 #include "variable.hpp"
 #include "object.hpp"
 
+Variable::Variable()
+{
+    this->flag = Type::Undefined;
+}
+
+Variable &Variable::operator=(const Variable &val)
+{
+    this->flag = val.flag;
+    this->number_field = val.number_field;
+    this->boolean_field = val.boolean_field;
+    this->string_field = val.string_field;
+    this->object_field = val.object_field;
+    return *this;
+}
+
+void Variable::set_undefined()
+{
+    this->flag = Type::Undefined;
+}
+
+void Variable::set_null()
+{
+    this->flag = Type::Null;
+}
+
+void Variable::set_nan()
+{
+    this->flag = Type::NaN;
+}
+
+void Variable::set_infinity()
+{
+    this->flag = Type::Infinity;
+}
+
+void Variable::set_neginfinity()
+{
+    this->flag = Type::NegInfinity;
+}
+
+void Variable::set_number(double val)
+{
+    this->flag = Type::Number;
+    this->number_field = val;
+}
+
+void Variable::set_boolean(bool val)
+{
+    this->flag = Type::Boolean;
+    this->boolean_field = val;
+}
+
+void Variable::set_string(std::string val)
+{
+    this->flag = Type::String;
+    this->string_field = val;
+}
+
+void Variable::set_object(const Object &val)
+{
+    this->flag = Type::Object;
+    this->object_field = val;
+}
+
 std::string Variable::to_string() const
 {
     switch (this->flag)
@@ -43,16 +107,11 @@ std::string Variable::to_string() const
     }
 }
 
-void Variable::set_object(Object &object)
-{
-    this->flag = Type::Object;
-    this->object_field = object;
-}
+// C wrappers
 
 Variable *allocate()
 {
-    Variable *res = new Variable;
-    res->flag = Type::Undefined;
+    Variable *res = new Variable();
     return res;
 }
 
@@ -60,66 +119,63 @@ void set_undefined(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Undefined;
+    self->set_undefined();
 }
 
 void set_null(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Null;
+    self->set_null();
 }
 
 void set_nan(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::NaN;
+    self->set_nan();
 }
 
 void set_object(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Object;
+    self->set_object(Object());
 }
 
 void set_infinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Infinity;
+    self->set_infinity();
 }
 
 void set_neginfinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->flag = Type::NegInfinity;
+    self->set_neginfinity();
 }
 
 void set_number(Variable *self, double val)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Number;
-    self->number_field = val;
+    self->set_number(val);
 }
 
 void set_boolean(Variable *self, uint8_t val)
 {
     assert(self != nullptr);
 
-    self->flag = Type::Boolean;
-    self->boolean_field = val;
+    self->set_boolean(val);
 }
 
 void set_string(Variable *self, const char *val)
 {
     assert(self != nullptr);
 
-    self->flag = Type::String;
-    self->string_field = val;
+    self->set_string(val);
 }
 
 void set_variable(Variable *self, Variable *val)
@@ -127,39 +183,7 @@ void set_variable(Variable *self, Variable *val)
     assert(self != nullptr);
     assert(val != nullptr);
 
-    switch (val->flag)
-    {
-    case Type::Undefined:
-        set_undefined(self);
-        break;
-    case Type::Null:
-        set_null(self);
-        break;
-    case Type::NaN:
-        set_nan(self);
-        break;
-    case Type::Infinity:
-        set_infinity(self);
-        break;
-    case Type::NegInfinity:
-        set_neginfinity(self);
-        break;
-    case Type::Number:
-        set_number(self, val->number_field);
-        break;
-    case Type::Boolean:
-        set_boolean(self, val->boolean_field);
-        break;
-    case Type::String:
-        set_string(self, val->string_field.c_str());
-        break;
-    case Type::Object:
-        self->set_object(val->object_field);
-        break;
-    default:
-        assert(0);
-        break;
-    }
+    *self = *val;
 }
 
 void add_property(Variable *self, const char *key, Variable *val)
@@ -211,31 +235,31 @@ Variable *convert_to_boolean(Variable *val)
     switch (val->flag)
     {
     case Type::Undefined:
-        set_boolean(ret, false);
+        ret->set_boolean(false);
         break;
     case Type::Null:
-        set_boolean(ret, false);
+        ret->set_boolean(false);
         break;
     case Type::NaN:
-        set_boolean(ret, false);
+        ret->set_boolean(false);
         break;
     case Type::Infinity:
-        set_boolean(ret, true);
+        ret->set_boolean(true);
         break;
     case Type::NegInfinity:
-        set_boolean(ret, true);
+        ret->set_boolean(true);
         break;
     case Type::Number:
-        set_boolean(ret, val->number_field != 0);
+        ret->set_boolean(val->number_field != 0);
         break;
     case Type::Boolean:
-        set_boolean(ret, val->boolean_field);
+        ret->set_boolean(val->boolean_field);
         break;
     case Type::String:
-        set_boolean(ret, !val->string_field.empty());
+        ret->set_boolean(!val->string_field.empty());
         break;
     case Type::Object:
-        set_boolean(ret, true);
+        ret->set_boolean(true);
         break;
     default:
         assert(0);
@@ -252,31 +276,31 @@ Variable *convert_to_number(Variable *val)
     switch (val->flag)
     {
     case Type::Undefined:
-        set_nan(ret);
+        ret->set_nan();
         break;
     case Type::Null:
-        set_number(ret, 0);
+        ret->set_number(0);
         break;
     case Type::NaN:
-        set_nan(ret);
+        ret->set_nan();
         break;
     case Type::Infinity:
-        set_infinity(ret);
+        ret->set_infinity();
         break;
     case Type::NegInfinity:
-        set_neginfinity(ret);
+        ret->set_neginfinity();
         break;
     case Type::Number:
-        set_number(ret, val->number_field);
+        ret->set_number(val->number_field);
         break;
     case Type::Boolean:
-        set_number(ret, val->boolean_field ? 1 : 0);
+        ret->set_number(val->boolean_field ? 1 : 0);
         break;
     case Type::String:
-        set_nan(ret);
+        ret->set_nan();
         break;
     case Type::Object:
-        set_nan(ret);
+        ret->set_nan();
         break;
     default:
         assert(0);
@@ -290,7 +314,7 @@ Variable *convert_to_string(Variable *val)
     assert(val != nullptr);
 
     Variable *ret = allocate();
-    set_string(ret, val->to_string().c_str());
+    ret->set_string(val->to_string());
     return ret;
 }
 

@@ -6,11 +6,13 @@
 
 extern "C"
 {
-    #include "variable.h"
+#include "variable.h"
 }
 
 struct Object
 {
+    Object() = default;
+
     void add_property(std::string key, Variable *val);
     Variable *get_property(std::string key);
     Variable *get_property(const Variable &key);
