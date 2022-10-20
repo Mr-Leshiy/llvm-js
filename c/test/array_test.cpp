@@ -5,7 +5,7 @@
 
 TEST(Array, Basic_test)
 {
-    Array array({});
+    Array array;
     Variable *variable;
 
     EXPECT_EQ(array.len(), 0);

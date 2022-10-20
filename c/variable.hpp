@@ -4,6 +4,7 @@
 #include <string>
 
 #include "object.hpp"
+#include "array.hpp"
 
 extern "C"
 {
@@ -21,6 +22,7 @@ enum class Type
     Boolean,
     String,
     Object,
+    Array,
 };
 
 struct Variable
@@ -46,6 +48,7 @@ struct Variable
     bool boolean_field;
     std::string string_field;
     Object object_field;
+    Array array_field;
 };
 
 #endif

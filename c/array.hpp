@@ -6,11 +6,12 @@
 
 extern "C"
 {
-#include "array.h"
+#include "variable.h"
 }
 
 struct Array
 {
+    Array() = default;
     Array(std::vector<Variable *> values) : values(values) {}
     void push(Variable &value);
     Variable *pop();

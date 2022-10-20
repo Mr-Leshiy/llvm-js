@@ -18,6 +18,7 @@ Variable &Variable::operator=(const Variable &val)
     this->boolean_field = val.boolean_field;
     this->string_field = val.string_field;
     this->object_field = val.object_field;
+    this->array_field = val.array_field;
     return *this;
 }
 
@@ -101,6 +102,8 @@ std::string Variable::to_string() const
     case Type::Object:
         return this->object_field.to_string();
         break;
+    case Type::Array:
+        return this->array_field.to_string();
     default:
         assert(0);
         break;
@@ -261,6 +264,9 @@ Variable *convert_to_boolean(Variable *val)
     case Type::Object:
         ret->set_boolean(true);
         break;
+    case Type::Array:
+        ret->set_boolean(false);
+        break;
     default:
         assert(0);
         break;
@@ -302,6 +308,8 @@ Variable *convert_to_number(Variable *val)
     case Type::Object:
         ret->set_nan();
         break;
+    case Type::Array:
+        ret->set_nan();
     default:
         assert(0);
         break;
