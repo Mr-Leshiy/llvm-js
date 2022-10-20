@@ -10,9 +10,9 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn,
-        SetObjectFn, PrintFn, RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn,
-        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, PrintFn,
+        RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
+        SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
