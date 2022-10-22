@@ -31,6 +31,13 @@ impl<'ctx> Variable<'ctx> {
         Ok(variable)
     }
 
+    pub fn set_object<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
+        let variable = Self::new(compiler)?;
+        let set_object_fn = compiler.predefined_functions()?.set_object();
+        set_object_fn.call(compiler, &variable);
+        Ok(variable)
+    }
+
     pub fn new_nan<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
         let set_nan_fn = compiler.predefined_functions()?.set_nan();
@@ -94,13 +101,6 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn init_object<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
-        let init_object_fn = compiler.predefined_functions()?.init_object();
-        init_object_fn.call(compiler, &variable);
-        Ok(variable)
-    }
-
     pub fn add_property<T>(
         &self,
         compiler: &Compiler<'ctx, T>,

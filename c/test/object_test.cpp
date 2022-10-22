@@ -24,7 +24,7 @@ TEST(Object, Basic_test)
     prop = object.get_property("age");
     EXPECT_EQ(prop->flag, Type::Undefined);
 
-    EXPECT_EQ(object.to_string(), "{ name: 12.000000 }");
+    EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
 
     object.remove_property("name");
     prop = object.get_property("name");
