@@ -130,6 +130,36 @@ impl<'ctx> SetNaNFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct SetObjectFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetObjectFn<'ctx> {
+    const NAME: &'static str = "set_object";
+}
+
+impl<'ctx> SetObjectFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
 pub struct SetInfinityFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -397,36 +427,6 @@ impl<'ctx> PrintFn<'ctx> {
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
-        compiler
-            .builder
-            .build_call(self.func, &[val.value.into()], "");
-    }
-}
-
-#[derive(Clone)]
-pub struct InitObjectFn<'ctx> {
-    func: FunctionValue<'ctx>,
-}
-
-impl<'ctx> PredefineFunctionName for InitObjectFn<'ctx> {
-    const NAME: &'static str = "init_object";
-}
-
-impl<'ctx> InitObjectFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
-
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
-        Self { func }
-    }
-
-    pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
             .builder
             .build_call(self.func, &[val.value.into()], "");

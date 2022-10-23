@@ -11,6 +11,7 @@ Variable *allocate();
 void set_undefined(Variable *self);
 void set_null(Variable *self);
 void set_nan(Variable *self);
+void set_object(Variable *self);
 void set_infinity(Variable *self);
 void set_neginfinity(Variable *self);
 void set_number(Variable *self, double val);
@@ -18,8 +19,6 @@ void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);
 void set_variable(Variable *self, Variable *val);
 
-// object
-void init_object(Variable *self);
 void add_property(Variable *self, const char *key, Variable *val);
 Variable *get_property_by_str(Variable *self, const char *key);
 Variable *get_property_by_var(Variable *self, Variable *key);

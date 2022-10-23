@@ -1,4 +1,5 @@
 use crate::{llvm_ast, Error};
+pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 pub use block_statement::BlockStatement;
 pub use do_while_loop::DoWhileLoop;
@@ -19,6 +20,7 @@ pub use variable_expression::VariableExpression;
 pub use variable_value::VariableValue;
 pub use while_loop::WhileLoop;
 
+mod array_expression;
 mod binary_expression;
 mod block_statement;
 mod do_while_loop;

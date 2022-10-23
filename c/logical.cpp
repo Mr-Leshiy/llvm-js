@@ -150,6 +150,9 @@ Variable *logical_seq(Variable *val1, Variable *val2)
     case Type::Object:
         set_boolean(ret, false);
         break;
+    case Type::Array:
+        set_boolean(ret, false);
+        break;
     default:
         assert(0);
         break;

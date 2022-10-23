@@ -1,3 +1,4 @@
+pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 use compiler::{self, Compiler, Context, MainFunction};
 pub use do_while_loop::DoWhileLoop;
@@ -17,6 +18,7 @@ pub use variable_expression::VariableExpression;
 pub use variable_value::VariableValue;
 pub use while_loop::WhileLoop;
 
+mod array_expression;
 mod binary_expression;
 mod do_while_loop;
 mod expression;
