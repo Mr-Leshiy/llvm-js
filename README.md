@@ -19,7 +19,7 @@ cargo b
 
 For the active contribution into this project it is most convinient and preferable way.
 
-## Build without preinstalled llvm 
+## Build
 ```
-cargo b --config compiler/config.toml --features build-llvm
+cargo b --config compiler/config.toml
 ```
