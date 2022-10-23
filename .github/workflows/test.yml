@@ -15,13 +15,9 @@ jobs:
     strategy:
       matrix:
         # TODO fix macos-latest and windows-latest build
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         toolchain: [stable]
         mode: ["", "--release"]
-        include:
-          - os: ubuntu-latest
-            toolchain: nightly
-            experimental: true
 
     runs-on: ${{ matrix.os }}
 
