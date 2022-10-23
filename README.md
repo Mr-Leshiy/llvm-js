@@ -3,18 +3,25 @@
 ## Requirements
 [rust](https://www.rust-lang.org)
 
+[llvm-project](https://github.com/llvm/llvm-project.git)
+
 [cmake > 3.5](https://cmake.org)
 
-## Build
-### Macos/Linux
-Install llvm library
-```
-cmake -B build -DLLVM=ON
-cd build
-make
-make install
-```
+For the active contribution into this project it is most convinient and preferable way.
 
+## Build
+### Linux/Macos
+Build C/C++ dependencies
+```
+cmake . -B build -DLLVM=ON
+cmake --build build --parallel 2
+cmake --install build
+```
+Run build 
 ```
 cargo b
+```
+Run tests
+```
+cargo test
 ```

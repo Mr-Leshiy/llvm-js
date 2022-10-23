@@ -5,10 +5,6 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build-dependencies]
-cc = { version = "1.0.73" }
-cmake = { version = "0.1" }
-
 [dependencies]
 thiserror = { version = "1.0.37" }
 inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm14-0"] }
