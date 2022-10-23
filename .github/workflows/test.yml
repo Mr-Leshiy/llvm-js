@@ -28,32 +28,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install LLVM
-      uses: KyleMayes/install-llvm-action@v1.5.4
-      with:
-        version: "14.0"
     # - name: Install LLVM
-    #   run: |
-    #     git clone https://github.com/llvm/llvm-project.git
-    #     cd llvm-project
-    #     git checkout release/14.x
-    #     mkdir build
-    #     cmake -S llvm -B build -DCMAKE_BUILD_TYPE=Release
-    #     cd build
-    #     make -j4
-    #     sudo make install
+    #   uses: KyleMayes/install-llvm-action@v1.5.4
+    #   with:
+    #     version: "14.0"
 
     - name: Build
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --all-targets ${{ matrix.mode }} ${{ matrix.features }}
+        args: --all-targets ${{ matrix.mode }} --config compiler/config.toml --features build-llvm
     - if: ${{ runner.os == 'ubuntu-latest' }}
       name: Run tests
       uses: actions-rs/cargo@v1
       with:
         command: test
-        args: ${{ matrix.mode }} ${{ matrix.features }}
+        args: ${{ matrix.mode }}
 
   fmt:
     name: Fmt
