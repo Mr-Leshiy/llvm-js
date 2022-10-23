@@ -3,7 +3,7 @@ Set(FETCHCONTENT_QUIET FALSE)
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "System platform: ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 
-if(CMAKE_SYSTEM_NAME EQUAL "Ubuntu" AND CMAKE_HOST_SYSTEM_PROCESSOR EQUAL "x86_64")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
         FetchContent_Declare(
                 llvm
                 URL https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/clang+llvm-14.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
@@ -12,7 +12,7 @@ if(CMAKE_SYSTEM_NAME EQUAL "Ubuntu" AND CMAKE_HOST_SYSTEM_PROCESSOR EQUAL "x86_6
 endif()
 
 
-if(CMAKE_SYSTEM_NAME EQUAL "Darwin" AND CMAKE_HOST_SYSTEM_PROCESSOR EQUAL "x86_64")
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
         FetchContent_Declare(
                 llvm
                 URL https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/clang+llvm-14.0.0-x86_64-apple-darwin.tar.xz
@@ -20,7 +20,8 @@ if(CMAKE_SYSTEM_NAME EQUAL "Darwin" AND CMAKE_HOST_SYSTEM_PROCESSOR EQUAL "x86_6
         set(LLVM_DEFINED TRUE)
 endif()
 
-if(LLVM_DEFINED EQUAL TRUE)
+message(STATUS "Is LLVM_DEFINED: ${LLVM_DEFINED}")
+if(LLVM_DEFINED)
         # Check if population has already been performed
         FetchContent_GetProperties(llvm)
         if(NOT llvm_POPULATED)
@@ -48,6 +49,6 @@ else()
                 FetchContent_Populate(llvm)
 
                 # Bring the populated content into the build
-                add_subdirectory(${llvm_SOURCE_DIR}/llvm ${CMAKE_BINARY_DIR}/llvm-build)
+                add_subdirectory(${llvm_SOURCE_DIR}/llvm ${CMAKE_BINARY_DIR}/llvm-src)
         endif()
 endif()
