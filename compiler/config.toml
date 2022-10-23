@@ -1,0 +1,5 @@
+[build]
+jobs = 1 
+
+[env]
+LLVM_SYS_140_PREFIX = { value = "c/build/llvm-src", relative = true }

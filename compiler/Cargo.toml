@@ -12,3 +12,6 @@ cmake = { version = "0.1" }
 [dependencies]
 thiserror = { version = "1.0.37" }
 inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm14-0"] }
+
+[features]
+build-llvm = []
