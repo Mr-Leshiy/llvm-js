@@ -1,3 +1,0 @@
-[env]
-LLVM_SYS_140_PREFIX = { value = "build/llvm-src", relative = true }
-PATH = { value = "${LLVM_SYS_140_PREFIX}/bin:${PATH}", force = true}
