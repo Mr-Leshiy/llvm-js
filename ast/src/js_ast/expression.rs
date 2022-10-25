@@ -152,7 +152,10 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
-                left: "name".to_string().into(),
+                left: MemberExpression {
+                    variable_name: "name".to_string().into(),
+                    property: None
+                },
                 right: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
@@ -173,7 +176,10 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "name1".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "name1".to_string().into(),
+                        property: None
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "name2".to_string().into(),
@@ -192,7 +198,10 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: "name1".to_string().into(),
+                        left: MemberExpression {
+                            variable_name: "name1".to_string().into(),
+                            property: None
+                        },
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
                                 variable_name: "name2".to_string().into(),
@@ -203,7 +212,10 @@ mod tests {
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: "name1".to_string().into(),
+                                left: MemberExpression {
+                                    variable_name: "name1".to_string().into(),
+                                    property: None
+                                },
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
@@ -212,7 +224,10 @@ mod tests {
                                 ))
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: "name1".to_string().into(),
+                                left: MemberExpression {
+                                    variable_name: "name1".to_string().into(),
+                                    property: None
+                                },
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
@@ -253,7 +268,10 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableAssigment(VariableAssigment {
-                left: "a".to_string().into(),
+                left: MemberExpression {
+                    variable_name: "a".to_string().into(),
+                    property: None
+                },
                 right: Some(VariableExpression::VariableValue(VariableValue::Number(
                     6_f64
                 )))

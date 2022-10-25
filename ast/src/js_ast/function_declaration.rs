@@ -101,7 +101,10 @@ mod tests {
                 args: vec!["a".to_string().into(), "b".to_string().into()],
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
-                        left: "a".to_string().into(),
+                        left: MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        },
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
                                 variable_name: "b".to_string().into(),
@@ -123,7 +126,10 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "a".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "a".to_string().into(),
+                        property: None,
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "b".to_string().into(),
@@ -176,7 +182,10 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "a".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "a".to_string().into(),
+                        property: None,
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "b".to_string().into(),

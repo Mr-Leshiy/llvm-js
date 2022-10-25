@@ -23,7 +23,10 @@ impl FunctionCall {
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         let mut args = Vec::new();
         for arg in self.args.into_iter() {
-            args.push(arg.compile(compiler, cur_function)?);
+            let value = arg.compile(compiler, cur_function)?;
+            let arg = Variable::new_undefined(compiler)?;
+            arg.assign_variable(compiler, &value)?;
+            args.push(arg);
         }
         match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
