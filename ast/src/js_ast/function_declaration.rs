@@ -144,8 +144,11 @@ mod tests {
                 ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: llvm_ast::Identifier::new("a".to_string(), 0),
-                        value: Some(llvm_ast::VariableExpression::VariableValue(
+                        left: llvm_ast::MemberExpression {
+                            variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
+                            property: None
+                        },
+                        right: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                                 variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
                                 property: None
@@ -194,8 +197,11 @@ mod tests {
                 ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: llvm_ast::Identifier::new("a".to_string(), 1),
-                        value: Some(llvm_ast::VariableExpression::VariableValue(
+                        left: llvm_ast::MemberExpression {
+                            variable_name: llvm_ast::Identifier::new("a".to_string(), 1),
+                            property: None
+                        },
+                        right: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                                 variable_name: llvm_ast::Identifier::new("b".to_string(), 1),
                                 property: None

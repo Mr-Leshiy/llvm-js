@@ -1,6 +1,6 @@
 use super::{Identifier, VariableExpression};
 use crate::{llvm_ast, Error};
-use lexer::{Token, TokenReader, Keyword};
+use lexer::{Keyword, Token, TokenReader};
 use precompiler::{self, Precompiler};
 use std::io::Read;
 

@@ -42,8 +42,11 @@ impl VariableAssigment {
                     None => None,
                 };
                 Ok(llvm_ast::VariableAssigment {
-                    name: llvm_ast::Identifier::new(self.left.name, index),
-                    value,
+                    left: llvm_ast::MemberExpression {
+                        variable_name: llvm_ast::Identifier::new(self.left.name, index),
+                        property: None,
+                    },
+                    right: value,
                 })
             }
             None => Err(precompiler::Error::UndefinedVariable(self.left)),
@@ -108,8 +111,11 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: Some(llvm_ast::VariableExpression::VariableValue(
+                left: llvm_ast::MemberExpression {
+                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    property: None,
+                },
+                right: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
                 )),
             })
@@ -139,8 +145,11 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: Some(llvm_ast::VariableExpression::VariableValue(
+                left: llvm_ast::MemberExpression {
+                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    property: None
+                },
+                right: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                         variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
                         property: None,
@@ -167,8 +176,11 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                value: None,
+                left: llvm_ast::MemberExpression {
+                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    property: None
+                },
+                right: None,
             })
         );
         assert_eq!(

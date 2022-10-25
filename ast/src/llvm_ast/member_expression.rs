@@ -36,8 +36,7 @@ impl MemberExpression {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
-        let variable =
-            Variable::new_variable(compiler, &cur_function.get_variable(self.variable_name)?)?;
+        let variable = cur_function.get_variable(self.variable_name)?;
         if let Some(property) = self.property {
             property.compile(compiler, cur_function, &variable)
         } else {
