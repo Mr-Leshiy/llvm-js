@@ -1,24 +1,38 @@
-use super::{Identifier, VariableAssigment};
+use super::{Identifier, VariableExpression};
 use crate::{llvm_ast, Error};
-use lexer::{Keyword, Token, TokenReader};
+use lexer::{Token, TokenReader, Keyword};
 use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4" or "let a = 4"
 #[derive(Clone, Debug, PartialEq)]
-pub struct VariableDeclaration(pub VariableAssigment);
+pub struct VariableDeclaration {
+    pub name: Identifier,
+    pub value: Option<VariableExpression>,
+}
 
 impl VariableDeclaration {
+    fn parse_impl<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+        let name = Identifier::parse(cur_token, reader)?;
+
+        reader.start_saving();
+        match reader.next_token()? {
+            Token::Assign => {
+                reader.reset_saving();
+                let value = Some(VariableExpression::parse(reader.next_token()?, reader)?);
+                Ok(Self { name, value })
+            }
+            _ => {
+                reader.stop_saving();
+                Ok(Self { name, value: None })
+            }
+        }
+    }
+
     pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
         match cur_token {
-            Token::Keyword(Keyword::Var) => Ok(Self(VariableAssigment::parse(
-                reader.next_token()?,
-                reader,
-            )?)),
-            Token::Keyword(Keyword::Let) => Ok(Self(VariableAssigment::parse(
-                reader.next_token()?,
-                reader,
-            )?)),
+            Token::Keyword(Keyword::Var) => Self::parse_impl(reader.next_token()?, reader),
+            Token::Keyword(Keyword::Let) => Self::parse_impl(reader.next_token()?, reader),
             token => Err(Error::UnexpectedToken(token)),
         }
     }
@@ -29,16 +43,15 @@ impl VariableDeclaration {
         self,
         precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
     ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
-        let value = match self.0.right {
+        let value = match self.value {
             Some(expr) => Some(expr.precompile(precompiler)?),
             None => None,
         };
-        let index = precompiler.variables.insert(self.0.left.clone());
-        let res = llvm_ast::VariableAssigment {
-            name: llvm_ast::Identifier::new(self.0.left.name, index),
+        let index = precompiler.variables.insert(self.name.clone());
+        Ok(llvm_ast::VariableDeclaration {
+            name: llvm_ast::Identifier::new(self.name.name, index),
             value,
-        };
-        Ok(llvm_ast::VariableDeclaration(res))
+        })
     }
 }
 
@@ -52,35 +65,35 @@ mod tests {
         let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name".to_string().into(),
-                right: Some(VariableExpression::VariableValue(VariableValue::Number(
+            Ok(VariableDeclaration {
+                name: "name".to_string().into(),
+                value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
 
         let mut reader = TokenReader::new("var name1 = name2;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name1".to_string().into(),
-                right: Some(VariableExpression::VariableValue(
+            Ok(VariableDeclaration {
+                name: "name1".to_string().into(),
+                value: Some(VariableExpression::VariableValue(
                     VariableValue::MemberExpression(MemberExpression {
                         variable_name: "name2".to_string().into(),
                         property: None
                     })
                 ))
-            }))
+            })
         );
 
         let mut reader = TokenReader::new("var name1;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name1".to_string().into(),
-                right: None
-            }))
+            Ok(VariableDeclaration {
+                name: "name1".to_string().into(),
+                value: None
+            })
         );
     }
 
@@ -89,35 +102,35 @@ mod tests {
         let mut reader = TokenReader::new("let name = 12;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name".to_string().into(),
-                right: Some(VariableExpression::VariableValue(VariableValue::Number(
+            Ok(VariableDeclaration {
+                name: "name".to_string().into(),
+                value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
 
         let mut reader = TokenReader::new("let name1 = name2;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name1".to_string().into(),
-                right: Some(VariableExpression::VariableValue(
+            Ok(VariableDeclaration {
+                name: "name1".to_string().into(),
+                value: Some(VariableExpression::VariableValue(
                     VariableValue::MemberExpression(MemberExpression {
                         variable_name: "name2".to_string().into(),
                         property: None
                     })
                 ))
-            }))
+            })
         );
 
         let mut reader = TokenReader::new("let name1;".as_bytes());
         assert_eq!(
             VariableDeclaration::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableDeclaration(VariableAssigment {
-                left: "name1".to_string().into(),
-                right: None
-            }))
+            Ok(VariableDeclaration {
+                name: "name1".to_string().into(),
+                value: None
+            })
         );
     }
 
@@ -125,21 +138,21 @@ mod tests {
     fn precompile_variable_declaration_test_1() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
-        let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: "name_1".to_string().into(),
-            right: Some(VariableExpression::VariableValue(VariableValue::Number(
+        let variable_declaration = VariableDeclaration {
+            name: "name_1".to_string().into(),
+            value: Some(VariableExpression::VariableValue(VariableValue::Number(
                 64_f64,
             ))),
-        });
+        };
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
+            Ok(llvm_ast::VariableDeclaration {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
                 )),
-            }))
+            })
         );
         assert_eq!(
             precompiler.variables.get(&"name_1".to_string().into()),
@@ -152,19 +165,19 @@ mod tests {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler.variables.insert("name_2".to_string().into());
 
-        let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: "name_1".to_string().into(),
-            right: Some(VariableExpression::VariableValue(
+        let variable_declaration = VariableDeclaration {
+            name: "name_1".to_string().into(),
+            value: Some(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
                     variable_name: "name_2".to_string().into(),
                     property: None,
                 }),
             )),
-        });
+        };
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
+            Ok(llvm_ast::VariableDeclaration {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
@@ -172,7 +185,7 @@ mod tests {
                         property: None,
                     })
                 )),
-            }))
+            })
         );
         assert_eq!(
             precompiler.variables.get(&"name_1".to_string().into()),
@@ -185,21 +198,21 @@ mod tests {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
         precompiler.variables.insert("name_1".to_string().into());
 
-        let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: "name_1".to_string().into(),
-            right: Some(VariableExpression::VariableValue(VariableValue::Number(
+        let variable_declaration = VariableDeclaration {
+            name: "name_1".to_string().into(),
+            value: Some(VariableExpression::VariableValue(VariableValue::Number(
                 64_f64,
             ))),
-        });
+        };
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
+            Ok(llvm_ast::VariableDeclaration {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 1),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
                 )),
-            }))
+            })
         );
     }
 
@@ -207,15 +220,15 @@ mod tests {
     fn precompile_variable_declaration_error_test_2() {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
 
-        let variable_declaration = VariableDeclaration(VariableAssigment {
-            left: "name_1".to_string().into(),
-            right: Some(VariableExpression::VariableValue(
+        let variable_declaration = VariableDeclaration {
+            name: "name_1".to_string().into(),
+            value: Some(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
                     variable_name: "name_2".to_string().into(),
                     property: None,
                 }),
             )),
-        });
+        };
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),

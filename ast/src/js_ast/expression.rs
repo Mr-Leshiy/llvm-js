@@ -123,14 +123,12 @@ mod tests {
         let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration(
-                VariableAssigment {
-                    left: "name".to_string().into(),
-                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                        12_f64
-                    )))
-                }
-            )))
+            Ok(Expression::VariableDeclaration(VariableDeclaration {
+                name: "name".to_string().into(),
+                value: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    12_f64
+                )))
+            }))
         );
     }
 
@@ -139,14 +137,12 @@ mod tests {
         let mut reader = TokenReader::new("let name = 12;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration(
-                VariableAssigment {
-                    left: "name".to_string().into(),
-                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                        12_f64
-                    )))
-                }
-            )))
+            Ok(Expression::VariableDeclaration(VariableDeclaration {
+                name: "name".to_string().into(),
+                value: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    12_f64
+                )))
+            }))
         );
     }
 
