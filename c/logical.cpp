@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "logical.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 Variable *logical_not(Variable *val)
 {

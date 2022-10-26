@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "variable.hpp"
+#include "variable/variable.hpp"
 #include "object.hpp"
 
 TEST(Variable, Basic_test)

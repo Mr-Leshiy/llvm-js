@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "arithmetic.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 Variable *arithmetic_addition(Variable *val1, Variable *val2)
 {

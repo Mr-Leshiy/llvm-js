@@ -1,5 +1,5 @@
 #include "array.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 void Array::push(Variable &value)
 {

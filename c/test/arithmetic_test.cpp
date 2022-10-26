@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "arithmetic.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 TEST(Arithmetic, arithmetic_addition_test)
 {

@@ -3,7 +3,7 @@
 
 #include "assertions.hpp"
 #include "logical.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 void variable_assert(Variable *val)
 {

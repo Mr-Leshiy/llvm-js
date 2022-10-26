@@ -1,5 +1,5 @@
 #include "object.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 void Object::add_property(std::string key, Variable *val)
 {

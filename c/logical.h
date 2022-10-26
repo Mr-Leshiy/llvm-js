@@ -1,7 +1,7 @@
 #ifndef C_LOGICAL_H
 #define C_LOGICAL_H
 
-#include "variable.h"
+#include "variable/variable.h"
 
 Variable *logical_not(Variable *val);
 Variable *logical_and(Variable *val1, Variable *val2);

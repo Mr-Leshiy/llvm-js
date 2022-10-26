@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "array.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 TEST(Array, Basic_test)
 {

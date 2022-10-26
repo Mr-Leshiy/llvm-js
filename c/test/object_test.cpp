@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "object.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 TEST(Object, Basic_test)
 {

@@ -1,7 +1,7 @@
 #ifndef C_ARITHMETIC_H
 #define C_ARITHMETIC_H
 
-#include "variable.h"
+#include "variable/variable.h"
 
 Variable *arithmetic_addition(Variable *val1, Variable *val2);
 Variable *arithmetic_substraction(Variable *val1, Variable *val2);
