@@ -96,6 +96,75 @@ Number operator-(const Number &a, const Number &b)
 {
     Number ret(0);
 
+    if (a.type == NumberType::NaN || b.type == NumberType::NaN)
+    {
+        ret.type = NumberType::NaN;
+    }
+    else if (a.type == NumberType::Infinity)
+    {
+        if (b.type == NumberType::NegInfinity)
+        {
+            ret.type = NumberType::Infinity;
+        }
+        else if (b.type == NumberType::Infinity)
+        {
+            ret.type = NumberType::NaN;
+        }
+        else
+        {
+            ret.type = NumberType::Infinity;
+        }
+    }
+    else if (b.type == NumberType::Infinity)
+    {
+        if (a.type == NumberType::NegInfinity)
+        {
+            ret.type = NumberType::NegInfinity;
+        }
+        else if (a.type == NumberType::Infinity)
+        {
+            ret.type = NumberType::NaN;
+        }
+        else
+        {
+            ret.type = NumberType::NegInfinity;
+        }
+    }
+    else if (a.type == NumberType::NegInfinity)
+    {
+        if (b.type == NumberType::NegInfinity)
+        {
+            ret = NumberType::NaN;
+        }
+        else if (b.type == NumberType::Infinity)
+        {
+            ret = NumberType::NegInfinity;
+        }
+        else
+        {
+            ret = NumberType::NegInfinity;
+        }
+    }
+    else if (b.type == NumberType::NegInfinity)
+    {
+        if (a.type == NumberType::NegInfinity)
+        {
+            ret = NumberType::NaN;
+        }
+        else if (a.type == NumberType::Infinity)
+        {
+            ret = NumberType::Infinity;
+        }
+        else
+        {
+            ret = NumberType::Infinity;
+        }
+    }
+    else
+    {
+        ret.value = a.value - b.value;
+    }
+
     return ret;
 }
 

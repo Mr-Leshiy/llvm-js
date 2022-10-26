@@ -124,3 +124,105 @@ TEST(Number, addition_test)
     res = a + b;
     EXPECT_EQ(res.get_type(), NumberType::NegInfinity);
 }
+
+TEST(Number, substraction_test)
+{
+    Number a(0);
+    Number b(0);
+    Number res(0);
+
+    // 2 - 3 = -5
+    a = Number(2);
+    b = Number(3);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Number);
+    EXPECT_EQ(res.get_value(), -1);
+
+    // 2 - 0 = 2
+    a = Number(2);
+    b = Number(0);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Number);
+    EXPECT_EQ(res.get_value(), 2);
+
+    // 0 - 2 = -2
+    a = Number(0);
+    b = Number(2);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Number);
+    EXPECT_EQ(res.get_value(), -2);
+
+    // -2 - 3 = -5
+    a = Number(-2);
+    b = Number(3);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Number);
+    EXPECT_EQ(res.get_value(), -5);
+
+    // -2.5 - -4.5 = 2
+    a = Number(-2.5);
+    b = Number(-4.5);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Number);
+    EXPECT_EQ(res.get_value(), 2);
+
+    // NaN - -4.5 = NaN
+    a = Number(NumberType::NaN);
+    b = Number(-4.5);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+
+    // -4.5 - NaN = NaN
+    a = Number(-4.5);
+    b = Number(NumberType::NaN);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+
+    // Infinity - NaN = NaN
+    a = Number(NumberType::Infinity);
+    b = Number(NumberType::NaN);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+
+    // -Infinity - NaN = NaN
+    a = Number(NumberType::NegInfinity);
+    b = Number(NumberType::NaN);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+
+    // Infinity - -4.5 = Infinity
+    a = Number(NumberType::Infinity);
+    b = Number(-4.5);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Infinity);
+
+    // -Infinity - -4.5 = -Infinity
+    a = Number(NumberType::NegInfinity);
+    b = Number(-4.5);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NegInfinity);
+
+    // Infinity - -Infinity = Infinity
+    a = Number(NumberType::Infinity);
+    b = Number(NumberType::NegInfinity);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::Infinity);
+
+    // -Infinity - Infinity = -Infinity
+    a = Number(NumberType::NegInfinity);
+    b = Number(NumberType::Infinity);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NegInfinity);
+
+    // Infinity - Infinity = NaN
+    a = Number(NumberType::Infinity);
+    b = Number(NumberType::Infinity);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+
+    // -Infinity - -Infinity = NaN
+    a = Number(NumberType::NegInfinity);
+    b = Number(NumberType::NegInfinity);
+    res = a - b;
+    EXPECT_EQ(res.get_type(), NumberType::NaN);
+}
