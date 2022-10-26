@@ -3,6 +3,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 set(SOURCES
         variable/variable_c.cpp
         variable/variable.cpp
+        number/number.cpp
         object.cpp
         array.cpp
         assertions.cpp
