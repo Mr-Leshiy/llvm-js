@@ -41,6 +41,8 @@ struct Variable
     void set_object(const Object &);
     void set_variable(const Variable &);
 
+    bool to_boolean() const;
+    Variable* to_number() const;
     std::string to_string() const;
 
     Type flag;

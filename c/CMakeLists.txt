@@ -1,7 +1,7 @@
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 set(SOURCES
-        variable/variable.c
+        variable/variable_c.cpp
         variable/variable.cpp
         object.cpp
         array.cpp
