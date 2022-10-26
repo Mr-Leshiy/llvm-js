@@ -76,7 +76,10 @@ mod tests {
             BlockStatement::parse(reader.next_token().unwrap(), &mut reader),
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "name1".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "name1".to_string().into(),
+                        property: None
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "name2".to_string().into(),
@@ -95,7 +98,10 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: "name1".to_string().into(),
+                        left: MemberExpression {
+                            variable_name: "name1".to_string().into(),
+                            property: None
+                        },
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
                                 variable_name: "name2".to_string().into(),
@@ -106,7 +112,10 @@ mod tests {
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: "name1".to_string().into(),
+                                left: MemberExpression {
+                                    variable_name: "name1".to_string().into(),
+                                    property: None
+                                },
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
@@ -115,7 +124,10 @@ mod tests {
                                 ))
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: "name1".to_string().into(),
+                                left: MemberExpression {
+                                    variable_name: "name1".to_string().into(),
+                                    property: None
+                                },
                                 right: Some(VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
@@ -135,25 +147,23 @@ mod tests {
         let mut precompiler = Precompiler::new(Vec::new().into_iter());
         assert_eq!(precompiler.variables.len(), 0);
         let block_statement = BlockStatement {
-            body: vec![Expression::VariableDeclaration(VariableDeclaration(
-                VariableAssigment {
-                    left: "name_1".to_string().into(),
-                    right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                        64_f64,
-                    ))),
-                },
-            ))],
+            body: vec![Expression::VariableDeclaration(VariableDeclaration {
+                name: "name_1".to_string().into(),
+                value: Some(VariableExpression::VariableValue(VariableValue::Number(
+                    64_f64,
+                ))),
+            })],
         };
 
         assert_eq!(
             block_statement.precompile(&mut precompiler),
             Ok(vec![llvm_ast::Expression::VariableDeclaration(
-                llvm_ast::VariableDeclaration(llvm_ast::VariableAssigment {
+                llvm_ast::VariableDeclaration {
                     name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                     value: Some(llvm_ast::VariableExpression::VariableValue(
                         llvm_ast::VariableValue::FloatNumber(64_f64)
                     )),
-                })
+                }
             )])
         );
         assert_eq!(precompiler.variables.len(), 0);

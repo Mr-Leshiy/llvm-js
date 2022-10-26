@@ -101,7 +101,10 @@ mod tests {
                 args: vec!["a".to_string().into(), "b".to_string().into()],
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
-                        left: "a".to_string().into(),
+                        left: MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        },
                         right: Some(VariableExpression::VariableValue(
                             VariableValue::MemberExpression(MemberExpression {
                                 variable_name: "b".to_string().into(),
@@ -123,7 +126,10 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "a".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "a".to_string().into(),
+                        property: None,
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "b".to_string().into(),
@@ -144,8 +150,11 @@ mod tests {
                 ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: llvm_ast::Identifier::new("a".to_string(), 0),
-                        value: Some(llvm_ast::VariableExpression::VariableValue(
+                        left: llvm_ast::MemberExpression {
+                            variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
+                            property: None
+                        },
+                        right: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                                 variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
                                 property: None
@@ -173,7 +182,10 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: "a".to_string().into(),
+                    left: MemberExpression {
+                        variable_name: "a".to_string().into(),
+                        property: None,
+                    },
                     right: Some(VariableExpression::VariableValue(
                         VariableValue::MemberExpression(MemberExpression {
                             variable_name: "b".to_string().into(),
@@ -194,8 +206,11 @@ mod tests {
                 ],
                 body: vec![llvm_ast::Expression::VariableAssigment(
                     llvm_ast::VariableAssigment {
-                        name: llvm_ast::Identifier::new("a".to_string(), 1),
-                        value: Some(llvm_ast::VariableExpression::VariableValue(
+                        left: llvm_ast::MemberExpression {
+                            variable_name: llvm_ast::Identifier::new("a".to_string(), 1),
+                            property: None
+                        },
+                        right: Some(llvm_ast::VariableExpression::VariableValue(
                             llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                                 variable_name: llvm_ast::Identifier::new("b".to_string(), 1),
                                 property: None

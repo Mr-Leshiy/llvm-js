@@ -1,10 +1,10 @@
-use super::{Identifier, VariableExpression};
+use super::{Identifier, MemberExpression, VariableExpression};
 use compiler::{self, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
-    pub name: Identifier,
-    pub value: Option<VariableExpression>,
+    pub left: MemberExpression,
+    pub right: Option<VariableExpression>,
 }
 
 impl VariableAssigment {
@@ -13,8 +13,8 @@ impl VariableAssigment {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let var1 = cur_function.get_variable(self.name)?;
-        match self.value {
+        let var1 = self.left.compile(compiler, cur_function)?;
+        match self.right {
             Some(value) => {
                 let var = value.compile(compiler, cur_function)?;
                 var1.assign_variable(compiler, &var)
