@@ -191,5 +191,207 @@ TEST(Variable, arithmetic_test)
 
 TEST(Variable, logical_not_test)
 {
-    
+    Variable val;
+
+    val.set_undefined();
+    EXPECT_EQ(!val, true);
+
+    val.set_null();
+    EXPECT_EQ(!val, true);
+
+    val.set_boolean(true);
+    EXPECT_EQ(!val, false);
+
+    val.set_boolean(false);
+    EXPECT_EQ(!val, true);
+
+    val.set_number(Number(2.5));
+    EXPECT_EQ(!val, false);
+
+    val.set_number(Number(0));
+    EXPECT_EQ(!val, true);
+
+    val.set_string("Hello world");
+    EXPECT_EQ(!val, false);
+
+    val.set_string("");
+    EXPECT_EQ(!val, true);
+
+    val.set_object(Object());
+    EXPECT_EQ(!val, false);
+}
+
+TEST(Variable, logical_and_test)
+{
+    Variable a;
+    Variable b;
+    Variable res;
+
+    a.set_boolean(true);
+    b.set_boolean(true);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(false);
+    b.set_boolean(true);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+
+    a.set_boolean(true);
+    b.set_boolean(false);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+
+    a.set_boolean(false);
+    b.set_boolean(false);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+
+    a.set_number(Number(11));
+    b.set_boolean(true);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(true);
+    b.set_number(Number(11));
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(11));
+
+    a.set_number(Number(0));
+    b.set_boolean(true);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(0));
+
+    a.set_boolean(true);
+    b.set_number(Number(0));
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(0));
+
+    a.set_boolean(false);
+    b.set_number(Number(0));
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+
+    a.set_number(Number(0));
+    b.set_boolean(false);
+    res = a && b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(0));
+}
+
+TEST(Variable, logical_or_test)
+{
+    Variable a;
+    Variable b;
+    Variable res;
+
+    a.set_boolean(true);
+    b.set_boolean(true);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(false);
+    b.set_boolean(true);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(true);
+    b.set_boolean(false);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(false);
+    b.set_boolean(false);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+
+    a.set_number(Number(11));
+    b.set_boolean(true);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(11));
+
+    a.set_boolean(true);
+    b.set_number(Number(11));
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_number(Number(0));
+    b.set_boolean(true);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(true);
+    b.set_number(Number(0));
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, true);
+
+    a.set_boolean(false);
+    b.set_number(Number(0));
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(0));
+
+    a.set_number(Number(0));
+    b.set_boolean(false);
+    res = a || b;
+    EXPECT_EQ(res.flag, Type::Boolean);
+    EXPECT_EQ(res.boolean_field, false);
+}
+
+TEST(Variable, logical_eq_test)
+{
+    Variable a;
+    Variable b;
+
+    a.set_undefined();
+    b.set_undefined();
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_null();
+    b.set_null();
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_boolean(true);
+    b.set_boolean(true);
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_boolean(false);
+    b.set_boolean(false);
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_number(Number(13));
+    b.set_number(Number(13));
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_string("Hello world");
+    b.set_string("Hello world");
+    EXPECT_EQ(a, b);
+    EXPECT_FALSE(a != b);
+
+    a.set_object(Object());
+    b.set_object(Object());
+    EXPECT_NE(a, b);
+    EXPECT_TRUE(a != b);
 }
