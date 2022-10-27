@@ -4,11 +4,11 @@ set(SOURCES
         variable/variable_c.cpp
         variable/variable.cpp
         number/number.cpp
-        object.cpp
+        object/object.cpp
         array.cpp
         assertions.cpp
-        logical.cpp
-        arithmetic.cpp
+        # logical.cpp
+        # arithmetic.cpp
         )
 
 add_library(${LIB_NAME} STATIC ${SOURCES})

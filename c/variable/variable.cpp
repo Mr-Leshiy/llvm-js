@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "variable.hpp"
-#include "object.hpp"
 
 Variable::Variable()
 {
@@ -32,22 +31,7 @@ void Variable::set_null()
     this->flag = Type::Null;
 }
 
-void Variable::set_nan()
-{
-    this->flag = Type::NaN;
-}
-
-void Variable::set_infinity()
-{
-    this->flag = Type::Infinity;
-}
-
-void Variable::set_neginfinity()
-{
-    this->flag = Type::NegInfinity;
-}
-
-void Variable::set_number(double val)
+void Variable::set_number(Number val)
 {
     this->flag = Type::Number;
     this->number_field = val;
@@ -81,17 +65,8 @@ bool Variable::to_boolean() const
     case Type::Null:
         return false;
         break;
-    case Type::NaN:
-        return false;
-        break;
-    case Type::Infinity:
-        return true;
-        break;
-    case Type::NegInfinity:
-        return true;
-        break;
     case Type::Number:
-        return this->number_field != 0;
+        return this->number_field.to_boolean();
         break;
     case Type::Boolean:
         return this->boolean_field;
@@ -111,6 +86,36 @@ bool Variable::to_boolean() const
     }
 }
 
+Number Variable::to_number() const
+{
+    switch (this->flag)
+    {
+    case Type::Undefined:
+        return Number(NumberType::NaN);
+        break;
+    case Type::Null:
+        return Number(0);
+        break;
+    case Type::Number:
+        return this->number_field;
+        break;
+    case Type::Boolean:
+        return Number(this->boolean_field ? 1 : 0);
+        break;
+    case Type::String:
+        return Number(NumberType::NaN);
+        break;
+    case Type::Object:
+        return Number(NumberType::NaN);
+        break;
+    case Type::Array:
+        return Number(NumberType::NaN);
+    default:
+        assert(0);
+        break;
+    }
+}
+
 std::string Variable::to_string() const
 {
     switch (this->flag)
@@ -121,17 +126,8 @@ std::string Variable::to_string() const
     case Type::Null:
         return "null";
         break;
-    case Type::NaN:
-        return "NaN";
-        break;
-    case Type::Infinity:
-        return "Infinity";
-        break;
-    case Type::NegInfinity:
-        return "-Infinity";
-        break;
     case Type::Number:
-        return std::to_string(this->number_field);
+        return this->number_field.to_string();
         break;
     case Type::Boolean:
         return this->boolean_field ? "true" : "false";

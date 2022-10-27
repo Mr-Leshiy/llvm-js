@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <string>
+
 #include "number.hpp"
 
 NumberType Number::get_type() const
@@ -8,6 +11,28 @@ NumberType Number::get_type() const
 double Number::get_value() const
 {
     return this->value;
+}
+
+bool Number::to_boolean() const
+{
+    switch (this->type)
+    {
+    case NumberType::NaN:
+        return false;
+        break;
+    case NumberType::Infinity:
+        return true;
+        break;
+    case NumberType::NegInfinity:
+        return true;
+        break;
+    case NumberType::Number:
+        return this->value != 0;
+        break;
+    default:
+        assert(false);
+        break;
+    }
 }
 
 std::string Number::to_string() const

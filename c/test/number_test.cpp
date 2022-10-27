@@ -8,26 +8,31 @@ TEST(Number, Basic_test)
     EXPECT_EQ(val.get_type(), NumberType::Number);
     EXPECT_EQ(val.get_value(), 123);
     EXPECT_EQ(val.to_string(), "123.000000");
+    EXPECT_EQ(val.to_boolean(), true);
 
     val = Number(NumberType::NaN);
     EXPECT_EQ(val.get_type(), NumberType::NaN);
     EXPECT_EQ(val.get_value(), 0);
     EXPECT_EQ(val.to_string(), "NaN");
+    EXPECT_EQ(val.to_boolean(), false);
 
     val = Number(NumberType::Infinity);
     EXPECT_EQ(val.get_type(), NumberType::Infinity);
     EXPECT_EQ(val.get_value(), 0);
     EXPECT_EQ(val.to_string(), "Infinity");
+    EXPECT_EQ(val.to_boolean(), true);
 
     val = Number(NumberType::NegInfinity);
     EXPECT_EQ(val.get_type(), NumberType::NegInfinity);
     EXPECT_EQ(val.get_value(), 0);
     EXPECT_EQ(val.to_string(), "-Infinity");
+    EXPECT_EQ(val.to_boolean(), true);
 
     val = Number(NumberType::Number);
     EXPECT_EQ(val.get_type(), NumberType::Number);
     EXPECT_EQ(val.get_value(), 0);
     EXPECT_EQ(val.to_string(), "0.000000");
+    EXPECT_EQ(val.to_boolean(), false);
 }
 
 TEST(Number, eq_test)

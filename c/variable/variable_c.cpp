@@ -26,7 +26,7 @@ void set_nan(Variable *self)
 {
     assert(self != nullptr);
 
-    self->set_nan();
+    self->number_field = Number(NumberType::NaN);
 }
 
 void set_object(Variable *self)
@@ -40,14 +40,14 @@ void set_infinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->set_infinity();
+    self->number_field = Number(NumberType::Infinity);
 }
 
 void set_neginfinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->set_neginfinity();
+    self->number_field = Number(NumberType::NegInfinity);
 }
 
 void set_number(Variable *self, double val)
@@ -133,41 +133,7 @@ Variable *convert_to_number(Variable *val)
     assert(val != nullptr);
 
     Variable *ret = new Variable();
-    switch (val->flag)
-    {
-    case Type::Undefined:
-        ret->set_nan();
-        break;
-    case Type::Null:
-        ret->set_number(0);
-        break;
-    case Type::NaN:
-        ret->set_nan();
-        break;
-    case Type::Infinity:
-        ret->set_infinity();
-        break;
-    case Type::NegInfinity:
-        ret->set_neginfinity();
-        break;
-    case Type::Number:
-        ret->set_number(val->number_field);
-        break;
-    case Type::Boolean:
-        ret->set_number(val->boolean_field ? 1 : 0);
-        break;
-    case Type::String:
-        ret->set_nan();
-        break;
-    case Type::Object:
-        ret->set_nan();
-        break;
-    case Type::Array:
-        ret->set_nan();
-    default:
-        assert(0);
-        break;
-    }
+    ret->set_number(val->to_number());
     return ret;
 }
 

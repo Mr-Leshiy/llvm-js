@@ -1,259 +1,138 @@
 #include <gtest/gtest.h>
 
 #include "variable/variable.hpp"
-#include "object.hpp"
+#include "object/object.hpp"
 
 TEST(Variable, Basic_test)
 {
-    Variable *val1 = allocate();
-    Variable *val2 = allocate();
+    Variable val1;
+    Variable val2;
 
-    EXPECT_NE(val1, nullptr);
-    EXPECT_NE(val2, nullptr);
-    EXPECT_EQ(val1->flag, Type::Undefined);
-    EXPECT_EQ(val2->flag, Type::Undefined);
+    EXPECT_EQ(val1.flag, Type::Undefined);
+    EXPECT_EQ(val2.flag, Type::Undefined);
 
-    set_undefined(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Undefined);
-    EXPECT_EQ(val2->flag, Type::Undefined);
+    val1.set_undefined();
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::Undefined);
+    EXPECT_EQ(val2.flag, Type::Undefined);
 
-    set_null(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Null);
-    EXPECT_EQ(val2->flag, Type::Null);
+    val1.set_null();
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::Null);
+    EXPECT_EQ(val2.flag, Type::Null);
 
-    set_nan(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::NaN);
-    EXPECT_EQ(val2->flag, Type::NaN);
+    val1.set_number(Number(13));
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::Number);
+    EXPECT_EQ(val2.flag, Type::Number);
+    EXPECT_EQ(val1.number_field, Number(13));
+    EXPECT_EQ(val2.number_field, Number(13));
 
-    set_infinity(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Infinity);
-    EXPECT_EQ(val2->flag, Type::Infinity);
+    val1.set_boolean(true);
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::Boolean);
+    EXPECT_EQ(val2.flag, Type::Boolean);
+    EXPECT_EQ(val1.boolean_field, true);
+    EXPECT_EQ(val2.boolean_field, true);
 
-    set_neginfinity(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::NegInfinity);
-    EXPECT_EQ(val2->flag, Type::NegInfinity);
+    val1.set_string("foo");
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::String);
+    EXPECT_EQ(val2.flag, Type::String);
+    EXPECT_EQ(val1.string_field, "foo");
+    EXPECT_EQ(val2.string_field, "foo");
 
-    set_number(val1, 2.0);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Number);
-    EXPECT_EQ(val2->flag, Type::Number);
-    EXPECT_EQ(val1->number_field, 2.0);
-    EXPECT_EQ(val2->number_field, 2.0);
-
-    set_boolean(val1, true);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Boolean);
-    EXPECT_EQ(val2->flag, Type::Boolean);
-    EXPECT_EQ(val1->boolean_field, true);
-    EXPECT_EQ(val2->boolean_field, true);
-
-    set_string(val1, "foo");
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::String);
-    EXPECT_EQ(val2->flag, Type::String);
-    EXPECT_EQ(val1->string_field, "foo");
-    EXPECT_EQ(val2->string_field, "foo");
-
-    set_object(val1);
-    set_variable(val2, val1);
-    EXPECT_EQ(val1->flag, Type::Object);
-    EXPECT_EQ(val2->flag, Type::Object);
-    EXPECT_EQ(val1->object_field, Object{});
-    EXPECT_EQ(val2->object_field, Object{});
+    val1.set_object(Object());
+    val2 = val1;
+    EXPECT_EQ(val1.flag, Type::Object);
+    EXPECT_EQ(val2.flag, Type::Object);
+    EXPECT_EQ(val1.object_field, Object{});
+    EXPECT_EQ(val2.object_field, Object{});
 }
 
-TEST(VariableTest, convert_to_boolean_test)
+TEST(VariableTest, to_boolean_test)
 {
-    Variable *res;
-    Variable *val = allocate();
+    Variable val;
 
-    set_undefined(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
+    val.set_undefined();
+    EXPECT_EQ(val.to_boolean(), false);
 
-    set_null(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
+    val.set_null();
+    EXPECT_EQ(val.to_boolean(), false);
 
-    set_nan(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
+    val.set_number(Number(1));
+    EXPECT_EQ(val.to_boolean(), true);
 
-    set_infinity(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
+    val.set_boolean(true);
+    EXPECT_EQ(val.to_boolean(), true);
 
-    set_neginfinity(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
+    val.set_boolean(false);
+    EXPECT_EQ(val.to_boolean(), false);
 
-    set_boolean(val, true);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
+    val.set_string("Hello world");
+    EXPECT_EQ(val.to_boolean(), true);
 
-    set_boolean(val, false);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
+    val.set_string("");
+    EXPECT_EQ(val.to_boolean(), false);
 
-    set_number(val, 2.5);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
-
-    set_number(val, 0);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
-
-    set_string(val, "Hello world");
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
-
-    set_string(val, "");
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, false);
-
-    set_object(val);
-    res = convert_to_boolean(val);
-    EXPECT_EQ(res->flag, Type::Boolean);
-    EXPECT_EQ(res->boolean_field, true);
+    val.set_object(Object());
+    EXPECT_EQ(val.to_boolean(), true);
 }
 
-TEST(VariableTest, convert_to_number_test)
+TEST(VariableTest, to_number_test)
 {
-    Variable *res;
-    Variable *val = allocate();
+    Variable val;
 
-    set_undefined(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NaN);
+    val.set_undefined();
+    EXPECT_EQ(val.to_number(), Number(NumberType::NaN));
 
-    set_null(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Number);
-    EXPECT_EQ(res->number_field, 0);
+    val.set_null();
+    EXPECT_EQ(val.to_number(), Number(0));
 
-    set_nan(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NaN);
+    val.set_number(Number(13));
+    EXPECT_EQ(val.to_number(), Number(13));
 
-    set_infinity(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Infinity);
+    val.set_boolean(true);
+    EXPECT_EQ(val.to_number(), Number(1));
 
-    set_neginfinity(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NegInfinity);
+    val.set_boolean(false);
+    EXPECT_EQ(val.to_number(), Number(0));
 
-    set_boolean(val, true);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Number);
-    EXPECT_EQ(res->number_field, 1);
+    val.set_string("Hello world");
+    EXPECT_EQ(val.to_number(), Number(NumberType::NaN));
 
-    set_boolean(val, false);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Number);
-    EXPECT_EQ(res->number_field, 0);
+    val.set_string("");
+    EXPECT_EQ(val.to_number(), Number(NumberType::NaN));
 
-    set_number(val, 2.5);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Number);
-    EXPECT_EQ(res->number_field, 2.5);
-
-    set_number(val, 0);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::Number);
-    EXPECT_EQ(res->number_field, 0);
-
-    set_string(val, "Hello world");
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NaN);
-
-    set_string(val, "");
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NaN);
-
-    set_object(val);
-    res = convert_to_number(val);
-    EXPECT_EQ(res->flag, Type::NaN);
+    val.set_object(Object());
+    EXPECT_EQ(val.to_number(), Number(NumberType::NaN));
 }
 
-TEST(VariableTest, convert_to_string_test)
+TEST(VariableTest, to_string_test)
 {
-    Variable *res;
-    Variable *val = allocate();
+    Variable val;
 
-    set_undefined(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "undefined");
+    val.set_undefined();
+    EXPECT_EQ(val.to_string(), "undefined");
 
-    set_null(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "null");
+    val.set_null();
+    EXPECT_EQ(val.to_string(), "null");
 
-    set_nan(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "NaN");
+    val.set_number(Number(NumberType::NaN));
+    EXPECT_EQ(val.to_string(), "NaN");
 
-    set_infinity(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "Infinity");
+    val.set_boolean(true);
+    EXPECT_EQ(val.to_string(), "true");
 
-    set_neginfinity(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "-Infinity");
+    val.set_boolean(false);
+    EXPECT_EQ(val.to_string(), "false");
 
-    set_boolean(val, true);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "true");
+    val.set_string("Hello world");
+    EXPECT_EQ(val.to_string(), "Hello world");
 
-    set_boolean(val, false);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "false");
+    val.set_string("");
+    EXPECT_EQ(val.to_string(), "");
 
-    set_number(val, 2.5);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "2.500000");
-
-    set_number(val, 0);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "0.000000");
-
-    set_string(val, "Hello world");
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "Hello world");
-
-    set_string(val, "");
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "");
-
-    set_object(val);
-    res = convert_to_string(val);
-    EXPECT_EQ(res->flag, Type::String);
-    EXPECT_EQ(res->string_field, "{}");
+    val.set_object(Object());
+    EXPECT_EQ(val.to_string(), "{}");
 }

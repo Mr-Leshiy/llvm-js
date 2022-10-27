@@ -25,21 +25,21 @@ Variable *Array::get(uint32_t index)
         return this->values[index];
     }
 
-    return allocate();
+    return new Variable();
 }
 
-Variable *Array::get(Variable &index)
+Variable *Array::get(const Number &index)
 {
-    index = *convert_to_number(&index);
-    if (index.flag == Type::Number)
+    if (index.get_type() == NumberType::Number)
     {
-        if ((uint32_t)index.number_field < this->len())
+        uint32_t i = index.get_value();
+        if (i < this->len())
         {
-            return this->values[(uint32_t)index.number_field];
+            return this->values[i];
         }
     }
 
-    return allocate();
+    return new Variable();
 }
 
 uint32_t Array::len() const

@@ -4,10 +4,8 @@
 #include <vector>
 #include <string>
 
-extern "C"
-{
-#include "variable/variable.h"
-}
+struct Variable;
+struct Number;
 
 struct Array
 {
@@ -16,7 +14,7 @@ struct Array
     void push(Variable &value);
     Variable *pop();
     Variable *get(uint32_t index);
-    Variable *get(Variable &index);
+    Variable *get(const Number &index);
     uint32_t len() const;
     std::string to_string() const;
 
