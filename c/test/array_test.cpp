@@ -11,14 +11,14 @@ TEST(Array, Basic_test)
     EXPECT_EQ(array.len(), 0);
     EXPECT_EQ(array.to_string(), "[]");
 
-    Variable *var1 = allocate();
-    set_number(var1, 2);
-    Variable *var2 = allocate();
-    set_string(var2, "name");
-    Variable *var3 = allocate();
-    set_boolean(var3, true);
+    Variable var1;
+    var1.set_number(Number(2));
+    Variable var2;
+    var2.set_string("name");
+    Variable var3;
+    var3.set_boolean(true);
 
-    array = Array({var1, var2, var3});
+    array = Array({&var1, &var2, &var3});
 
     EXPECT_EQ(array.len(), 3);
     EXPECT_EQ(array.to_string(), "[2.000000,name,true,]");

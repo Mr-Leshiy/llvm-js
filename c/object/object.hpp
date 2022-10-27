@@ -4,10 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-extern "C"
-{
-#include "variable/variable.h"
-}
+struct Variable;
 
 struct Object
 {

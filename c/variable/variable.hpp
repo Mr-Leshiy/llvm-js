@@ -7,11 +7,6 @@
 #include "number/number.hpp"
 #include "array/array.hpp"
 
-extern "C"
-{
-#include "variable.h"
-}
-
 enum class Type
 {
     Undefined,

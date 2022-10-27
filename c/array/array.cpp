@@ -10,7 +10,7 @@ Variable *Array::pop()
 {
     if (this->values.empty())
     {
-        return allocate();
+        return new Variable();
     }
 
     auto *ret = this->values.back();

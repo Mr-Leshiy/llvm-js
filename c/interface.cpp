@@ -190,11 +190,93 @@ Variable *arithmetic_division(Variable *val1, Variable *val2)
     return ret;
 }
 
+Variable *logical_not(Variable *val)
+{
+    assert(val != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(!val);
+    return ret;
+}
+
+Variable *logical_and(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    *ret = *val1 && *val2;
+    return ret;
+}
+
+Variable *logical_or(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    *ret = *val1 || *val2;
+    return ret;
+}
+
+Variable *logical_eq(Variable *val1, Variable *val2)
+{
+    // TODO implement
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 == *val2);
+    return ret;
+}
+
+Variable *logical_ne(Variable *val1, Variable *val2)
+{
+    // TODO implement
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 != *val2);
+    return ret;
+}
+
+Variable *logical_seq(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 == *val2);
+    return ret;
+}
+
+Variable *logical_sne(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 != *val2);
+    return ret;
+}
+
 void variable_assert(Variable *val)
 {
     assert(val != nullptr);
 
     if (!val->to_boolean())
+    {
+        abort();
+    }
+}
+
+void variable_assert_eq(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    if (*val1 != *val2)
     {
         abort();
     }

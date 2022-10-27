@@ -15,8 +15,7 @@ Variable *Object::get_property(std::string key)
     }
     else
     {
-        auto *ret = allocate();
-        set_undefined(ret);
+        auto *ret = new Variable();
         return ret;
     }
 }

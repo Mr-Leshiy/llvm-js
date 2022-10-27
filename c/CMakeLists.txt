@@ -5,8 +5,6 @@ set(SOURCES
         number/number.cpp
         object/object.cpp
         array/array.cpp
-        assertions.cpp
-        # logical.cpp
         interface.cpp
         )
 
