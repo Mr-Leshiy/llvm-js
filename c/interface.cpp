@@ -195,7 +195,7 @@ Variable *logical_not(Variable *val)
     assert(val != nullptr);
 
     Variable *ret = new Variable();
-    ret->set_boolean(!val);
+    ret->set_boolean(!*val);
     return ret;
 }
 

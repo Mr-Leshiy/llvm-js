@@ -60,7 +60,6 @@ bool Variable::to_boolean() const
     switch (this->flag)
     {
     case Type::Undefined:
-        printf("to_boolean \n");
         return false;
         break;
     case Type::Null:
