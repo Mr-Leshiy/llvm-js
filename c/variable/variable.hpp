@@ -5,7 +5,7 @@
 
 #include "object/object.hpp"
 #include "number/number.hpp"
-#include "array.hpp"
+#include "array/array.hpp"
 
 extern "C"
 {
@@ -38,6 +38,17 @@ struct Variable
     bool to_boolean() const;
     Number to_number() const;
     std::string to_string() const;
+
+    friend Variable operator+(const Variable &a, const Variable &b);
+    friend Variable operator-(const Variable &a, const Variable &b);
+    friend Variable operator*(const Variable &a, const Variable &b);
+    friend Variable operator/(const Variable &a, const Variable &b);
+
+    friend bool operator!(const Variable &a);
+    friend bool operator==(const Variable &a, const Variable &b);
+    friend bool operator!=(const Variable &a, const Variable &b);
+    friend Variable operator&&(const Variable &a, const Variable &b);
+    friend Variable operator||(const Variable &a, const Variable &b);
 
     Type flag;
     Number number_field;

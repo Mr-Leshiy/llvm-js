@@ -145,3 +145,142 @@ std::string Variable::to_string() const
         break;
     }
 }
+
+Variable operator+(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    if (a.flag == Type::String || b.flag == Type::String)
+    {
+        ret.set_string(a.to_string() + b.to_string());
+    }
+    else
+    {
+        ret.set_number(a.to_number() + b.to_number());
+    }
+    return ret;
+}
+
+Variable operator-(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    ret.set_number(a.to_number() - b.to_number());
+    return ret;
+}
+
+Variable operator*(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    ret.set_number(a.to_number() * b.to_number());
+    return ret;
+}
+
+Variable operator/(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    ret.set_number(a.to_number() / b.to_number());
+    return ret;
+}
+
+bool operator!(const Variable &a)
+{
+    return !a.to_boolean();
+}
+
+bool operator==(const Variable &a, const Variable &b)
+{
+    switch (a.flag)
+    {
+    case Type::Undefined:
+        return b.flag == Type::Undefined;
+        break;
+    case Type::Null:
+        return b.flag == Type::Null;
+        break;
+    case Type::Number:
+        if (b.flag == Type::Number)
+        {
+            return a.number_field == b.number_field;
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    case Type::Boolean:
+        if (b.flag == Type::Boolean)
+        {
+            return a.boolean_field == b.boolean_field;
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    case Type::String:
+        if (b.flag == Type::String)
+        {
+            return a.string_field == b.string_field;
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    case Type::Object:
+        return false;
+        break;
+    case Type::Array:
+        return false;
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
+bool operator!=(const Variable &a, const Variable &b)
+{
+    return !(a == b);
+}
+
+Variable operator&&(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    if (a.to_boolean())
+    {
+        if (b.to_boolean())
+        {
+            ret = b;
+        }
+        else
+        {
+            ret = b;
+        }
+    }
+    else
+    {
+        ret = a;
+    }
+    return ret;
+}
+
+Variable operator||(const Variable &a, const Variable &b)
+{
+    Variable ret;
+    if (a.to_boolean())
+    {
+        ret = a;
+    }
+    else
+    {
+        if (b.to_boolean())
+        {
+            ret = b;
+        }
+        else
+        {
+            ret = b;
+        }
+    }
+    return ret;
+}

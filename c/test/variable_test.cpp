@@ -50,7 +50,7 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val2.object_field, Object{});
 }
 
-TEST(VariableTest, to_boolean_test)
+TEST(Variable, to_boolean_test)
 {
     Variable val;
 
@@ -79,7 +79,7 @@ TEST(VariableTest, to_boolean_test)
     EXPECT_EQ(val.to_boolean(), true);
 }
 
-TEST(VariableTest, to_number_test)
+TEST(Variable, to_number_test)
 {
     Variable val;
 
@@ -108,7 +108,7 @@ TEST(VariableTest, to_number_test)
     EXPECT_EQ(val.to_number(), Number(NumberType::NaN));
 }
 
-TEST(VariableTest, to_string_test)
+TEST(Variable, to_string_test)
 {
     Variable val;
 
@@ -135,4 +135,61 @@ TEST(VariableTest, to_string_test)
 
     val.set_object(Object());
     EXPECT_EQ(val.to_string(), "{}");
+}
+
+TEST(Variable, arithmetic_test)
+{
+    Variable a;
+    Variable b;
+    Variable res;
+
+    // "Hello " + "world" = "Hello world"
+    a.set_string("Hello ");
+    b.set_string("world");
+    res = a + b;
+    EXPECT_EQ(res.flag, Type::String);
+    EXPECT_EQ(res.string_field, "Hello world");
+
+    // 2 + " world" = "2.000000 world"
+    a.set_number(2);
+    b.set_string(" world");
+    res = a + b;
+    EXPECT_EQ(res.flag, Type::String);
+    EXPECT_EQ(res.string_field, "2.000000 world");
+
+    // "Hello " + 2 = "Hello 2.000000"
+    a.set_string("Hello ");
+    b.set_number(2);
+    res = a + b;
+    EXPECT_EQ(res.flag, Type::String);
+    EXPECT_EQ(res.string_field, "Hello 2.000000");
+
+    a.set_number(1);
+    b.set_number(2);
+    res = a + b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(3));
+
+    a.set_number(1);
+    b.set_number(2);
+    res = a - b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(-1));
+
+    a.set_number(1);
+    b.set_number(2);
+    res = a * b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(2));
+
+    a.set_number(2);
+    b.set_number(1);
+    res = a / b;
+    EXPECT_EQ(res.flag, Type::Number);
+    EXPECT_EQ(res.number_field, Number(2));
+}
+
+TEST(Variable, logical_not_test)
+{
+    
 }

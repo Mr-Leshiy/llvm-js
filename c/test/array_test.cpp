@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "array.hpp"
+#include "array/array.hpp"
 #include "variable/variable.hpp"
 
 TEST(Array, Basic_test)

@@ -1,14 +1,13 @@
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 set(SOURCES
-        variable/variable_c.cpp
         variable/variable.cpp
         number/number.cpp
         object/object.cpp
-        array.cpp
+        array/array.cpp
         assertions.cpp
         # logical.cpp
-        # arithmetic.cpp
+        interface.cpp
         )
 
 add_library(${LIB_NAME} STATIC ${SOURCES})

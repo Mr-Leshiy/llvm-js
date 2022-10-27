@@ -1,5 +1,5 @@
-#ifndef C_VARIABLE_H
-#define C_VARIABLE_H
+#ifndef C_INTERFACE_H
+#define C_INTERFACE_H
 
 #include <stdint.h>
 
@@ -28,6 +28,14 @@ uint8_t get_boolean(Variable *self);
 Variable *convert_to_boolean(Variable *val);
 Variable *convert_to_number(Variable *val);
 Variable *convert_to_string(Variable *val);
+
+Variable *arithmetic_addition(Variable *val1, Variable *val2);
+Variable *arithmetic_substraction(Variable *val1, Variable *val2);
+Variable *arithmetic_multiplication(Variable *val1, Variable *val2);
+Variable *arithmetic_division(Variable *val1, Variable *val2);
+
+void variable_assert(Variable *val);
+void variable_assert_eq(Variable *val1, Variable *val2);
 
 void print(Variable *self);
 
