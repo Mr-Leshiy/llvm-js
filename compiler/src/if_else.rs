@@ -9,7 +9,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
 ) -> Result<bool, Error<T>> {
     let get_boolean_fn = compiler.predefined_functions()?.get_boolean();
 
-    let condition = get_boolean_fn.call(compiler, &condition);
+    let condition = get_boolean_fn.call(compiler, condition);
     let condition = compiler.builder.build_int_compare(
         inkwell::IntPredicate::EQ,
         condition,
