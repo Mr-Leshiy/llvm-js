@@ -88,18 +88,14 @@ void add_property(Variable *self, const char *key, Variable *val)
 {
     assert(self != nullptr);
 
-    // TODO print runtime error message
-    if (self->get_flag() == Type::Object)
-    {
-        self->object_field.add_property(key, val);
-    }
+    self->add_property(key, val);
 }
 
 Variable *get_property_by_str(Variable *self, const char *key)
 {
     assert(self != nullptr);
 
-    return self->object_field.get_property(key);
+    return self->get_property(key);
 }
 
 Variable *get_property_by_var(Variable *self, Variable *key)
@@ -107,14 +103,14 @@ Variable *get_property_by_var(Variable *self, Variable *key)
     assert(self != nullptr);
     assert(key != nullptr);
 
-    return self->object_field.get_property(*key);
+    return self->get_property(*key);
 }
 
 void remove_property(Variable *self, const char *key)
 {
     assert(self != nullptr);
 
-    self->object_field.remove_property(key);
+    self->remove_property(key);
 }
 
 uint8_t get_boolean(Variable *self)
