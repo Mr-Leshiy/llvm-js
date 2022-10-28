@@ -1,5 +1,6 @@
 
 #include "variable/variable.hpp"
+#include <assert.h>
 
 extern "C"
 {
