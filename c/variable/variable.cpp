@@ -55,6 +55,26 @@ void Variable::set_object(const Object &val)
     this->object_field = val;
 }
 
+Type Variable::get_flag() const
+{
+    return this->flag;
+}
+
+const Number &Variable::get_number() const
+{
+    return this->number_field;
+}
+
+bool Variable::get_boolean() const
+{
+    return this->boolean_field;
+}
+
+const std::string &Variable::get_string() const
+{
+    return this->string_field;
+}
+
 bool Variable::to_boolean() const
 {
     switch (this->flag)

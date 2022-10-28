@@ -30,7 +30,7 @@ void set_nan(Variable *self)
 {
     assert(self != nullptr);
 
-    self->number_field = Number(NumberType::NaN);
+    self->set_number(NumberType::NaN);
 }
 
 void set_object(Variable *self)
@@ -44,14 +44,14 @@ void set_infinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->number_field = Number(NumberType::Infinity);
+    self->set_number(NumberType::Infinity);
 }
 
 void set_neginfinity(Variable *self)
 {
     assert(self != nullptr);
 
-    self->number_field = Number(NumberType::NegInfinity);
+    self->set_number(NumberType::NegInfinity);
 }
 
 void set_number(Variable *self, double val)
@@ -88,7 +88,7 @@ void add_property(Variable *self, const char *key, Variable *val)
     assert(self != nullptr);
 
     // TODO print runtime error message
-    if (self->flag == Type::Object)
+    if (self->get_flag() == Type::Object)
     {
         self->object_field.add_property(key, val);
     }
