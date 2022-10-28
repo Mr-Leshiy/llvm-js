@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "logical.hpp"
-#include "variable.hpp"
+#include "variable/variable.hpp"
 
 TEST(Logical, logical_not_test)
 {
