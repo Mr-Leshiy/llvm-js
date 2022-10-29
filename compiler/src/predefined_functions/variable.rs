@@ -160,6 +160,36 @@ impl<'ctx> SetObjectFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct SetArrayFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetArrayFn<'ctx> {
+    const NAME: &'static str = "set_array";
+}
+
+impl<'ctx> SetArrayFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
 pub struct SetInfinityFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -434,15 +464,15 @@ impl<'ctx> PrintFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct AddPropertyFn<'ctx> {
+pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AddPropertyFn<'ctx> {
-    const NAME: &'static str = "add_property";
+impl<'ctx> PredefineFunctionName for AddPropertyByStrFn<'ctx> {
+    const NAME: &'static str = "add_property_by_str";
 }
 
-impl<'ctx> AddPropertyFn<'ctx> {
+impl<'ctx> AddPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);

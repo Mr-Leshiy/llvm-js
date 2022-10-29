@@ -191,11 +191,24 @@ void Variable::add_property(const std::string &key, Variable *val)
     }
 }
 
+void Variable::add_property(const Variable &key, Variable *val)
+{
+    // TODO print runtime error message
+    if (this->flag == Type::Object)
+    {
+        this->object_field.add_property(key.to_string(), val);
+    }
+}
+
 Variable *Variable::get_property(const std::string &key)
 {
     if (this->flag == Type::Object)
     {
         return this->object_field.get_property(key);
+    }
+    if (this->flag == Type::Array)
+    {
+        return this->array_field.get(Number(std::stod(key)));
     }
     return new Variable();
 }
@@ -204,7 +217,7 @@ Variable *Variable::get_property(const Variable &key)
 {
     if (this->flag == Type::Object)
     {
-        return this->object_field.get_property(key);
+        return this->object_field.get_property(key.to_string());
     }
     if (this->flag == Type::Array)
     {

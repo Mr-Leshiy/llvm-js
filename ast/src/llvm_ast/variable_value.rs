@@ -38,8 +38,7 @@ impl VariableValue {
                 object_expression.compile(compiler, cur_function)
             }
             Self::ArrayExpression(array_expression) => {
-                array_expression.compile(compiler, cur_function)?;
-                todo!("");
+                array_expression.compile(compiler, cur_function)
             }
         }
     }

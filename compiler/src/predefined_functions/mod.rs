@@ -10,9 +10,9 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AddPropertyFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, PrintFn,
-        RemovePropertyFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
-        SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyByStrFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, PrintFn,
+        RemovePropertyFn, SetArrayFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
+        SetNullFn, SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -36,6 +36,8 @@ pub struct PredefineFunctions<'ctx> {
     set_undefined: SetUndefinedFn<'ctx>,
     set_null: SetNullFn<'ctx>,
     set_nan: SetNaNFn<'ctx>,
+    set_object: SetObjectFn<'ctx>,
+    set_array: SetArrayFn<'ctx>,
     set_infinity: SetInfinityFn<'ctx>,
     set_neginfinity: SetNegInfinityFn<'ctx>,
     set_number: SetNumberFn<'ctx>,
@@ -45,8 +47,7 @@ pub struct PredefineFunctions<'ctx> {
     get_boolean: GetBooleanFn<'ctx>,
     printf: PrintFn<'ctx>,
     // object functions
-    init_object: SetObjectFn<'ctx>,
-    add_property: AddPropertyFn<'ctx>,
+    add_property_by_str: AddPropertyByStrFn<'ctx>,
     get_property_by_str: GetPropertyByStrFn<'ctx>,
     get_property_by_var: GetPropertyByVarFn<'ctx>,
     remove_property: RemovePropertyFn<'ctx>,
@@ -80,6 +81,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_undefined: SetUndefinedFn::declare(compiler),
             set_null: SetNullFn::declare(compiler),
             set_nan: SetNaNFn::declare(compiler),
+            set_object: SetObjectFn::declare(compiler),
+            set_array: SetArrayFn::declare(compiler),
             set_infinity: SetInfinityFn::declare(compiler),
             set_neginfinity: SetNegInfinityFn::declare(compiler),
             set_number: SetNumberFn::declare(compiler),
@@ -89,8 +92,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             get_boolean: GetBooleanFn::declare(compiler),
             printf: PrintFn::declare(compiler),
             // object functions
-            init_object: SetObjectFn::declare(compiler),
-            add_property: AddPropertyFn::declare(compiler),
+            add_property_by_str: AddPropertyByStrFn::declare(compiler),
             get_property_by_str: GetPropertyByStrFn::declare(compiler),
             get_property_by_var: GetPropertyByVarFn::declare(compiler),
             remove_property: RemovePropertyFn::declare(compiler),
@@ -140,6 +142,14 @@ impl<'ctx> PredefineFunctions<'ctx> {
         &self.set_nan
     }
 
+    pub fn set_object(&self) -> &SetObjectFn<'ctx> {
+        &self.set_object
+    }
+
+    pub fn set_array(&self) -> &SetArrayFn<'ctx> {
+        &self.set_array
+    }
+
     pub fn set_infinity(&self) -> &SetInfinityFn<'ctx> {
         &self.set_infinity
     }
@@ -173,12 +183,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
     }
 
     // object functions
-    pub fn set_object(&self) -> &SetObjectFn<'ctx> {
-        &self.init_object
-    }
-
-    pub fn add_property(&self) -> &AddPropertyFn<'ctx> {
-        &self.add_property
+    pub fn add_property_by_str(&self) -> &AddPropertyByStrFn<'ctx> {
+        &self.add_property_by_str
     }
 
     pub fn get_property_by_str(&self) -> &GetPropertyByStrFn<'ctx> {

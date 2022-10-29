@@ -43,6 +43,7 @@ struct Variable
     std::string to_string() const;
 
     void add_property(const std::string &, Variable *);
+    void add_property(const Variable &, Variable *);
     Variable *get_property(const std::string &);
     Variable *get_property(const Variable &);
     void remove_property(const std::string &);

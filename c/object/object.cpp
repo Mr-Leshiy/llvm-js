@@ -20,11 +20,6 @@ Variable *Object::get_property(std::string key)
     }
 }
 
-Variable *Object::get_property(const Variable &key)
-{
-    return this->get_property(key.to_string());
-}
-
 void Object::remove_property(std::string key)
 {
     this->properties.erase(key);

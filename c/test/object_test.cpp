@@ -17,7 +17,7 @@ TEST(Object, Basic_test)
 
     Variable key;
     key.set_string("name");
-    prop = object.get_property(key);
+    prop = object.get_property(key.to_string());
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
 
