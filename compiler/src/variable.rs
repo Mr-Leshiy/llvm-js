@@ -108,7 +108,7 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn add_property<T>(
+    pub fn add_property_by_str<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         key: &str,

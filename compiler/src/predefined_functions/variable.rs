@@ -507,6 +507,47 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct AddPropertyByVarFn<'ctx> {
+    // TODO rename
+    _func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
+    const NAME: &'static str = "add_property_by_var";
+}
+
+impl<'ctx> AddPropertyByVarFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into(), var_type.into(), var_type.into()], false);
+        let _func =
+            compiler
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { _func }
+    }
+
+    // TODO rename
+    pub(crate) fn _call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: &Variable<'ctx>,
+        value: &Variable<'ctx>,
+    ) {
+        compiler.builder.build_call(
+            self._func,
+            &[val.value.into(), key.value.into(), value.value.into()],
+            "",
+        );
+    }
+}
+
+#[derive(Clone)]
 pub struct GetPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }

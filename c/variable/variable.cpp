@@ -189,6 +189,10 @@ void Variable::add_property(const std::string &key, Variable *val)
     {
         this->object_field.add_property(key, val);
     }
+    if (this->flag == Type::Array)
+    {
+        this->array_field.put(*val, Number(std::stod(key)));
+    }
 }
 
 void Variable::add_property(const Variable &key, Variable *val)
@@ -197,6 +201,10 @@ void Variable::add_property(const Variable &key, Variable *val)
     if (this->flag == Type::Object)
     {
         this->object_field.add_property(key.to_string(), val);
+    }
+    if (this->flag == Type::Array)
+    {
+        this->array_field.put(*val, key.to_number());
     }
 }
 

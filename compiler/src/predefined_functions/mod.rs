@@ -10,9 +10,10 @@ use self::{
         LogicalSNeFn,
     },
     variable::{
-        AddPropertyByStrFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, PrintFn,
-        RemovePropertyFn, SetArrayFn, SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn,
-        SetNullFn, SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn,
+        GetPropertyByVarFn, PrintFn, RemovePropertyFn, SetArrayFn, SetBooleanFn, SetInfinityFn,
+        SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn, SetObjectFn, SetStringFn,
+        SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -48,6 +49,7 @@ pub struct PredefineFunctions<'ctx> {
     printf: PrintFn<'ctx>,
     // object functions
     add_property_by_str: AddPropertyByStrFn<'ctx>,
+    add_property_by_var: AddPropertyByVarFn<'ctx>,
     get_property_by_str: GetPropertyByStrFn<'ctx>,
     get_property_by_var: GetPropertyByVarFn<'ctx>,
     remove_property: RemovePropertyFn<'ctx>,
@@ -93,6 +95,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             printf: PrintFn::declare(compiler),
             // object functions
             add_property_by_str: AddPropertyByStrFn::declare(compiler),
+            add_property_by_var: AddPropertyByVarFn::declare(compiler),
             get_property_by_str: GetPropertyByStrFn::declare(compiler),
             get_property_by_var: GetPropertyByVarFn::declare(compiler),
             remove_property: RemovePropertyFn::declare(compiler),
@@ -185,6 +188,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
     // object functions
     pub fn add_property_by_str(&self) -> &AddPropertyByStrFn<'ctx> {
         &self.add_property_by_str
+    }
+
+    pub fn add_property_by_var(&self) -> &AddPropertyByVarFn<'ctx> {
+        &self.add_property_by_var
     }
 
     pub fn get_property_by_str(&self) -> &GetPropertyByStrFn<'ctx> {
