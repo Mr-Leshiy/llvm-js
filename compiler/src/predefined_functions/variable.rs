@@ -560,8 +560,12 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+        let boolean_type = compiler.context.bool_type();
 
-        let function_type = var_type.fn_type(&[var_type.into(), string_type.into()], false);
+        let function_type = var_type.fn_type(
+            &[var_type.into(), string_type.into(), boolean_type.into()],
+            false,
+        );
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -573,6 +577,7 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &str,
+        allocate: bool,
     ) -> Variable<'ctx> {
         let key = compiler
             .builder
@@ -580,7 +585,19 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
             .as_pointer_value();
         let value = compiler
             .builder
-            .build_call(self.func, &[val.value.into(), key.into()], "")
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    key.into(),
+                    compiler
+                        .context
+                        .bool_type()
+                        .const_int(allocate.into(), false)
+                        .into(),
+                ],
+                "",
+            )
             .try_as_basic_value()
             .left()
             .unwrap()
@@ -601,8 +618,12 @@ impl<'ctx> PredefineFunctionName for GetPropertyByVarFn<'ctx> {
 impl<'ctx> GetPropertyByVarFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let boolean_type = compiler.context.bool_type();
 
-        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(
+            &[var_type.into(), var_type.into(), boolean_type.into()],
+            false,
+        );
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -614,10 +635,23 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &Variable<'ctx>,
+        allocate: bool,
     ) -> Variable<'ctx> {
         let value = compiler
             .builder
-            .build_call(self.func, &[val.value.into(), key.value.into()], "")
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    key.value.into(),
+                    compiler
+                        .context
+                        .bool_type()
+                        .const_int(allocate.into(), false)
+                        .into(),
+                ],
+                "",
+            )
             .try_as_basic_value()
             .left()
             .unwrap()

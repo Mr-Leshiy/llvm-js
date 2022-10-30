@@ -107,20 +107,20 @@ void add_property_by_var(Variable *self, Variable *key, Variable *val)
     self->add_property(*key, val);
 }
 
-Variable *get_property_by_str(Variable *self, const char *key)
+Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
 {
     assert(self != nullptr);
     assert(key != nullptr);
 
-    return self->get_property(key);
+    return self->get_property(key, allocate);
 }
 
-Variable *get_property_by_var(Variable *self, Variable *key)
+Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
 {
     assert(self != nullptr);
     assert(key != nullptr);
 
-    return self->get_property(*key);
+    return self->get_property(*key, allocate);
 }
 
 void remove_property(Variable *self, const char *key)

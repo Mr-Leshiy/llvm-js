@@ -15,7 +15,7 @@ impl Property {
         variable: &Variable<'ctx>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         let key = self.object.compile(compiler, cur_function)?;
-        let variable = variable.get_property_by_var(compiler, &key)?;
+        let variable = variable.get_property_by_var(compiler, &key, true)?;
         if let Some(property) = self.property {
             property.compile(compiler, cur_function, &variable)
         } else {

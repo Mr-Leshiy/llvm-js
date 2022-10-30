@@ -123,18 +123,20 @@ impl<'ctx> Variable<'ctx> {
         &self,
         compiler: &Compiler<'ctx, T>,
         key: &str,
+        allocate: bool,
     ) -> Result<Self, Error<T>> {
         let get_property_fn = compiler.predefined_functions()?.get_property_by_str();
-        Ok(get_property_fn.call(compiler, self, key))
+        Ok(get_property_fn.call(compiler, self, key, allocate))
     }
 
     pub fn get_property_by_var<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         key: &Variable<'ctx>,
+        allocate: bool,
     ) -> Result<Self, Error<T>> {
         let get_property_fn = compiler.predefined_functions()?.get_property_by_var();
-        Ok(get_property_fn.call(compiler, self, key))
+        Ok(get_property_fn.call(compiler, self, key, allocate))
     }
 
     pub fn remove_property<T>(

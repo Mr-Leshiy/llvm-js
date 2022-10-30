@@ -21,8 +21,8 @@ void set_variable(Variable *self, Variable *val);
 
 void add_property_by_str(Variable *self, const char *key, Variable *val);
 void add_property_by_var(Variable *self, Variable *key, Variable *val);
-Variable *get_property_by_str(Variable *self, const char *key);
-Variable *get_property_by_var(Variable *self, Variable *key);
+Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate);
+Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate);
 void remove_property(Variable *self, const char *key);
 
 uint8_t get_boolean(Variable *self);
