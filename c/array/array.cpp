@@ -38,7 +38,11 @@ void Array::put(Variable &value, const Number &index)
 {
     if (index.get_type() == NumberType::Number)
     {
-        this->put(value, index.get_value());
+        double i = index.get_value();
+        if (i >= 0)
+        {
+            this->put(value, index.get_value());
+        }
     }
 }
 
@@ -48,8 +52,12 @@ Variable *Array::get(uint32_t index)
     {
         return this->values[index];
     }
-
-    return new Variable();
+    else
+    {
+        auto *ret = new Variable();
+        this->put(*ret, index);
+        return ret;
+    }
 }
 
 Variable *Array::get(const Number &index)
@@ -58,8 +66,12 @@ Variable *Array::get(const Number &index)
     {
         return this->get(index.get_value());
     }
-
-    return new Variable();
+    else
+    {
+        auto *ret = new Variable();
+        this->put(*ret, index);
+        return ret;
+    }
 }
 
 uint32_t Array::len() const

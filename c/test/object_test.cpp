@@ -11,6 +11,8 @@ TEST(Object, Basic_test)
     value.set_number(Number(12));
     object.add_property("name", &value);
 
+    EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
+
     auto *prop = object.get_property("name");
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
@@ -24,7 +26,9 @@ TEST(Object, Basic_test)
     prop = object.get_property("age");
     EXPECT_EQ(prop->get_flag(), Type::Undefined);
 
-    EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
+    prop->set_null();
+    prop = object.get_property("age");
+    EXPECT_EQ(prop->get_flag(), Type::Null);
 
     object.remove_property("name");
     prop = object.get_property("name");
