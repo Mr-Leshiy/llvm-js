@@ -212,11 +212,11 @@ Variable *Variable::get_property(const std::string &key)
 {
     if (this->flag == Type::Object)
     {
-        return this->object_field.get_property(key);
+        return this->object_field.get_property(key, true);
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(Number(std::stod(key)));
+        return this->array_field.get(Number(std::stod(key)), true);
     }
     return new Variable();
 }
@@ -225,11 +225,11 @@ Variable *Variable::get_property(const Variable &key)
 {
     if (this->flag == Type::Object)
     {
-        return this->object_field.get_property(key.to_string());
+        return this->object_field.get_property(key.to_string(), true);
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(key.to_number());
+        return this->array_field.get(key.to_number(), true);
     }
     return new Variable();
 }

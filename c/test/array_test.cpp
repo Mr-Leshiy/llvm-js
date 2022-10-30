@@ -23,22 +23,19 @@ TEST(Array, Basic_test)
     EXPECT_EQ(array.len(), 3);
     EXPECT_EQ(array.to_string(), "[2.000000,name,true,]");
 
-    variable = array.get(0);
+    variable = array.get(0, false);
     EXPECT_EQ(variable->get_flag(), Type::Number);
     EXPECT_EQ(variable->get_number(), 2);
 
-    variable = array.get(1);
+    variable = array.get(1, false);
     EXPECT_EQ(variable->get_flag(), Type::String);
     EXPECT_EQ(variable->get_string(), "name");
 
-    variable = array.get(2);
+    variable = array.get(2, false);
     EXPECT_EQ(variable->get_flag(), Type::Boolean);
     EXPECT_EQ(variable->get_boolean(), true);
 
-    variable = array.get(3);
-    EXPECT_EQ(variable->get_flag(), Type::Undefined);
-
-    variable = array.get(-1);
+    variable = array.get(3, false);
     EXPECT_EQ(variable->get_flag(), Type::Undefined);
 
     variable = array.pop();
@@ -66,15 +63,15 @@ TEST(Array, Basic_test)
 
     EXPECT_EQ(array.len(), 3);
 
-    variable = array.get(0);
+    variable = array.get(0, false);
     EXPECT_EQ(variable->get_flag(), Type::Number);
     EXPECT_EQ(variable->get_number(), 2);
 
-    variable = array.get(1);
+    variable = array.get(1, false);
     EXPECT_EQ(variable->get_flag(), Type::String);
     EXPECT_EQ(variable->get_string(), "name");
 
-    variable = array.get(2);
+    variable = array.get(2, false);
     EXPECT_EQ(variable->get_flag(), Type::Boolean);
     EXPECT_EQ(variable->get_boolean(), true);
 
@@ -82,22 +79,33 @@ TEST(Array, Basic_test)
 
     EXPECT_EQ(array.len(), 5);
 
-    variable = array.get(0);
+    variable = array.get(0, false);
     EXPECT_EQ(variable->get_flag(), Type::Number);
     EXPECT_EQ(variable->get_number(), 2);
 
-    variable = array.get(1);
+    variable = array.get(1, false);
     EXPECT_EQ(variable->get_flag(), Type::String);
     EXPECT_EQ(variable->get_string(), "name");
 
-    variable = array.get(2);
+    variable = array.get(2, false);
     EXPECT_EQ(variable->get_flag(), Type::Boolean);
     EXPECT_EQ(variable->get_boolean(), true);
 
-    variable = array.get(3);
+    variable = array.get(3, false);
     EXPECT_EQ(variable->get_flag(), Type::Undefined);
 
-    variable = array.get(4);
+    variable = array.get(4, false);
     EXPECT_EQ(variable->get_flag(), Type::Number);
     EXPECT_EQ(variable->get_number(), 2);
+
+    variable = array.get(6, true);
+    EXPECT_EQ(variable->get_flag(), Type::Undefined);
+
+    EXPECT_EQ(array.len(), 7);
+
+    variable->set_null();
+    variable = array.get(5, false);
+    EXPECT_EQ(variable->get_flag(), Type::Undefined);
+    variable = array.get(6, false);
+    EXPECT_EQ(variable->get_flag(), Type::Null);
 }
