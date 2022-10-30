@@ -77,6 +77,16 @@ fn object_test() {
 }
 
 #[test]
+fn array_test() {
+    CompileSuite::new("../test_scripts/basic/array.js", "array")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
 fn comments_test() {
     CompileSuite::new("../test_scripts/basic/comments.js", "comments")
         .compile()

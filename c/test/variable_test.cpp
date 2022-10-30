@@ -46,8 +46,15 @@ TEST(Variable, Basic_test)
     val2 = val1;
     EXPECT_EQ(val1.get_flag(), Type::Object);
     EXPECT_EQ(val2.get_flag(), Type::Object);
-    EXPECT_EQ(val1.object_field, Object{});
-    EXPECT_EQ(val2.object_field, Object{});
+    EXPECT_EQ(val1.get_object(), Object());
+    EXPECT_EQ(val2.get_object(), Object());
+
+    val1.set_array(Array({new Variable(), new Variable()}));
+    val2 = val1;
+    EXPECT_EQ(val1.get_flag(), Type::Array);
+    EXPECT_EQ(val2.get_flag(), Type::Array);
+    EXPECT_EQ(val1.get_array().len(), 2);
+    EXPECT_EQ(val2.get_array().len(), 2);
 }
 
 TEST(Variable, to_boolean_test)

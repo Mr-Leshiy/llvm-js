@@ -18,28 +18,61 @@ Variable *Array::pop()
     return ret;
 }
 
-Variable *Array::get(uint32_t index)
+void Array::put(Variable &value, uint32_t index)
+{
+    if (index < this->len())
+    {
+        this->values[index] = &value;
+    }
+    else
+    {
+        while (index > this->len())
+        {
+            this->push(*(new Variable()));
+        }
+        this->push(value);
+    }
+}
+
+void Array::put(Variable &value, const Number &index)
+{
+    if (index.get_type() == NumberType::Number)
+    {
+        double i = index.get_value();
+        if (i >= 0)
+        {
+            this->put(value, index.get_value());
+        }
+    }
+}
+
+Variable *Array::get(uint32_t index, bool allocate)
 {
     if (index < this->len())
     {
         return this->values[index];
     }
-
-    return new Variable();
+    else
+    {
+        auto *ret = new Variable();
+        if (allocate)
+        {
+            this->put(*ret, index);
+        }
+        return ret;
+    }
 }
 
-Variable *Array::get(const Number &index)
+Variable *Array::get(const Number &index, bool allocate)
 {
     if (index.get_type() == NumberType::Number)
     {
-        uint32_t i = index.get_value();
-        if (i < this->len())
-        {
-            return this->values[i];
-        }
+        return this->get(index.get_value(), allocate);
     }
-
-    return new Variable();
+    else
+    {
+        return new Variable();
+    }
 }
 
 uint32_t Array::len() const

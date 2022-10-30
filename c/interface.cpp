@@ -41,6 +41,13 @@ void set_object(Variable *self)
     self->set_object(Object());
 }
 
+void set_array(Variable *self)
+{
+    assert(self != nullptr);
+
+    self->set_array(Array(std::vector<Variable *>{}));
+}
+
 void set_infinity(Variable *self)
 {
     assert(self != nullptr);
@@ -84,37 +91,44 @@ void set_variable(Variable *self, Variable *val)
     *self = *val;
 }
 
-void add_property(Variable *self, const char *key, Variable *val)
-{
-    assert(self != nullptr);
-
-    // TODO print runtime error message
-    if (self->get_flag() == Type::Object)
-    {
-        self->object_field.add_property(key, val);
-    }
-}
-
-Variable *get_property_by_str(Variable *self, const char *key)
-{
-    assert(self != nullptr);
-
-    return self->object_field.get_property(key);
-}
-
-Variable *get_property_by_var(Variable *self, Variable *key)
+void add_property_by_str(Variable *self, const char *key, Variable *val)
 {
     assert(self != nullptr);
     assert(key != nullptr);
 
-    return self->object_field.get_property(*key);
+    self->add_property(key, val);
+}
+
+void add_property_by_var(Variable *self, Variable *key, Variable *val)
+{
+    assert(self != nullptr);
+    assert(key != nullptr);
+
+    self->add_property(*key, val);
+}
+
+Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
+{
+    assert(self != nullptr);
+    assert(key != nullptr);
+
+    return self->get_property(key, allocate);
+}
+
+Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
+{
+    assert(self != nullptr);
+    assert(key != nullptr);
+
+    return self->get_property(*key, allocate);
 }
 
 void remove_property(Variable *self, const char *key)
 {
     assert(self != nullptr);
+    assert(key != nullptr);
 
-    self->object_field.remove_property(key);
+    self->remove_property(key);
 }
 
 uint8_t get_boolean(Variable *self)

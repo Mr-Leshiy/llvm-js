@@ -1,12 +1,12 @@
 #include "object.hpp"
 #include "variable/variable.hpp"
 
-void Object::add_property(std::string key, Variable *val)
+void Object::add_property(const std::string &key, Variable *val)
 {
     this->properties[key] = val;
 }
 
-Variable *Object::get_property(std::string key)
+Variable *Object::get_property(const std::string &key, bool allocate)
 {
     auto it = this->properties.find(key);
     if (it != this->properties.end())
@@ -16,16 +16,15 @@ Variable *Object::get_property(std::string key)
     else
     {
         auto *ret = new Variable();
+        if (allocate)
+        {
+            this->add_property(key, ret);
+        }
         return ret;
     }
 }
 
-Variable *Object::get_property(const Variable &key)
-{
-    return this->get_property(key.to_string());
-}
-
-void Object::remove_property(std::string key)
+void Object::remove_property(const std::string &key)
 {
     this->properties.erase(key);
 }

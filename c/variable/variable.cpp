@@ -55,14 +55,15 @@ void Variable::set_object(const Object &val)
     this->object_field = val;
 }
 
+void Variable::set_array(const Array &val)
+{
+    this->flag = Type::Array;
+    this->array_field = val;
+}
+
 Type Variable::get_flag() const
 {
     return this->flag;
-}
-
-const Number &Variable::get_number() const
-{
-    return this->number_field;
 }
 
 bool Variable::get_boolean() const
@@ -73,6 +74,21 @@ bool Variable::get_boolean() const
 const std::string &Variable::get_string() const
 {
     return this->string_field;
+}
+
+const Number &Variable::get_number() const
+{
+    return this->number_field;
+}
+
+const Object &Variable::get_object() const
+{
+    return this->object_field;
+}
+
+const Array &Variable::get_array() const
+{
+    return this->array_field;
 }
 
 bool Variable::to_boolean() const
@@ -163,6 +179,67 @@ std::string Variable::to_string() const
     default:
         assert(0);
         break;
+    }
+}
+
+void Variable::add_property(const std::string &key, Variable *val)
+{
+    // TODO print runtime error message
+    if (this->flag == Type::Object)
+    {
+        this->object_field.add_property(key, val);
+    }
+    if (this->flag == Type::Array)
+    {
+        this->array_field.put(*val, Number(std::stod(key)));
+    }
+}
+
+void Variable::add_property(const Variable &key, Variable *val)
+{
+    // TODO print runtime error message
+    if (this->flag == Type::Object)
+    {
+        this->object_field.add_property(key.to_string(), val);
+    }
+    if (this->flag == Type::Array)
+    {
+        this->array_field.put(*val, key.to_number());
+    }
+}
+
+Variable *Variable::get_property(const std::string &key, bool allocate)
+{
+    if (this->flag == Type::Object)
+    {
+        return this->object_field.get_property(key, allocate);
+    }
+    if (this->flag == Type::Array)
+    {
+        return this->array_field.get(Number(std::stod(key)), allocate);
+    }
+    return new Variable();
+}
+
+Variable *Variable::get_property(const Variable &key, bool allocate)
+{
+    if (this->flag == Type::Object)
+    {
+        return this->object_field.get_property(key.to_string(), allocate);
+    }
+    if (this->flag == Type::Array)
+    {
+        return this->array_field.get(key.to_number(), allocate);
+    }
+    return new Variable();
+}
+
+void Variable::remove_property(const std::string &key)
+{
+    // TODO print runtime error message
+    if (this->flag == Type::Object)
+    {
+        this->object_field.remove_property(key);
     }
 }
 

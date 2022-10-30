@@ -10,10 +10,9 @@ struct Object
 {
     Object() = default;
 
-    void add_property(std::string key, Variable *val);
-    Variable *get_property(std::string key);
-    Variable *get_property(const Variable &key);
-    void remove_property(std::string key);
+    void add_property(const std::string& key, Variable *val);
+    Variable *get_property(const std::string& key, bool allocate);
+    void remove_property(const std::string& key);
 
     std::string to_string() const;
 

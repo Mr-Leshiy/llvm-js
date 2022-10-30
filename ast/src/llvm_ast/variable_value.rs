@@ -32,14 +32,13 @@ impl VariableValue {
             Self::String(string) => Variable::new_string(compiler, &string),
             Self::FloatNumber(number) => Variable::new_number(compiler, number),
             Self::MemberExpression(member_expression) => {
-                member_expression.compile(compiler, cur_function)
+                member_expression.compile(compiler, cur_function, false)
             }
             Self::ObjectExpression(object_expression) => {
                 object_expression.compile(compiler, cur_function)
             }
             Self::ArrayExpression(array_expression) => {
-                array_expression.compile(compiler, cur_function)?;
-                todo!("");
+                array_expression.compile(compiler, cur_function)
             }
         }
     }

@@ -160,6 +160,36 @@ impl<'ctx> SetObjectFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct SetArrayFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetArrayFn<'ctx> {
+    const NAME: &'static str = "set_array";
+}
+
+impl<'ctx> SetArrayFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
+    }
+}
+
+#[derive(Clone)]
 pub struct SetInfinityFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -434,15 +464,15 @@ impl<'ctx> PrintFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct AddPropertyFn<'ctx> {
+pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AddPropertyFn<'ctx> {
-    const NAME: &'static str = "add_property";
+impl<'ctx> PredefineFunctionName for AddPropertyByStrFn<'ctx> {
+    const NAME: &'static str = "add_property_by_str";
 }
 
-impl<'ctx> AddPropertyFn<'ctx> {
+impl<'ctx> AddPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
@@ -477,6 +507,47 @@ impl<'ctx> AddPropertyFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct AddPropertyByVarFn<'ctx> {
+    // TODO rename
+    _func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
+    const NAME: &'static str = "add_property_by_var";
+}
+
+impl<'ctx> AddPropertyByVarFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into(), var_type.into(), var_type.into()], false);
+        let _func =
+            compiler
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { _func }
+    }
+
+    // TODO rename
+    pub(crate) fn _call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: &Variable<'ctx>,
+        value: &Variable<'ctx>,
+    ) {
+        compiler.builder.build_call(
+            self._func,
+            &[val.value.into(), key.value.into(), value.value.into()],
+            "",
+        );
+    }
+}
+
+#[derive(Clone)]
 pub struct GetPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -489,8 +560,12 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::Generic);
+        let boolean_type = compiler.context.bool_type();
 
-        let function_type = var_type.fn_type(&[var_type.into(), string_type.into()], false);
+        let function_type = var_type.fn_type(
+            &[var_type.into(), string_type.into(), boolean_type.into()],
+            false,
+        );
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -502,6 +577,7 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &str,
+        allocate: bool,
     ) -> Variable<'ctx> {
         let key = compiler
             .builder
@@ -509,7 +585,19 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
             .as_pointer_value();
         let value = compiler
             .builder
-            .build_call(self.func, &[val.value.into(), key.into()], "")
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    key.into(),
+                    compiler
+                        .context
+                        .bool_type()
+                        .const_int(allocate.into(), false)
+                        .into(),
+                ],
+                "",
+            )
             .try_as_basic_value()
             .left()
             .unwrap()
@@ -530,8 +618,12 @@ impl<'ctx> PredefineFunctionName for GetPropertyByVarFn<'ctx> {
 impl<'ctx> GetPropertyByVarFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let boolean_type = compiler.context.bool_type();
 
-        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let function_type = var_type.fn_type(
+            &[var_type.into(), var_type.into(), boolean_type.into()],
+            false,
+        );
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -543,10 +635,23 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &Variable<'ctx>,
+        allocate: bool,
     ) -> Variable<'ctx> {
         let value = compiler
             .builder
-            .build_call(self.func, &[val.value.into(), key.value.into()], "")
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    key.value.into(),
+                    compiler
+                        .context
+                        .bool_type()
+                        .const_int(allocate.into(), false)
+                        .into(),
+                ],
+                "",
+            )
             .try_as_basic_value()
             .left()
             .unwrap()
