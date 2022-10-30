@@ -13,11 +13,12 @@ impl Property {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
         variable: &Variable<'ctx>,
+        allocate: bool,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         let key = self.object.compile(compiler, cur_function)?;
-        let variable = variable.get_property_by_var(compiler, &key, true)?;
+        let variable = variable.get_property_by_var(compiler, &key, allocate)?;
         if let Some(property) = self.property {
-            property.compile(compiler, cur_function, &variable)
+            property.compile(compiler, cur_function, &variable, allocate)
         } else {
             Ok(variable)
         }
@@ -35,10 +36,11 @@ impl MemberExpression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
+        allocate: bool,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         let variable = cur_function.get_variable(self.variable_name)?;
         if let Some(property) = self.property {
-            property.compile(compiler, cur_function, &variable)
+            property.compile(compiler, cur_function, &variable, allocate)
         } else {
             Ok(variable)
         }

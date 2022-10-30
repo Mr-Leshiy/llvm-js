@@ -13,7 +13,7 @@ impl VariableAssigment {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let var1 = self.left.compile(compiler, cur_function)?;
+        let var1 = self.left.compile(compiler, cur_function, true)?;
         match self.right {
             Some(value) => {
                 let var = value.compile(compiler, cur_function)?;
