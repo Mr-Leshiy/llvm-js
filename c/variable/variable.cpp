@@ -278,11 +278,6 @@ Variable operator/(const Variable &a, const Variable &b)
     return ret;
 }
 
-bool operator!(const Variable &a)
-{
-    return !a.to_boolean();
-}
-
 bool operator==(const Variable &a, const Variable &b)
 {
     switch (a.flag)
@@ -338,6 +333,31 @@ bool operator==(const Variable &a, const Variable &b)
 bool operator!=(const Variable &a, const Variable &b)
 {
     return !(a == b);
+}
+
+bool operator>(const Variable &a, const Variable &b)
+{
+    return false;
+}
+
+bool operator>=(const Variable &a, const Variable &b)
+{
+    return false;
+}
+
+bool operator<(const Variable &a, const Variable &b)
+{
+    return false;
+}
+
+bool operator<=(const Variable &a, const Variable &b)
+{
+    return false;
+}
+
+bool operator!(const Variable &a)
+{
+    return !a.to_boolean();
 }
 
 Variable operator&&(const Variable &a, const Variable &b)

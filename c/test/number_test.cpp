@@ -50,6 +50,113 @@ TEST(Number, eq_test)
     EXPECT_NE(Number(NumberType::NegInfinity), Number(NumberType::NaN));
 }
 
+TEST(Number, comp_test)
+{
+    // > tests
+    EXPECT_TRUE(Number(2) > Number(-2));
+    EXPECT_TRUE(Number(NumberType::Infinity) > Number(2));
+    EXPECT_TRUE(Number(NumberType::Infinity) > Number(-2));
+    EXPECT_TRUE(Number(NumberType::Infinity) > Number(NumberType::NegInfinity));
+    EXPECT_TRUE(Number(2) > Number(NumberType::NegInfinity));
+    EXPECT_TRUE(Number(-2) > Number(NumberType::NegInfinity));
+
+    EXPECT_FALSE(Number(2) > Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) > Number(2));
+    EXPECT_FALSE(Number(NumberType::NaN) > Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::Infinity) > Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) > Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) > Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) > Number(NumberType::NaN));
+
+    EXPECT_FALSE(Number(2) > Number(2));
+    EXPECT_FALSE(Number(-2) > Number(2));
+    EXPECT_FALSE(Number(NumberType::Infinity) > Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(2) > Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(-2) > Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) > Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) > Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) > Number(2));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) > Number(-2));
+
+    // >= tests
+    EXPECT_TRUE(Number(2) >= Number(-2));
+    EXPECT_TRUE(Number(NumberType::Infinity) >= Number(2));
+    EXPECT_TRUE(Number(NumberType::Infinity) >= Number(-2));
+    EXPECT_TRUE(Number(NumberType::Infinity) >= Number(NumberType::NegInfinity));
+    EXPECT_TRUE(Number(2) >= Number(NumberType::NegInfinity));
+    EXPECT_TRUE(Number(-2) >= Number(NumberType::NegInfinity));
+    EXPECT_TRUE(Number(2) >= Number(2));
+    EXPECT_TRUE(Number(NumberType::Infinity) >= Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) >= Number(NumberType::NegInfinity));
+
+    EXPECT_FALSE(Number(2) >= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) >= Number(2));
+    EXPECT_FALSE(Number(NumberType::NaN) >= Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::Infinity) >= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) >= Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) >= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) >= Number(NumberType::NaN));
+
+    EXPECT_FALSE(Number(-2) >= Number(2));
+    EXPECT_FALSE(Number(2) >= Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(-2) >= Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) >= Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) >= Number(2));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) >= Number(-2));
+
+    // < tests
+    EXPECT_TRUE(Number(-2) < Number(2));
+    EXPECT_TRUE(Number(2) < Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(-2) < Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) < Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) < Number(2));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) < Number(-2));
+
+    EXPECT_FALSE(Number(NumberType::NaN) < Number(2));
+    EXPECT_FALSE(Number(2) < Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::Infinity) < Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) < Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) < Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) < Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NaN) < Number(NumberType::NaN));
+
+    EXPECT_FALSE(Number(2) < Number(2));
+    EXPECT_FALSE(Number(2) < Number(-2));
+    EXPECT_FALSE(Number(NumberType::Infinity) < Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::Infinity) < Number(2));
+    EXPECT_FALSE(Number(NumberType::Infinity) < Number(-2));
+    EXPECT_FALSE(Number(NumberType::Infinity) < Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) < Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(2) < Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(-2) < Number(NumberType::NegInfinity));
+
+    // <= tests
+    EXPECT_TRUE(Number(-2) <= Number(2));
+    EXPECT_TRUE(Number(2) <= Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(-2) <= Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) <= Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) <= Number(2));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) <= Number(-2));
+    EXPECT_TRUE(Number(2) <= Number(2));
+    EXPECT_TRUE(Number(NumberType::Infinity) <= Number(NumberType::Infinity));
+    EXPECT_TRUE(Number(NumberType::NegInfinity) <= Number(NumberType::NegInfinity));
+
+    EXPECT_FALSE(Number(NumberType::NaN) <= Number(2));
+    EXPECT_FALSE(Number(2) <= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::Infinity) <= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) <= Number(NumberType::Infinity));
+    EXPECT_FALSE(Number(NumberType::NegInfinity) <= Number(NumberType::NaN));
+    EXPECT_FALSE(Number(NumberType::NaN) <= Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(NumberType::NaN) <= Number(NumberType::NaN));
+
+    EXPECT_FALSE(Number(2) <= Number(-2));
+    EXPECT_FALSE(Number(NumberType::Infinity) <= Number(2));
+    EXPECT_FALSE(Number(NumberType::Infinity) <= Number(-2));
+    EXPECT_FALSE(Number(NumberType::Infinity) <= Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(2) <= Number(NumberType::NegInfinity));
+    EXPECT_FALSE(Number(-2) <= Number(NumberType::NegInfinity));
+}
+
 TEST(Number, addition_test)
 {
     Number a(0);

@@ -53,9 +53,14 @@ struct Variable
     friend Variable operator*(const Variable &a, const Variable &b);
     friend Variable operator/(const Variable &a, const Variable &b);
 
-    friend bool operator!(const Variable &a);
     friend bool operator==(const Variable &a, const Variable &b);
     friend bool operator!=(const Variable &a, const Variable &b);
+    friend bool operator>(const Variable &a, const Variable &b);
+    friend bool operator>=(const Variable &a, const Variable &b);
+    friend bool operator<(const Variable &a, const Variable &b);
+    friend bool operator<=(const Variable &a, const Variable &b);
+
+    friend bool operator!(const Variable &a);
     friend Variable operator&&(const Variable &a, const Variable &b);
     friend Variable operator||(const Variable &a, const Variable &b);
 
