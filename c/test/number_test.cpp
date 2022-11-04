@@ -50,7 +50,7 @@ TEST(Number, eq_test)
     EXPECT_NE(Number(NumberType::NegInfinity), Number(NumberType::NaN));
 }
 
-TEST(Number, comp_test)
+TEST(Number, cmp_test)
 {
     // > tests
     EXPECT_TRUE(Number(2) > Number(-2));

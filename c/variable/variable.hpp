@@ -21,13 +21,20 @@ enum class Type
 struct Variable
 {
     Variable();
+    Variable(Type);
+    Variable(bool);
+    Variable(const char *);
+    Variable(const Number &);
+    Variable(const Object &);
+    Variable(const Array &);
+
     Variable &operator=(const Variable &);
 
     void set_undefined();
     void set_null();
-    void set_number(Number);
+    void set_number(const Number &);
     void set_boolean(bool);
-    void set_string(std::string);
+    void set_string(const std::string &);
     void set_object(const Object &);
     void set_array(const Array &);
 

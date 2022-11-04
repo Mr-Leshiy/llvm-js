@@ -10,6 +10,36 @@ Variable::Variable()
     this->flag = Type::Undefined;
 }
 
+Variable::Variable(Type flag)
+{
+    this->flag = flag;
+}
+
+Variable::Variable(bool boolean)
+{
+    this->set_boolean(boolean);
+}
+
+Variable::Variable(const char *str)
+{
+    this->set_string(str);
+}
+
+Variable::Variable(const Number &number)
+{
+    this->set_number(number);
+}
+
+Variable::Variable(const Object &obj)
+{
+    this->set_object(obj);
+}
+
+Variable::Variable(const Array &array)
+{
+    this->set_array(array);
+}
+
 Variable &Variable::operator=(const Variable &val)
 {
     this->flag = val.flag;
@@ -31,7 +61,7 @@ void Variable::set_null()
     this->flag = Type::Null;
 }
 
-void Variable::set_number(Number val)
+void Variable::set_number(const Number &val)
 {
     this->flag = Type::Number;
     this->number_field = val;
@@ -43,7 +73,7 @@ void Variable::set_boolean(bool val)
     this->boolean_field = val;
 }
 
-void Variable::set_string(std::string val)
+void Variable::set_string(const std::string &val)
 {
     this->flag = Type::String;
     this->string_field = val;
@@ -337,21 +367,461 @@ bool operator!=(const Variable &a, const Variable &b)
 
 bool operator>(const Variable &a, const Variable &b)
 {
+    switch (a.flag)
+    {
+    case Type::Number:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return a.number_field > b.number_field;
+            break;
+        case Type::Boolean:
+            return a.number_field > Number(b.boolean_field);
+            break;
+        case Type::Null:
+            return a.number_field > Number(0);
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Boolean:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(a.boolean_field) > b.number_field;
+            break;
+        case Type::Boolean:
+            return a.boolean_field > b.boolean_field;
+            break;
+        case Type::Null:
+            return a.boolean_field > 0;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Null:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(0) > b.number_field;
+            break;
+        case Type::Boolean:
+            return false;
+            break;
+        case Type::Null:
+            return false;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::String:
+        switch (b.flag)
+        {
+        case Type::String:
+            return a.string_field > b.string_field;
+            break;
+        case Type::Number:
+            break;
+        case Type::Boolean:
+            break;
+        case Type::Null:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Undefined:
+        break;
+    case Type::Object:
+        break;
+    case Type::Array:
+        break;
+    default:
+        assert(false);
+        break;
+    }
     return false;
 }
 
 bool operator>=(const Variable &a, const Variable &b)
 {
+    switch (a.flag)
+    {
+    case Type::Number:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return a.number_field >= b.number_field;
+            break;
+        case Type::Boolean:
+            return a.number_field >= Number(b.boolean_field);
+            break;
+        case Type::Null:
+            return a.number_field >= Number(0);
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Boolean:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(a.boolean_field) >= b.number_field;
+            break;
+        case Type::Boolean:
+            return a.boolean_field >= b.boolean_field;
+            break;
+        case Type::Null:
+            return true;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Null:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(0) >= b.number_field;
+            break;
+        case Type::Boolean:
+            return 0 >= b.boolean_field;
+            break;
+        case Type::Null:
+            return true;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::String:
+        switch (b.flag)
+        {
+        case Type::String:
+            return a.string_field >= b.string_field;
+            break;
+        case Type::Number:
+            break;
+        case Type::Boolean:
+            break;
+        case Type::Null:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Undefined:
+        break;
+    case Type::Object:
+        break;
+    case Type::Array:
+        break;
+    default:
+        assert(false);
+        break;
+    }
     return false;
 }
 
 bool operator<(const Variable &a, const Variable &b)
 {
+    switch (a.flag)
+    {
+    case Type::Number:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return a.number_field < b.number_field;
+            break;
+        case Type::Boolean:
+            return a.number_field < Number(b.boolean_field);
+            break;
+        case Type::Null:
+            return a.number_field < Number(0);
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Boolean:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(a.boolean_field) < b.number_field;
+            break;
+        case Type::Boolean:
+            return a.boolean_field < b.boolean_field;
+            break;
+        case Type::Null:
+            return false;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Null:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(0) < b.number_field;
+            break;
+        case Type::Boolean:
+            return 0 < b.boolean_field;
+            break;
+        case Type::Null:
+            return false;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::String:
+        switch (b.flag)
+        {
+        case Type::String:
+            return a.string_field < b.string_field;
+            break;
+        case Type::Number:
+            break;
+        case Type::Boolean:
+            break;
+        case Type::Null:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Undefined:
+        break;
+    case Type::Object:
+        break;
+    case Type::Array:
+        break;
+    default:
+        assert(false);
+        break;
+    }
     return false;
 }
 
 bool operator<=(const Variable &a, const Variable &b)
 {
+    switch (a.flag)
+    {
+    case Type::Number:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return a.number_field <= b.number_field;
+            break;
+        case Type::Boolean:
+            return a.number_field <= Number(b.boolean_field);
+            break;
+        case Type::Null:
+            return a.number_field <= Number(0);
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Boolean:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(a.boolean_field) <= b.number_field;
+            break;
+        case Type::Boolean:
+            return a.boolean_field <= b.boolean_field;
+            break;
+        case Type::Null:
+            return a.boolean_field <= 0;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Null:
+        switch (b.flag)
+        {
+        case Type::Number:
+            return Number(0) <= b.number_field;
+            break;
+        case Type::Boolean:
+            return true;
+            break;
+        case Type::Null:
+            return true;
+            break;
+        case Type::String:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::String:
+        switch (b.flag)
+        {
+        case Type::String:
+            return a.string_field <= b.string_field;
+            break;
+        case Type::Number:
+            break;
+        case Type::Boolean:
+            break;
+        case Type::Null:
+            break;
+        case Type::Undefined:
+            break;
+        case Type::Object:
+            break;
+        case Type::Array:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case Type::Undefined:
+        break;
+    case Type::Object:
+        break;
+    case Type::Array:
+        break;
+    default:
+        assert(false);
+        break;
+    }
     return false;
 }
 
