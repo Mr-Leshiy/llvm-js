@@ -96,7 +96,7 @@ void add_property_by_str(Variable *self, const char *key, Variable *val)
     assert(self != nullptr);
     assert(key != nullptr);
 
-    self->add_property(key, val);
+    self->add_property(std::string(key), val);
 }
 
 void add_property_by_var(Variable *self, Variable *key, Variable *val)
@@ -112,7 +112,7 @@ Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
     assert(self != nullptr);
     assert(key != nullptr);
 
-    return self->get_property(key, allocate);
+    return self->get_property(std::string(key), allocate);
 }
 
 Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
@@ -273,6 +273,46 @@ Variable *logical_sne(Variable *val1, Variable *val2)
 
     Variable *ret = new Variable();
     ret->set_boolean(*val1 != *val2);
+    return ret;
+}
+
+Variable *logical_gt(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 > *val2);
+    return ret;
+}
+
+Variable *logical_ge(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 >= *val2);
+    return ret;
+}
+
+Variable *logical_lt(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 < *val2);
+    return ret;
+}
+
+Variable *logical_le(Variable *val1, Variable *val2)
+{
+    assert(val1 != nullptr);
+    assert(val2 != nullptr);
+
+    Variable *ret = new Variable();
+    ret->set_boolean(*val1 <= *val2);
     return ret;
 }
 

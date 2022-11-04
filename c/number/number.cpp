@@ -436,6 +436,170 @@ bool operator==(const Number &a, const Number &b)
     return false;
 }
 
+bool operator>(const Number &a, const Number &b)
+{
+    switch (a.type)
+    {
+    case NumberType::Number:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return a.value > b.value;
+            break;
+        case NumberType::Infinity:
+            return false;
+            break;
+        case NumberType::NegInfinity:
+            return true;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::Infinity:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return true;
+            break;
+        case NumberType::Infinity:
+            return false;
+            break;
+        case NumberType::NegInfinity:
+            return true;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::NegInfinity:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return false;
+            break;
+        case NumberType::Infinity:
+            return false;
+            break;
+        case NumberType::NegInfinity:
+            return false;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::NaN:
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    return false;
+}
+
+bool operator>=(const Number &a, const Number &b)
+{
+    switch (a.type)
+    {
+    case NumberType::Number:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return a.value >= b.value;
+            break;
+        case NumberType::Infinity:
+            return false;
+            break;
+        case NumberType::NegInfinity:
+            return true;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::Infinity:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return true;
+            break;
+        case NumberType::Infinity:
+            return true;
+            break;
+        case NumberType::NegInfinity:
+            return true;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::NegInfinity:
+        switch (b.type)
+        {
+        case NumberType::Number:
+            return false;
+            break;
+        case NumberType::Infinity:
+            return false;
+            break;
+        case NumberType::NegInfinity:
+            return true;
+            break;
+        case NumberType::NaN:
+            break;
+        default:
+            assert(false);
+            break;
+        }
+        break;
+    case NumberType::NaN:
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    return false;
+}
+
+bool operator<(const Number &a, const Number &b)
+{
+    if (a.type == NumberType::NaN || b.type == NumberType::NaN)
+    {
+        return false;
+    }
+    else
+    {
+        return !(a >= b);
+    }
+}
+
+bool operator<=(const Number &a, const Number &b)
+{
+    if (a.type == NumberType::NaN || b.type == NumberType::NaN)
+    {
+        return false;
+    }
+    else
+    {
+        return !(a > b);
+    }
+}
+
 bool operator!=(const Number &a, const Number &b)
 {
     return !(a == b);

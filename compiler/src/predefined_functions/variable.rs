@@ -317,7 +317,7 @@ impl<'ctx> SetBooleanFn<'ctx> {
                 compiler
                     .context
                     .bool_type()
-                    .const_int(if literal { 1_u64 } else { 0_u64 }, false)
+                    .const_int(literal.into(), false)
                     .into(),
             ],
             "",
