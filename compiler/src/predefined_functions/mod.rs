@@ -10,10 +10,10 @@ use self::{
         LogicalNotFn, LogicalOrFn, LogicalSEqFn, LogicalSNeFn,
     },
     variable::{
-        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn,
-        GetPropertyByVarFn, PrintFn, RemovePropertyFn, SetArrayFn, SetBooleanFn, SetInfinityFn,
-        SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn, SetObjectFn, SetStringFn,
-        SetUndefinedFn, SetVariableFn,
+        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, GetBooleanFn,
+        GetPropertyByStrFn, GetPropertyByVarFn, PrintFn, RemovePropertyFn, SetArrayFn,
+        SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn,
+        SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -34,6 +34,7 @@ pub struct PredefineFunctions<'ctx> {
     assert_eq: AssertEqFn<'ctx>,
     // variable functions
     allocate: AllocateFn<'ctx>,
+    deallocate: DeallocateFn<'ctx>,
     set_undefined: SetUndefinedFn<'ctx>,
     set_null: SetNullFn<'ctx>,
     set_nan: SetNaNFn<'ctx>,
@@ -84,6 +85,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             assert_eq: AssertEqFn::declare(compiler),
             // variable functions
             allocate: AllocateFn::declare(compiler),
+            deallocate: DeallocateFn::declare(compiler),
             set_undefined: SetUndefinedFn::declare(compiler),
             set_null: SetNullFn::declare(compiler),
             set_nan: SetNaNFn::declare(compiler),
@@ -139,6 +141,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
     // variable functions
     pub fn allocate(&self) -> &AllocateFn<'ctx> {
         &self.allocate
+    }
+
+    pub fn deallocate(&self) -> &DeallocateFn<'ctx> {
+        &self.deallocate
     }
 
     pub fn set_undefined(&self) -> &SetUndefinedFn<'ctx> {

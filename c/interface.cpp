@@ -13,6 +13,10 @@ Variable *allocate()
     return res;
 }
 
+void deallocate(Variable *)
+{
+}
+
 void set_undefined(Variable *self)
 {
     assert(self != nullptr);
