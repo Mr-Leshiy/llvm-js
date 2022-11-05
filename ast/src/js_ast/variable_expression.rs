@@ -790,7 +790,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn parse_add_arithmetic_expression_test() {
         let mut reader = TokenReader::new("true + false".as_bytes());
