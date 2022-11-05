@@ -17,6 +17,10 @@ pub enum BinaryExpType {
     Ne,
     SEq,
     SNe,
+    Gt,
+    Ge,
+    Lt,
+    Le,
     // Arithmetic
     Add,
     Sub,
@@ -67,6 +71,30 @@ impl BinaryExpression {
                 let var2 = self.right.compile(compiler, cur_function)?;
                 let logical_sne_fn = compiler.predefined_functions()?.logical_sne();
                 Ok(logical_sne_fn.call(compiler, &var1, &var2))
+            }
+            BinaryExpType::Gt => {
+                let var1 = self.left.compile(compiler, cur_function)?;
+                let var2 = self.right.compile(compiler, cur_function)?;
+                let logical_gt_fn = compiler.predefined_functions()?.logical_gt();
+                Ok(logical_gt_fn.call(compiler, &var1, &var2))
+            }
+            BinaryExpType::Ge => {
+                let var1 = self.left.compile(compiler, cur_function)?;
+                let var2 = self.right.compile(compiler, cur_function)?;
+                let logical_ge_fn = compiler.predefined_functions()?.logical_ge();
+                Ok(logical_ge_fn.call(compiler, &var1, &var2))
+            }
+            BinaryExpType::Lt => {
+                let var1 = self.left.compile(compiler, cur_function)?;
+                let var2 = self.right.compile(compiler, cur_function)?;
+                let logical_lt_fn = compiler.predefined_functions()?.logical_lt();
+                Ok(logical_lt_fn.call(compiler, &var1, &var2))
+            }
+            BinaryExpType::Le => {
+                let var1 = self.left.compile(compiler, cur_function)?;
+                let var2 = self.right.compile(compiler, cur_function)?;
+                let logical_le_fn = compiler.predefined_functions()?.logical_le();
+                Ok(logical_le_fn.call(compiler, &var1, &var2))
             }
             // Arithmetic
             BinaryExpType::Add => {

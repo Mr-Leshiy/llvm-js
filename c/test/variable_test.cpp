@@ -271,6 +271,7 @@ TEST(Variable, logical_cmp_test)
     EXPECT_TRUE(Variable(true) > Variable(Number(-1)));
     EXPECT_TRUE(Variable(Number(1)) > Variable(Type::Null));
     EXPECT_TRUE(Variable(true) > Variable(Type::Null));
+    EXPECT_TRUE(Variable("b") > Variable("a"));
 
     EXPECT_FALSE(Variable(Number(2)) > Variable(Type::Undefined));
     EXPECT_FALSE(Variable(Type::Undefined) > Variable(Number(2)));
@@ -324,6 +325,7 @@ TEST(Variable, logical_cmp_test)
     EXPECT_TRUE(Variable(true) >= Variable(Number(-1)));
     EXPECT_TRUE(Variable(Number(1)) >= Variable(Type::Null));
     EXPECT_TRUE(Variable(true) >= Variable(Type::Null));
+    EXPECT_TRUE(Variable("b") >= Variable("a"));
     EXPECT_TRUE(Variable(Number(2)) >= Variable(Number(2)));
     EXPECT_TRUE(Variable(true) >= Variable(true));
     EXPECT_TRUE(Variable(false) >= Variable(false));
@@ -377,6 +379,7 @@ TEST(Variable, logical_cmp_test)
     EXPECT_TRUE(Variable(Number(-1)) < Variable(true));
     EXPECT_TRUE(Variable(Type::Null) < Variable(Number(1)));
     EXPECT_TRUE(Variable(Type::Null) < Variable(true));
+    EXPECT_TRUE(Variable("a") < Variable("b"));
 
     EXPECT_FALSE(Variable(Type::Undefined) < Variable(Number(2)));
     EXPECT_FALSE(Variable(Number(2)) < Variable(Type::Undefined));
@@ -430,13 +433,14 @@ TEST(Variable, logical_cmp_test)
     EXPECT_TRUE(Variable(Number(-1)) <= Variable(true));
     EXPECT_TRUE(Variable(Type::Null) <= Variable(Number(1)));
     EXPECT_TRUE(Variable(Type::Null) <= Variable(true));
+    EXPECT_TRUE(Variable("a") <= Variable("b"));
     EXPECT_TRUE(Variable(Number(2)) <= Variable(Number(2)));
     EXPECT_TRUE(Variable(true) <= Variable(true));
     EXPECT_TRUE(Variable(false) <= Variable(false));
     EXPECT_TRUE(Variable("Hello") <= Variable("Hello"));
     EXPECT_TRUE(Variable(Type::Null) <= Variable(Type::Null));
 
-    EXPECT_FALSE(Variable(Type::Undefined) <=Variable(Number(2)));
+    EXPECT_FALSE(Variable(Type::Undefined) <= Variable(Number(2)));
     EXPECT_FALSE(Variable(Number(2)) <= Variable(Type::Undefined));
     EXPECT_FALSE(Variable("Hello") <= Variable(Number(2)));
     EXPECT_FALSE(Variable(Number(2)) <= Variable("Hello"));

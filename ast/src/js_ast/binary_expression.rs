@@ -18,6 +18,10 @@ pub enum BinaryExpType {
     Ne,
     SEq,
     SNe,
+    Gt,
+    Ge,
+    Lt,
+    Le,
     // Arithmetic
     Add,
     Sub,
@@ -36,6 +40,10 @@ impl Into<llvm_ast::BinaryExpType> for BinaryExpType {
             Self::Ne => llvm_ast::BinaryExpType::Ne,
             Self::SEq => llvm_ast::BinaryExpType::SEq,
             Self::SNe => llvm_ast::BinaryExpType::SNe,
+            Self::Gt => llvm_ast::BinaryExpType::Gt,
+            Self::Ge => llvm_ast::BinaryExpType::Ge,
+            Self::Lt => llvm_ast::BinaryExpType::Lt,
+            Self::Le => llvm_ast::BinaryExpType::Le,
             // Arithmetic
             Self::Add => llvm_ast::BinaryExpType::Add,
             Self::Sub => llvm_ast::BinaryExpType::Sub,
@@ -53,6 +61,10 @@ impl Priority for BinaryExpType {
             BinaryExpType::Ne => 8,
             BinaryExpType::SEq => 8,
             BinaryExpType::SNe => 8,
+            BinaryExpType::Gt => 9,
+            BinaryExpType::Ge => 9,
+            BinaryExpType::Lt => 9,
+            BinaryExpType::Le => 9,
             BinaryExpType::And => 4,
             BinaryExpType::Or => 3,
             // Arithmetic

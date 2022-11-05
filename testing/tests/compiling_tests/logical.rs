@@ -49,3 +49,43 @@ fn sne_test() {
         .unwrap()
         .cleanup();
 }
+
+#[test]
+fn gt_test() {
+    CompileSuite::new("../test_scripts/logical/gt.js", "gt")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
+fn ge_test() {
+    CompileSuite::new("../test_scripts/logical/ge.js", "ge")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
+fn lt_test() {
+    CompileSuite::new("../test_scripts/logical/lt.js", "lt")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
+
+#[test]
+fn le_test() {
+    CompileSuite::new("../test_scripts/logical/le.js", "le")
+        .compile()
+        .unwrap()
+        .run()
+        .unwrap()
+        .cleanup();
+}
