@@ -39,6 +39,8 @@ fn can_stop(char: &char) -> bool {
         || char.eq(&'-')
         || char.eq(&'*')
         || char.eq(&'/')
+        || char.eq(&'>')
+        || char.eq(&'<')
 }
 
 pub struct TokenReader<R: Read> {
@@ -83,9 +85,7 @@ impl<R: Read> TokenReader<R> {
         while is_skip(&char) {
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
-                Err(e) if e == char_reader::Error::Eof => {
-                    return Ok(TokenResult::Token(Token::Eof))
-                }
+                Err(char_reader::Error::Eof) => return Ok(TokenResult::Token(Token::Eof)),
                 Err(e) => return Err(Error::ReaderError(e)),
             };
         }
@@ -102,7 +102,7 @@ impl<R: Read> TokenReader<R> {
                         while char != '\n' {
                             char = match self.char_reader.get_char() {
                                 Ok(char) => char,
-                                Err(e) if e == char_reader::Error::Eof => {
+                                Err(char_reader::Error::Eof) => {
                                     return Ok(TokenResult::Token(Token::Eof))
                                 }
                                 Err(e) => return Err(Error::ReaderError(e)),
@@ -115,7 +115,7 @@ impl<R: Read> TokenReader<R> {
                         loop {
                             char = match self.char_reader.get_char() {
                                 Ok(char) => char,
-                                Err(e) if e == char_reader::Error::Eof => {
+                                Err(char_reader::Error::Eof) => {
                                     return Ok(TokenResult::Token(Token::Eof))
                                 }
                                 Err(e) => return Err(Error::ReaderError(e)),
@@ -129,7 +129,7 @@ impl<R: Read> TokenReader<R> {
                             Ok('/') => {
                                 char = match self.char_reader.get_char() {
                                     Ok(char) => char,
-                                    Err(e) if e == char_reader::Error::Eof => {
+                                    Err(char_reader::Error::Eof) => {
                                         return Ok(TokenResult::Token(Token::Eof))
                                     }
                                     Err(e) => return Err(Error::ReaderError(e)),
@@ -141,7 +141,7 @@ impl<R: Read> TokenReader<R> {
                                     self.char_reader.get_position().clone(),
                                 ))
                             }
-                            Err(e) if e == char_reader::Error::Eof => {
+                            Err(char_reader::Error::Eof) => {
                                 return Err(Error::UnexpectedSymbol('*', position))
                             }
                             Err(e) => return Err(Error::ReaderError(e)),
@@ -153,7 +153,7 @@ impl<R: Read> TokenReader<R> {
                         Ok(TokenResult::Result('/'))
                     }
                 },
-                Err(e) if e == char_reader::Error::Eof => Ok(TokenResult::Result('/')),
+                Err(char_reader::Error::Eof) => Ok(TokenResult::Result('/')),
                 Err(e) => Err(Error::ReaderError(e)),
             }
         } else {
@@ -187,7 +187,7 @@ impl<R: Read> TokenReader<R> {
             loop {
                 char = match self.char_reader.get_char() {
                     Ok(char) => char,
-                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(char_reader::Error::Eof) => break,
                     Err(e) => return Err(Error::ReaderError(e)),
                 };
                 if !char.is_ascii_alphanumeric() && char != '_' {
@@ -272,7 +272,7 @@ impl<R: Read> TokenReader<R> {
             loop {
                 char = match self.char_reader.get_char() {
                     Ok(char) => char,
-                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(char_reader::Error::Eof) => break,
                     Err(e) => return Err(Error::ReaderError(e)),
                 };
                 if !char.is_ascii_digit() && char != '.' {
@@ -309,13 +309,13 @@ impl<R: Read> TokenReader<R> {
         if char == '=' {
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
-                Err(e) if e == char_reader::Error::Eof => return Ok(TokenResult::Result(())),
+                Err(char_reader::Error::Eof) => return Ok(TokenResult::Result(())),
                 Err(e) => return Err(Error::ReaderError(e)),
             };
             if char == '=' {
                 char = match self.char_reader.get_char() {
                     Ok(char) => char,
-                    Err(e) if e == char_reader::Error::Eof => {
+                    Err(char_reader::Error::Eof) => {
                         return Ok(TokenResult::Token(Token::Logical(Logical::Eq)))
                     }
                     Err(e) => return Err(Error::ReaderError(e)),
@@ -332,7 +332,7 @@ impl<R: Read> TokenReader<R> {
         if char == '!' {
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
-                Err(e) if e == char_reader::Error::Eof => {
+                Err(char_reader::Error::Eof) => {
                     return Ok(TokenResult::Token(Token::Logical(Logical::Not)))
                 }
                 Err(e) => return Err(Error::ReaderError(e)),
@@ -340,7 +340,7 @@ impl<R: Read> TokenReader<R> {
             if char == '=' {
                 char = match self.char_reader.get_char() {
                     Ok(char) => char,
-                    Err(e) if e == char_reader::Error::Eof => {
+                    Err(char_reader::Error::Eof) => {
                         return Ok(TokenResult::Token(Token::Logical(Logical::Ne)))
                     }
                     Err(e) => return Err(Error::ReaderError(e)),
@@ -359,9 +359,7 @@ impl<R: Read> TokenReader<R> {
             let postion = self.char_reader.get_position().clone();
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
-                Err(e) if e == char_reader::Error::Eof => {
-                    return Err(Error::UnexpectedSymbol('&', postion))
-                }
+                Err(char_reader::Error::Eof) => return Err(Error::UnexpectedSymbol('&', postion)),
                 Err(e) => return Err(Error::ReaderError(e)),
             };
             if char == '&' {
@@ -374,15 +372,39 @@ impl<R: Read> TokenReader<R> {
             let postion = self.char_reader.get_position().clone();
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
-                Err(e) if e == char_reader::Error::Eof => {
-                    return Err(Error::UnexpectedSymbol('|', postion))
-                }
+                Err(char_reader::Error::Eof) => return Err(Error::UnexpectedSymbol('|', postion)),
                 Err(e) => return Err(Error::ReaderError(e)),
             };
             if char == '|' {
                 return Ok(TokenResult::Token(Token::Logical(Logical::Or)));
             } else {
                 return Err(Error::UnexpectedSymbol('|', postion));
+            }
+        }
+        if char == '>' {
+            match self.char_reader.get_char() {
+                Ok('=') => return Ok(TokenResult::Token(Token::Logical(Logical::Ge))),
+                Ok(char) => {
+                    self.char_reader.save(char);
+                    return Ok(TokenResult::Token(Token::Logical(Logical::Gt)));
+                }
+                Err(char_reader::Error::Eof) => {
+                    return Ok(TokenResult::Token(Token::Logical(Logical::Gt)))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
+            }
+        }
+        if char == '<' {
+            match self.char_reader.get_char() {
+                Ok('=') => return Ok(TokenResult::Token(Token::Logical(Logical::Le))),
+                Ok(char) => {
+                    self.char_reader.save(char);
+                    return Ok(TokenResult::Token(Token::Logical(Logical::Lt)));
+                }
+                Err(char_reader::Error::Eof) => {
+                    return Ok(TokenResult::Token(Token::Logical(Logical::Lt)))
+                }
+                Err(e) => return Err(Error::ReaderError(e)),
             }
         }
         Ok(TokenResult::Result(()))
@@ -436,13 +458,13 @@ impl<R: Read> TokenReader<R> {
             loop {
                 char = match self.char_reader.get_char() {
                     Ok(char) => char,
-                    Err(e) if e == char_reader::Error::Eof => break,
+                    Err(char_reader::Error::Eof) => break,
                     Err(e) => return Err(Error::ReaderError(e)),
                 };
                 if char == '"' {
                     char = match self.char_reader.get_char() {
                         Ok(char) => char,
-                        Err(e) if e == char_reader::Error::Eof => break,
+                        Err(char_reader::Error::Eof) => break,
                         Err(e) => return Err(Error::ReaderError(e)),
                     };
                     // next symbol should be skipped symbol
@@ -536,7 +558,7 @@ impl<R: Read> TokenReader<R> {
                     })
                 })
             }),
-            Err(e) if e == char_reader::Error::Eof => Ok(Token::Eof),
+            Err(char_reader::Error::Eof) => Ok(Token::Eof),
             Err(e) => Err(Error::ReaderError(e)),
         }
     }

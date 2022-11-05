@@ -6,8 +6,8 @@ use self::{
     assertions::{AssertEqFn, AssertFn},
     convert::{ConvertToBooleanFn, ConvertToNumberFn, ConvertToStringFn},
     logical::{
-        LogicalAndFn, LogicalEqFn, LogicalNeFn, LogicalNotFn, LogicalOrFn, LogicalSEqFn,
-        LogicalSNeFn,
+        LogicalAndFn, LogicalEqFn, LogicalGeFn, LogicalGtFn, LogicalLeFn, LogicalLtFn, LogicalNeFn,
+        LogicalNotFn, LogicalOrFn, LogicalSEqFn, LogicalSNeFn,
     },
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, GetBooleanFn, GetPropertyByStrFn,
@@ -61,6 +61,10 @@ pub struct PredefineFunctions<'ctx> {
     logical_ne: LogicalNeFn<'ctx>,
     logical_seq: LogicalSEqFn<'ctx>,
     logical_sne: LogicalSNeFn<'ctx>,
+    logical_gt: LogicalGtFn<'ctx>,
+    logical_ge: LogicalGeFn<'ctx>,
+    logical_lt: LogicalLtFn<'ctx>,
+    logical_le: LogicalLeFn<'ctx>,
     // arithmetic functions
     arithmetic_addition: ArithmeticAdditionFn<'ctx>,
     arithmetic_substraction: ArithmeticSubstractionFn<'ctx>,
@@ -107,6 +111,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_ne: LogicalNeFn::declare(compiler),
             logical_seq: LogicalSEqFn::declare(compiler),
             logical_sne: LogicalSNeFn::declare(compiler),
+            logical_gt: LogicalGtFn::declare(compiler),
+            logical_ge: LogicalGeFn::declare(compiler),
+            logical_lt: LogicalLtFn::declare(compiler),
+            logical_le: LogicalLeFn::declare(compiler),
             // arithmetic functions
             arithmetic_addition: ArithmeticAdditionFn::declare(compiler),
             arithmetic_substraction: ArithmeticSubstractionFn::declare(compiler),
@@ -233,6 +241,22 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn logical_sne(&self) -> &LogicalSNeFn<'ctx> {
         &self.logical_sne
+    }
+
+    pub fn logical_gt(&self) -> &LogicalGtFn<'ctx> {
+        &self.logical_gt
+    }
+
+    pub fn logical_ge(&self) -> &LogicalGeFn<'ctx> {
+        &self.logical_ge
+    }
+
+    pub fn logical_lt(&self) -> &LogicalLtFn<'ctx> {
+        &self.logical_lt
+    }
+
+    pub fn logical_le(&self) -> &LogicalLeFn<'ctx> {
+        &self.logical_le
     }
 
     // arithmetic functions

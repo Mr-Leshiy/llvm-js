@@ -255,3 +255,151 @@ impl<'ctx> LogicalSNeFn<'ctx> {
         Variable { value }
     }
 }
+
+#[derive(Clone)]
+pub struct LogicalGtFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for LogicalGtFn<'ctx> {
+    const NAME: &'static str = "logical_gt";
+}
+
+impl<'ctx> LogicalGtFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val1: &Variable<'ctx>,
+        val2: &Variable<'ctx>,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable { value }
+    }
+}
+
+#[derive(Clone)]
+pub struct LogicalGeFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for LogicalGeFn<'ctx> {
+    const NAME: &'static str = "logical_ge";
+}
+
+impl<'ctx> LogicalGeFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val1: &Variable<'ctx>,
+        val2: &Variable<'ctx>,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable { value }
+    }
+}
+
+#[derive(Clone)]
+pub struct LogicalLtFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for LogicalLtFn<'ctx> {
+    const NAME: &'static str = "logical_lt";
+}
+
+impl<'ctx> LogicalLtFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val1: &Variable<'ctx>,
+        val2: &Variable<'ctx>,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable { value }
+    }
+}
+
+#[derive(Clone)]
+pub struct LogicalLeFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for LogicalLeFn<'ctx> {
+    const NAME: &'static str = "logical_le";
+}
+
+impl<'ctx> LogicalLeFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val1: &Variable<'ctx>,
+        val2: &Variable<'ctx>,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable { value }
+    }
+}
