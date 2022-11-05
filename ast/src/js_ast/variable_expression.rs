@@ -150,6 +150,18 @@ impl VariableExpression {
                 Token::Logical(Logical::SNe) => {
                     parse_binary_op(reader, rpn, BinaryExpType::SNe)?;
                 }
+                Token::Logical(Logical::Gt) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Gt)?;
+                }
+                Token::Logical(Logical::Ge) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Ge)?;
+                }
+                Token::Logical(Logical::Lt) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Lt)?;
+                }
+                Token::Logical(Logical::Le) => {
+                    parse_binary_op(reader, rpn, BinaryExpType::Le)?;
+                }
                 // Arithmetic
                 Token::Arithmetic(Arithmetic::Add) => {
                     parse_binary_op(reader, rpn, BinaryExpType::Add)?;
@@ -561,6 +573,223 @@ mod tests {
             ))),
         );
     }
+
+    #[test]
+    fn parse_gt_logical_expression_test() {
+        let mut reader = TokenReader::new("true > false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    exp_type: BinaryExpType::Gt,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false > a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Gt,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a > b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Gt,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_ge_logical_expression_test() {
+        let mut reader = TokenReader::new("true >= false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    exp_type: BinaryExpType::Ge,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false >= a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Ge,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a >= b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Ge,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_lt_logical_expression_test() {
+        let mut reader = TokenReader::new("true < false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    exp_type: BinaryExpType::Lt,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false < a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Lt,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a < b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Lt,
+                }
+            ))),
+        );
+    }
+
+    #[test]
+    fn parse_le_logical_expression_test() {
+        let mut reader = TokenReader::new("true <= false".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
+                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    exp_type: BinaryExpType::Le,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("false <= a".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Le,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a <= b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "a".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
+                            variable_name: "b".to_string().into(),
+                            property: None
+                        }
+                    )),
+                    exp_type: BinaryExpType::Le,
+                }
+            ))),
+        );
+    }
+
 
     #[test]
     fn parse_add_arithmetic_expression_test() {
