@@ -18,7 +18,7 @@ struct GarbageCollector
         return instance;
     }
 
-    void dec_counter(T *val)
+    void dec_counter(const T *val)
     {
         auto it = this->memory.find(val);
         if (it != this->memory.end())
@@ -31,7 +31,7 @@ struct GarbageCollector
             }
         }
     }
-    void inc_counter(T *val)
+    void inc_counter(const T *val)
     {
         auto it = this->memory.find(val);
         if (it != this->memory.end())
@@ -43,7 +43,7 @@ struct GarbageCollector
             this->memory.insert({val, 1});
         }
     }
-    uint32_t get_counter(T *val)
+    uint32_t get_counter(const T *val)
     {
         auto it = this->memory.find(val);
         if (it != this->memory.end())
@@ -58,7 +58,7 @@ struct GarbageCollector
 
 private:
     GarbageCollector() = default;
-    std::unordered_map<T *, uint32_t> memory;
+    std::unordered_map<const T *, uint32_t> memory;
 };
 
 #endif
