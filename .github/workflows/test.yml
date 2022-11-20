@@ -34,12 +34,12 @@ jobs:
       with:
         command: build
         args: --all-targets ${{ matrix.mode }}
+
+    - name: Install nextest
+      run: cargo install cargo-nextest --locked
     - if: ${{ runner.os == 'ubuntu-latest' }}
       name: Run tests
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: ${{ matrix.mode }}
+      run: cargo nextest run
 
   fmt:
     name: Fmt
