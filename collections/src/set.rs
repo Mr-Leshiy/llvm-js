@@ -36,17 +36,22 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
         self.hash_map.get(value).cloned()
     }
 
-    pub fn remove_last_added(&mut self, mut size: usize) {
+    pub fn remove_last_added(&mut self, mut size: usize) -> Vec<(V, u32)> {
+        let mut res = Vec::new();
         while size > 0 {
             match self.stack.pop() {
-                Some(value) => self
-                    .hash_map
-                    .remove(&value)
-                    .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value)),
+                Some(value) => {
+                    let counter = self
+                        .hash_map
+                        .remove(&value)
+                        .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value));
+                    res.push((value, counter));
+                }
                 None => break,
-            };
+            }
             size -= 1;
         }
+        res
     }
 
     pub fn len(&self) -> usize {
@@ -78,7 +83,7 @@ mod tests {
     fn set_test() {
         let mut set = Set::new();
 
-        set.remove_last_added(10);
+        assert_eq!(set.remove_last_added(10), vec![]);
         assert_eq!(set.len(), 0);
 
         assert_eq!(set.insert(5), 0);
@@ -90,13 +95,13 @@ mod tests {
         assert_eq!(set.get(&6), Some(0));
         assert_eq!(set.len(), 2);
 
-        set.remove_last_added(1);
+        assert_eq!(set.remove_last_added(1), vec![(6, 0)]);
 
         assert_eq!(set.get(&5), Some(1));
         assert_eq!(set.get(&6), None);
         assert_eq!(set.len(), 1);
 
-        set.remove_last_added(3);
+        assert_eq!(set.remove_last_added(3), vec![(5, 1)]);
 
         assert_eq!(set.get(&5), None);
         assert_eq!(set.get(&6), None);

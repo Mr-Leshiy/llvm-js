@@ -1,6 +1,7 @@
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 use compiler::{self, Compiler, Context, MainFunction};
+pub use deallocate_expression::DeallocateExpression;
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
@@ -20,6 +21,7 @@ pub use while_loop::WhileLoop;
 
 mod array_expression;
 mod binary_expression;
+mod deallocate_expression;
 mod do_while_loop;
 mod expression;
 mod function_call;

@@ -13,8 +13,11 @@ Variable *allocate()
     return res;
 }
 
-void deallocate(Variable *)
+void deallocate(Variable *self)
 {
+    assert(self != nullptr);
+
+    printf("deallocate, var: %s \n", self->to_string().c_str());
 }
 
 void set_undefined(Variable *self)
