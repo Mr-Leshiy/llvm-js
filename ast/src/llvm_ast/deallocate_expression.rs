@@ -1,7 +1,7 @@
 use super::Identifier;
 use compiler::{Compiler, Function};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DeallocateExpression {
     pub name: Identifier,
 }
