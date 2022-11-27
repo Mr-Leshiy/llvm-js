@@ -17,9 +17,9 @@ impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
 
 impl<'ctx> AllocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let ret_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
 
-        let function_type = ret_type.fn_type(&[], false);
+        let function_type = var_type.fn_type(&[], false);
         let func = compiler
             .module
             .add_function(Self::NAME, function_type, Some(Linkage::External));
@@ -36,6 +36,37 @@ impl<'ctx> AllocateFn<'ctx> {
             .unwrap()
             .into_pointer_value();
         Variable { value }
+    }
+}
+
+#[derive(Clone)]
+pub struct DeallocateFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for DeallocateFn<'ctx> {
+    const NAME: &'static str = "deallocate";
+}
+
+impl<'ctx> DeallocateFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+
+        Self { func }
+    }
+
+    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
+        compiler
+            .builder
+            .build_call(self.func, &[val.value.into()], "");
     }
 }
 

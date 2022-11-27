@@ -45,9 +45,16 @@ impl BlockStatement {
                 .into_iter()
                 .for_each(|expr| res.push(expr))
         }
-        precompiler
+        let vars = precompiler
             .variables
             .remove_last_added(precompiler.variables.len() - variables_len);
+        for (var, index) in vars {
+            res.push(llvm_ast::Expression::DeallocateExpression(
+                llvm_ast::DeallocateExpression {
+                    name: llvm_ast::Identifier::new(var.name, index),
+                },
+            ));
+        }
         precompiler
             .functions
             .remove_last_added(precompiler.functions.len() - functions_len);
@@ -157,14 +164,17 @@ mod tests {
 
         assert_eq!(
             block_statement.precompile(&mut precompiler),
-            Ok(vec![llvm_ast::Expression::VariableDeclaration(
-                llvm_ast::VariableDeclaration {
+            Ok(vec![
+                llvm_ast::Expression::VariableDeclaration(llvm_ast::VariableDeclaration {
                     name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                     value: Some(llvm_ast::VariableExpression::VariableValue(
                         llvm_ast::VariableValue::FloatNumber(64_f64)
                     )),
-                }
-            )])
+                }),
+                llvm_ast::Expression::DeallocateExpression(llvm_ast::DeallocateExpression {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0)
+                })
+            ])
         );
         assert_eq!(precompiler.variables.len(), 0);
     }

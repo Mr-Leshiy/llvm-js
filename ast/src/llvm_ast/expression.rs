@@ -1,6 +1,6 @@
 use super::{
-    DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement, VariableAssigment,
-    VariableDeclaration, WhileLoop,
+    DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
+    VariableAssigment, VariableDeclaration, WhileLoop,
 };
 use compiler::{self, Compile, Compiler, Function};
 
@@ -8,6 +8,7 @@ use compiler::{self, Compile, Compiler, Function};
 pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
+    DeallocateExpression(DeallocateExpression),
     FunctionCall(FunctionCall),
     ReturnStatement(ReturnStatement),
     IfElseStatement(IfElseStatement),
@@ -28,6 +29,10 @@ impl Compile<Identifier> for Expression {
             }
             Self::VariableAssigment(variable_assigment) => {
                 variable_assigment.compile(compiler, cur_function)?;
+                Ok(false)
+            }
+            Self::DeallocateExpression(deallocate_expression) => {
+                deallocate_expression.compile(compiler, cur_function)?;
                 Ok(false)
             }
             Self::FunctionCall(function_call) => {

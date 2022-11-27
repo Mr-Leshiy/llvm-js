@@ -1,5 +1,6 @@
 
 #include "variable/variable.hpp"
+#include "garbage_collector/garbage_collector.hpp"
 #include <assert.h>
 
 extern "C"
@@ -10,7 +11,15 @@ extern "C"
 Variable *allocate()
 {
     Variable *res = new Variable();
+    GarbageCollector<Variable>::get_instance().inc_counter(res);
     return res;
+}
+
+void deallocate(Variable *self)
+{
+    assert(self != nullptr);
+
+    GarbageCollector<Variable>::get_instance().dec_counter(self);
 }
 
 void set_undefined(Variable *self)
