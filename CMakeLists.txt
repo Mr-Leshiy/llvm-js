@@ -19,6 +19,8 @@ include(FetchContent)
 add_subdirectory(c)
 include_directories(c)
 
+include(cmake/fmt.cmake)
+
 if(LLVM)
     include(cmake/llvm.cmake)
 endif()
