@@ -325,7 +325,7 @@ Variable *logical_le(Variable *val1, Variable *val2)
     return ret;
 }
 
-void variable_ASSERT(Variable *val)
+void variable_assert(Variable *val)
 {
     ASSERT(val != nullptr);
 
@@ -335,7 +335,7 @@ void variable_ASSERT(Variable *val)
     }
 }
 
-void variable_ASSERT_eq(Variable *val1, Variable *val2)
+void variable_assert_eq(Variable *val1, Variable *val2)
 {
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
