@@ -16,6 +16,8 @@ option(LLVM         "Build llvm"    OFF)
 
 include(FetchContent)
 
+include(cmake/fmt.cmake)
+
 add_subdirectory(c)
 include_directories(c)
 

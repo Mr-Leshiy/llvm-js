@@ -1,6 +1,6 @@
-#include <assert.h>
 #include <string>
 
+#include "assert/assert.hpp"
 #include "number.hpp"
 
 NumberType Number::get_type() const
@@ -30,7 +30,7 @@ bool Number::to_boolean() const
         return this->value != 0;
         break;
     default:
-        assert(false);
+        ASSERT(false);
         break;
     }
 }
@@ -52,7 +52,7 @@ std::string Number::to_string() const
         return std::to_string(this->value);
         break;
     default:
-        assert(false);
+        ASSERT(false);
         break;
     }
 }
@@ -429,7 +429,7 @@ bool operator==(const Number &a, const Number &b)
         }
         break;
     default:
-        assert(false);
+        ASSERT(false);
         break;
     }
 
@@ -455,7 +455,7 @@ bool operator>(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
@@ -474,7 +474,7 @@ bool operator>(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
@@ -493,14 +493,14 @@ bool operator>(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
     case NumberType::NaN:
         break;
     default:
-        assert(false);
+        ASSERT(false);
         break;
     }
     return false;
@@ -525,7 +525,7 @@ bool operator>=(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
@@ -544,7 +544,7 @@ bool operator>=(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
@@ -563,14 +563,14 @@ bool operator>=(const Number &a, const Number &b)
         case NumberType::NaN:
             break;
         default:
-            assert(false);
+            ASSERT(false);
             break;
         }
         break;
     case NumberType::NaN:
         break;
     default:
-        assert(false);
+        ASSERT(false);
         break;
     }
     return false;
