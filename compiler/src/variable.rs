@@ -17,6 +17,12 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
+    pub fn deallocate<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
+        let deallocate_fn = compiler.predefined_functions()?.deallocate();
+        deallocate_fn.call(compiler, self);
+        Ok(())
+    }
+
     pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
         let variable = Self::new(compiler)?;
         let set_undefined_fn = compiler.predefined_functions()?.set_undefined();

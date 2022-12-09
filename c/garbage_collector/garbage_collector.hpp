@@ -2,7 +2,24 @@
 #define C_GARBAGE_COLLECTOR_HPP
 
 #include <memory>
+#include <string>
 #include <unordered_map>
+
+template <typename T>
+struct GarbageCollector;
+
+template <typename T>
+struct Allocator
+{
+
+    friend GarbageCollector<T>;
+
+private:
+    static T *allocate()
+    {
+        return T::allocate_impl();
+    }
+};
 
 template <typename T>
 struct GarbageCollector
@@ -18,6 +35,12 @@ struct GarbageCollector
         return instance;
     }
 
+    T* allocate() {
+        auto val = Allocator<T>::allocate();
+        this->memory.insert({val, 1});
+        return val;
+    }
+
     void dec_counter(const T *val)
     {
         auto it = this->memory.find(val);
@@ -31,6 +54,7 @@ struct GarbageCollector
             }
         }
     }
+
     void inc_counter(const T *val)
     {
         auto it = this->memory.find(val);
@@ -43,6 +67,7 @@ struct GarbageCollector
             this->memory.insert({val, 1});
         }
     }
+
     uint32_t get_counter(const T *val)
     {
         auto it = this->memory.find(val);
@@ -54,6 +79,17 @@ struct GarbageCollector
         {
             return 0;
         }
+    }
+
+    std::string to_string() const
+    {
+        std::string res = "";
+        for (const auto &el : this->memory)
+        {
+            res += "[ address: " + std::to_string(((uint64_t)el.first)) + " counter: " + std::to_string(el.second) + "]\n";
+        }
+
+        return res;
     }
 
 private:

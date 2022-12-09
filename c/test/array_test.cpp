@@ -11,12 +11,9 @@ TEST(Array, Basic_test)
     EXPECT_EQ(array.len(), 0);
     EXPECT_EQ(array.to_string(), "[]");
 
-    Variable var1;
-    var1.set_number(Number(2));
-    Variable var2;
-    var2.set_string("name");
-    Variable var3;
-    var3.set_boolean(true);
+    Variable var1 = test::VariableTest().set_number(Number(2));
+    Variable var2 = test::VariableTest().set_string("name");
+    Variable var3 = test::VariableTest().set_boolean(true);
 
     array = Array({&var1, &var2, &var3});
 

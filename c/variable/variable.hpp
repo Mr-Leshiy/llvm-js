@@ -6,6 +6,7 @@
 #include "object/object.hpp"
 #include "number/number.hpp"
 #include "array/array.hpp"
+#include "garbage_collector/garbage_collector.hpp"
 
 enum class Type
 {
@@ -18,25 +19,22 @@ enum class Type
     Array,
 };
 
+namespace test
+{
+    struct VariableTest;
+}
+
 struct Variable
 {
-    Variable();
-    Variable(Type);
-    Variable(bool);
-    Variable(const char *);
-    Variable(const Number &);
-    Variable(const Object &);
-    Variable(const Array &);
-
     Variable &operator=(const Variable &);
 
-    void set_undefined();
-    void set_null();
-    void set_number(const Number &);
-    void set_boolean(bool);
-    void set_string(const std::string &);
-    void set_object(const Object &);
-    void set_array(const Array &);
+    Variable &set_undefined();
+    Variable &set_null();
+    Variable &set_number(const Number &);
+    Variable &set_boolean(bool);
+    Variable &set_string(const std::string &);
+    Variable &set_object(const Object &);
+    Variable &set_array(const Array &);
 
     Type get_flag() const;
     bool get_boolean() const;
@@ -71,7 +69,19 @@ struct Variable
     friend Variable operator&&(const Variable &a, const Variable &b);
     friend Variable operator||(const Variable &a, const Variable &b);
 
+    // Allocator impl
+    friend Allocator<Variable>;
+    static Variable *allocate_impl()
+    {
+        return new Variable();
+    }
+
+    // for tests
+    friend test::VariableTest;
+
 private:
+    Variable();
+
     Type flag;
     Number number_field;
     bool boolean_field;
@@ -79,5 +89,16 @@ private:
     Object object_field;
     Array array_field;
 };
+
+namespace test
+{
+    struct VariableTest : Variable
+    {
+        VariableTest()
+        {
+            this->set_undefined();
+        }
+    };
+}
 
 #endif

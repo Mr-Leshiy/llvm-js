@@ -15,7 +15,7 @@ Variable *Object::get_property(const std::string &key, bool allocate)
     }
     else
     {
-        auto *ret = new Variable();
+        auto *ret = GarbageCollector<Variable>::get_instance().allocate();
         if (allocate)
         {
             this->add_property(key, ret);
