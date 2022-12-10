@@ -2,8 +2,7 @@ use super::{Identifier, VariableExpression};
 use compiler::{
     self,
     predefined_functions::{
-        assertions::{AssertEqFn, AssertFn},
-        variable::PrintFn,
+        test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
         PredefineFunctionName,
     },
     Compiler, Function, Variable,
@@ -31,8 +30,8 @@ impl FunctionCall {
         match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let mut iter = args.into_iter();
-                let pritnf = compiler.predefined_functions()?.print();
-                pritnf.call(
+                let pritn = compiler.predefined_functions()?.print();
+                pritn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
@@ -56,6 +55,10 @@ impl FunctionCall {
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
                 Ok(Variable::new_undefined(compiler)?)
+            }
+            GbVariablesCount::NAME => {
+                let gb_variables_count = compiler.predefined_functions()?.gb_variables_count();
+                Ok(gb_variables_count.call(compiler))
             }
             _ => {
                 let function = compiler.get_function(self.name)?;

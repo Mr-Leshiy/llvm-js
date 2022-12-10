@@ -326,6 +326,8 @@ Variable *logical_le(Variable *val1, Variable *val2)
     return ret;
 }
 
+// Testing utils
+
 void variable_assert(Variable *val)
 {
     ASSERT(val != nullptr);
@@ -345,6 +347,13 @@ void variable_assert_eq(Variable *val1, Variable *val2)
     {
         abort();
     }
+}
+
+Variable *gb_variables_count()
+{
+    static Variable var = test::VariableTest();
+    var.set_number(Number(GarbageCollector<Variable>::get_instance().get_variables_count()));
+    return &var;
 }
 
 void print(Variable *self)

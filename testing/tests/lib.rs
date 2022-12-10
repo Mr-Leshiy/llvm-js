@@ -2,8 +2,7 @@ mod compiling_tests;
 
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    assertions::{AssertEqFn, AssertFn},
-    variable::PrintFn,
+    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
     PredefineFunctionName,
 };
 use std::{
@@ -71,6 +70,7 @@ fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
         PrintFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
         AssertEqFn::NAME.to_string(),
+        GbVariablesCount::NAME.to_string(),
     ];
 
     let llvm_module = js_module

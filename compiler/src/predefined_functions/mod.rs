@@ -3,25 +3,25 @@ use self::{
         ArithmeticAdditionFn, ArithmeticDivisionFn, ArithmeticMultiplicationFn,
         ArithmeticSubstractionFn,
     },
-    assertions::{AssertEqFn, AssertFn},
     convert::{ConvertToBooleanFn, ConvertToNumberFn, ConvertToStringFn},
     logical::{
         LogicalAndFn, LogicalEqFn, LogicalGeFn, LogicalGtFn, LogicalLeFn, LogicalLtFn, LogicalNeFn,
         LogicalNotFn, LogicalOrFn, LogicalSEqFn, LogicalSNeFn,
     },
+    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, GetBooleanFn,
-        GetPropertyByStrFn, GetPropertyByVarFn, PrintFn, RemovePropertyFn, SetArrayFn,
-        SetBooleanFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn,
-        SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn, SetBooleanFn,
+        SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn, SetObjectFn,
+        SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
 
 pub mod arithmetic;
-pub mod assertions;
 pub mod convert;
 pub mod logical;
+pub mod test;
 pub mod variable;
 
 pub trait PredefineFunctionName {
@@ -29,9 +29,6 @@ pub trait PredefineFunctionName {
 }
 
 pub struct PredefineFunctions<'ctx> {
-    // assertion functions
-    assert: AssertFn<'ctx>,
-    assert_eq: AssertEqFn<'ctx>,
     // variable functions
     allocate: AllocateFn<'ctx>,
     deallocate: DeallocateFn<'ctx>,
@@ -47,7 +44,6 @@ pub struct PredefineFunctions<'ctx> {
     set_string: SetStringFn<'ctx>,
     set_variable: SetVariableFn<'ctx>,
     get_boolean: GetBooleanFn<'ctx>,
-    printf: PrintFn<'ctx>,
     // object functions
     add_property_by_str: AddPropertyByStrFn<'ctx>,
     add_property_by_var: AddPropertyByVarFn<'ctx>,
@@ -75,14 +71,16 @@ pub struct PredefineFunctions<'ctx> {
     convert_to_boolean: ConvertToBooleanFn<'ctx>,
     convert_to_number: ConvertToNumberFn<'ctx>,
     convert_to_string: ConvertToStringFn<'ctx>,
+    // testing utils
+    assert: AssertFn<'ctx>,
+    assert_eq: AssertEqFn<'ctx>,
+    gb_variables_count: GbVariablesCount<'ctx>,
+    printf: PrintFn<'ctx>,
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
     pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Self {
         Self {
-            // assertion functions
-            assert: AssertFn::declare(compiler),
-            assert_eq: AssertEqFn::declare(compiler),
             // variable functions
             allocate: AllocateFn::declare(compiler),
             deallocate: DeallocateFn::declare(compiler),
@@ -98,7 +96,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_string: SetStringFn::declare(compiler),
             set_variable: SetVariableFn::declare(compiler),
             get_boolean: GetBooleanFn::declare(compiler),
-            printf: PrintFn::declare(compiler),
             // object functions
             add_property_by_str: AddPropertyByStrFn::declare(compiler),
             add_property_by_var: AddPropertyByVarFn::declare(compiler),
@@ -126,16 +123,12 @@ impl<'ctx> PredefineFunctions<'ctx> {
             convert_to_boolean: ConvertToBooleanFn::declare(compiler),
             convert_to_number: ConvertToNumberFn::declare(compiler),
             convert_to_string: ConvertToStringFn::declare(compiler),
+            // testing utils
+            assert: AssertFn::declare(compiler),
+            assert_eq: AssertEqFn::declare(compiler),
+            gb_variables_count: GbVariablesCount::declare(compiler),
+            printf: PrintFn::declare(compiler),
         }
-    }
-
-    // assetion functions
-    pub fn assert(&self) -> &AssertFn<'ctx> {
-        &self.assert
-    }
-
-    pub fn assert_eq(&self) -> &AssertEqFn<'ctx> {
-        &self.assert_eq
     }
 
     // variable functions
@@ -193,10 +186,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_boolean(&self) -> &GetBooleanFn<'ctx> {
         &self.get_boolean
-    }
-
-    pub fn print(&self) -> &PrintFn<'ctx> {
-        &self.printf
     }
 
     // object functions
@@ -293,5 +282,22 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn convert_to_string(&self) -> &ConvertToStringFn<'ctx> {
         &self.convert_to_string
+    }
+
+    // testing utils
+    pub fn assert(&self) -> &AssertFn<'ctx> {
+        &self.assert
+    }
+
+    pub fn assert_eq(&self) -> &AssertEqFn<'ctx> {
+        &self.assert_eq
+    }
+
+    pub fn gb_variables_count(&self) -> &GbVariablesCount<'ctx> {
+        &self.gb_variables_count
+    }
+
+    pub fn print(&self) -> &PrintFn<'ctx> {
+        &self.printf
     }
 }

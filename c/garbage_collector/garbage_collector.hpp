@@ -35,7 +35,8 @@ struct GarbageCollector
         return instance;
     }
 
-    T* allocate() {
+    T *allocate()
+    {
         auto val = Allocator<T>::allocate();
         this->memory.insert({val, 1});
         return val;
@@ -79,6 +80,11 @@ struct GarbageCollector
         {
             return 0;
         }
+    }
+
+    uint32_t get_variables_count()
+    {
+        return this->memory.size();
     }
 
     std::string to_string() const
