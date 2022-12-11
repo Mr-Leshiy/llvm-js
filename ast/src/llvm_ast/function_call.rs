@@ -25,6 +25,9 @@ impl FunctionCall {
             let value = arg.compile(compiler, cur_function)?;
             let arg = Variable::new_undefined(compiler, true)?;
             arg.assign_variable(compiler, &value)?;
+            if value.is_tmp() {
+                value.deallocate(compiler)?;
+            }
             args.push(arg);
         }
         let res = match String::from(self.name.clone()).as_str() {
