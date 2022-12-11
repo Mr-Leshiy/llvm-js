@@ -24,13 +24,13 @@ impl VariableValue {
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         match self {
             Self::Undefined => Variable::new_undefined(compiler, true),
-            Self::Null => Variable::new_null(compiler),
-            Self::NaN => Variable::new_nan(compiler),
-            Self::Infinity => Variable::new_infinity(compiler),
-            Self::NegInfinity => Variable::new_neginfinity(compiler),
-            Self::Boolean(boolean) => Variable::new_boolean(compiler, boolean),
-            Self::String(string) => Variable::new_string(compiler, &string),
-            Self::FloatNumber(number) => Variable::new_number(compiler, number),
+            Self::Null => Variable::new_null(compiler, true),
+            Self::NaN => Variable::new_nan(compiler, true),
+            Self::Infinity => Variable::new_infinity(compiler, true),
+            Self::NegInfinity => Variable::new_neginfinity(compiler, true),
+            Self::Boolean(boolean) => Variable::new_boolean(compiler, boolean, true),
+            Self::String(string) => Variable::new_string(compiler, &string, true),
+            Self::FloatNumber(number) => Variable::new_number(compiler, number, true),
             Self::MemberExpression(member_expression) => {
                 member_expression.compile(compiler, cur_function, false)
             }
