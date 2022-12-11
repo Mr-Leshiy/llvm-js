@@ -35,7 +35,10 @@ impl<'ctx> ArithmeticAdditionFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -72,7 +75,10 @@ impl<'ctx> ArithmeticSubstractionFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -109,7 +115,10 @@ impl<'ctx> ArithmeticMultiplicationFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -146,6 +155,9 @@ impl<'ctx> ArithmeticDivisionFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }

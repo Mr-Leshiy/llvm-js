@@ -35,7 +35,10 @@ impl<'ctx> AllocateFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
@@ -603,7 +606,10 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
@@ -657,7 +663,10 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 

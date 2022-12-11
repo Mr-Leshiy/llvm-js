@@ -5,6 +5,7 @@ use inkwell::values::PointerValue;
 #[derive(Clone)]
 pub struct Variable<'ctx> {
     pub(crate) value: PointerValue<'ctx>,
+    pub(crate) is_tmp: bool,
 }
 
 impl<'ctx> Variable<'ctx> {
@@ -17,16 +18,21 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
+    pub fn is_tmp(&self) -> bool {
+        self.is_tmp
+    }
+
     pub fn deallocate<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
         let deallocate_fn = compiler.predefined_functions()?.deallocate();
         deallocate_fn.call(compiler, self);
         Ok(())
     }
 
-    pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_undefined_fn = compiler.predefined_functions()?.set_undefined();
         set_undefined_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 

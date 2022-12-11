@@ -36,7 +36,10 @@ where
                     .get(i)
                     .expect("")
                     .into_pointer_value();
-                return Ok(Variable { value: arg });
+                return Ok(Variable {
+                    value: arg,
+                    is_tmp: false,
+                });
             }
         }
 
@@ -70,7 +73,7 @@ where
             }
         }
         if !is_returned {
-            let ret = Variable::new_undefined(compiler)?;
+            let ret = Variable::new_undefined(compiler, true)?;
             compiler.builder.build_return(Some(&ret.value));
         }
         Ok(())
@@ -102,6 +105,9 @@ where
             .left()
             .unwrap()
             .into_pointer_value();
-        Ok(Variable { value })
+        Ok(Variable {
+            value,
+            is_tmp: true,
+        })
     }
 }

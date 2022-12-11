@@ -23,7 +23,7 @@ impl FunctionCall {
         let mut args = Vec::new();
         for arg in self.args.into_iter() {
             let value = arg.compile(compiler, cur_function)?;
-            let arg = Variable::new_undefined(compiler)?;
+            let arg = Variable::new_undefined(compiler, true)?;
             arg.assign_variable(compiler, &value)?;
             args.push(arg);
         }
@@ -35,7 +35,7 @@ impl FunctionCall {
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler)?)
+                Ok(Variable::new_undefined(compiler, true)?)
             }
             AssertFn::NAME => {
                 let mut iter = args.into_iter();
@@ -44,7 +44,7 @@ impl FunctionCall {
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler)?)
+                Ok(Variable::new_undefined(compiler, true)?)
             }
             AssertEqFn::NAME => {
                 let mut iter = args.into_iter();
@@ -54,7 +54,7 @@ impl FunctionCall {
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler)?)
+                Ok(Variable::new_undefined(compiler, true)?)
             }
             GbVariablesCount::NAME => {
                 let gb_variables_count = compiler.predefined_functions()?.gb_variables_count();

@@ -30,7 +30,10 @@ impl<'ctx> ConvertToBooleanFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -62,7 +65,10 @@ impl<'ctx> ConvertToNumberFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -94,6 +100,9 @@ impl<'ctx> ConvertToStringFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }

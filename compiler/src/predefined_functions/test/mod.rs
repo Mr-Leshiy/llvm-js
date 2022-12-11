@@ -100,7 +100,10 @@ impl<'ctx> GbVariablesCount<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 

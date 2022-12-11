@@ -23,7 +23,7 @@ impl VariableValue {
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
         match self {
-            Self::Undefined => Variable::new_undefined(compiler),
+            Self::Undefined => Variable::new_undefined(compiler, true),
             Self::Null => Variable::new_null(compiler),
             Self::NaN => Variable::new_nan(compiler),
             Self::Infinity => Variable::new_infinity(compiler),

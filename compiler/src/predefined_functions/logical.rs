@@ -30,7 +30,10 @@ impl<'ctx> LogicalNotFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -67,7 +70,10 @@ impl<'ctx> LogicalAndFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -104,7 +110,10 @@ impl<'ctx> LogicalOrFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -141,7 +150,10 @@ impl<'ctx> LogicalEqFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -178,7 +190,10 @@ impl<'ctx> LogicalNeFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -215,7 +230,10 @@ impl<'ctx> LogicalSEqFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -252,7 +270,10 @@ impl<'ctx> LogicalSNeFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -289,7 +310,10 @@ impl<'ctx> LogicalGtFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -326,7 +350,10 @@ impl<'ctx> LogicalGeFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -363,7 +390,10 @@ impl<'ctx> LogicalLtFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
 
@@ -400,6 +430,9 @@ impl<'ctx> LogicalLeFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: true,
+        }
     }
 }
