@@ -13,10 +13,13 @@ impl ObjectExpression {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
-        let res = Variable::new_object(compiler)?;
+        let res = Variable::new_object(compiler, true)?;
         for (key, value) in self.properties {
             let value = value.compile(compiler, cur_function)?;
             res.add_property_by_str(compiler, &String::from(key), &value)?;
+            if value.is_tmp() {
+                value.deallocate(compiler)?;
+            }
         }
         Ok(res)
     }
