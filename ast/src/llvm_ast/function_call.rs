@@ -27,9 +27,9 @@ impl FunctionCall {
             arg.assign_variable(compiler, &value)?;
             args.push(arg);
         }
-        match String::from(self.name.clone()).as_str() {
+        let res = match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
-                let mut iter = args.into_iter();
+                let mut iter = args.clone().into_iter();
                 let pritn = compiler.predefined_functions()?.print();
                 pritn.call(
                     compiler,
@@ -38,7 +38,7 @@ impl FunctionCall {
                 Ok(Variable::new_undefined(compiler, true)?)
             }
             AssertFn::NAME => {
-                let mut iter = args.into_iter();
+                let mut iter = args.clone().into_iter();
                 let assert_fn = compiler.predefined_functions()?.assert();
                 assert_fn.call(
                     compiler,
@@ -47,7 +47,7 @@ impl FunctionCall {
                 Ok(Variable::new_undefined(compiler, true)?)
             }
             AssertEqFn::NAME => {
-                let mut iter = args.into_iter();
+                let mut iter = args.clone().into_iter();
                 let assert_eq_fn = compiler.predefined_functions()?.assert_eq();
                 assert_eq_fn.call(
                     compiler,
@@ -62,8 +62,13 @@ impl FunctionCall {
             }
             _ => {
                 let function = compiler.get_function(self.name)?;
-                function.call(compiler, args)
+                function.call(compiler, args.clone())
             }
+        };
+        // deallocate arguments
+        for arg in args {
+            arg.deallocate(compiler)?;
         }
+        res
     }
 }

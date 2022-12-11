@@ -36,7 +36,8 @@ impl Compile<Identifier> for Expression {
                 Ok(false)
             }
             Self::FunctionCall(function_call) => {
-                function_call.compile(compiler, cur_function)?;
+                let var = function_call.compile(compiler, cur_function)?;
+                var.deallocate(compiler)?;
                 Ok(false)
             }
             Self::ReturnStatement(return_statement) => {
