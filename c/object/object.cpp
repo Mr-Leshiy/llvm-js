@@ -1,6 +1,24 @@
 #include "object.hpp"
 #include "variable/variable.hpp"
 
+Object::~Object()
+{
+    for (const auto &val : this->properties)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(val.second);
+    }
+}
+
+Object &Object::operator=(const Object &val)
+{
+    this->properties = val.properties;
+    for (const auto &val : this->properties)
+    {
+        GarbageCollector<Variable>::get_instance().inc_counter(val.second);
+    }
+    return *this;
+}
+
 void Object::add_property(const std::string &key, Variable *val)
 {
     this->properties[key] = val;

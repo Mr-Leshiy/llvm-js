@@ -17,9 +17,6 @@ impl ObjectExpression {
         for (key, value) in self.properties {
             let value = value.compile(compiler, cur_function)?;
             res.add_property_by_str(compiler, &String::from(key), &value)?;
-            if value.is_tmp() {
-                value.deallocate(compiler)?;
-            }
         }
         Ok(res)
     }
