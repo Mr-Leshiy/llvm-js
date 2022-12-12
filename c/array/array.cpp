@@ -1,6 +1,24 @@
 #include "array.hpp"
 #include "variable/variable.hpp"
 
+Array::~Array()
+{
+    for (const auto &val : this->values)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(val);
+    }
+}
+
+Array &Array::operator=(const Array &val)
+{
+    this->values = val.values;
+    for (const auto &val : this->values)
+    {
+        GarbageCollector<Variable>::get_instance().inc_counter(val);
+    }
+    return *this;
+}
+
 void Array::push(Variable &value)
 {
     this->values.push_back(&value);

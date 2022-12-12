@@ -54,6 +54,7 @@ struct GarbageCollector
                 delete it->first;
             }
         }
+        // printf("GB: \n %s\n", this->to_string().c_str());
     }
 
     void inc_counter(const T *val)
@@ -67,6 +68,7 @@ struct GarbageCollector
         {
             this->memory.insert({val, 1});
         }
+        // printf("GB: \n %s\n", this->to_string().c_str());
     }
 
     uint32_t get_counter(const T *val)

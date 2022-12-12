@@ -16,9 +16,6 @@ impl ArrayExpression {
         for (i, el) in self.values.into_iter().enumerate() {
             let value = el.compile(compiler, cur_function)?;
             res.add_property_by_str(compiler, i.to_string().as_str(), &value)?;
-            if value.is_tmp() {
-                value.deallocate(compiler)?;
-            }
         }
         Ok(res)
     }

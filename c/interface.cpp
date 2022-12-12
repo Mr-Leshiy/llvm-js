@@ -11,7 +11,6 @@ extern "C"
 Variable *allocate()
 {
     Variable *res = GarbageCollector<Variable>::get_instance().allocate();
-    // printf("GB: \n %s\n", GarbageCollector<Variable>::get_instance().to_string().c_str());
     return res;
 }
 
@@ -20,7 +19,6 @@ void deallocate(Variable *self)
     ASSERT(self != nullptr);
 
     GarbageCollector<Variable>::get_instance().dec_counter(self);
-    // printf("GB: \n %s\n", GarbageCollector<Variable>::get_instance().to_string().c_str());
 }
 
 void set_undefined(Variable *self)
@@ -55,7 +53,7 @@ void set_array(Variable *self)
 {
     ASSERT(self != nullptr);
 
-    self->set_array(Array(std::vector<Variable *>{}));
+    self->set_array(Array());
 }
 
 void set_infinity(Variable *self)
