@@ -24,6 +24,14 @@ private:
 template <typename T>
 struct GarbageCollector
 {
+    ~GarbageCollector()
+    {
+        for (const auto &el : this->memory)
+        {
+            delete el.first;
+        }
+    }
+
     GarbageCollector(GarbageCollector &) = delete;
     void operator=(const GarbageCollector &) = delete;
     GarbageCollector(GarbageCollector &&) = delete;

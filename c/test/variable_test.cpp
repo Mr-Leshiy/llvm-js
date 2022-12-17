@@ -49,9 +49,9 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val1.get_object(), Object());
     EXPECT_EQ(val2.get_object(), Object());
 
-    Variable tmp1 = test::VariableTest();
-    Variable tmp2 = test::VariableTest();
-    val1.set_array(Array({&tmp1, &tmp2}));
+    Variable *tmp1 = GarbageCollector<Variable>::get_instance().allocate();
+    Variable *tmp2 = GarbageCollector<Variable>::get_instance().allocate();
+    val1.set_array(Array({tmp1, tmp2}));
     val2 = val1;
     EXPECT_EQ(val1.get_flag(), Type::Array);
     EXPECT_EQ(val2.get_flag(), Type::Array);

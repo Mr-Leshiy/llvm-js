@@ -7,7 +7,7 @@ TEST(Object, Basic_test)
 {
     Object object;
 
-    Variable value = test::VariableTest().set_number(Number(12));
+    Variable &value = GarbageCollector<Variable>::get_instance().allocate()->set_number(Number(12));
     object.add_property("name", &value);
 
     EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
@@ -16,7 +16,7 @@ TEST(Object, Basic_test)
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
 
-    Variable key = test::VariableTest().set_string("name");
+    Variable &key = GarbageCollector<Variable>::get_instance().allocate()->set_string("name");
     prop = object.get_property(key.to_string(), false);
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
