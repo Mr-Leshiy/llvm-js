@@ -11,9 +11,9 @@ TEST(Array, Basic_test)
     EXPECT_EQ(array.len(), 0);
     EXPECT_EQ(array.to_string(), "[]");
 
-    Variable& var1 = GarbageCollector<Variable>::get_instance().allocate()->set_number(Number(2));
-    Variable& var2 = GarbageCollector<Variable>::get_instance().allocate()->set_string("name");
-    Variable& var3 = GarbageCollector<Variable>::get_instance().allocate()->set_boolean(true);
+    Variable &var1 = GarbageCollector<Variable>::get_instance().allocate()->set_number(Number(2));
+    Variable &var2 = GarbageCollector<Variable>::get_instance().allocate()->set_string("name");
+    Variable &var3 = GarbageCollector<Variable>::get_instance().allocate()->set_boolean(true);
 
     array = Array({&var1, &var2, &var3});
 
