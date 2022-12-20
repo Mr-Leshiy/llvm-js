@@ -12,9 +12,8 @@ impl DeallocateExpression {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let deallocate_fn = compiler.predefined_functions()?.deallocate();
         let var = cur_function.get_variable(self.name)?;
-        deallocate_fn.call(compiler, &var);
+        var.deallocate(compiler)?;
         Ok(())
     }
 }

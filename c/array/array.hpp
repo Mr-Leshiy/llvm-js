@@ -9,8 +9,10 @@ struct Number;
 
 struct Array
 {
+    ~Array();
     Array() = default;
     Array(std::vector<Variable *> values) : values(values) {}
+    Array &operator=(const Array &);
 
     void push(Variable &value);
     Variable *pop();

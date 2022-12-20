@@ -1,6 +1,24 @@
 #include "array.hpp"
 #include "variable/variable.hpp"
 
+Array::~Array()
+{
+    for (const auto &val : this->values)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(val);
+    }
+}
+
+Array &Array::operator=(const Array &val)
+{
+    this->values = val.values;
+    for (const auto &val : this->values)
+    {
+        GarbageCollector<Variable>::get_instance().inc_counter(val);
+    }
+    return *this;
+}
+
 void Array::push(Variable &value)
 {
     this->values.push_back(&value);
@@ -10,7 +28,7 @@ Variable *Array::pop()
 {
     if (this->values.empty())
     {
-        return new Variable();
+        return GarbageCollector<Variable>::get_instance().allocate();
     }
 
     auto *ret = this->values.back();
@@ -28,7 +46,7 @@ void Array::put(Variable &value, uint32_t index)
     {
         while (index > this->len())
         {
-            this->push(*(new Variable()));
+            this->push(*(GarbageCollector<Variable>::get_instance().allocate()));
         }
         this->push(value);
     }
@@ -54,7 +72,7 @@ Variable *Array::get(uint32_t index, bool allocate)
     }
     else
     {
-        auto *ret = new Variable();
+        auto *ret = GarbageCollector<Variable>::get_instance().allocate();
         if (allocate)
         {
             this->put(*ret, index);
@@ -71,7 +89,7 @@ Variable *Array::get(const Number &index, bool allocate)
     }
     else
     {
-        return new Variable();
+        return GarbageCollector<Variable>::get_instance().allocate();
     }
 }
 

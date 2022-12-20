@@ -5,6 +5,7 @@ use inkwell::values::PointerValue;
 #[derive(Clone)]
 pub struct Variable<'ctx> {
     pub(crate) value: PointerValue<'ctx>,
+    pub(crate) is_tmp: bool,
 }
 
 impl<'ctx> Variable<'ctx> {
@@ -17,73 +18,108 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
-    pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn is_tmp(&self) -> bool {
+        self.is_tmp
+    }
+
+    pub fn deallocate<T>(&self, compiler: &Compiler<'ctx, T>) -> Result<(), Error<T>> {
+        let deallocate_fn = compiler.predefined_functions()?.deallocate();
+        deallocate_fn.call(compiler, self);
+        Ok(())
+    }
+
+    pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_undefined_fn = compiler.predefined_functions()?.set_undefined();
         set_undefined_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_null<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_null<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_null_fn = compiler.predefined_functions()?.set_null();
         set_null_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_object<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_object<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_object_fn = compiler.predefined_functions()?.set_object();
         set_object_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_array<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_array<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_array_fn = compiler.predefined_functions()?.set_array();
         set_array_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_nan<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_nan<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_nan_fn = compiler.predefined_functions()?.set_nan();
         set_nan_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_infinity<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_infinity<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_infinity_fn = compiler.predefined_functions()?.set_infinity();
         set_infinity_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_neginfinity<T>(compiler: &Compiler<'ctx, T>) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_neginfinity<T>(
+        compiler: &Compiler<'ctx, T>,
+        is_tmp: bool,
+    ) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_neginfinity_fn = compiler.predefined_functions()?.set_neginfinity();
         set_neginfinity_fn.call(compiler, &variable);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_number<T>(compiler: &Compiler<'ctx, T>, number: f64) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_number<T>(
+        compiler: &Compiler<'ctx, T>,
+        number: f64,
+        is_tmp: bool,
+    ) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_number_fn = compiler.predefined_functions()?.set_number();
         set_number_fn.call(compiler, &variable, number);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_boolean<T>(compiler: &Compiler<'ctx, T>, boolean: bool) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_boolean<T>(
+        compiler: &Compiler<'ctx, T>,
+        boolean: bool,
+        is_tmp: bool,
+    ) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_boolean_fn = compiler.predefined_functions()?.set_boolean();
         set_boolean_fn.call(compiler, &variable, boolean);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 
-    pub fn new_string<T>(compiler: &Compiler<'ctx, T>, string: &str) -> Result<Self, Error<T>> {
-        let variable = Self::new(compiler)?;
+    pub fn new_string<T>(
+        compiler: &Compiler<'ctx, T>,
+        string: &str,
+        is_tmp: bool,
+    ) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
         let set_string_fn = compiler.predefined_functions()?.set_string();
         set_string_fn.call(compiler, &variable, string);
+        variable.is_tmp = is_tmp;
         Ok(variable)
     }
 

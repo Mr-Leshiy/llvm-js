@@ -10,36 +10,6 @@ Variable::Variable()
     this->flag = Type::Undefined;
 }
 
-Variable::Variable(Type flag)
-{
-    this->flag = flag;
-}
-
-Variable::Variable(bool boolean)
-{
-    this->set_boolean(boolean);
-}
-
-Variable::Variable(const char *str)
-{
-    this->set_string(str);
-}
-
-Variable::Variable(const Number &number)
-{
-    this->set_number(number);
-}
-
-Variable::Variable(const Object &obj)
-{
-    this->set_object(obj);
-}
-
-Variable::Variable(const Array &array)
-{
-    this->set_array(array);
-}
-
 Variable &Variable::operator=(const Variable &val)
 {
     this->flag = val.flag;
@@ -51,44 +21,51 @@ Variable &Variable::operator=(const Variable &val)
     return *this;
 }
 
-void Variable::set_undefined()
+Variable &Variable::set_undefined()
 {
     this->flag = Type::Undefined;
+    return *this;
 }
 
-void Variable::set_null()
+Variable &Variable::set_null()
 {
     this->flag = Type::Null;
+    return *this;
 }
 
-void Variable::set_number(const Number &val)
+Variable &Variable::set_number(const Number &val)
 {
     this->flag = Type::Number;
     this->number_field = val;
+    return *this;
 }
 
-void Variable::set_boolean(bool val)
+Variable &Variable::set_boolean(bool val)
 {
     this->flag = Type::Boolean;
     this->boolean_field = val;
+    return *this;
 }
 
-void Variable::set_string(const std::string &val)
+Variable &Variable::set_string(const std::string &val)
 {
     this->flag = Type::String;
     this->string_field = val;
+    return *this;
 }
 
-void Variable::set_object(const Object &val)
+Variable &Variable::set_object(const Object &val)
 {
     this->flag = Type::Object;
     this->object_field = val;
+    return *this;
 }
 
-void Variable::set_array(const Array &val)
+Variable &Variable::set_array(const Array &val)
 {
     this->flag = Type::Array;
     this->array_field = val;
+    return *this;
 }
 
 Type Variable::get_flag() const
@@ -248,7 +225,7 @@ Variable *Variable::get_property(const std::string &key, bool allocate)
     {
         return this->array_field.get(Number(std::stod(key)), allocate);
     }
-    return new Variable();
+    return GarbageCollector<Variable>::get_instance().allocate();
 }
 
 Variable *Variable::get_property(const Variable &key, bool allocate)
@@ -261,7 +238,7 @@ Variable *Variable::get_property(const Variable &key, bool allocate)
     {
         return this->array_field.get(key.to_number(), allocate);
     }
-    return new Variable();
+    return GarbageCollector<Variable>::get_instance().allocate();
 }
 
 void Variable::remove_property(const std::string &key)

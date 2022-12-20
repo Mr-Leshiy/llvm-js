@@ -1,7 +1,6 @@
 use ast::js_ast::Module;
 use compiler::predefined_functions::{
-    assertions::{AssertEqFn, AssertFn},
-    variable::PrintFn,
+    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
     PredefineFunctionName,
 };
 
@@ -12,6 +11,7 @@ fn main() {
         PrintFn::NAME.to_string(),
         AssertFn::NAME.to_string(),
         AssertEqFn::NAME.to_string(),
+        GbVariablesCount::NAME.to_string(),
     ];
 
     Module::new("module_1".to_string(), in_file)

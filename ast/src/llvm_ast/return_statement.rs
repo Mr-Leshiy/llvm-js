@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{Compiler, Function};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReturnStatement {
@@ -12,7 +12,12 @@ impl ReturnStatement {
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
     ) -> Result<(), compiler::Error<Identifier>> {
-        let ret = self.ret.compile(compiler, cur_function)?;
+        let value = self.ret.compile(compiler, cur_function)?;
+        let ret = Variable::new_undefined(compiler, true)?;
+        ret.assign_variable(compiler, &value)?;
+        if value.is_tmp() {
+            value.deallocate(compiler)?;
+        }
         cur_function.return_value(compiler, ret);
         Ok(())
     }

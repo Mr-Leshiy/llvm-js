@@ -4,6 +4,10 @@ function foo(arg1, arg2) {
   a = arg2;
 }
 
+function bar(a) {
+  return a;
+}
+
 var a = 4;
 var b = 3;
 
@@ -24,3 +28,7 @@ assert_eq(foo("hello", a), 5);
 
 var res = foo(4, 5);
 assert_eq(res, 5);
+
+assert_eq(bar(3), 3);
+assert_eq(bar(true), true);
+assert_eq(bar("Hello"), "Hello");

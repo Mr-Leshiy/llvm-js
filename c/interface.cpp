@@ -10,8 +10,7 @@ extern "C"
 
 Variable *allocate()
 {
-    Variable *res = new Variable();
-    GarbageCollector<Variable>::get_instance().inc_counter(res);
+    Variable *res = GarbageCollector<Variable>::get_instance().allocate();
     return res;
 }
 
@@ -54,7 +53,7 @@ void set_array(Variable *self)
 {
     ASSERT(self != nullptr);
 
-    self->set_array(Array(std::vector<Variable *>{}));
+    self->set_array(Array());
 }
 
 void set_infinity(Variable *self)
@@ -151,7 +150,7 @@ Variable *convert_to_boolean(Variable *val)
 {
     ASSERT(val != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(val->to_boolean());
     return ret;
 }
@@ -160,7 +159,7 @@ Variable *convert_to_number(Variable *val)
 {
     ASSERT(val != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_number(val->to_number());
     return ret;
 }
@@ -169,7 +168,7 @@ Variable *convert_to_string(Variable *val)
 {
     ASSERT(val != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_string(val->to_string());
     return ret;
 }
@@ -179,7 +178,7 @@ Variable *arithmetic_addition(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 + *val2;
     return ret;
 }
@@ -189,7 +188,7 @@ Variable *arithmetic_substraction(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 - *val2;
     return ret;
 }
@@ -199,7 +198,7 @@ Variable *arithmetic_multiplication(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 * *val2;
     return ret;
 }
@@ -209,7 +208,7 @@ Variable *arithmetic_division(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 / *val2;
     return ret;
 }
@@ -218,7 +217,7 @@ Variable *logical_not(Variable *val)
 {
     ASSERT(val != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(!*val);
     return ret;
 }
@@ -228,7 +227,7 @@ Variable *logical_and(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 && *val2;
     return ret;
 }
@@ -238,7 +237,7 @@ Variable *logical_or(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     *ret = *val1 || *val2;
     return ret;
 }
@@ -249,7 +248,7 @@ Variable *logical_eq(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 == *val2);
     return ret;
 }
@@ -260,7 +259,7 @@ Variable *logical_ne(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 != *val2);
     return ret;
 }
@@ -270,7 +269,7 @@ Variable *logical_seq(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 == *val2);
     return ret;
 }
@@ -280,7 +279,7 @@ Variable *logical_sne(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 != *val2);
     return ret;
 }
@@ -290,7 +289,7 @@ Variable *logical_gt(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 > *val2);
     return ret;
 }
@@ -300,7 +299,7 @@ Variable *logical_ge(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 >= *val2);
     return ret;
 }
@@ -310,7 +309,7 @@ Variable *logical_lt(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 < *val2);
     return ret;
 }
@@ -320,10 +319,12 @@ Variable *logical_le(Variable *val1, Variable *val2)
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
-    Variable *ret = new Variable();
+    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
     ret->set_boolean(*val1 <= *val2);
     return ret;
 }
+
+// Testing utils
 
 void variable_assert(Variable *val)
 {
@@ -344,6 +345,13 @@ void variable_assert_eq(Variable *val1, Variable *val2)
     {
         abort();
     }
+}
+
+Variable *gb_variables_count()
+{
+    static Variable var = test::VariableTest();
+    var.set_number(Number(GarbageCollector<Variable>::get_instance().get_variables_count()));
+    return &var;
 }
 
 void print(Variable *self)

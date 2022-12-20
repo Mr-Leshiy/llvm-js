@@ -35,7 +35,10 @@ impl<'ctx> AllocateFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
@@ -465,36 +468,6 @@ impl<'ctx> GetBooleanFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct PrintFn<'ctx> {
-    func: FunctionValue<'ctx>,
-}
-
-impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
-    const NAME: &'static str = "print";
-}
-
-impl<'ctx> PrintFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
-
-        let function_type = compiler
-            .context
-            .void_type()
-            .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
-        Self { func }
-    }
-
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
-        compiler
-            .builder
-            .build_call(self.func, &[val.value.into()], "");
-    }
-}
-
-#[derive(Clone)]
 pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -633,7 +606,10 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
@@ -687,7 +663,10 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-        Variable { value }
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
