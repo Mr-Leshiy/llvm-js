@@ -26,6 +26,7 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
                 0_u32
             }
             Entry::Occupied(mut e) => {
+                self.stack.push(value);
                 e.insert(e.get() + 1);
                 *e.get()
             }
@@ -43,9 +44,16 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
                 Some(value) => {
                     let counter = self
                         .hash_map
-                        .remove(&value)
+                        .get_mut(&value)
                         .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value));
-                    res.push((value, counter));
+                    res.push((value.clone(), *counter));
+                    if *counter == 0 {
+                        self.hash_map
+                            .remove(&value)
+                            .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value));
+                    } else {
+                        *counter -= 1;
+                    }
                 }
                 None => break,
             }
@@ -55,7 +63,6 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
     }
 
     pub fn len(&self) -> usize {
-        assert!(self.hash_map.len() == self.stack.len());
         self.stack.len()
     }
 
@@ -88,20 +95,25 @@ mod tests {
 
         assert_eq!(set.insert(5), 0);
         assert_eq!(set.insert(5), 1);
-
         assert_eq!(set.insert(6), 0);
 
         assert_eq!(set.get(&5), Some(1));
         assert_eq!(set.get(&6), Some(0));
-        assert_eq!(set.len(), 2);
+        assert_eq!(set.len(), 3);
 
         assert_eq!(set.remove_last_added(1), vec![(6, 0)]);
 
         assert_eq!(set.get(&5), Some(1));
         assert_eq!(set.get(&6), None);
+        assert_eq!(set.len(), 2);
+
+        assert_eq!(set.remove_last_added(1), vec![(5, 1)]);
+
+        assert_eq!(set.get(&5), Some(0));
+        assert_eq!(set.get(&6), None);
         assert_eq!(set.len(), 1);
 
-        assert_eq!(set.remove_last_added(3), vec![(5, 1)]);
+        assert_eq!(set.remove_last_added(3), vec![(5, 0)]);
 
         assert_eq!(set.get(&5), None);
         assert_eq!(set.get(&6), None);
