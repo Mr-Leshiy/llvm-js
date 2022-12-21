@@ -79,16 +79,16 @@ impl Module {
                 .into_iter()
                 .for_each(|expr| body.push(expr));
         }
-        // let vars = precompiler
-        //     .variables
-        //     .remove_last_added(precompiler.variables.len());
-        // for (var, index) in vars {
-        //     body.push(llvm_ast::Expression::DeallocateExpression(
-        //         llvm_ast::DeallocateExpression {
-        //             name: llvm_ast::Identifier::new(var.name, index),
-        //         },
-        //     ));
-        // }
+        let vars = precompiler
+            .variables
+            .remove_last_added(precompiler.variables.len());
+        for (var, index) in vars {
+            body.push(llvm_ast::Expression::DeallocateExpression(
+                llvm_ast::DeallocateExpression {
+                    name: llvm_ast::Identifier::new(var.name, index),
+                },
+            ));
+        }
 
         Ok(llvm_ast::Module::new(
             self.name,
