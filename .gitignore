@@ -7,7 +7,6 @@ build
 *.ll
 *.a
 *.o
-*.lock
 
 basic.js
 test_run

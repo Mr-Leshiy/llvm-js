@@ -13,7 +13,7 @@ impl<'ctx> PredefineFunctionName for AssertFn<'ctx> {
 
 impl<'ctx> AssertFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = compiler
             .context
@@ -44,7 +44,7 @@ impl<'ctx> PredefineFunctionName for AssertEqFn<'ctx> {
 
 impl<'ctx> AssertEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = compiler
             .context
@@ -81,7 +81,7 @@ impl<'ctx> PredefineFunctionName for GbVariablesCount<'ctx> {
 
 impl<'ctx> GbVariablesCount<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[], false);
         let func = compiler.module.add_function(
@@ -118,7 +118,7 @@ impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
 
 impl<'ctx> PrintFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = compiler
             .context

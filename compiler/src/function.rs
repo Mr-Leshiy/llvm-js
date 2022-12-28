@@ -14,7 +14,7 @@ where
     T: Clone + Hash + PartialEq + Eq,
 {
     pub fn new(compiler: &mut Compiler<'ctx, T>, name: &str, arg_names: Vec<T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
         let args_type: Vec<_> = arg_names.iter().map(|_| var_type.into()).collect();
         let function_type = var_type.fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);

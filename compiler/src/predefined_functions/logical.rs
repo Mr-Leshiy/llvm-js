@@ -13,7 +13,7 @@ impl<'ctx> PredefineFunctionName for LogicalNotFn<'ctx> {
 
 impl<'ctx> LogicalNotFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into()], false);
         let func = compiler
@@ -48,7 +48,7 @@ impl<'ctx> PredefineFunctionName for LogicalAndFn<'ctx> {
 
 impl<'ctx> LogicalAndFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -88,7 +88,7 @@ impl<'ctx> PredefineFunctionName for LogicalOrFn<'ctx> {
 
 impl<'ctx> LogicalOrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -128,7 +128,7 @@ impl<'ctx> PredefineFunctionName for LogicalEqFn<'ctx> {
 
 impl<'ctx> LogicalEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -168,7 +168,7 @@ impl<'ctx> PredefineFunctionName for LogicalNeFn<'ctx> {
 
 impl<'ctx> LogicalNeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -208,7 +208,7 @@ impl<'ctx> PredefineFunctionName for LogicalSEqFn<'ctx> {
 
 impl<'ctx> LogicalSEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -248,7 +248,7 @@ impl<'ctx> PredefineFunctionName for LogicalSNeFn<'ctx> {
 
 impl<'ctx> LogicalSNeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -288,7 +288,7 @@ impl<'ctx> PredefineFunctionName for LogicalGtFn<'ctx> {
 
 impl<'ctx> LogicalGtFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -328,7 +328,7 @@ impl<'ctx> PredefineFunctionName for LogicalGeFn<'ctx> {
 
 impl<'ctx> LogicalGeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -368,7 +368,7 @@ impl<'ctx> PredefineFunctionName for LogicalLtFn<'ctx> {
 
 impl<'ctx> LogicalLtFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -408,7 +408,7 @@ impl<'ctx> PredefineFunctionName for LogicalLeFn<'ctx> {
 
 impl<'ctx> LogicalLeFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
