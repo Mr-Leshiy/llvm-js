@@ -13,7 +13,7 @@ impl<'ctx> PredefineFunctionName for ConvertToBooleanFn<'ctx> {
 
 impl<'ctx> ConvertToBooleanFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into()], false);
         let func = compiler
@@ -48,7 +48,7 @@ impl<'ctx> PredefineFunctionName for ConvertToNumberFn<'ctx> {
 
 impl<'ctx> ConvertToNumberFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into()], false);
         let func = compiler
@@ -83,7 +83,7 @@ impl<'ctx> PredefineFunctionName for ConvertToStringFn<'ctx> {
 
 impl<'ctx> ConvertToStringFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::Generic);
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
         let function_type = var_type.fn_type(&[var_type.into()], false);
         let func = compiler
