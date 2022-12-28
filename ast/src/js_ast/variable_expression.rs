@@ -4,14 +4,11 @@ use super::{
 };
 use crate::{llvm_ast, Error};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
-use precompiler::{
-    self,
-    rpn::{
-        input::{InputExpression, Operation, Value},
-        output::OutputExpression,
-        RPN,
-    },
-    Precompiler,
+use precompiler::{self, Precompiler};
+use rpn::{
+    input::{InputExpression, Operation, Value},
+    output::OutputExpression,
+    RPN,
 };
 use std::io::Read;
 

@@ -1,6 +1,7 @@
 use super::{Identifier, VariableExpression};
 use crate::llvm_ast;
-use precompiler::{rpn::input::Priority, Precompiler};
+use precompiler::Precompiler;
+use rpn::input::Priority;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BinaryExpression {

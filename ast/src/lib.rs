@@ -1,5 +1,5 @@
 use lexer::Token;
-use precompiler::rpn;
+use rpn;
 use thiserror::Error;
 
 pub mod js_ast;
