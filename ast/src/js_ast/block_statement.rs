@@ -1,7 +1,6 @@
-use super::{Expression, Identifier};
-use crate::{llvm_ast, Error};
+use super::Expression;
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Separator, Token, TokenReader};
-use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -35,8 +34,8 @@ impl BlockStatement {
 impl BlockStatement {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<Vec<llvm_ast::Expression>, Error> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables.len();
         let functions_len = precompiler.functions.len();

@@ -1,7 +1,6 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Keyword, Token, TokenReader};
-use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4" or "let a = 4"
@@ -41,8 +40,8 @@ impl VariableDeclaration {
 impl VariableDeclaration {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::VariableDeclaration, Error> {
         let value = match self.value {
             Some(expr) => Some(expr.precompile(precompiler)?),
             None => None,
@@ -232,9 +231,7 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable(
-                "name_2".to_string().into(),
-            ))
+            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
         );
     }
 }

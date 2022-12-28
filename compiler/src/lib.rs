@@ -15,7 +15,7 @@ mod main_function;
 pub mod predefined_functions;
 mod variable;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),

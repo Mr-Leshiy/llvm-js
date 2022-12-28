@@ -1,7 +1,6 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Separator, Token, TokenReader};
-use precompiler::{self, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -45,8 +44,8 @@ impl FunctionCall {
 impl FunctionCall {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::FunctionCall, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::FunctionCall, Error> {
         match precompiler.functions.get(&self.name) {
             Some(index) => {
                 // check if arguments exist
@@ -60,7 +59,7 @@ impl FunctionCall {
                     args,
                 })
             }
-            None => Err(precompiler::Error::UndefinedFunction(self.name)),
+            None => Err(precompiler::Error::UndefinedFunction(self.name).into()),
         }
     }
 }
@@ -165,9 +164,7 @@ mod tests {
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction(
-                "name_1".to_string().into()
-            ))
+            Err(precompiler::Error::UndefinedFunction("name_1".to_string().into()).into())
         );
     }
 }

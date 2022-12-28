@@ -1,7 +1,6 @@
-use super::{Identifier, MemberExpression, VariableExpression};
-use crate::{llvm_ast, Error};
+use super::{MemberExpression, VariableExpression};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Token, TokenReader};
-use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableAssigment - Expression type for variable assigment, like "a = 4"
@@ -33,8 +32,8 @@ impl VariableAssigment {
 impl VariableAssigment {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::VariableAssigment, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::VariableAssigment, Error> {
         let left = self.left.precompile(precompiler)?;
         let value = match self.right {
             Some(expr) => Some(expr.precompile(precompiler)?),
@@ -233,9 +232,7 @@ mod tests {
 
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable(
-                "name_1".to_string().into(),
-            ))
+            Err(precompiler::Error::UndefinedVariable("name_1".to_string().into(),).into())
         );
     }
 
@@ -259,9 +256,7 @@ mod tests {
 
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable(
-                "name_2".to_string().into(),
-            ))
+            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
         );
     }
 }

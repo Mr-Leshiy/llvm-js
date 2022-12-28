@@ -1,6 +1,5 @@
-use super::{Identifier, VariableExpression};
-use crate::llvm_ast;
-use precompiler::Precompiler;
+use super::VariableExpression;
+use crate::{llvm_ast, Error, Precompiler};
 use rpn::input::Priority;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -80,8 +79,8 @@ impl Priority for BinaryExpType {
 impl BinaryExpression {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::BinaryExpression, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::BinaryExpression, Error> {
         Ok(llvm_ast::BinaryExpression {
             left: self.left.precompile(precompiler)?,
             right: self.right.precompile(precompiler)?,
