@@ -74,7 +74,7 @@ impl Expression {
         match self {
             Self::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;
-                precompiler.function_declarations.push(function_declaration);
+                precompiler.insert_function_declaration(function_declaration);
                 Ok(Vec::new())
             }
             Self::FunctionCall(function_call) => Ok(vec![llvm_ast::Expression::FunctionCall(

@@ -190,6 +190,6 @@ mod tests {
 
         assert_eq!(block_statement.precompile(&mut precompiler), Ok(vec![]));
         assert_eq!(precompiler.functions_len(), 0);
-        assert_eq!(precompiler.function_declarations.len(), 1);
+        assert_eq!(precompiler.get_function_declarations().len(), 1);
     }
 }

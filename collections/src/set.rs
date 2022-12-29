@@ -4,7 +4,7 @@ use std::{
     hash::Hash,
 };
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Set<V: Clone + Eq + Hash + Display> {
     stack: Vec<V>,
     hash_map: HashMap<V, u32>,

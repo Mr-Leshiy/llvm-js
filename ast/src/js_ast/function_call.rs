@@ -46,7 +46,7 @@ impl FunctionCall {
         self,
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::FunctionCall, Error> {
-        let (name, index) = precompiler.get_function(self.name)?;
+        let index = precompiler.get_function(self.name.clone())?;
         // check if arguments exist
         let mut args = Vec::new();
         for arg in self.args {
@@ -54,7 +54,7 @@ impl FunctionCall {
         }
 
         Ok(llvm_ast::FunctionCall {
-            name: llvm_ast::Identifier::new(name.name, index),
+            name: llvm_ast::Identifier::new(self.name.name, index),
             args,
         })
     }

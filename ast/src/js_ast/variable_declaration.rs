@@ -153,10 +153,7 @@ mod tests {
                 )),
             })
         );
-        assert_eq!(
-            precompiler.get_variable("name_1".to_string().into()),
-            Ok(("name_1".to_string().into(), 0))
-        );
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
@@ -186,10 +183,7 @@ mod tests {
                 )),
             })
         );
-        assert_eq!(
-            precompiler.get_variable("name_1".to_string().into()),
-            Ok(("name_1".to_string().into(), 0))
-        );
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]

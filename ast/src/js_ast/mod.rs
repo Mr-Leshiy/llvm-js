@@ -86,7 +86,7 @@ impl Module {
 
         Ok(llvm_ast::Module::new(
             self.name,
-            precompiler.function_declarations,
+            precompiler.get_function_declarations(),
             body,
         ))
     }
