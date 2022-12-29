@@ -6,6 +6,14 @@ use compiler::predefined_functions::{
 };
 use std::path::PathBuf;
 
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error(transparent)]
+    CannotOpenFile(std::io::Error),
+    #[error(transparent)]
+    CannotCreateFile(std::io::Error),
+}
+
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None, rename_all = "kebab-case")]
 pub struct Cli {
@@ -19,9 +27,10 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn exec(self) {
-        let in_file = std::fs::File::open(self.input).unwrap();
-        let mut out_file = std::fs::File::create(self.output).unwrap();
+    pub fn exec(self) -> Result<(), Error> {
+        let in_file = std::fs::File::open(self.input).map_err(|e| Error::CannotOpenFile(e))?;
+        let mut out_file =
+            std::fs::File::create(self.output).map_err(|e| Error::CannotCreateFile(e))?;
 
         let extern_functions = vec![
             PrintFn::NAME.to_string(),
@@ -36,5 +45,6 @@ impl Cli {
             .unwrap()
             .compile_to(&mut out_file)
             .unwrap();
+        Ok(())
     }
 }

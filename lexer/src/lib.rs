@@ -12,7 +12,7 @@ mod tokens;
 pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
-    #[error("Unected symbol: {0}, position: {1}")]
+    #[error("Unexpected symbol: {0}, position: {1}")]
     UnexpectedSymbol(char, Position),
 }
 
