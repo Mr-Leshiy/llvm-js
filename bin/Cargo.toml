@@ -9,3 +9,4 @@ edition = "2021"
 compiler = { path = "../compiler" }
 ast = { path = "../ast" }
 thiserror = { version = "1.0.37" }
+clap = { version = "4.0.32", features = ["derive"] }
