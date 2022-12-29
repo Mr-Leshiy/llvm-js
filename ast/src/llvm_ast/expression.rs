@@ -2,7 +2,7 @@ use super::{
     DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
     VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {

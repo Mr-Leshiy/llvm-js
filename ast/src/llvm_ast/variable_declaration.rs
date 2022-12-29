@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{self, Compiler, Function, Variable};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration {
