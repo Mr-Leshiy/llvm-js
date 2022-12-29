@@ -57,7 +57,7 @@ where
     }
 
     // TODO: move this code inside new function
-    pub fn generate_body<Expr: Compile<T>>(
+    pub fn generate_body<Expr: Compile<T, Output = bool>>(
         &mut self,
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,

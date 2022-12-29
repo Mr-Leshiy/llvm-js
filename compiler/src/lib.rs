@@ -36,11 +36,13 @@ pub enum Error<T> {
 }
 
 pub trait Compile<T> {
+    type Output;
+
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, T>,
         cur_function: &mut Function<'ctx, T>,
-    ) -> Result<bool, Error<T>>;
+    ) -> Result<Self::Output, Error<T>>;
 }
 
 pub struct Compiler<'ctx, T> {
