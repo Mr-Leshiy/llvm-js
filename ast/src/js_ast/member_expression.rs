@@ -74,22 +74,18 @@ impl MemberExpression {
         self,
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::MemberExpression, Error> {
-        match precompiler.variables.get(&self.variable_name) {
-            Some(index) => {
-                let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
-                let property = if let Some(property) = self.property {
-                    Some(property.precompile(precompiler)?.into())
-                } else {
-                    None
-                };
+        let (variable_name, index) = precompiler.get_variable(self.variable_name)?;
+        let variable_name = llvm_ast::Identifier::new(variable_name.name, index);
+        let property = if let Some(property) = self.property {
+            Some(property.precompile(precompiler)?.into())
+        } else {
+            None
+        };
 
-                Ok(llvm_ast::MemberExpression {
-                    variable_name,
-                    property,
-                })
-            }
-            None => Err(precompiler::Error::UndefinedVariable(self.variable_name.clone()).into()),
-        }
+        Ok(llvm_ast::MemberExpression {
+            variable_name,
+            property,
+        })
     }
 }
 

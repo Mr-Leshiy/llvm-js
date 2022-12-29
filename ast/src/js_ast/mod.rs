@@ -75,9 +75,7 @@ impl Module {
                 .into_iter()
                 .for_each(|expr| body.push(expr));
         }
-        let vars = precompiler
-            .variables
-            .remove_last_added(precompiler.variables.len());
+        let vars = precompiler.remove_last_added_variables(precompiler.variables_len());
         for (var, index) in vars {
             body.push(llvm_ast::Expression::DeallocateExpression(
                 llvm_ast::DeallocateExpression {

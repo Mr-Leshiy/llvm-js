@@ -116,8 +116,8 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_test_1() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: MemberExpression {
@@ -142,16 +142,16 @@ mod tests {
             })
         );
         assert_eq!(
-            precompiler.variables.get(&"name_1".to_string().into()),
-            Some(0)
+            precompiler.get_variable("name_1".to_string().into()),
+            Ok(("name_1".to_string().into(), 0))
         );
     }
 
     #[test]
     fn precompile_variable_assigment_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_2".to_string().into());
-        precompiler.variables.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_2".to_string().into());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: MemberExpression {
@@ -182,15 +182,15 @@ mod tests {
             })
         );
         assert_eq!(
-            precompiler.variables.get(&"name_1".to_string().into()),
-            Some(0)
+            precompiler.get_variable("name_1".to_string().into()),
+            Ok(("name_1".to_string().into(), 0))
         );
     }
 
     #[test]
     fn precompile_variable_assigment_test_3() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: MemberExpression {
@@ -211,14 +211,14 @@ mod tests {
             })
         );
         assert_eq!(
-            precompiler.variables.get(&"name_1".to_string().into()),
-            Some(0)
+            precompiler.get_variable("name_1".to_string().into()),
+            Ok(("name_1".to_string().into(), 0))
         );
     }
 
     #[test]
     fn precompile_variable_assigment_error_test_1() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let variable_assigment = VariableAssigment {
             left: MemberExpression {
@@ -238,8 +238,8 @@ mod tests {
 
     #[test]
     fn precompile_variable_assigment_error_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
             left: MemberExpression {

@@ -98,10 +98,10 @@ mod tests {
 
     #[test]
     fn precompile_function_call_test() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
         precompiler.functions.insert("name_1".to_string().into());
-        precompiler.variables.insert("a".to_string().into());
-        precompiler.variables.insert("b".to_string().into());
+        precompiler.insert_variable("a".to_string().into());
+        precompiler.insert_variable("b".to_string().into());
 
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn precompile_function_call_error() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),

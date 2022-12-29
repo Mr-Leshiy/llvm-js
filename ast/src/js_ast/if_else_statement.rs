@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn precompile_if_else_statement_test() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let if_else_statement = IfElseStatement {
             condition: VariableExpression::VariableValue(VariableValue::Boolean(true)),
