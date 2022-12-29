@@ -12,6 +12,7 @@ env:
 jobs:
   test:
     name: Test
+    needs: Clippy
     strategy:
       matrix:
         # TODO fix macos-latest and windows-latest build
@@ -62,6 +63,7 @@ jobs:
 
   clippy:
     name: Clippy
+    needs: Fmt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
