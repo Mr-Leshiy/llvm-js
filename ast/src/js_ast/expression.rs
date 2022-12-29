@@ -1,11 +1,9 @@
 use super::{
     return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionCall,
-    FunctionDeclaration, Identifier, IfElseStatement, VariableAssigment, VariableDeclaration,
-    WhileLoop,
+    FunctionDeclaration, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Keyword, Separator, Token, TokenReader};
-use precompiler::Precompiler;
 use std::{fmt::Debug, io::Read};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -71,12 +69,12 @@ impl Expression {
 impl Expression {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<Vec<llvm_ast::Expression>, Error> {
         match self {
             Self::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;
-                precompiler.function_declarations.push(function_declaration);
+                precompiler.insert_function_declaration(function_declaration);
                 Ok(Vec::new())
             }
             Self::FunctionCall(function_call) => Ok(vec![llvm_ast::Expression::FunctionCall(
@@ -97,7 +95,7 @@ impl Expression {
                     return_statement.precompile(precompiler)?,
                 )])
             }
-            Self::BlockStatement(block_statement) => block_statement.precompile(precompiler),
+            Self::BlockStatement(block_statement) => Ok(block_statement.precompile(precompiler)?),
             Self::IfElseStatement(if_else_statement) => {
                 Ok(vec![llvm_ast::Expression::IfElseStatement(
                     if_else_statement.precompile(precompiler)?,

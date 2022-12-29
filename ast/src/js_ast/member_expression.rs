@@ -1,7 +1,6 @@
 use super::{Identifier, VariableExpression, VariableValue};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Separator, Token, TokenReader};
-use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -43,10 +42,7 @@ impl Property {
         }
     }
 
-    pub fn precompile(
-        self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::Property, precompiler::Error<Identifier>> {
+    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::Property, Error> {
         let object = self.object.precompile(precompiler)?;
         let property = if let Some(property) = self.property {
             Some(property.precompile(precompiler)?.into())
@@ -76,26 +72,20 @@ impl MemberExpression {
 
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::MemberExpression, precompiler::Error<Identifier>> {
-        match precompiler.variables.get(&self.variable_name) {
-            Some(index) => {
-                let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
-                let property = if let Some(property) = self.property {
-                    Some(property.precompile(precompiler)?.into())
-                } else {
-                    None
-                };
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::MemberExpression, Error> {
+        let index = precompiler.get_variable(self.variable_name.clone())?;
+        let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
+        let property = if let Some(property) = self.property {
+            Some(property.precompile(precompiler)?.into())
+        } else {
+            None
+        };
 
-                Ok(llvm_ast::MemberExpression {
-                    variable_name,
-                    property,
-                })
-            }
-            None => Err(precompiler::Error::UndefinedVariable(
-                self.variable_name.clone(),
-            )),
-        }
+        Ok(llvm_ast::MemberExpression {
+            variable_name,
+            property,
+        })
     }
 }
 

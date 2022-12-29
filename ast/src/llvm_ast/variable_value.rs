@@ -1,5 +1,5 @@
 use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
-use compiler::{self, Compiler, Function, Variable};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableValue {

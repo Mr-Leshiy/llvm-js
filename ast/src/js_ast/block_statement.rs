@@ -1,7 +1,6 @@
-use super::{Expression, Identifier};
-use crate::{llvm_ast, Error};
+use super::Expression;
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Separator, Token, TokenReader};
-use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -35,19 +34,18 @@ impl BlockStatement {
 impl BlockStatement {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<Vec<llvm_ast::Expression>, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<Vec<llvm_ast::Expression>, Error> {
         let mut res = Vec::with_capacity(self.body.len());
-        let variables_len = precompiler.variables.len();
-        let functions_len = precompiler.functions.len();
+        let variables_len = precompiler.variables_len();
+        let functions_len = precompiler.functions_len();
         for expr in self.body {
             expr.precompile(precompiler)?
                 .into_iter()
                 .for_each(|expr| res.push(expr))
         }
-        let vars = precompiler
-            .variables
-            .remove_last_added(precompiler.variables.len() - variables_len);
+        let vars =
+            precompiler.remove_last_added_variables(precompiler.variables_len() - variables_len);
         for (var, index) in vars {
             res.push(llvm_ast::Expression::DeallocateExpression(
                 llvm_ast::DeallocateExpression {
@@ -55,9 +53,7 @@ impl BlockStatement {
                 },
             ));
         }
-        precompiler
-            .functions
-            .remove_last_added(precompiler.functions.len() - functions_len);
+        precompiler.remove_last_added_functions(precompiler.functions_len() - functions_len);
         Ok(res)
     }
 }
@@ -151,8 +147,8 @@ mod tests {
 
     #[test]
     fn precompile_block_statement_test_1() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        assert_eq!(precompiler.variables.len(), 0);
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        assert_eq!(precompiler.variables_len(), 0);
         let block_statement = BlockStatement {
             body: vec![Expression::VariableDeclaration(VariableDeclaration {
                 name: "name_1".to_string().into(),
@@ -176,13 +172,14 @@ mod tests {
                 })
             ])
         );
-        assert_eq!(precompiler.variables.len(), 0);
+        assert_eq!(precompiler.variables_len(), 0);
     }
 
     #[test]
     fn precompile_block_statement_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        assert_eq!(precompiler.functions.len(), 0);
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        assert_eq!(precompiler.functions_len(), 0);
+
         let block_statement = BlockStatement {
             body: vec![Expression::FunctionDeclaration(FunctionDeclaration {
                 name: "name_1".to_string().into(),
@@ -192,7 +189,7 @@ mod tests {
         };
 
         assert_eq!(block_statement.precompile(&mut precompiler), Ok(vec![]));
-        assert_eq!(precompiler.functions.len(), 0);
-        assert_eq!(precompiler.function_declarations.len(), 1);
+        assert_eq!(precompiler.functions_len(), 0);
+        assert_eq!(precompiler.get_function_declarations().len(), 1);
     }
 }

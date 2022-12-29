@@ -1,7 +1,6 @@
 use super::{BlockStatement, Identifier};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Keyword, Separator, Token, TokenReader};
-use precompiler::Precompiler;
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -57,11 +56,11 @@ impl FunctionDeclaration {
 impl FunctionDeclaration {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::FunctionDeclaration, precompiler::Error<Identifier>> {
-        let index = precompiler.functions.insert(self.name.clone());
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::FunctionDeclaration, Error> {
+        let index = precompiler.insert_function(self.name.clone());
 
-        let variables_len = precompiler.variables.len();
+        let variables_len = precompiler.variables_len();
 
         let function_declaration = llvm_ast::FunctionDeclaration {
             name: llvm_ast::Identifier::new(self.name.name, index),
@@ -70,15 +69,13 @@ impl FunctionDeclaration {
                 .into_iter()
                 .map(|name| {
                     // argument initialization hides the previous variable declaration with the same name
-                    let index = precompiler.variables.insert(name.clone());
+                    let index = precompiler.insert_variable(name.clone());
                     llvm_ast::Identifier::new(name.name, index)
                 })
                 .collect(),
             body: self.body.precompile(precompiler)?,
         };
-        precompiler
-            .variables
-            .remove_last_added(precompiler.variables.len() - variables_len);
+        precompiler.remove_last_added_variables(precompiler.variables_len() - variables_len);
 
         Ok(function_declaration)
     }
@@ -119,7 +116,7 @@ mod tests {
 
     #[test]
     fn precompile_function_declaration_test() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
@@ -164,18 +161,15 @@ mod tests {
                 )]
             })
         );
-        assert!(precompiler.variables.is_empty());
-        assert_eq!(
-            precompiler.functions.get(&"name_1".to_string().into(),),
-            Some(0)
-        );
+        assert_eq!(precompiler.variables_len(), 0);
+        assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
     fn precompile_function_declaration_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("a".to_string().into());
-        precompiler.variables.insert("b".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("a".to_string().into());
+        precompiler.insert_variable("b".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
@@ -220,17 +214,14 @@ mod tests {
                 )]
             })
         );
-        assert_eq!(precompiler.variables.len(), 2);
-        assert_eq!(
-            precompiler.functions.get(&"name_1".to_string().into(),),
-            Some(0)
-        );
+        assert_eq!(precompiler.variables_len(), 2);
+        assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
     fn precompile_function_declaration_test_3() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.functions.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_function("name_1".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),

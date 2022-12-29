@@ -1,5 +1,5 @@
 use super::{BinaryExpression, FunctionCall, Identifier, UnaryExpression, VariableValue};
-use compiler::{self, Compiler, Function, Variable};
+use compiler::{Compiler, Function, Variable};
 
 /// VariableExpression
 #[derive(Clone, Debug, PartialEq)]

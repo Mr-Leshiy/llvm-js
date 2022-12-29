@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "bin",
+    "rpn",
     "compiler",
     "precompiler",
     "testing",

@@ -15,7 +15,7 @@ mod main_function;
 pub mod predefined_functions;
 mod variable;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),
@@ -36,11 +36,13 @@ pub enum Error<T> {
 }
 
 pub trait Compile<T> {
+    type Output;
+
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, T>,
         cur_function: &mut Function<'ctx, T>,
-    ) -> Result<bool, Error<T>>;
+    ) -> Result<Self::Output, Error<T>>;
 }
 
 pub struct Compiler<'ctx, T> {

@@ -1,17 +1,12 @@
 use super::{
-    BinaryExpType, BinaryExpression, FunctionCall, Identifier, UnaryExpType, UnaryExpression,
-    VariableValue,
+    BinaryExpType, BinaryExpression, FunctionCall, UnaryExpType, UnaryExpression, VariableValue,
 };
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
-use precompiler::{
-    self,
-    rpn::{
-        input::{InputExpression, Operation, Value},
-        output::OutputExpression,
-        RPN,
-    },
-    Precompiler,
+use rpn::{
+    input::{InputExpression, Operation, Value},
+    output::OutputExpression,
+    RPN,
 };
 use std::io::Read;
 
@@ -185,8 +180,8 @@ impl VariableExpression {
 
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::VariableExpression, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::VariableExpression, Error> {
         match self {
             Self::VariableValue(value) => Ok(llvm_ast::VariableExpression::VariableValue(
                 value.precompile(precompiler)?,

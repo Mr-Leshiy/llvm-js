@@ -1,14 +1,8 @@
 [package]
-name = "ast"
+name = "rpn"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-rpn = { path = "../rpn" }
-collections = { path = "../collections" }
-precompiler = { path = "../precompiler" }
-compiler = { path = "../compiler" }
-lexer = { path = "../lexer" }
 thiserror = { version = "1.0.37" }

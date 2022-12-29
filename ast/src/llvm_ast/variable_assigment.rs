@@ -1,5 +1,5 @@
 use super::{Identifier, MemberExpression, VariableExpression};
-use compiler::{self, Compiler, Function};
+use compiler::{Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {

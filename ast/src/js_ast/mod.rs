@@ -1,4 +1,4 @@
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 pub use block_statement::BlockStatement;
@@ -11,7 +11,6 @@ pub use if_else_statement::IfElseStatement;
 use lexer::{Token, TokenReader};
 pub use member_expression::{MemberExpression, Property};
 pub use object_expression::ObjectExpression;
-use precompiler::{self, Precompiler};
 use std::io::Read;
 pub use unary_expression::{UnaryExpType, UnaryExpression};
 pub use variable_assigment::VariableAssigment;
@@ -64,10 +63,7 @@ impl Module {
         Ok(Self { name, body })
     }
 
-    pub fn precompile<Iter>(
-        self,
-        predefined_functions: Iter,
-    ) -> Result<llvm_ast::Module, precompiler::Error<Identifier>>
+    pub fn precompile<Iter>(self, predefined_functions: Iter) -> Result<llvm_ast::Module, Error>
     where
         Iter: Iterator<Item = Identifier>,
     {
@@ -79,9 +75,7 @@ impl Module {
                 .into_iter()
                 .for_each(|expr| body.push(expr));
         }
-        let vars = precompiler
-            .variables
-            .remove_last_added(precompiler.variables.len());
+        let vars = precompiler.remove_last_added_variables(precompiler.variables_len());
         for (var, index) in vars {
             body.push(llvm_ast::Expression::DeallocateExpression(
                 llvm_ast::DeallocateExpression {
@@ -92,7 +86,7 @@ impl Module {
 
         Ok(llvm_ast::Module::new(
             self.name,
-            precompiler.function_declarations,
+            precompiler.get_function_declarations(),
             body,
         ))
     }

@@ -1,7 +1,6 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Separator, Token, TokenReader};
-use precompiler::{self, Precompiler};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -45,23 +44,19 @@ impl FunctionCall {
 impl FunctionCall {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::FunctionCall, precompiler::Error<Identifier>> {
-        match precompiler.functions.get(&self.name) {
-            Some(index) => {
-                // check if arguments exist
-                let mut args = Vec::new();
-                for arg in self.args {
-                    args.push(arg.precompile(precompiler)?);
-                }
-
-                Ok(llvm_ast::FunctionCall {
-                    name: llvm_ast::Identifier::new(self.name.name, index),
-                    args,
-                })
-            }
-            None => Err(precompiler::Error::UndefinedFunction(self.name)),
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::FunctionCall, Error> {
+        let index = precompiler.get_function(self.name.clone())?;
+        // check if arguments exist
+        let mut args = Vec::new();
+        for arg in self.args {
+            args.push(arg.precompile(precompiler)?);
         }
+
+        Ok(llvm_ast::FunctionCall {
+            name: llvm_ast::Identifier::new(self.name.name, index),
+            args,
+        })
     }
 }
 
@@ -99,10 +94,10 @@ mod tests {
 
     #[test]
     fn precompile_function_call_test() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.functions.insert("name_1".to_string().into());
-        precompiler.variables.insert("a".to_string().into());
-        precompiler.variables.insert("b".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_function("name_1".to_string().into());
+        precompiler.insert_variable("a".to_string().into());
+        precompiler.insert_variable("b".to_string().into());
 
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),
@@ -155,7 +150,7 @@ mod tests {
 
     #[test]
     fn precompile_function_call_error() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let function_call = FunctionCall {
             name: "name_1".to_string().into(),
@@ -165,9 +160,7 @@ mod tests {
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction(
-                "name_1".to_string().into()
-            ))
+            Err(precompiler::Error::UndefinedFunction("name_1".to_string().into()).into())
         );
     }
 }

@@ -2,7 +2,7 @@ use super::{
     DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
     VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use compiler::{self, Compile, Compiler, Function};
+use compiler::{Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -17,11 +17,13 @@ pub enum Expression {
 }
 
 impl Compile<Identifier> for Expression {
+    type Output = bool;
+
     fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<bool, compiler::Error<Identifier>> {
+    ) -> Result<Self::Output, compiler::Error<Identifier>> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, cur_function)?;

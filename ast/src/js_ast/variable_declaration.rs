@@ -1,7 +1,6 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error};
+use crate::{llvm_ast, Error, Precompiler};
 use lexer::{Keyword, Token, TokenReader};
-use precompiler::{self, Precompiler};
 use std::io::Read;
 
 /// VariableDeclaration - Expression type for variable assigment, like "var a = 4" or "let a = 4"
@@ -41,13 +40,13 @@ impl VariableDeclaration {
 impl VariableDeclaration {
     pub fn precompile(
         self,
-        precompiler: &mut Precompiler<Identifier, llvm_ast::FunctionDeclaration>,
-    ) -> Result<llvm_ast::VariableDeclaration, precompiler::Error<Identifier>> {
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::VariableDeclaration, Error> {
         let value = match self.value {
             Some(expr) => Some(expr.precompile(precompiler)?),
             None => None,
         };
-        let index = precompiler.variables.insert(self.name.clone());
+        let index = precompiler.insert_variable(self.name.clone());
         Ok(llvm_ast::VariableDeclaration {
             name: llvm_ast::Identifier::new(self.name.name, index),
             value,
@@ -136,7 +135,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_declaration_test_1() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
@@ -154,16 +153,13 @@ mod tests {
                 )),
             })
         );
-        assert_eq!(
-            precompiler.variables.get(&"name_1".to_string().into()),
-            Some(0)
-        );
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
     fn precompile_variable_declaration_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_2".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_2".to_string().into());
 
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
@@ -187,16 +183,13 @@ mod tests {
                 )),
             })
         );
-        assert_eq!(
-            precompiler.variables.get(&"name_1".to_string().into()),
-            Some(0)
-        );
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
     fn precompile_variable_declaration_test_3() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
-        precompiler.variables.insert("name_1".to_string().into());
+        let mut precompiler = Precompiler::new(std::iter::empty());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
@@ -218,7 +211,7 @@ mod tests {
 
     #[test]
     fn precompile_variable_declaration_error_test_2() {
-        let mut precompiler = Precompiler::new(Vec::new().into_iter());
+        let mut precompiler = Precompiler::new(std::iter::empty());
 
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
@@ -232,9 +225,7 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable(
-                "name_2".to_string().into(),
-            ))
+            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
         );
     }
 }

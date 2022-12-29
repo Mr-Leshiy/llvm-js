@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use compiler::{self, Compiler, Function, Variable};
+use compiler::{Compiler, Function, Variable};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ArrayExpression {

@@ -1,6 +1,6 @@
 use crate::{Compile, Compiler, Error, Function, Variable};
 
-pub fn generate_if_else<'ctx, T, Expr: Compile<T>>(
+pub fn generate_if_else<'ctx, T, Expr: Compile<T, Output = bool>>(
     compiler: &mut Compiler<'ctx, T>,
     condition: &Variable<'ctx>,
     cur_function: &mut Function<'ctx, T>,

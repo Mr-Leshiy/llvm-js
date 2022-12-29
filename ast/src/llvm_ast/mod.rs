@@ -1,6 +1,7 @@
+use crate::Error;
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
-use compiler::{self, Compiler, Context, MainFunction};
+use compiler::{Compiler, Context, MainFunction};
 pub use deallocate_expression::DeallocateExpression;
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
@@ -53,7 +54,7 @@ impl Module {
         }
     }
 
-    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), compiler::Error<Identifier>> {
+    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), Error> {
         let context = Context::new();
         let compiler = &mut Compiler::new(&context, self.name.as_str());
 
@@ -66,6 +67,7 @@ impl Module {
         let mut main = MainFunction::new(compiler);
         main.generate_body(compiler, self.body)?;
 
-        compiler.write_result_into(writer)
+        compiler.write_result_into(writer)?;
+        Ok(())
     }
 }

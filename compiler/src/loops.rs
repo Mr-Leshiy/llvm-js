@@ -1,6 +1,6 @@
 use crate::{Compile, Compiler, Error, Function, Variable};
 
-pub fn generate_while_loop<'ctx, T, Expr: Compile<T>>(
+pub fn generate_while_loop<'ctx, T, Expr: Compile<T, Output = bool>>(
     compiler: &mut Compiler<'ctx, T>,
     condition: impl FnOnce(
         &mut Compiler<'ctx, T>,
@@ -56,7 +56,7 @@ pub fn generate_while_loop<'ctx, T, Expr: Compile<T>>(
     Ok(())
 }
 
-pub fn generate_do_while_loop<'ctx, T, Expr: Compile<T>>(
+pub fn generate_do_while_loop<'ctx, T, Expr: Compile<T, Output = bool>>(
     compiler: &mut Compiler<'ctx, T>,
     condition: impl FnOnce(
         &mut Compiler<'ctx, T>,
