@@ -58,7 +58,7 @@ impl FunctionDeclaration {
         self,
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::FunctionDeclaration, Error> {
-        let index = precompiler.functions.insert(self.name.clone());
+        let index = precompiler.insert_function(self.name.clone());
 
         let variables_len = precompiler.variables_len();
 
@@ -163,8 +163,8 @@ mod tests {
         );
         assert_eq!(precompiler.variables_len(), 0);
         assert_eq!(
-            precompiler.functions.get(&"name_1".to_string().into(),),
-            Some(0)
+            precompiler.get_function("name_1".to_string().into(),),
+            Ok(("name_1".to_string().into(), 0))
         );
     }
 
@@ -219,15 +219,15 @@ mod tests {
         );
         assert_eq!(precompiler.variables_len(), 2);
         assert_eq!(
-            precompiler.functions.get(&"name_1".to_string().into(),),
-            Some(0)
+            precompiler.get_function("name_1".to_string().into(),),
+            Ok(("name_1".to_string().into(), 0))
         );
     }
 
     #[test]
     fn precompile_function_declaration_test_3() {
         let mut precompiler = Precompiler::new(std::iter::empty());
-        precompiler.functions.insert("name_1".to_string().into());
+        precompiler.insert_function("name_1".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),

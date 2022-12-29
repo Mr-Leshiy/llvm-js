@@ -53,9 +53,7 @@ impl BlockStatement {
                 },
             ));
         }
-        precompiler
-            .functions
-            .remove_last_added(precompiler.functions.len() - functions_len);
+        precompiler.remove_last_added_functions(precompiler.functions_len() - functions_len);
         Ok(res)
     }
 }
@@ -180,7 +178,8 @@ mod tests {
     #[test]
     fn precompile_block_statement_test_2() {
         let mut precompiler = Precompiler::new(std::iter::empty());
-        assert_eq!(precompiler.functions.len(), 0);
+        assert_eq!(precompiler.functions_len(), 0);
+
         let block_statement = BlockStatement {
             body: vec![Expression::FunctionDeclaration(FunctionDeclaration {
                 name: "name_1".to_string().into(),
@@ -190,7 +189,7 @@ mod tests {
         };
 
         assert_eq!(block_statement.precompile(&mut precompiler), Ok(vec![]));
-        assert_eq!(precompiler.functions.len(), 0);
+        assert_eq!(precompiler.functions_len(), 0);
         assert_eq!(precompiler.function_declarations.len(), 1);
     }
 }

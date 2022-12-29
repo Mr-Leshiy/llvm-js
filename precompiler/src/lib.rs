@@ -19,7 +19,7 @@ where
     T1: Clone + Hash + PartialEq + Eq + Display,
 {
     variables: Set<T1>,
-    pub functions: Set<T1>,
+    functions: Set<T1>,
 
     pub function_declarations: Vec<T2>,
 }
@@ -59,6 +59,21 @@ where
         self.variables.len()
     }
 
+    pub fn insert_function(&mut self, function: T1) -> u32 {
+        self.functions.insert(function)
+    }
+
+    pub fn get_function(&mut self, function: T1) -> Result<(T1, u32), Error<T1>> {
+        self.functions
+            .get(&function)
+            .map(|index| (function.clone(), index))
+            .ok_or(Error::UndefinedFunction(function))
+    }
+
+    pub fn remove_last_added_functions(&mut self, size: usize) -> Vec<(T1, u32)> {
+        self.functions.remove_last_added(size)
+    }
+
     pub fn functions_len(&self) -> usize {
         self.functions.len()
     }
@@ -86,6 +101,10 @@ mod tests {
             precompiler.get_variable("var2".to_string()),
             Ok(("var2".to_string(), 0))
         );
+        assert_eq!(
+            precompiler.get_variable("var3".to_string()),
+            Err(Error::UndefinedVariable("var3".to_string()))
+        );
 
         assert_eq!(
             precompiler.remove_last_added_variables(3),
@@ -96,5 +115,39 @@ mod tests {
             ]
         );
         assert_eq!(precompiler.variables_len(), 0);
+    }
+
+    #[test]
+    fn precompiler_functions_test() {
+        let mut precompiler = Precompiler::<String, String>::new(std::iter::empty());
+
+        assert_eq!(precompiler.functions_len(), 0);
+        assert_eq!(precompiler.insert_function("fn1".to_string()), 0);
+        assert_eq!(precompiler.insert_function("fn1".to_string()), 1);
+        assert_eq!(precompiler.insert_function("fn2".to_string()), 0);
+        assert_eq!(precompiler.functions_len(), 3);
+
+        assert_eq!(
+            precompiler.get_function("fn1".to_string()),
+            Ok(("fn1".to_string(), 1))
+        );
+        assert_eq!(
+            precompiler.get_function("fn2".to_string()),
+            Ok(("fn2".to_string(), 0))
+        );
+        assert_eq!(
+            precompiler.get_function("fn3".to_string()),
+            Err(Error::UndefinedFunction("fn3".to_string()))
+        );
+
+        assert_eq!(
+            precompiler.remove_last_added_functions(3),
+            vec![
+                ("fn2".to_string(), 0),
+                ("fn1".to_string(), 1),
+                ("fn1".to_string(), 0)
+            ]
+        );
+        assert_eq!(precompiler.functions_len(), 0);
     }
 }

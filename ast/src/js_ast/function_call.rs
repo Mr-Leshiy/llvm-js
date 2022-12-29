@@ -46,21 +46,17 @@ impl FunctionCall {
         self,
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::FunctionCall, Error> {
-        match precompiler.functions.get(&self.name) {
-            Some(index) => {
-                // check if arguments exist
-                let mut args = Vec::new();
-                for arg in self.args {
-                    args.push(arg.precompile(precompiler)?);
-                }
-
-                Ok(llvm_ast::FunctionCall {
-                    name: llvm_ast::Identifier::new(self.name.name, index),
-                    args,
-                })
-            }
-            None => Err(precompiler::Error::UndefinedFunction(self.name).into()),
+        let (name, index) = precompiler.get_function(self.name)?;
+        // check if arguments exist
+        let mut args = Vec::new();
+        for arg in self.args {
+            args.push(arg.precompile(precompiler)?);
         }
+
+        Ok(llvm_ast::FunctionCall {
+            name: llvm_ast::Identifier::new(name.name, index),
+            args,
+        })
     }
 }
 
@@ -99,7 +95,7 @@ mod tests {
     #[test]
     fn precompile_function_call_test() {
         let mut precompiler = Precompiler::new(std::iter::empty());
-        precompiler.functions.insert("name_1".to_string().into());
+        precompiler.insert_function("name_1".to_string().into());
         precompiler.insert_variable("a".to_string().into());
         precompiler.insert_variable("b".to_string().into());
 
