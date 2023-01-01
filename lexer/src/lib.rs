@@ -8,12 +8,14 @@ mod char_reader;
 mod position;
 mod tokens;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum Error {
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
     #[error("Unexpected symbol: {0}, position: {1}")]
     UnexpectedSymbol(char, Position),
+    #[error("Unexpected token: {0}")]
+    UnexpectedToken(Token),
 }
 
 fn is_skip(char: &char) -> bool {

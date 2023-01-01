@@ -1,3 +1,4 @@
+use super::IsToken;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -38,6 +39,48 @@ impl Display for Separator {
             Self::Colon => write!(f, r#"Separator token, ":""#),
             Self::SemiColon => write!(f, r#"Separator token, ";""#),
         }
+    }
+}
+
+impl Separator {
+    fn is<Res>(self, expected: Separator, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        if self == expected {
+            IsToken::True(fun(()))
+        } else {
+            IsToken::False(self)
+        }
+    }
+
+    pub fn is_open_brace<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::OpenBrace, fun)
+    }
+
+    pub fn is_close_brace<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::CloseBrace, fun)
+    }
+
+    pub fn is_open_curly_brace<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::OpenCurlyBrace, fun)
+    }
+
+    pub fn is_close_curly_brace<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::CloseCurlyBrace, fun)
+    }
+
+    pub fn is_comma<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::Comma, fun)
+    }
+
+    pub fn is_dot<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::Dot, fun)
+    }
+
+    pub fn is_colon<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::Colon, fun)
+    }
+
+    pub fn is_semi_colon<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Separator> {
+        self.is(Separator::SemiColon, fun)
     }
 }
 

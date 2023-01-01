@@ -1,3 +1,4 @@
+use crate::Error;
 pub use arithmetic::Arithmetic;
 pub use keyword::Keyword;
 pub use literal::Literal;
@@ -46,10 +47,85 @@ impl Display for Token {
     }
 }
 
+pub enum IsToken<Res, T> {
+    True(Res),
+    False(T),
+}
+
+impl<Res, T> IsToken<Res, T> {
+    pub fn or<T1, FunT: FnOnce(T1) -> Result<Res, Error>>(
+        self,
+        is: impl FnOnce(T, FunT) -> Result<IsToken<Res, T>, Error>,
+        fun: FunT,
+    ) -> Result<IsToken<Res, T>, Error> {
+        match self {
+            IsToken::True(val) => Ok(IsToken::True(val)),
+            IsToken::False(val) => is(val, fun),
+        }
+    }
+}
+
+impl<Res> IsToken<Res, Token> {
+    pub fn result(self) -> Result<Res, Error> {
+        match self {
+            IsToken::True(val) => Ok(val),
+            IsToken::False(token) => Err(Error::UnexpectedToken(token)),
+        }
+    }
+}
+
+impl<Res> IsToken<Res, Keyword> {
+    pub fn result(self) -> Result<Res, Error> {
+        match self {
+            IsToken::True(val) => Ok(val),
+            IsToken::False(keyword) => Err(Error::UnexpectedToken(Token::Keyword(keyword))),
+        }
+    }
+}
+
+impl Token {
+    fn is<Res>(self, expected: Token, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
+        if self == expected {
+            IsToken::True(fun(()))
+        } else {
+            IsToken::False(self)
+        }
+    }
+
+    pub fn is_keyword<Res>(
+        self,
+        fun: impl FnOnce(Keyword) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Token>, Error> {
+        if let Token::Keyword(val) = self {
+            Ok(IsToken::True(fun(val)?))
+        } else {
+            Ok(IsToken::False(self))
+        }
+    }
+
+    pub fn is_assign<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
+        self.is(Token::Assign, fun)
+    }
+
+    pub fn is_eof<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
+        self.is(Token::Eof, fun)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{Error, Position, TokenReader};
+
+    #[test]
+    fn test() {
+        // let res = Token::Assign
+        //     .is_assign(|_| 0)
+        //     .or(Token::is_keyword, |keyword: Keyword| {
+        //         keyword.is_var(|_| 0).result()
+        //     })
+        //     .unwrap();
+    }
 
     #[test]
     fn token_ident_test() {

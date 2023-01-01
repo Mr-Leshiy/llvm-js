@@ -1,3 +1,4 @@
+use super::IsToken;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -35,10 +36,57 @@ impl Display for Keyword {
     }
 }
 
+impl Keyword {
+    fn is<Res>(self, expected: Keyword, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        if self == expected {
+            IsToken::True(fun(()))
+        } else {
+            IsToken::False(self)
+        }
+    }
+
+    pub fn is_var<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Var, fun)
+    }
+
+    pub fn is_let<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Let, fun)
+    }
+
+    pub fn is_function<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Function, fun)
+    }
+
+    pub fn is_return<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Return, fun)
+    }
+
+    pub fn is_if<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::If, fun)
+    }
+
+    pub fn is_else<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Else, fun)
+    }
+
+    pub fn is_while<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::While, fun)
+    }
+
+    pub fn is_do<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
+        self.is(Keyword::Do, fun)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{Token, TokenReader};
+
+    #[test]
+    fn test() {
+        assert_eq!(Keyword::Do.is_do(|_| 0).result().unwrap(), 0);
+    }
 
     #[test]
     fn keyword_var_test() {

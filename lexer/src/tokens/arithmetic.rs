@@ -1,3 +1,4 @@
+use super::IsToken;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -20,6 +21,36 @@ impl Display for Arithmetic {
             Self::Div => write!(f, "Arithmetic DIV operator"),
             Self::Mul => write!(f, "Arithmetic MUL operator"),
         }
+    }
+}
+
+impl Arithmetic {
+    fn is<Res>(
+        self,
+        expected: Arithmetic,
+        fun: impl FnOnce(()) -> Res,
+    ) -> IsToken<Res, Arithmetic> {
+        if self == expected {
+            IsToken::True(fun(()))
+        } else {
+            IsToken::False(self)
+        }
+    }
+
+    pub fn is_add<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
+        self.is(Arithmetic::Add, fun)
+    }
+
+    pub fn is_sub<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
+        self.is(Arithmetic::Sub, fun)
+    }
+
+    pub fn is_div<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
+        self.is(Arithmetic::Div, fun)
+    }
+
+    pub fn is_mul<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
+        self.is(Arithmetic::Mul, fun)
     }
 }
 
