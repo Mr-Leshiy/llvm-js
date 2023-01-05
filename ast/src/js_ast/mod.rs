@@ -1,4 +1,4 @@
-use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 pub use block_statement::BlockStatement;
@@ -45,7 +45,7 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn new<R: Read>(name: String, input: R) -> Result<Self, Error> {
+    pub fn new<R: Read>(name: String, input: R) -> Result<Self, LexerError> {
         let mut reader = TokenReader::new(input);
 
         let mut body = Vec::new();

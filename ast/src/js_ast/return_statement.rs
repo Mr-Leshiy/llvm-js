@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
@@ -9,12 +9,15 @@ pub struct ReturnStatement {
 }
 
 impl ReturnStatement {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Keyword(Keyword::Return) => Ok(Self {
                 ret: VariableExpression::parse(reader.next_token()?, reader)?,
             }),
-            cur_token => Err(Error::UnexpectedToken(cur_token)),
+            cur_token => Err(LexerError::UnexpectedToken(cur_token)),
         }
     }
 }

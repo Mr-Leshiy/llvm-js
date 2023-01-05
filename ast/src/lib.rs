@@ -4,6 +4,8 @@ use thiserror::Error;
 pub mod js_ast;
 pub mod llvm_ast;
 
+type LexerError = lexer::Error;
+
 type Precompiler = precompiler::Precompiler<js_ast::Identifier, llvm_ast::FunctionDeclaration>;
 type PrecompilerError = precompiler::Error<js_ast::Identifier>;
 
@@ -15,6 +17,4 @@ pub enum Error {
     UnexpectedToken(Token),
     #[error(transparent)]
     LexerError(#[from] lexer::Error),
-    #[error(transparent)]
-    RpnError(#[from] rpn::Error),
 }

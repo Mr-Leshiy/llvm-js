@@ -10,6 +10,8 @@ mod tokens;
 
 #[derive(Debug, Error, PartialEq)]
 pub enum Error {
+    #[error(transparent)]
+    RpnError(#[from] rpn::Error),
     #[error("Reader error: {0}")]
     ReaderError(char_reader::Error),
     #[error("Unexpected symbol: {0}, position: {1}")]

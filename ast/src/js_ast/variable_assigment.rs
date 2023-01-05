@@ -1,5 +1,5 @@
 use super::{MemberExpression, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Token, TokenReader};
 use std::io::Read;
 
@@ -11,7 +11,10 @@ pub struct VariableAssigment {
 }
 
 impl VariableAssigment {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         let left = MemberExpression::parse(cur_token, reader)?;
 
         reader.start_saving();
