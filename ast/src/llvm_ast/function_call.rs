@@ -1,4 +1,5 @@
 use super::{Identifier, VariableExpression};
+use crate::CompilerError;
 use compiler::{
     self,
     predefined_functions::{
@@ -19,7 +20,7 @@ impl FunctionCall {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, CompilerError> {
         let mut args = Vec::new();
         for arg in self.args.into_iter() {
             let value = arg.compile(compiler, cur_function)?;

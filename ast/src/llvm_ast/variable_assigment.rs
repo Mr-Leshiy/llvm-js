@@ -1,4 +1,5 @@
 use super::{Identifier, MemberExpression, VariableExpression};
+use crate::CompilerError;
 use compiler::{Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,7 +13,7 @@ impl VariableAssigment {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<(), CompilerError> {
         let var1 = self.left.compile(compiler, cur_function, true)?;
         match self.right {
             Some(value) => {

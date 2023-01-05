@@ -1,4 +1,5 @@
 use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
+use crate::CompilerError;
 use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,7 +22,7 @@ impl VariableValue {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
             Self::Undefined => Variable::new_undefined(compiler, true),
             Self::Null => Variable::new_null(compiler, true),

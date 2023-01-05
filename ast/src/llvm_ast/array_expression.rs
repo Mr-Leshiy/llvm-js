@@ -1,4 +1,5 @@
 use super::{Identifier, VariableExpression};
+use crate::CompilerError;
 use compiler::{Compiler, Function, Variable};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -11,7 +12,7 @@ impl ArrayExpression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, CompilerError> {
         let res = Variable::new_array(compiler, true)?;
         for (i, el) in self.values.into_iter().enumerate() {
             let value = el.compile(compiler, cur_function)?;

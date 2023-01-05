@@ -1,4 +1,5 @@
 use super::{Identifier, VariableExpression};
+use crate::CompilerError;
 use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,7 +18,7 @@ impl UnaryExpression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, CompilerError> {
         match self.exp_type {
             UnaryExpType::Not => {
                 let var = self.exp.compile(compiler, cur_function)?;

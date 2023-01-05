@@ -1,4 +1,5 @@
 use super::{BinaryExpression, FunctionCall, Identifier, UnaryExpression, VariableValue};
+use crate::CompilerError;
 use compiler::{Compiler, Function, Variable};
 
 /// VariableExpression
@@ -15,7 +16,7 @@ impl VariableExpression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+    ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
             Self::VariableValue(value) => value.compile(compiler, cur_function),
             Self::UnaryExpression(expr) => expr.compile(compiler, cur_function),

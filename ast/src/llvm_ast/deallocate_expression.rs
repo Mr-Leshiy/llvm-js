@@ -1,4 +1,5 @@
 use super::Identifier;
+use crate::CompilerError;
 use compiler::{Compiler, Function};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -11,7 +12,7 @@ impl DeallocateExpression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<(), CompilerError> {
         let var = cur_function.get_variable(self.name)?;
         var.deallocate(compiler)?;
         Ok(())

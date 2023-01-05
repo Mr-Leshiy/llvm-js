@@ -1,4 +1,4 @@
-use crate::Error;
+use crate::CompilerError;
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
 use compiler::{Compiler, Context, MainFunction};
@@ -54,7 +54,7 @@ impl Module {
         }
     }
 
-    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), Error> {
+    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), CompilerError> {
         let context = Context::new();
         let compiler = &mut Compiler::new(&context, self.name.as_str());
 

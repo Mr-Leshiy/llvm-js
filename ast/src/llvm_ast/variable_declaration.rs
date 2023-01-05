@@ -1,4 +1,5 @@
 use super::{Identifier, VariableExpression};
+use crate::CompilerError;
 use compiler::{Compiler, Function, Variable};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,7 +13,7 @@ impl VariableDeclaration {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+    ) -> Result<(), CompilerError> {
         let var = Variable::new_undefined(compiler, false)?;
 
         if let Some(value) = self.value {

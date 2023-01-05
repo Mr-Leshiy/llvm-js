@@ -1,4 +1,5 @@
 use super::{Expression, Identifier, VariableExpression};
+use crate::CompilerError;
 use compiler::{if_else::generate_if_else, Compiler, Function};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -13,7 +14,7 @@ impl IfElseStatement {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<bool, compiler::Error<Identifier>> {
+    ) -> Result<bool, CompilerError> {
         let condition = self.condition.compile(compiler, cur_function)?;
 
         generate_if_else(

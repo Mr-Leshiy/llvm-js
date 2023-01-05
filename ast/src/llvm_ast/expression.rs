@@ -2,6 +2,7 @@ use super::{
     DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
     VariableAssigment, VariableDeclaration, WhileLoop,
 };
+use crate::CompilerError;
 use compiler::{Compile, Compiler, Function};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -23,7 +24,7 @@ impl Compile<Identifier> for Expression {
         self,
         compiler: &mut Compiler<'ctx, Identifier>,
         cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Self::Output, compiler::Error<Identifier>> {
+    ) -> Result<Self::Output, CompilerError> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, cur_function)?;
