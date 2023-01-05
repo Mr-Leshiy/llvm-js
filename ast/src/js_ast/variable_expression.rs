@@ -1,7 +1,7 @@
 use super::{
     BinaryExpType, BinaryExpression, FunctionCall, UnaryExpType, UnaryExpression, VariableValue,
 };
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
 use rpn::{
     input::{InputExpression, Operation, Value},
@@ -181,7 +181,7 @@ impl VariableExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableExpression, Error> {
+    ) -> Result<llvm_ast::VariableExpression, PrecompilerError> {
         match self {
             Self::VariableValue(value) => Ok(llvm_ast::VariableExpression::VariableValue(
                 value.precompile(precompiler)?,

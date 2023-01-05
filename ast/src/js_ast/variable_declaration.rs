@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
@@ -41,7 +41,7 @@ impl VariableDeclaration {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableDeclaration, Error> {
+    ) -> Result<llvm_ast::VariableDeclaration, PrecompilerError> {
         let value = match self.value {
             Some(expr) => Some(expr.precompile(precompiler)?),
             None => None,

@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression, VariableValue};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -42,7 +42,10 @@ impl Property {
         }
     }
 
-    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::Property, Error> {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::Property, PrecompilerError> {
         let object = self.object.precompile(precompiler)?;
         let property = if let Some(property) = self.property {
             Some(property.precompile(precompiler)?.into())
@@ -73,7 +76,7 @@ impl MemberExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::MemberExpression, Error> {
+    ) -> Result<llvm_ast::MemberExpression, PrecompilerError> {
         let index = precompiler.get_variable(self.variable_name.clone())?;
         let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
         let property = if let Some(property) = self.property {

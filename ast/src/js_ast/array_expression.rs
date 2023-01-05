@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -40,7 +40,7 @@ impl ArrayExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::ArrayExpression, Error> {
+    ) -> Result<llvm_ast::ArrayExpression, PrecompilerError> {
         let mut values = Vec::new();
         for value in self.values {
             values.push(value.precompile(precompiler)?);

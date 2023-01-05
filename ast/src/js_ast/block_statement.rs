@@ -1,5 +1,5 @@
 use super::Expression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -35,7 +35,7 @@ impl BlockStatement {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<Vec<llvm_ast::Expression>, Error> {
+    ) -> Result<Vec<llvm_ast::Expression>, PrecompilerError> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables_len();
         let functions_len = precompiler.functions_len();

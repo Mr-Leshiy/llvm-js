@@ -1,5 +1,5 @@
 use super::{BlockStatement, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -37,7 +37,10 @@ impl DoWhileLoop {
 }
 
 impl DoWhileLoop {
-    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::DoWhileLoop, Error> {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::DoWhileLoop, PrecompilerError> {
         Ok(llvm_ast::DoWhileLoop {
             condition: self.condition.precompile(precompiler)?,
             body: self.body.precompile(precompiler)?,

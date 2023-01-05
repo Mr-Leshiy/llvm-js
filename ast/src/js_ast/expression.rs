@@ -2,7 +2,7 @@ use super::{
     return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionCall,
     FunctionDeclaration, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::{fmt::Debug, io::Read};
 
@@ -70,7 +70,7 @@ impl Expression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<Vec<llvm_ast::Expression>, Error> {
+    ) -> Result<Vec<llvm_ast::Expression>, PrecompilerError> {
         match self {
             Self::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;

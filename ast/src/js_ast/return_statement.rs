@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
@@ -23,7 +23,7 @@ impl ReturnStatement {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::ReturnStatement, Error> {
+    ) -> Result<llvm_ast::ReturnStatement, PrecompilerError> {
         Ok(llvm_ast::ReturnStatement {
             ret: self.ret.precompile(precompiler)?,
         })

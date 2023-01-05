@@ -1,5 +1,5 @@
 use super::{ArrayExpression, MemberExpression, ObjectExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -53,7 +53,7 @@ impl VariableValue {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableValue, Error> {
+    ) -> Result<llvm_ast::VariableValue, PrecompilerError> {
         match self {
             Self::Undefined => Ok(llvm_ast::VariableValue::Undefined),
             Self::Null => Ok(llvm_ast::VariableValue::Null),

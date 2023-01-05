@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::{collections::HashMap, io::Read};
 
@@ -50,7 +50,7 @@ impl ObjectExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::ObjectExpression, Error> {
+    ) -> Result<llvm_ast::ObjectExpression, PrecompilerError> {
         let mut properties = HashMap::new();
         for (key, value) in self.properties {
             properties.insert(

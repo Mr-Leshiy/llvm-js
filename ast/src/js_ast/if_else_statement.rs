@@ -1,5 +1,5 @@
 use super::{BlockStatement, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -52,7 +52,7 @@ impl IfElseStatement {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::IfElseStatement, Error> {
+    ) -> Result<llvm_ast::IfElseStatement, PrecompilerError> {
         Ok(llvm_ast::IfElseStatement {
             condition: self.condition.precompile(precompiler)?,
             if_clause: self.if_clause.precompile(precompiler)?,

@@ -1,5 +1,5 @@
 use super::{BlockStatement, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -32,7 +32,10 @@ impl WhileLoop {
 }
 
 impl WhileLoop {
-    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::WhileLoop, Error> {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::WhileLoop, PrecompilerError> {
         Ok(llvm_ast::WhileLoop {
             condition: self.condition.precompile(precompiler)?,
             body: self.body.precompile(precompiler)?,

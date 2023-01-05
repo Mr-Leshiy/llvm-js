@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -45,7 +45,7 @@ impl FunctionCall {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::FunctionCall, Error> {
+    ) -> Result<llvm_ast::FunctionCall, PrecompilerError> {
         let index = precompiler.get_function(self.name.clone())?;
         // check if arguments exist
         let mut args = Vec::new();

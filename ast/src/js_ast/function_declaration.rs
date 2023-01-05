@@ -1,5 +1,5 @@
 use super::{BlockStatement, Identifier};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -57,7 +57,7 @@ impl FunctionDeclaration {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::FunctionDeclaration, Error> {
+    ) -> Result<llvm_ast::FunctionDeclaration, PrecompilerError> {
         let index = precompiler.insert_function(self.name.clone());
 
         let variables_len = precompiler.variables_len();

@@ -1,5 +1,5 @@
 use super::{MemberExpression, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Error, Precompiler, PrecompilerError};
 use lexer::{Token, TokenReader};
 use std::io::Read;
 
@@ -33,7 +33,7 @@ impl VariableAssigment {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableAssigment, Error> {
+    ) -> Result<llvm_ast::VariableAssigment, PrecompilerError> {
         let left = self.left.precompile(precompiler)?;
         let value = match self.right {
             Some(expr) => Some(expr.precompile(precompiler)?),
