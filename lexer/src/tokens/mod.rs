@@ -53,6 +53,18 @@ pub enum IsToken<Res, T> {
 }
 
 impl<Res, T> IsToken<Res, T> {
+    pub fn is<Token: PartialEq>(
+        current: Token,
+        expected: Token,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Token>, Error> {
+        if current == expected {
+            Ok(IsToken::True(fun(())?))
+        } else {
+            Ok(IsToken::False(current))
+        }
+    }
+
     pub fn or<T1, FunT: FnOnce(T1) -> Result<Res, Error>>(
         self,
         is: impl FnOnce(T, FunT) -> Result<IsToken<Res, T>, Error>,
@@ -84,14 +96,6 @@ impl<Res> IsToken<Res, Keyword> {
 }
 
 impl Token {
-    fn is<Res>(self, expected: Token, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
-        if self == expected {
-            IsToken::True(fun(()))
-        } else {
-            IsToken::False(self)
-        }
-    }
-
     pub fn is_keyword<Res>(
         self,
         fun: impl FnOnce(Keyword) -> Result<Res, Error>,
@@ -103,12 +107,18 @@ impl Token {
         }
     }
 
-    pub fn is_assign<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
-        self.is(Token::Assign, fun)
+    pub fn is_assign<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Token>, Error> {
+        IsToken::<Res, Token>::is(self, Token::Assign, fun)
     }
 
-    pub fn is_eof<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Token> {
-        self.is(Token::Eof, fun)
+    pub fn is_eof<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Token>, Error> {
+        IsToken::<Res, Token>::is(self, Token::Eof, fun)
     }
 }
 

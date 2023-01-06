@@ -1,4 +1,5 @@
 use super::IsToken;
+use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -34,52 +35,65 @@ impl Display for Literal {
 }
 
 impl Literal {
-    fn is<Res>(self, expected: Literal, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Literal> {
-        if self == expected {
-            IsToken::True(fun(()))
-        } else {
-            IsToken::False(self)
-        }
-    }
-
-    pub fn is_boolean<Res>(self, fun: impl FnOnce(bool) -> Res) -> IsToken<Res, Literal> {
+    pub fn is_boolean<Res>(
+        self,
+        fun: impl FnOnce(bool) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
         if let Literal::Boolean(val) = self {
-            IsToken::True(fun(val))
+            Ok(IsToken::True(fun(val)?))
         } else {
-            IsToken::False(self)
+            Ok(IsToken::False(self))
         }
     }
 
-    pub fn is_number<Res>(self, fun: impl FnOnce(f64) -> Res) -> IsToken<Res, Literal> {
+    pub fn is_number<Res>(
+        self,
+        fun: impl FnOnce(f64) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
         if let Literal::Number(val) = self {
-            IsToken::True(fun(val))
+            Ok(IsToken::True(fun(val)?))
         } else {
-            IsToken::False(self)
+            Ok(IsToken::False(self))
         }
     }
 
-    pub fn is_string<Res>(self, fun: impl FnOnce(String) -> Res) -> IsToken<Res, Literal> {
+    pub fn is_string<Res>(
+        self,
+        fun: impl FnOnce(String) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
         if let Literal::String(val) = self {
-            IsToken::True(fun(val))
+            Ok(IsToken::True(fun(val)?))
         } else {
-            IsToken::False(self)
+            Ok(IsToken::False(self))
         }
     }
 
-    pub fn is_undefined<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Literal> {
-        self.is(Literal::Undefined, fun)
+    pub fn is_undefined<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
+        IsToken::<Res, Literal>::is(self, Literal::Undefined, fun)
     }
 
-    pub fn is_null<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Literal> {
-        self.is(Literal::Null, fun)
+    pub fn is_null<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
+        IsToken::<Res, Literal>::is(self, Literal::Null, fun)
     }
 
-    pub fn is_nan<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Literal> {
-        self.is(Literal::NaN, fun)
+    pub fn is_nan<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
+        IsToken::<Res, Literal>::is(self, Literal::NaN, fun)
     }
 
-    pub fn is_infinity<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Literal> {
-        self.is(Literal::Infinity, fun)
+    pub fn is_infinity<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Literal>, Error> {
+        IsToken::<Res, Literal>::is(self, Literal::Infinity, fun)
     }
 }
 

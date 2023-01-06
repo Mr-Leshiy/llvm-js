@@ -1,4 +1,5 @@
 use super::IsToken;
+use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -37,44 +38,60 @@ impl Display for Keyword {
 }
 
 impl Keyword {
-    fn is<Res>(self, expected: Keyword, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        if self == expected {
-            IsToken::True(fun(()))
-        } else {
-            IsToken::False(self)
-        }
+    pub fn is_var<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Var, fun)
     }
 
-    pub fn is_var<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Var, fun)
+    pub fn is_let<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Let, fun)
     }
 
-    pub fn is_let<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Let, fun)
+    pub fn is_function<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Function, fun)
     }
 
-    pub fn is_function<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Function, fun)
+    pub fn is_return<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Return, fun)
     }
 
-    pub fn is_return<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Return, fun)
+    pub fn is_if<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::If, fun)
     }
 
-    pub fn is_if<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::If, fun)
+    pub fn is_else<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Else, fun)
     }
 
-    pub fn is_else<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Else, fun)
+    pub fn is_while<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::While, fun)
     }
 
-    pub fn is_while<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::While, fun)
-    }
-
-    pub fn is_do<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Keyword> {
-        self.is(Keyword::Do, fun)
+    pub fn is_do<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Keyword>, Error> {
+        IsToken::<Res, Keyword>::is(self, Keyword::Do, fun)
     }
 }
 

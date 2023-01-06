@@ -1,4 +1,5 @@
 use super::IsToken;
+use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -25,32 +26,32 @@ impl Display for Arithmetic {
 }
 
 impl Arithmetic {
-    fn is<Res>(
+    pub fn is_add<Res>(
         self,
-        expected: Arithmetic,
-        fun: impl FnOnce(()) -> Res,
-    ) -> IsToken<Res, Arithmetic> {
-        if self == expected {
-            IsToken::True(fun(()))
-        } else {
-            IsToken::False(self)
-        }
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Arithmetic>, Error> {
+        IsToken::<Res, Arithmetic>::is(self, Arithmetic::Add, fun)
     }
 
-    pub fn is_add<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
-        self.is(Arithmetic::Add, fun)
+    pub fn is_sub<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Arithmetic>, Error> {
+        IsToken::<Res, Arithmetic>::is(self, Arithmetic::Sub, fun)
     }
 
-    pub fn is_sub<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
-        self.is(Arithmetic::Sub, fun)
+    pub fn is_div<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Arithmetic>, Error> {
+        IsToken::<Res, Arithmetic>::is(self, Arithmetic::Div, fun)
     }
 
-    pub fn is_div<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
-        self.is(Arithmetic::Div, fun)
-    }
-
-    pub fn is_mul<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Arithmetic> {
-        self.is(Arithmetic::Mul, fun)
+    pub fn is_mul<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Arithmetic>, Error> {
+        IsToken::<Res, Arithmetic>::is(self, Arithmetic::Mul, fun)
     }
 }
 

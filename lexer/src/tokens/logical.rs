@@ -1,4 +1,5 @@
 use super::IsToken;
+use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,48 +47,67 @@ impl Display for Logical {
 }
 
 impl Logical {
-    fn is<Res>(self, expected: Logical, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        if self == expected {
-            IsToken::True(fun(()))
-        } else {
-            IsToken::False(self)
-        }
+    pub fn is_not<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Not, fun)
     }
 
-    pub fn is_not<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Not, fun)
+    pub fn is_and<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::And, fun)
     }
 
-    pub fn is_and<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::And, fun)
+    pub fn is_or<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Or, fun)
     }
 
-    pub fn is_or<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Or, fun)
+    pub fn is_eq<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Eq, fun)
     }
 
-    pub fn is_eq<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Eq, fun)
+    pub fn is_ne<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Ne, fun)
     }
 
-    pub fn is_ne<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Ne, fun)
+    pub fn is_seq<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::SEq, fun)
     }
 
-    pub fn is_seq<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::SEq, fun)
+    pub fn is_sne<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::SNe, fun)
     }
 
-    pub fn is_sne<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::SNe, fun)
+    pub fn is_gt<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Gt, fun)
     }
 
-    pub fn is_gt<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Gt, fun)
-    }
-
-    pub fn is_ge<Res>(self, fun: impl FnOnce(()) -> Res) -> IsToken<Res, Logical> {
-        self.is(Logical::Ge, fun)
+    pub fn is_ge<Res>(
+        self,
+        fun: impl FnOnce(()) -> Result<Res, Error>,
+    ) -> Result<IsToken<Res, Logical>, Error> {
+        IsToken::<Res, Logical>::is(self, Logical::Ge, fun)
     }
 }
 
