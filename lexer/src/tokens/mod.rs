@@ -118,16 +118,6 @@ mod tests {
     use crate::{Error, Position, TokenReader};
 
     #[test]
-    fn test() {
-        // let res = Token::Assign
-        //     .is_assign(|_| 0)
-        //     .or(Token::is_keyword, |keyword: Keyword| {
-        //         keyword.is_var(|_| 0).result()
-        //     })
-        //     .unwrap();
-    }
-
-    #[test]
     fn token_ident_test() {
         let mut reader = TokenReader::new("name1".as_bytes());
         assert_eq!(reader.read_token(), Ok(Token::Ident("name1".to_string())));

@@ -84,11 +84,6 @@ mod tests {
     use crate::{Token, TokenReader};
 
     #[test]
-    fn test() {
-        assert_eq!(Keyword::Do.is_do(|_| 0).result().unwrap(), 0);
-    }
-
-    #[test]
     fn keyword_var_test() {
         let mut reader = TokenReader::new("var".as_bytes());
 

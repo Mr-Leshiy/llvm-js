@@ -2,7 +2,7 @@ use char_reader::CharReader;
 pub use position::Position;
 use std::io::Read;
 use thiserror::Error;
-pub use tokens::{Arithmetic, Keyword, Literal, Logical, Separator, Token};
+pub use tokens::{Arithmetic, IsToken, Keyword, Literal, Logical, Separator, Token};
 
 mod char_reader;
 mod position;
