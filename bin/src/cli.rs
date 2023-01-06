@@ -28,9 +28,8 @@ pub struct Cli {
 
 impl Cli {
     pub fn exec(self) -> Result<(), Error> {
-        let in_file = std::fs::File::open(self.input).map_err(|e| Error::CannotOpenFile(e))?;
-        let mut out_file =
-            std::fs::File::create(self.output).map_err(|e| Error::CannotCreateFile(e))?;
+        let in_file = std::fs::File::open(self.input).map_err(Error::CannotOpenFile)?;
+        let mut out_file = std::fs::File::create(self.output).map_err(Error::CannotCreateFile)?;
 
         let extern_functions = vec![
             PrintFn::NAME.to_string(),

@@ -231,7 +231,9 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
+            Err(precompiler::Error::UndefinedVariable(
+                "name_2".to_string().into(),
+            ))
         );
     }
 }

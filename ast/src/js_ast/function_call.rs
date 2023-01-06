@@ -160,7 +160,9 @@ mod tests {
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction("name_1".to_string().into()).into())
+            Err(precompiler::Error::UndefinedFunction(
+                "name_1".to_string().into()
+            ))
         );
     }
 }
