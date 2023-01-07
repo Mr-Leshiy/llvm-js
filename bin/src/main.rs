@@ -8,7 +8,7 @@ fn main() {
     Cli::parse().exec().unwrap_or_else(report_error);
 }
 
-fn report_error(error: impl Error) {
+fn report_error(error: cli::Error) {
     eprintln!("{}", error);
     let mut source = error.source();
     while let Some(sub_error) = source {

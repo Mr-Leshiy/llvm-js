@@ -1,4 +1,4 @@
-use ast::js_ast::Module;
+use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
 use compiler::predefined_functions::{
     test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
@@ -12,6 +12,12 @@ pub enum Error {
     CannotOpenFile(std::io::Error),
     #[error(transparent)]
     CannotCreateFile(std::io::Error),
+    #[error(transparent)]
+    LexerError(#[from] LexerError),
+    #[error(transparent)]
+    PrecompilerError(#[from] PrecompilerError),
+    #[error(transparent)]
+    CompilerError(#[from] CompilerError),
 }
 
 #[derive(Parser)]
@@ -38,12 +44,9 @@ impl Cli {
             GbVariablesCount::NAME.to_string(),
         ];
 
-        Module::new("module_1".to_string(), in_file)
-            .unwrap()
-            .precompile(extern_functions.into_iter().map(|e| e.into()))
-            .unwrap()
-            .compile_to(&mut out_file)
-            .unwrap();
+        Module::new("module_1".to_string(), in_file)?
+            .precompile(extern_functions.into_iter().map(|e| e.into()))?
+            .compile_to(&mut out_file)?;
         Ok(())
     }
 }
