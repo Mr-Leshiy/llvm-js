@@ -13,11 +13,11 @@ pub enum Error {
     #[error(transparent)]
     CannotCreateFile(std::io::Error),
     #[error(transparent)]
-    LexerError(#[from] LexerError),
+    Lexer(#[from] LexerError),
     #[error(transparent)]
-    PrecompilerError(#[from] PrecompilerError),
+    Precompiler(#[from] PrecompilerError),
     #[error(transparent)]
-    CompilerError(#[from] CompilerError),
+    Compiler(#[from] CompilerError),
 }
 
 #[derive(Parser)]
