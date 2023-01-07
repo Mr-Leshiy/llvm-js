@@ -30,7 +30,7 @@ impl Display for Keyword {
             Self::If => write!(f, "Keyword if token"),
             Self::Else => write!(f, "Keyword else token"),
             Self::While => write!(f, "Keyword while token"),
-            Self::Do => write!(f, "Keyword while token"),
+            Self::Do => write!(f, "Keyword do token"),
         }
     }
 }

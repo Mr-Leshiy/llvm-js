@@ -1,5 +1,6 @@
-use super::{Identifier, VariableExpression};
-use compiler::{Compiler, Function, Variable};
+use super::VariableExpression;
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ArrayExpression {
@@ -9,9 +10,9 @@ pub struct ArrayExpression {
 impl ArrayExpression {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Variable<'ctx>, compiler::Error<Identifier>> {
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
+    ) -> Result<Variable<'ctx>, CompilerError> {
         let res = Variable::new_array(compiler, true)?;
         for (i, el) in self.values.into_iter().enumerate() {
             let value = el.compile(compiler, cur_function)?;

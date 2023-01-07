@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
@@ -11,7 +11,10 @@ pub struct VariableDeclaration {
 }
 
 impl VariableDeclaration {
-    fn parse_impl<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    fn parse_impl<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         let name = Identifier::parse(cur_token, reader)?;
 
         reader.start_saving();
@@ -28,11 +31,14 @@ impl VariableDeclaration {
         }
     }
 
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Keyword(Keyword::Var) => Self::parse_impl(reader.next_token()?, reader),
             Token::Keyword(Keyword::Let) => Self::parse_impl(reader.next_token()?, reader),
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -41,7 +47,7 @@ impl VariableDeclaration {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableDeclaration, Error> {
+    ) -> Result<llvm_ast::VariableDeclaration, PrecompilerError> {
         let value = match self.value {
             Some(expr) => Some(expr.precompile(precompiler)?),
             None => None,
@@ -225,7 +231,9 @@ mod tests {
 
         assert_eq!(
             variable_declaration.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
+            Err(precompiler::Error::UndefinedVariable(
+                "name_2".to_string().into(),
+            ))
         );
     }
 }

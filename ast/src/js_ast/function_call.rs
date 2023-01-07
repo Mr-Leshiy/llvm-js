@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -13,7 +13,7 @@ impl FunctionCall {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, LexerError> {
         // parse function name
         let name = Identifier::parse(cur_token, reader)?;
 
@@ -31,12 +31,12 @@ impl FunctionCall {
                     cur_token = match reader.next_token()? {
                         Token::Separator(Separator::CloseBrace) => break,
                         Token::Separator(Separator::Comma) => reader.next_token()?,
-                        token => return Err(Error::UnexpectedToken(token)),
+                        token => return Err(LexerError::UnexpectedToken(token)),
                     };
                 }
                 Ok(Self { name, args })
             }
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -45,7 +45,7 @@ impl FunctionCall {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::FunctionCall, Error> {
+    ) -> Result<llvm_ast::FunctionCall, PrecompilerError> {
         let index = precompiler.get_function(self.name.clone())?;
         // check if arguments exist
         let mut args = Vec::new();
@@ -160,7 +160,9 @@ mod tests {
 
         assert_eq!(
             function_call.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedFunction("name_1".to_string().into()).into())
+            Err(precompiler::Error::UndefinedFunction(
+                "name_1".to_string().into()
+            ))
         );
     }
 }

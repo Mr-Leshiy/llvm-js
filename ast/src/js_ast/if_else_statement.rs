@@ -1,5 +1,5 @@
 use super::{BlockStatement, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -11,7 +11,10 @@ pub struct IfElseStatement {
 }
 
 impl IfElseStatement {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Keyword(Keyword::If) => match reader.next_token()? {
                 Token::Separator(Separator::OpenBrace) => {
@@ -38,12 +41,12 @@ impl IfElseStatement {
                                 else_clause,
                             })
                         }
-                        token => Err(Error::UnexpectedToken(token)),
+                        token => Err(LexerError::UnexpectedToken(token)),
                     }
                 }
-                token => Err(Error::UnexpectedToken(token)),
+                token => Err(LexerError::UnexpectedToken(token)),
             },
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -52,7 +55,7 @@ impl IfElseStatement {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::IfElseStatement, Error> {
+    ) -> Result<llvm_ast::IfElseStatement, PrecompilerError> {
         Ok(llvm_ast::IfElseStatement {
             condition: self.condition.precompile(precompiler)?,
             if_clause: self.if_clause.precompile(precompiler)?,

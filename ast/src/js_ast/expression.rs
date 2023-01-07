@@ -2,7 +2,7 @@ use super::{
     return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionCall,
     FunctionDeclaration, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::{fmt::Debug, io::Read};
 
@@ -20,7 +20,10 @@ pub enum Expression {
 }
 
 impl Expression {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,
@@ -61,7 +64,7 @@ impl Expression {
             Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
                 cur_token, reader,
             )?)),
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -70,7 +73,7 @@ impl Expression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<Vec<llvm_ast::Expression>, Error> {
+    ) -> Result<Vec<llvm_ast::Expression>, PrecompilerError> {
         match self {
             Self::FunctionDeclaration(function_declaration) => {
                 let function_declaration = function_declaration.precompile(precompiler)?;

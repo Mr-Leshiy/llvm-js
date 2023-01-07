@@ -1,5 +1,5 @@
 use super::{ArrayExpression, MemberExpression, ObjectExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -20,7 +20,10 @@ pub enum VariableValue {
 }
 
 impl VariableValue {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Literal(Literal::Undefined) => Ok(Self::Undefined),
             Token::Literal(Literal::Null) => Ok(Self::Null),
@@ -36,7 +39,7 @@ impl VariableValue {
             Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
                 Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
                 Token::Literal(Literal::Number(val)) => Ok(Self::Number(-val)),
-                token => Err(Error::UnexpectedToken(token)),
+                token => Err(LexerError::UnexpectedToken(token)),
             },
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::ObjectExpression(
                 ObjectExpression::parse(cur_token, reader)?,
@@ -44,7 +47,7 @@ impl VariableValue {
             Token::Separator(Separator::OpenSquareBracket) => Ok(Self::ArrayExpression(
                 ArrayExpression::parse(cur_token, reader)?,
             )),
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -53,7 +56,7 @@ impl VariableValue {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableValue, Error> {
+    ) -> Result<llvm_ast::VariableValue, PrecompilerError> {
         match self {
             Self::Undefined => Ok(llvm_ast::VariableValue::Undefined),
             Self::Null => Ok(llvm_ast::VariableValue::Null),

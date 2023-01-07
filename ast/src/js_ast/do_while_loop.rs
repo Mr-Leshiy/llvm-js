@@ -1,5 +1,5 @@
 use super::{BlockStatement, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -10,7 +10,10 @@ pub struct DoWhileLoop {
 }
 
 impl DoWhileLoop {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Keyword(Keyword::Do) => {
                 let body = BlockStatement::parse(reader.next_token()?, reader)?;
@@ -23,21 +26,24 @@ impl DoWhileLoop {
                                 Token::Separator(Separator::CloseBrace) => {
                                     Ok(Self { condition, body })
                                 }
-                                token => Err(Error::UnexpectedToken(token)),
+                                token => Err(LexerError::UnexpectedToken(token)),
                             }
                         }
-                        token => Err(Error::UnexpectedToken(token)),
+                        token => Err(LexerError::UnexpectedToken(token)),
                     },
-                    token => Err(Error::UnexpectedToken(token)),
+                    token => Err(LexerError::UnexpectedToken(token)),
                 }
             }
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
 
 impl DoWhileLoop {
-    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::DoWhileLoop, Error> {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::DoWhileLoop, PrecompilerError> {
         Ok(llvm_ast::DoWhileLoop {
             condition: self.condition.precompile(precompiler)?,
             body: self.body.precompile(precompiler)?,

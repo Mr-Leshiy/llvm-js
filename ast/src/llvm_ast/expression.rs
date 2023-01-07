@@ -2,7 +2,8 @@ use super::{
     DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
     VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use compiler::{Compile, Compiler, Function};
+use crate::{Compiler, CompilerError, Function};
+use compiler::Compile;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
@@ -21,9 +22,9 @@ impl Compile<Identifier> for Expression {
 
     fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<Self::Output, compiler::Error<Identifier>> {
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
+    ) -> Result<Self::Output, CompilerError> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
                 variable_declaration.compile(compiler, cur_function)?;

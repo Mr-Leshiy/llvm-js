@@ -1,5 +1,6 @@
-use super::{Expression, Identifier, VariableExpression};
-use compiler::{if_else::generate_if_else, Compiler, Function};
+use super::{Expression, VariableExpression};
+use crate::{Compiler, CompilerError, Function};
+use compiler::if_else::generate_if_else;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IfElseStatement {
@@ -11,9 +12,9 @@ pub struct IfElseStatement {
 impl IfElseStatement {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<bool, compiler::Error<Identifier>> {
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
+    ) -> Result<bool, CompilerError> {
         let condition = self.condition.compile(compiler, cur_function)?;
 
         generate_if_else(

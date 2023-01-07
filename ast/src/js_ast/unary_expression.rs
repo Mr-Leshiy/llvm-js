@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Precompiler, PrecompilerError};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct UnaryExpression {
@@ -25,7 +25,7 @@ impl UnaryExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::UnaryExpression, Error> {
+    ) -> Result<llvm_ast::UnaryExpression, PrecompilerError> {
         Ok(llvm_ast::UnaryExpression {
             exp: self.exp.precompile(precompiler)?,
             exp_type: self.exp_type.into(),

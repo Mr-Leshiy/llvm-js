@@ -1,5 +1,5 @@
 use super::{MemberExpression, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Token, TokenReader};
 use std::io::Read;
 
@@ -11,7 +11,10 @@ pub struct VariableAssigment {
 }
 
 impl VariableAssigment {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         let left = MemberExpression::parse(cur_token, reader)?;
 
         reader.start_saving();
@@ -33,7 +36,7 @@ impl VariableAssigment {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableAssigment, Error> {
+    ) -> Result<llvm_ast::VariableAssigment, PrecompilerError> {
         let left = self.left.precompile(precompiler)?;
         let value = match self.right {
             Some(expr) => Some(expr.precompile(precompiler)?),
@@ -223,7 +226,9 @@ mod tests {
 
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable("name_1".to_string().into(),).into())
+            Err(precompiler::Error::UndefinedVariable(
+                "name_1".to_string().into(),
+            ))
         );
     }
 
@@ -247,7 +252,9 @@ mod tests {
 
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
-            Err(precompiler::Error::UndefinedVariable("name_2".to_string().into(),).into())
+            Err(precompiler::Error::UndefinedVariable(
+                "name_2".to_string().into(),
+            ))
         );
     }
 }

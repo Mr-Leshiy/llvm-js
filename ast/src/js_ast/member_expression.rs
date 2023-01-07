@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression, VariableValue};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -13,7 +13,7 @@ impl Property {
     pub fn parse<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Option<Box<Self>>, Error> {
+    ) -> Result<Option<Box<Self>>, LexerError> {
         match cur_token {
             Token::Separator(Separator::Dot) => {
                 // Actually it is as a hack how we are representing Indetifier
@@ -32,7 +32,7 @@ impl Property {
                         let property = Self::parse(reader.next_token()?, reader)?;
                         Ok(Some(Self { object, property }.into()))
                     }
-                    token => Err(Error::UnexpectedToken(token)),
+                    token => Err(LexerError::UnexpectedToken(token)),
                 }
             }
             _ => {
@@ -42,7 +42,10 @@ impl Property {
         }
     }
 
-    pub fn precompile(self, precompiler: &mut Precompiler) -> Result<llvm_ast::Property, Error> {
+    pub fn precompile(
+        self,
+        precompiler: &mut Precompiler,
+    ) -> Result<llvm_ast::Property, PrecompilerError> {
         let object = self.object.precompile(precompiler)?;
         let property = if let Some(property) = self.property {
             Some(property.precompile(precompiler)?.into())
@@ -60,7 +63,10 @@ pub struct MemberExpression {
 }
 
 impl MemberExpression {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         let variable_name = Identifier::parse(cur_token, reader)?;
         reader.start_saving();
         let property = Property::parse(reader.next_token()?, reader)?;
@@ -73,7 +79,7 @@ impl MemberExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::MemberExpression, Error> {
+    ) -> Result<llvm_ast::MemberExpression, PrecompilerError> {
         let index = precompiler.get_variable(self.variable_name.clone())?;
         let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
         let property = if let Some(property) = self.property {

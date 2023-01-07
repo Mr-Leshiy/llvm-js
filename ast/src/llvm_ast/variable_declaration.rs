@@ -1,5 +1,6 @@
 use super::{Identifier, VariableExpression};
-use compiler::{Compiler, Function, Variable};
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration {
@@ -10,9 +11,9 @@ pub struct VariableDeclaration {
 impl VariableDeclaration {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
-    ) -> Result<(), compiler::Error<Identifier>> {
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
+    ) -> Result<(), CompilerError> {
         let var = Variable::new_undefined(compiler, false)?;
 
         if let Some(value) = self.value {

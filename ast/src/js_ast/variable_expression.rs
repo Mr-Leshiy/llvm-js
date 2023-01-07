@@ -1,7 +1,7 @@
 use super::{
     BinaryExpType, BinaryExpression, FunctionCall, UnaryExpType, UnaryExpression, VariableValue,
 };
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
 use rpn::{
     input::{InputExpression, Operation, Value},
@@ -61,7 +61,10 @@ impl From<VariableValue> for RpnValue {
 }
 
 impl VariableExpression {
-    pub fn parse<R: Read>(cur_token: Token, reader: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(
+        cur_token: Token,
+        reader: &mut TokenReader<R>,
+    ) -> Result<Self, LexerError> {
         let mut rpn = RPN::new();
         Self::parse_impl(cur_token, reader, &mut rpn, false)?;
         Ok(rpn.finish()?.evaluate().into())
@@ -72,7 +75,7 @@ impl VariableExpression {
         reader: &mut TokenReader<R>,
         rpn: &mut RPN<RpnValue, UnaryExpType, BinaryExpType>,
         is_unary: bool,
-    ) -> Result<(), Error> {
+    ) -> Result<(), LexerError> {
         match cur_token {
             Token::Logical(Logical::Not) => {
                 rpn.build(InputExpression::Value(Value::Operation(
@@ -87,7 +90,7 @@ impl VariableExpression {
                     Token::Separator(Separator::CloseBrace) => {
                         rpn.build(InputExpression::CloseBrace)?;
                     }
-                    token => return Err(Error::UnexpectedToken(token)),
+                    token => return Err(LexerError::UnexpectedToken(token)),
                 }
             }
             Token::Ident(_) => {
@@ -116,7 +119,7 @@ impl VariableExpression {
             let parse_binary_op = |reader: &mut TokenReader<R>,
                                    rpn: &mut RPN<RpnValue, UnaryExpType, BinaryExpType>,
                                    exp_type|
-             -> Result<(), Error> {
+             -> Result<(), LexerError> {
                 reader.reset_saving();
                 rpn.build(InputExpression::Value(Value::Operation(
                     Operation::BinaryOp(exp_type),
@@ -181,7 +184,7 @@ impl VariableExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::VariableExpression, Error> {
+    ) -> Result<llvm_ast::VariableExpression, PrecompilerError> {
         match self {
             Self::VariableValue(value) => Ok(llvm_ast::VariableExpression::VariableValue(
                 value.precompile(precompiler)?,

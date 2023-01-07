@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, Precompiler, PrecompilerError};
 use rpn::input::Priority;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -80,7 +80,7 @@ impl BinaryExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::BinaryExpression, Error> {
+    ) -> Result<llvm_ast::BinaryExpression, PrecompilerError> {
         Ok(llvm_ast::BinaryExpression {
             left: self.left.precompile(precompiler)?,
             right: self.right.precompile(precompiler)?,

@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::{collections::HashMap, io::Read};
 
@@ -12,7 +12,7 @@ impl ObjectExpression {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Separator(Separator::OpenCurlyBrace) => {
                 let mut properties = HashMap::new();
@@ -27,7 +27,7 @@ impl ObjectExpression {
                                 Token::Separator(Separator::Colon) => {
                                     VariableExpression::parse(reader.next_token()?, reader)
                                 }
-                                token => Err(Error::UnexpectedToken(token)),
+                                token => Err(LexerError::UnexpectedToken(token)),
                             }?;
                             properties.insert(key, value);
                         }
@@ -35,13 +35,13 @@ impl ObjectExpression {
                     cur_token = match reader.next_token()? {
                         Token::Separator(Separator::CloseCurlyBrace) => break,
                         Token::Separator(Separator::Comma) => reader.next_token()?,
-                        token => return Err(Error::UnexpectedToken(token)),
+                        token => return Err(LexerError::UnexpectedToken(token)),
                     };
                 }
 
                 Ok(Self { properties })
             }
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -50,7 +50,7 @@ impl ObjectExpression {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::ObjectExpression, Error> {
+    ) -> Result<llvm_ast::ObjectExpression, PrecompilerError> {
         let mut properties = HashMap::new();
         for (key, value) in self.properties {
             properties.insert(

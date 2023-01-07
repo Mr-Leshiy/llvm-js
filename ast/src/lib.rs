@@ -1,21 +1,11 @@
-use lexer::Token;
-use thiserror::Error;
-
 pub mod js_ast;
 pub mod llvm_ast;
 
-type Precompiler = precompiler::Precompiler<js_ast::Identifier, llvm_ast::FunctionDeclaration>;
+pub type LexerError = lexer::Error;
 
-#[derive(Debug, Error, PartialEq)]
-pub enum Error {
-    #[error("Unexpected token provided: {0}")]
-    UnexpectedToken(Token),
-    #[error(transparent)]
-    LexerError(#[from] lexer::Error),
-    #[error(transparent)]
-    PrecomilerError(#[from] precompiler::Error<js_ast::Identifier>),
-    #[error(transparent)]
-    CompilerError(#[from] compiler::Error<llvm_ast::Identifier>),
-    #[error(transparent)]
-    RpnError(#[from] rpn::Error),
-}
+type Precompiler = precompiler::Precompiler<js_ast::Identifier, llvm_ast::FunctionDeclaration>;
+pub type PrecompilerError = precompiler::Error<js_ast::Identifier>;
+
+type Compiler<'ctx> = compiler::Compiler<'ctx, llvm_ast::Identifier>;
+type Function<'ctx> = compiler::Function<'ctx, llvm_ast::Identifier>;
+pub type CompilerError = compiler::Error<llvm_ast::Identifier>;

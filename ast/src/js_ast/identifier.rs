@@ -1,4 +1,4 @@
-use crate::Error;
+use crate::LexerError;
 use lexer::{Token, TokenReader};
 use std::{fmt::Display, io::Read};
 
@@ -21,10 +21,10 @@ impl From<String> for Identifier {
 }
 
 impl Identifier {
-    pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, Error> {
+    pub fn parse<R: Read>(cur_token: Token, _: &mut TokenReader<R>) -> Result<Self, LexerError> {
         match cur_token {
             Token::Ident(name) => Ok(Self { name }),
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }

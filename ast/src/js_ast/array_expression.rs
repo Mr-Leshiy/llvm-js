@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{llvm_ast, Error, Precompiler};
+use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
 
@@ -12,7 +12,7 @@ impl ArrayExpression {
     pub fn parse<R: Read>(
         mut cur_token: Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, LexerError> {
         match cur_token {
             Token::Separator(Separator::OpenSquareBracket) => {
                 let mut values = Vec::new();
@@ -27,20 +27,20 @@ impl ArrayExpression {
                     cur_token = match reader.next_token()? {
                         Token::Separator(Separator::CloseSquareBracket) => break,
                         Token::Separator(Separator::Comma) => reader.next_token()?,
-                        token => return Err(Error::UnexpectedToken(token)),
+                        token => return Err(LexerError::UnexpectedToken(token)),
                     };
                 }
 
                 Ok(Self { values })
             }
-            token => Err(Error::UnexpectedToken(token)),
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::ArrayExpression, Error> {
+    ) -> Result<llvm_ast::ArrayExpression, PrecompilerError> {
         let mut values = Vec::new();
         for value in self.values {
             values.push(value.precompile(precompiler)?);
