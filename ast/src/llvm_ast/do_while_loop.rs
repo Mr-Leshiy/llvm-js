@@ -1,6 +1,6 @@
 use super::{Expression, VariableExpression};
-use crate::{CompilerError, Compiler, Function};
-use compiler::{loops::generate_do_while_loop};
+use crate::{Compiler, CompilerError, Function};
+use compiler::loops::generate_do_while_loop;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct DoWhileLoop {
@@ -14,8 +14,7 @@ impl DoWhileLoop {
         compiler: &mut Compiler<'ctx>,
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), CompilerError> {
-        let condition = |compiler: &mut Compiler<'ctx>,
-                         cur_function: &mut Function<'ctx>| {
+        let condition = |compiler: &mut Compiler<'ctx>, cur_function: &mut Function<'ctx>| {
             self.condition.compile(compiler, cur_function)
         };
 

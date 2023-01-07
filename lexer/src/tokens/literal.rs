@@ -1,5 +1,3 @@
-use super::IsToken;
-use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -31,69 +29,6 @@ impl Display for Literal {
             Self::NaN => write!(f, "Literal NaN token"),
             Self::Infinity => write!(f, "Literal Infinity token"),
         }
-    }
-}
-
-impl Literal {
-    pub fn is_boolean<Res>(
-        self,
-        fun: impl FnOnce(bool) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        if let Literal::Boolean(val) = self {
-            Ok(IsToken::True(fun(val)?))
-        } else {
-            Ok(IsToken::False(self))
-        }
-    }
-
-    pub fn is_number<Res>(
-        self,
-        fun: impl FnOnce(f64) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        if let Literal::Number(val) = self {
-            Ok(IsToken::True(fun(val)?))
-        } else {
-            Ok(IsToken::False(self))
-        }
-    }
-
-    pub fn is_string<Res>(
-        self,
-        fun: impl FnOnce(String) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        if let Literal::String(val) = self {
-            Ok(IsToken::True(fun(val)?))
-        } else {
-            Ok(IsToken::False(self))
-        }
-    }
-
-    pub fn is_undefined<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        IsToken::<Res, Literal>::is(self, Literal::Undefined, fun)
-    }
-
-    pub fn is_null<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        IsToken::<Res, Literal>::is(self, Literal::Null, fun)
-    }
-
-    pub fn is_nan<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        IsToken::<Res, Literal>::is(self, Literal::NaN, fun)
-    }
-
-    pub fn is_infinity<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Literal>, Error> {
-        IsToken::<Res, Literal>::is(self, Literal::Infinity, fun)
     }
 }
 

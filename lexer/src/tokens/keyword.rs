@@ -1,5 +1,3 @@
-use super::IsToken;
-use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -34,64 +32,6 @@ impl Display for Keyword {
             Self::While => write!(f, "Keyword while token"),
             Self::Do => write!(f, "Keyword do token"),
         }
-    }
-}
-
-impl Keyword {
-    pub fn is_var<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Var, fun)
-    }
-
-    pub fn is_let<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Let, fun)
-    }
-
-    pub fn is_function<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Function, fun)
-    }
-
-    pub fn is_return<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Return, fun)
-    }
-
-    pub fn is_if<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::If, fun)
-    }
-
-    pub fn is_else<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Else, fun)
-    }
-
-    pub fn is_while<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::While, fun)
-    }
-
-    pub fn is_do<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Keyword>, Error> {
-        IsToken::<Res, Keyword>::is(self, Keyword::Do, fun)
     }
 }
 

@@ -1,6 +1,6 @@
 use super::{Expression, VariableExpression};
-use crate::{CompilerError, Compiler, Function};
-use compiler::{if_else::generate_if_else};
+use crate::{Compiler, CompilerError, Function};
+use compiler::if_else::generate_if_else;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct IfElseStatement {

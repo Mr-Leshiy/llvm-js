@@ -1,5 +1,5 @@
 use super::Identifier;
-use crate::{CompilerError, Compiler, Function};
+use crate::{Compiler, CompilerError, Function};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DeallocateExpression {

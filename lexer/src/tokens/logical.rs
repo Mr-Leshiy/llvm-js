@@ -1,5 +1,3 @@
-use super::IsToken;
-use crate::Error;
 use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -43,71 +41,6 @@ impl Display for Logical {
             Self::Lt => write!(f, "Logical LT operator"),
             Self::Le => write!(f, "Logical LE operator"),
         }
-    }
-}
-
-impl Logical {
-    pub fn is_not<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Not, fun)
-    }
-
-    pub fn is_and<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::And, fun)
-    }
-
-    pub fn is_or<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Or, fun)
-    }
-
-    pub fn is_eq<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Eq, fun)
-    }
-
-    pub fn is_ne<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Ne, fun)
-    }
-
-    pub fn is_seq<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::SEq, fun)
-    }
-
-    pub fn is_sne<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::SNe, fun)
-    }
-
-    pub fn is_gt<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Gt, fun)
-    }
-
-    pub fn is_ge<Res>(
-        self,
-        fun: impl FnOnce(()) -> Result<Res, Error>,
-    ) -> Result<IsToken<Res, Logical>, Error> {
-        IsToken::<Res, Logical>::is(self, Logical::Ge, fun)
     }
 }
 

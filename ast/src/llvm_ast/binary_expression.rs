@@ -1,6 +1,6 @@
-use super::{VariableExpression};
-use crate::{CompilerError, Compiler, Function};
-use compiler::{ Variable};
+use super::VariableExpression;
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct BinaryExpression {

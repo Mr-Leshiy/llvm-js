@@ -1,4 +1,4 @@
-use super::{VariableExpression};
+use super::VariableExpression;
 use crate::{Compiler, CompilerError, Function};
 use compiler::Variable;
 
