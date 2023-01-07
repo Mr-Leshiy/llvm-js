@@ -1,6 +1,6 @@
-use super::{BinaryExpression, FunctionCall, Identifier, UnaryExpression, VariableValue};
-use crate::CompilerError;
-use compiler::{Compiler, Function, Variable};
+use super::{BinaryExpression, FunctionCall, UnaryExpression, VariableValue};
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 /// VariableExpression
 #[derive(Clone, Debug, PartialEq)]
@@ -14,8 +14,8 @@ pub enum VariableExpression {
 impl VariableExpression {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
             Self::VariableValue(value) => value.compile(compiler, cur_function),

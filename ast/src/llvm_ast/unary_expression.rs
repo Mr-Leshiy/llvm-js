@@ -1,6 +1,6 @@
-use super::{Identifier, VariableExpression};
-use crate::CompilerError;
-use compiler::{Compiler, Function, Variable};
+use super::VariableExpression;
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnaryExpression {
@@ -16,8 +16,8 @@ pub enum UnaryExpType {
 impl UnaryExpression {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self.exp_type {
             UnaryExpType::Not => {

@@ -1,6 +1,6 @@
 use super::{Identifier, VariableExpression};
-use crate::CompilerError;
-use compiler::{Compiler, Function, Variable};
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -11,8 +11,8 @@ pub struct ObjectExpression {
 impl ObjectExpression {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let res = Variable::new_object(compiler, true)?;
         for (key, value) in self.properties {

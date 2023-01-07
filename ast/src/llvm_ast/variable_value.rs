@@ -1,6 +1,6 @@
-use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
-use crate::CompilerError;
-use compiler::{Compiler, Function, Variable};
+use super::{ArrayExpression, MemberExpression, ObjectExpression};
+use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableValue {
@@ -20,8 +20,8 @@ pub enum VariableValue {
 impl VariableValue {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
             Self::Undefined => Variable::new_undefined(compiler, true),

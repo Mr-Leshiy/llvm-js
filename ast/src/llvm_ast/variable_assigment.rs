@@ -1,6 +1,5 @@
-use super::{Identifier, MemberExpression, VariableExpression};
-use crate::CompilerError;
-use compiler::{Compiler, Function};
+use super::{MemberExpression, VariableExpression};
+use crate::{Compiler, CompilerError, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableAssigment {
@@ -11,8 +10,8 @@ pub struct VariableAssigment {
 impl VariableAssigment {
     pub fn compile<'ctx>(
         self,
-        compiler: &mut Compiler<'ctx, Identifier>,
-        cur_function: &mut Function<'ctx, Identifier>,
+        compiler: &mut Compiler<'ctx>,
+        cur_function: &mut Function<'ctx>,
     ) -> Result<(), CompilerError> {
         let var1 = self.left.compile(compiler, cur_function, true)?;
         match self.right {

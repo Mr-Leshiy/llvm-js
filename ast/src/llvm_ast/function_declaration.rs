@@ -1,6 +1,5 @@
 use super::{Expression, Identifier};
-use crate::CompilerError;
-use compiler::{Compiler, Function};
+use crate::{Compiler, CompilerError, Function};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
@@ -10,7 +9,7 @@ pub struct FunctionDeclaration {
 }
 
 impl FunctionDeclaration {
-    pub fn compile(self, compiler: &mut Compiler<Identifier>) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let mut function = Function::new(compiler, &String::from(self.name.clone()), self.args);
         function.generate_body(compiler, self.body)?;
 
