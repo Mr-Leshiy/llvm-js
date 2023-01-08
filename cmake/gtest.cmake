@@ -23,6 +23,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     )
 endif()
 
+link_libraries(gtest)
+
 function(addtest test_name)
     add_executable(
         ${test_name}
@@ -30,8 +32,6 @@ function(addtest test_name)
     )
     target_link_libraries(${test_name}
             ${LIB_NAME}
-            gtest
-            $<TARGET_OBJECTS:test_main>
     )
     add_test(
         NAME ${test_name}
