@@ -58,8 +58,8 @@ struct GarbageCollector
             it->second -= 1;
             if (it->second == 0)
             {
-                this->memory.erase(val);
                 delete it->first;
+                this->memory.erase(val);
             }
         }
     }
