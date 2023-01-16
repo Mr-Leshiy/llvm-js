@@ -9,3 +9,14 @@ members = [
     "ast",
     "collections",
 ]
+
+[workspace.dependencies]
+
+ast = { path = "ast" }
+rpn = { path = "rpn" }
+collections = { path = "collections" }
+precompiler = { path = "precompiler" }
+compiler = { path = "compiler" }
+lexer = { path = "lexer" }
+
+thiserror = { version = "1.0.37" }
