@@ -11,7 +11,7 @@ pub struct Property {
 
 impl Property {
     pub fn parse<R: Read>(
-        cur_token: Token,
+        cur_token: &Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Option<Box<Self>>, LexerError> {
         match cur_token {
@@ -21,7 +21,7 @@ impl Property {
                     Identifier::parse(reader.next_token()?, reader)?.name,
                 ));
                 reader.start_saving();
-                let property = Self::parse(reader.next_token()?, reader)?;
+                let property = Self::parse(&reader.next_token()?, reader)?;
                 Ok(Some(Self { object, property }.into()))
             }
             Token::Separator(Separator::OpenSquareBracket) => {
@@ -29,7 +29,7 @@ impl Property {
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseSquareBracket) => {
                         reader.start_saving();
-                        let property = Self::parse(reader.next_token()?, reader)?;
+                        let property = Self::parse(&reader.next_token()?, reader)?;
                         Ok(Some(Self { object, property }.into()))
                     }
                     token => Err(LexerError::UnexpectedToken(token)),
@@ -69,7 +69,7 @@ impl MemberExpression {
     ) -> Result<Self, LexerError> {
         let variable_name = Identifier::parse(cur_token, reader)?;
         reader.start_saving();
-        let property = Property::parse(reader.next_token()?, reader)?;
+        let property = Property::parse(&reader.next_token()?, reader)?;
         Ok(Self {
             variable_name,
             property,
@@ -187,6 +187,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::too_many_lines)]
     fn parse_member_expression_test2() {
         let mut reader = TokenReader::new("name[name]".as_bytes());
         assert_eq!(

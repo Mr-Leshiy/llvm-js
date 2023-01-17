@@ -45,7 +45,7 @@ impl BlockStatement {
         for expr in self.body {
             expr.precompile(precompiler)?
                 .into_iter()
-                .for_each(|expr| res.push(expr))
+                .for_each(|expr| res.push(expr));
         }
         let vars =
             precompiler.remove_last_added_variables(precompiler.variables_len() - variables_len);

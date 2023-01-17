@@ -24,16 +24,15 @@ impl IfElseStatement {
                             let if_clause = BlockStatement::parse(reader.next_token()?, reader)?;
 
                             reader.start_saving();
-                            let else_clause = match reader.next_token()? {
-                                Token::Keyword(Keyword::Else) => {
+
+                            let else_clause =
+                                if let Token::Keyword(Keyword::Else) = reader.next_token()? {
                                     reader.reset_saving();
                                     BlockStatement::parse(reader.next_token()?, reader)?
-                                }
-                                _ => {
+                                } else {
                                     reader.stop_saving();
                                     BlockStatement { body: Vec::new() }
-                                }
-                            };
+                                };
 
                             Ok(Self {
                                 condition,

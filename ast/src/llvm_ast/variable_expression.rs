@@ -2,7 +2,6 @@ use super::{BinaryExpression, FunctionCall, UnaryExpression, VariableValue};
 use crate::{Compiler, CompilerError, Function};
 use compiler::Variable;
 
-/// VariableExpression
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableExpression {
     VariableValue(VariableValue),

@@ -1,3 +1,11 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
+
 use self::input::Value;
 use input::{InputExpression, Operation, Priority};
 use output::{BinaryExpression, OutputExpression, UnaryExpression};
@@ -48,7 +56,7 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                         Value::Operation(Operation::PrefixOp(op)),
                     )),
                     Operation::PostfixOp(op) => {
-                        self.result.push(Value::Operation(Operation::PostfixOp(op)))
+                        self.result.push(Value::Operation(Operation::PostfixOp(op)));
                     }
                     Operation::BinaryOp(op1) => {
                         let last = self.stack.pop();
@@ -57,11 +65,9 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                                 InputExpression::Value(Value::Operation(Operation::BinaryOp(
                                     op2,
                                 ))) => match op2.priority().cmp(&op1.priority()) {
-                                    Ordering::Equal => {
-                                        self.result.push(Value::Operation(Operation::BinaryOp(op2)))
-                                    }
-                                    Ordering::Greater => {
-                                        self.result.push(Value::Operation(Operation::BinaryOp(op2)))
+                                    Ordering::Equal | Ordering::Greater => {
+                                        self.result
+                                            .push(Value::Operation(Operation::BinaryOp(op2)));
                                     }
                                     Ordering::Less => self.stack.push(InputExpression::Value(
                                         Value::Operation(Operation::BinaryOp(op2)),
@@ -101,7 +107,7 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
         while let Some(expr) = self.stack.pop() {
             match expr {
                 InputExpression::Value(Value::Operation(op)) => {
-                    self.result.push(Value::Operation(op))
+                    self.result.push(Value::Operation(op));
                 }
                 _ => return Err(Error::NotOperation),
             }
@@ -127,17 +133,14 @@ impl<V, UnaryOpType, BinaryOpType: Priority> RPN<V, UnaryOpType, BinaryOpType> {
                         },
                     )));
                 }
-                Value::Operation(Operation::PostfixOp(exp_type)) => {
+
+                Value::Operation(
+                    Operation::PostfixOp(exp_type) | Operation::PrefixOp(exp_type),
+                ) => {
                     let exp = stack.pop().unwrap();
                     stack.push(OutputExpression::UnaryExpression(Box::new(
                         UnaryExpression { exp, exp_type },
-                    )))
-                }
-                Value::Operation(Operation::PrefixOp(exp_type)) => {
-                    let exp = stack.pop().unwrap();
-                    stack.push(OutputExpression::UnaryExpression(Box::new(
-                        UnaryExpression { exp, exp_type },
-                    )))
+                    )));
                 }
             }
         }
@@ -170,8 +173,7 @@ mod tests {
     impl Priority for BinOp {
         fn priority(&self) -> u8 {
             match self {
-                Self::Sum => 0,
-                Self::Sub => 0,
+                Self::Sum | Self::Sub => 0,
                 Self::Mul => 1,
             }
         }

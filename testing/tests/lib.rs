@@ -1,20 +1,17 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
+
 mod compiling_tests;
 
-use ast::js_ast::Module;
-use compiler::predefined_functions::{
-    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
-    PredefineFunctionName,
-};
-use std::{
-    env::current_dir,
-    fs::{remove_file, File},
-    path::Path,
-    process::Command,
-};
+use std::{env::current_dir, fs::remove_file, process::Command};
 
 pub struct CompileSuite {
-    source_code_path: &'static str,
-    module_name: String,
+    source_code_path: String,
     llvm_ir_out_file: String,
     object_out_file: String,
     binary_out_file: String,
@@ -22,13 +19,11 @@ pub struct CompileSuite {
 
 impl CompileSuite {
     pub fn new(source_code_path: &'static str, test_name: &'static str) -> Self {
-        let module_name = format!("module_{}", test_name);
-        let llvm_ir_out_file = format!("{}.ll", test_name);
-        let object_out_file = format!("{}.o", test_name);
-        let binary_out_file = format!("{}_run", test_name);
+        let llvm_ir_out_file = format!("{test_name}.ll");
+        let object_out_file = format!("{test_name}.o");
+        let binary_out_file = format!("{test_name}_run");
         Self {
-            source_code_path,
-            module_name,
+            source_code_path: source_code_path.to_string(),
             llvm_ir_out_file,
             object_out_file,
             binary_out_file,
@@ -37,17 +32,19 @@ impl CompileSuite {
 
     pub fn compile(self) -> Result<Self, String> {
         compile_js(
-            self.source_code_path,
-            self.llvm_ir_out_file.clone(),
-            self.module_name.clone(),
+            self.source_code_path.as_str(),
+            self.llvm_ir_out_file.as_str(),
         )?;
-        compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone())?;
-        compile_binary(self.object_out_file.clone(), self.binary_out_file.clone())?;
+        compile_llvm_ir(
+            self.llvm_ir_out_file.as_str(),
+            self.object_out_file.as_str(),
+        )?;
+        compile_binary(self.object_out_file.as_str(), self.binary_out_file.as_str())?;
         Ok(self)
     }
 
     pub fn run(self) -> Result<Self, String> {
-        run_binary(self.binary_out_file.clone())?;
+        run_binary(self.binary_out_file.as_str())?;
         Ok(self)
     }
 
@@ -58,35 +55,26 @@ impl CompileSuite {
     }
 }
 
-fn compile_js<P1: AsRef<Path>, P2: AsRef<Path>>(
-    in_file_path: P1,
-    out_file_path: P2,
-    module_name: String,
-) -> Result<(), String> {
-    let in_file = File::open(in_file_path).unwrap();
-    let mut out_file = File::create(out_file_path).unwrap();
-    let js_module = Module::new(module_name, in_file).unwrap();
-    let extern_functions = vec![
-        PrintFn::NAME.to_string(),
-        AssertFn::NAME.to_string(),
-        AssertEqFn::NAME.to_string(),
-        GbVariablesCount::NAME.to_string(),
-    ];
-
-    let llvm_module = js_module
-        .precompile(extern_functions.into_iter().map(|e| e.into()))
+fn compile_js(in_file_path: &str, out_file_path: &str) -> Result<(), String> {
+    let out = Command::new("../target/debug/llvm-js-compiler")
+        .args([
+            format!("--input={in_file_path}"),
+            format!("--output={out_file_path}"),
+        ])
+        .output()
         .map_err(|e| e.to_string())?;
-
-    llvm_module
-        .compile_to(&mut out_file)
-        .map_err(|e| e.to_string())
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!("status code: {}", out.status))
+    }
 }
 
-fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), String> {
+fn compile_llvm_ir(in_file_path: &str, out_file_name: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
-    let out_arg = format!("-o={}", out_file_name,);
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
+    let out_arg = format!("-o={out_file_name}",);
 
     let out = Command::new("llc")
         .args(["-filetype=obj", out_arg.as_str(), in_arg.as_str()])
@@ -99,11 +87,11 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), St
     }
 }
 
-fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), String> {
+fn compile_binary(in_file_path: &str, out_file_name: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
-    let out_arg = format!("-o{}", out_file_name,);
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
+    let out_arg = format!("-o{out_file_name}");
     let lib_dir_arg = "-L../build/lib/".to_string();
     let llvm_lib_name_arg = "-lllvm-js".to_string();
     let fmt_lib_name_arg = "-lfmt".to_string();
@@ -125,10 +113,10 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
     }
 }
 
-fn run_binary(in_file_path: String) -> Result<(), String> {
+fn run_binary(in_file_path: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
 
     let out = Command::new(in_arg).output().map_err(|e| e.to_string())?;
     if out.status.success() {

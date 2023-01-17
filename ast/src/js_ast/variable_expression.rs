@@ -10,7 +10,6 @@ use rpn::{
 };
 use std::io::Read;
 
-/// VariableExpression
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableExpression {
     VariableValue(VariableValue),
@@ -95,17 +94,14 @@ impl VariableExpression {
             }
             Token::Ident(_) => {
                 reader.start_saving();
-                match FunctionCall::parse(cur_token.clone(), reader) {
-                    Ok(function_call) => {
-                        reader.reset_saving();
-                        rpn.build(InputExpression::Value(Value::Value(function_call.into())))?;
-                    }
-                    Err(_) => {
-                        reader.stop_saving();
-                        rpn.build(InputExpression::Value(Value::Value(
-                            VariableValue::parse(cur_token, reader)?.into(),
-                        )))?;
-                    }
+                if let Ok(function_call) = FunctionCall::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    rpn.build(InputExpression::Value(Value::Value(function_call.into())))?;
+                } else {
+                    reader.stop_saving();
+                    rpn.build(InputExpression::Value(Value::Value(
+                        VariableValue::parse(cur_token, reader)?.into(),
+                    )))?;
                 }
             }
             token => {

@@ -3,7 +3,6 @@ use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Token, TokenReader};
 use std::io::Read;
 
-/// VariableDeclaration - Expression type for variable assigment, like "var a = 4" or "let a = 4"
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableDeclaration {
     pub name: Identifier,
@@ -18,16 +17,13 @@ impl VariableDeclaration {
         let name = Identifier::parse(cur_token, reader)?;
 
         reader.start_saving();
-        match reader.next_token()? {
-            Token::Assign => {
-                reader.reset_saving();
-                let value = Some(VariableExpression::parse(reader.next_token()?, reader)?);
-                Ok(Self { name, value })
-            }
-            _ => {
-                reader.stop_saving();
-                Ok(Self { name, value: None })
-            }
+        if let Token::Assign = reader.next_token()? {
+            reader.reset_saving();
+            let value = Some(VariableExpression::parse(reader.next_token()?, reader)?);
+            Ok(Self { name, value })
+        } else {
+            reader.stop_saving();
+            Ok(Self { name, value: None })
         }
     }
 
@@ -36,8 +32,9 @@ impl VariableDeclaration {
         reader: &mut TokenReader<R>,
     ) -> Result<Self, LexerError> {
         match cur_token {
-            Token::Keyword(Keyword::Var) => Self::parse_impl(reader.next_token()?, reader),
-            Token::Keyword(Keyword::Let) => Self::parse_impl(reader.next_token()?, reader),
+            Token::Keyword(Keyword::Var | Keyword::Let) => {
+                Self::parse_impl(reader.next_token()?, reader)
+            }
             token => Err(LexerError::UnexpectedToken(token)),
         }
     }

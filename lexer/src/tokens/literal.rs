@@ -21,9 +21,9 @@ pub enum Literal {
 impl Display for Literal {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Boolean(val) => write!(f, "Literal boolean token, val: {}", val),
-            Self::Number(val) => write!(f, "Literal number token, val: {}", val),
-            Self::String(val) => write!(f, "Literal string token, val: {}", val),
+            Self::Boolean(val) => write!(f, "Literal boolean token, val: {val}"),
+            Self::Number(val) => write!(f, "Literal number token, val: {val}"),
+            Self::String(val) => write!(f, "Literal string token, val: {val}"),
             Self::Undefined => write!(f, "Literal undefined token"),
             Self::Null => write!(f, "Literal null token"),
             Self::NaN => write!(f, "Literal NaN token"),

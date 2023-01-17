@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rpn = { path = "../rpn" }
-collections = { path = "../collections" }
-precompiler = { path = "../precompiler" }
-compiler = { path = "../compiler" }
-lexer = { path = "../lexer" }
-thiserror = { version = "1.0.37" }
+rpn = { workspace = true }
+collections = { workspace = true }
+precompiler = { workspace = true }
+compiler = { workspace = true }
+lexer = { workspace = true }
+thiserror = { workspace = true }

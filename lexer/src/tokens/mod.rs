@@ -38,7 +38,7 @@ impl Display for Token {
             Self::Assign => write!(f, "Assign token"),
             Self::Logical(val) => val.fmt(f),
             Self::Arithmetic(val) => val.fmt(f),
-            Self::Ident(val) => write!(f, "Ident token, val: {}", val),
+            Self::Ident(val) => write!(f, "Ident token, val: {val}"),
             Self::Literal(val) => val.fmt(f),
             Self::Separator(val) => val.fmt(f),
             Self::Eof => write!(f, "Eof token"),

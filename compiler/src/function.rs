@@ -79,7 +79,7 @@ where
         Ok(())
     }
 
-    pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: Variable<'ctx>) {
+    pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: &Variable<'ctx>) {
         compiler.builder.build_return(Some(&ret.value));
     }
 
