@@ -3,7 +3,6 @@ use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Token, TokenReader};
 use std::io::Read;
 
-/// VariableAssigment - Expression type for variable assigment, like "a = 4"
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableAssigment {
     pub left: MemberExpression,
@@ -18,16 +17,13 @@ impl VariableAssigment {
         let left = MemberExpression::parse(cur_token, reader)?;
 
         reader.start_saving();
-        match reader.next_token()? {
-            Token::Assign => {
-                reader.reset_saving();
-                let right = Some(VariableExpression::parse(reader.next_token()?, reader)?);
-                Ok(Self { left, right })
-            }
-            _ => {
-                reader.stop_saving();
-                Ok(Self { left, right: None })
-            }
+        if let Token::Assign = reader.next_token()? {
+            reader.reset_saving();
+            let right = Some(VariableExpression::parse(reader.next_token()?, reader)?);
+            Ok(Self { left, right })
+        } else {
+            reader.stop_saving();
+            Ok(Self { left, right: None })
         }
     }
 }

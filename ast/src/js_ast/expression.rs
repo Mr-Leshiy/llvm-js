@@ -28,25 +28,19 @@ impl Expression {
             Token::Keyword(Keyword::Function) => Ok(Self::FunctionDeclaration(
                 FunctionDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Keyword(Keyword::Var) => Ok(Self::VariableDeclaration(
-                VariableDeclaration::parse(cur_token, reader)?,
-            )),
-            Token::Keyword(Keyword::Let) => Ok(Self::VariableDeclaration(
+            Token::Keyword(Keyword::Var | Keyword::Let) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
             Token::Ident(_) => {
                 reader.start_saving();
-                match FunctionCall::parse(cur_token.clone(), reader) {
-                    Ok(res) => {
-                        reader.reset_saving();
-                        Ok(Self::FunctionCall(res))
-                    }
-                    Err(_) => {
-                        reader.stop_saving();
-                        Ok(Self::VariableAssigment(VariableAssigment::parse(
-                            cur_token, reader,
-                        )?))
-                    }
+                if let Ok(res) = FunctionCall::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    Ok(Self::FunctionCall(res))
+                } else {
+                    reader.stop_saving();
+                    Ok(Self::VariableAssigment(VariableAssigment::parse(
+                        cur_token, reader,
+                    )?))
                 }
             }
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(

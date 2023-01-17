@@ -3,7 +3,6 @@ use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use std::io::Read;
 
-/// VariableValue
 #[derive(Clone, Debug, PartialEq)]
 pub enum VariableValue {
     Undefined,

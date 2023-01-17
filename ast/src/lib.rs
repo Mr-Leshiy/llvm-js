@@ -1,10 +1,10 @@
-// #![warn(clippy::pedantic)]
-// #![allow(
-//     clippy::must_use_candidate,
-//     clippy::missing_errors_doc,
-//     clippy::missing_panics_doc,
-//     clippy::module_name_repetitions
-// )]
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
 
 pub mod js_ast;
 pub mod llvm_ast;

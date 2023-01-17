@@ -22,7 +22,7 @@ impl FunctionCall {
         cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let mut args = Vec::new();
-        for arg in self.args.into_iter() {
+        for arg in self.args {
             let value = arg.compile(compiler, cur_function)?;
             let arg = Variable::new_undefined(compiler, true)?;
             arg.assign_variable(compiler, &value)?;

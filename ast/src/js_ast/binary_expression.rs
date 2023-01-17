@@ -57,21 +57,13 @@ impl Priority for BinaryExpType {
     fn priority(&self) -> u8 {
         match self {
             // Logical
-            BinaryExpType::Eq => 8,
-            BinaryExpType::Ne => 8,
-            BinaryExpType::SEq => 8,
-            BinaryExpType::SNe => 8,
-            BinaryExpType::Gt => 9,
-            BinaryExpType::Ge => 9,
-            BinaryExpType::Lt => 9,
-            BinaryExpType::Le => 9,
+            BinaryExpType::Eq | BinaryExpType::Ne | BinaryExpType::SEq | BinaryExpType::SNe => 8,
+            BinaryExpType::Gt | BinaryExpType::Ge | BinaryExpType::Lt | BinaryExpType::Le => 9,
             BinaryExpType::And => 4,
             BinaryExpType::Or => 3,
             // Arithmetic
-            BinaryExpType::Add => 11,
-            BinaryExpType::Sub => 11,
-            BinaryExpType::Div => 12,
-            BinaryExpType::Mul => 12,
+            BinaryExpType::Add | BinaryExpType::Sub => 11,
+            BinaryExpType::Div | BinaryExpType::Mul => 12,
         }
     }
 }
