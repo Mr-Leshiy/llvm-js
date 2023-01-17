@@ -19,7 +19,7 @@ impl ReturnStatement {
         if value.is_tmp() {
             value.deallocate(compiler)?;
         }
-        cur_function.return_value(compiler, ret);
+        cur_function.return_value(compiler, &ret);
         Ok(())
     }
 }

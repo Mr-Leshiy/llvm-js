@@ -512,8 +512,7 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
 
 #[derive(Clone)]
 pub struct AddPropertyByVarFn<'ctx> {
-    // TODO rename
-    _func: FunctionValue<'ctx>,
+    func: FunctionValue<'ctx>,
 }
 
 impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
@@ -528,15 +527,14 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
             .context
             .void_type()
             .fn_type(&[var_type.into(), var_type.into(), var_type.into()], false);
-        let _func =
-            compiler
-                .module
-                .add_function(Self::NAME, function_type, Some(Linkage::External));
-        Self { _func }
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
     }
 
-    // TODO rename
-    pub(crate) fn _call<T>(
+    #[allow(dead_code)]
+    pub(crate) fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
@@ -544,7 +542,7 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
         value: &Variable<'ctx>,
     ) {
         compiler.builder.build_call(
-            self._func,
+            self.func,
             &[val.value.into(), key.value.into(), value.value.into()],
             "",
         );

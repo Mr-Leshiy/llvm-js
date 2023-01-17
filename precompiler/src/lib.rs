@@ -1,3 +1,11 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
+
 use collections::set::Set;
 use std::{
     fmt::{Debug, Display},
@@ -78,7 +86,7 @@ where
     }
 
     pub fn insert_function_declaration(&mut self, function_declaration: T2) {
-        self.function_declarations.push(function_declaration)
+        self.function_declarations.push(function_declaration);
     }
 
     pub fn get_function_declarations(self) -> Vec<T2> {
