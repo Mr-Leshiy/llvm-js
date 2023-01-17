@@ -11,9 +11,9 @@ pub struct CompileSuite {
 
 impl CompileSuite {
     pub fn new(source_code_path: &'static str, test_name: &'static str) -> Self {
-        let llvm_ir_out_file = format!("{}.ll", test_name);
-        let object_out_file = format!("{}.o", test_name);
-        let binary_out_file = format!("{}_run", test_name);
+        let llvm_ir_out_file = format!("{test_name}.ll");
+        let object_out_file = format!("{test_name}.o");
+        let binary_out_file = format!("{test_name}_run");
         Self {
             source_code_path: source_code_path.to_string(),
             llvm_ir_out_file,
@@ -47,8 +47,8 @@ impl CompileSuite {
 fn compile_js(in_file_path: &str, out_file_path: &str) -> Result<(), String> {
     let out = Command::new("../target/debug/llvm-js-compiler")
         .args([
-            format!("--input={}", in_file_path),
-            format!("--output={}", out_file_path),
+            format!("--input={in_file_path}"),
+            format!("--output={out_file_path}"),
         ])
         .output()
         .map_err(|e| e.to_string())?;
@@ -63,7 +63,7 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), St
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
-    let out_arg = format!("-o={}", out_file_name,);
+    let out_arg = format!("-o={out_file_name}",);
 
     let out = Command::new("llc")
         .args(["-filetype=obj", out_arg.as_str(), in_arg.as_str()])
@@ -80,7 +80,7 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
     let cur_dir = current_dir().unwrap();
 
     let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
-    let out_arg = format!("-o{}", out_file_name,);
+    let out_arg = format!("-o{out_file_name}");
     let lib_dir_arg = "-L../build/lib/".to_string();
     let llvm_lib_name_arg = "-lllvm-js".to_string();
     let fmt_lib_name_arg = "-lfmt".to_string();

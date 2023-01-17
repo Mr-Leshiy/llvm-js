@@ -45,12 +45,12 @@ impl<V: Clone + Eq + Hash + Display + Debug> Set<V> {
                     let counter = self
                         .hash_map
                         .get_mut(&value)
-                        .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value));
+                        .unwrap_or_else(|| panic!("HashMap must contains key: {value}"));
                     res.push((value.clone(), *counter));
                     if *counter == 0 {
                         self.hash_map
                             .remove(&value)
-                            .unwrap_or_else(|| panic!("HashMap must contains key: {0}", value));
+                            .unwrap_or_else(|| panic!("HashMap must contains key: {value}"));
                     } else {
                         *counter -= 1;
                     }
