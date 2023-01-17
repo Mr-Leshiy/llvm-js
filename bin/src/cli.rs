@@ -45,7 +45,7 @@ impl Cli {
         ];
 
         Module::new("module_1".to_string(), in_file)?
-            .precompile(extern_functions.into_iter().map(|e| e.into()))?
+            .precompile(extern_functions.into_iter().map(Into::into))?
             .compile_to(&mut out_file)?;
         Ok(())
     }

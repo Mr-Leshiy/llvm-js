@@ -1,3 +1,11 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
+
 mod compiling_tests;
 
 use std::{env::current_dir, fs::remove_file, process::Command};
@@ -27,13 +35,16 @@ impl CompileSuite {
             self.source_code_path.as_str(),
             self.llvm_ir_out_file.as_str(),
         )?;
-        compile_llvm_ir(self.llvm_ir_out_file.clone(), self.object_out_file.clone())?;
-        compile_binary(self.object_out_file.clone(), self.binary_out_file.clone())?;
+        compile_llvm_ir(
+            self.llvm_ir_out_file.as_str(),
+            self.object_out_file.as_str(),
+        )?;
+        compile_binary(self.object_out_file.as_str(), self.binary_out_file.as_str())?;
         Ok(self)
     }
 
     pub fn run(self) -> Result<Self, String> {
-        run_binary(self.binary_out_file.clone())?;
+        run_binary(self.binary_out_file.as_str())?;
         Ok(self)
     }
 
@@ -59,10 +70,10 @@ fn compile_js(in_file_path: &str, out_file_path: &str) -> Result<(), String> {
     }
 }
 
-fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), String> {
+fn compile_llvm_ir(in_file_path: &str, out_file_name: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
     let out_arg = format!("-o={out_file_name}",);
 
     let out = Command::new("llc")
@@ -76,10 +87,10 @@ fn compile_llvm_ir(in_file_path: String, out_file_name: String) -> Result<(), St
     }
 }
 
-fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), String> {
+fn compile_binary(in_file_path: &str, out_file_name: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
     let out_arg = format!("-o{out_file_name}");
     let lib_dir_arg = "-L../build/lib/".to_string();
     let llvm_lib_name_arg = "-lllvm-js".to_string();
@@ -102,10 +113,10 @@ fn compile_binary(in_file_path: String, out_file_name: String) -> Result<(), Str
     }
 }
 
-fn run_binary(in_file_path: String) -> Result<(), String> {
+fn run_binary(in_file_path: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
-    let in_arg = format!("{}/{}", cur_dir.to_str().unwrap(), in_file_path.as_str());
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
 
     let out = Command::new(in_arg).output().map_err(|e| e.to_string())?;
     if out.status.success() {
