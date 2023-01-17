@@ -1,3 +1,11 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions
+)]
+
 use char_reader::CharReader;
 pub use position::Position;
 use std::io::Read;
@@ -20,11 +28,11 @@ pub enum Error {
     UnexpectedToken(Token),
 }
 
-fn is_skip(char: &char) -> bool {
+fn is_skip(char: char) -> bool {
     char.is_ascii_whitespace() || char.eq(&';')
 }
 
-fn can_stop(char: &char) -> bool {
+fn can_stop(char: char) -> bool {
     is_skip(char)
         || char.eq(&'=')
         || char.eq(&'(')
@@ -86,7 +94,7 @@ impl<T> TokenResult<T> {
 impl<R: Read> TokenReader<R> {
     // Skip any whitespaces
     fn try_skip_whitespaces(&mut self, mut char: char) -> Result<TokenResult<char>, Error> {
-        while is_skip(&char) {
+        while is_skip(char) {
             char = match self.char_reader.get_char() {
                 Ok(char) => char,
                 Err(char_reader::Error::Eof) => return Ok(TokenResult::Token(Token::Eof)),
@@ -170,18 +178,18 @@ impl<R: Read> TokenReader<R> {
         loop {
             let cur_position = self.char_reader.get_position().clone();
             res = match self.try_skip_whitespaces(char)? {
-                TokenResult::Result(char) => self.try_skip_comments(char),
-                result => Ok(result),
+                TokenResult::Result(char) => self.try_skip_comments(char)?,
+                TokenResult::Token(token) => TokenResult::Token(token),
             };
             char = match res {
-                Ok(TokenResult::Result(char)) => char,
-                result => return result,
+                TokenResult::Result(char) => char,
+                TokenResult::Token(token) => return Ok(TokenResult::Token(token)),
             };
             if cur_position == self.char_reader.get_position().clone() {
                 break;
             }
         }
-        res
+        Ok(res)
     }
 
     // try read identifier: [a-zA-Z][a-zA-Z0-9_]*
@@ -195,7 +203,7 @@ impl<R: Read> TokenReader<R> {
                     Err(e) => return Err(Error::ReaderError(e)),
                 };
                 if !char.is_ascii_alphanumeric() && char != '_' {
-                    if !can_stop(&char) {
+                    if !can_stop(char) {
                         return Err(Error::UnexpectedSymbol(
                             char,
                             self.char_reader.get_position().clone(),
@@ -280,7 +288,7 @@ impl<R: Read> TokenReader<R> {
                     Err(e) => return Err(Error::ReaderError(e)),
                 };
                 if !char.is_ascii_digit() && char != '.' {
-                    if !can_stop(&char) {
+                    if !can_stop(char) {
                         return Err(Error::UnexpectedSymbol(
                             char,
                             self.char_reader.get_position().clone(),
@@ -301,11 +309,12 @@ impl<R: Read> TokenReader<R> {
     }
 
     // try read assign operator
-    fn try_read_assign_operator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+    fn try_read_assign_operator(char: char) -> TokenResult<()> {
         if char == '=' {
-            return Ok(TokenResult::Token(Token::Assign));
+            TokenResult::Token(Token::Assign)
+        } else {
+            TokenResult::Result(())
         }
-        Ok(TokenResult::Result(()))
     }
 
     // try read logical
@@ -368,9 +377,8 @@ impl<R: Read> TokenReader<R> {
             };
             if char == '&' {
                 return Ok(TokenResult::Token(Token::Logical(Logical::And)));
-            } else {
-                return Err(Error::UnexpectedSymbol('&', postion));
             }
+            return Err(Error::UnexpectedSymbol('&', postion));
         }
         if char == '|' {
             let postion = self.char_reader.get_position().clone();
@@ -381,9 +389,8 @@ impl<R: Read> TokenReader<R> {
             };
             if char == '|' {
                 return Ok(TokenResult::Token(Token::Logical(Logical::Or)));
-            } else {
-                return Err(Error::UnexpectedSymbol('|', postion));
             }
+            return Err(Error::UnexpectedSymbol('|', postion));
         }
         if char == '>' {
             match self.char_reader.get_char() {
@@ -415,43 +422,33 @@ impl<R: Read> TokenReader<R> {
     }
 
     // try read arithmetic
-    fn try_read_arithmetic(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+    fn try_read_arithmetic(char: char) -> TokenResult<()> {
         if char == '+' {
-            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Add)));
+            TokenResult::Token(Token::Arithmetic(Arithmetic::Add))
+        } else if char == '-' {
+            TokenResult::Token(Token::Arithmetic(Arithmetic::Sub))
+        } else if char == '*' {
+            TokenResult::Token(Token::Arithmetic(Arithmetic::Mul))
+        } else if char == '/' {
+            TokenResult::Token(Token::Arithmetic(Arithmetic::Div))
+        } else {
+            TokenResult::Result(())
         }
-        if char == '-' {
-            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Sub)));
-        }
-        if char == '*' {
-            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Mul)));
-        }
-        if char == '/' {
-            return Ok(TokenResult::Token(Token::Arithmetic(Arithmetic::Div)));
-        }
-        Ok(TokenResult::Result(()))
     }
 
     // try read separator: '(',')','{','}','[',']'
-    fn try_read_separator(&mut self, char: char) -> Result<TokenResult<()>, Error> {
+    fn try_read_separator(char: char) -> TokenResult<()> {
         match char {
-            '(' => Ok(TokenResult::Token(Token::Separator(Separator::OpenBrace))),
-            ')' => Ok(TokenResult::Token(Token::Separator(Separator::CloseBrace))),
-            '{' => Ok(TokenResult::Token(Token::Separator(
-                Separator::OpenCurlyBrace,
-            ))),
-            '}' => Ok(TokenResult::Token(Token::Separator(
-                Separator::CloseCurlyBrace,
-            ))),
-            '[' => Ok(TokenResult::Token(Token::Separator(
-                Separator::OpenSquareBracket,
-            ))),
-            ']' => Ok(TokenResult::Token(Token::Separator(
-                Separator::CloseSquareBracket,
-            ))),
-            ',' => Ok(TokenResult::Token(Token::Separator(Separator::Comma))),
-            '.' => Ok(TokenResult::Token(Token::Separator(Separator::Dot))),
-            ':' => Ok(TokenResult::Token(Token::Separator(Separator::Colon))),
-            _ => Ok(TokenResult::Result(())),
+            '(' => TokenResult::Token(Token::Separator(Separator::OpenBrace)),
+            ')' => TokenResult::Token(Token::Separator(Separator::CloseBrace)),
+            '{' => TokenResult::Token(Token::Separator(Separator::OpenCurlyBrace)),
+            '}' => TokenResult::Token(Token::Separator(Separator::CloseCurlyBrace)),
+            '[' => TokenResult::Token(Token::Separator(Separator::OpenSquareBracket)),
+            ']' => TokenResult::Token(Token::Separator(Separator::CloseSquareBracket)),
+            ',' => TokenResult::Token(Token::Separator(Separator::Comma)),
+            '.' => TokenResult::Token(Token::Separator(Separator::Dot)),
+            ':' => TokenResult::Token(Token::Separator(Separator::Colon)),
+            _ => TokenResult::Result(()),
         }
     }
 
@@ -472,7 +469,7 @@ impl<R: Read> TokenReader<R> {
                         Err(e) => return Err(Error::ReaderError(e)),
                     };
                     // next symbol should be skipped symbol
-                    if !can_stop(&char) {
+                    if !can_stop(char) {
                         return Err(Error::UnexpectedSymbol(
                             char,
                             self.char_reader.get_position().clone(),
@@ -546,9 +543,9 @@ impl<R: Read> TokenReader<R> {
                 self.try_read_identifier(char)?.token_or_continue(|_| {
                     self.try_read_number(char)?.token_or_continue(|_| {
                         self.try_read_logical(char)?.token_or_continue(|_| {
-                            self.try_read_arithmetic(char)?.token_or_continue(|_| {
-                                self.try_read_assign_operator(char)?.token_or_continue(|_| {
-                                    self.try_read_separator(char)?.token_or_continue(|_| {
+                            Self::try_read_arithmetic(char).token_or_continue(|_| {
+                                Self::try_read_assign_operator(char).token_or_continue(|_| {
+                                    Self::try_read_separator(char).token_or_continue(|_| {
                                         self.try_read_string(char)?.token_or_continue(|_| {
                                             Err(Error::UnexpectedSymbol(
                                                 char,
