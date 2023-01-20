@@ -16,8 +16,6 @@ pub enum BinaryExpType {
     Or,
     Eq,
     Ne,
-    SEq,
-    SNe,
     Gt,
     Ge,
     Lt,
@@ -60,18 +58,6 @@ impl BinaryExpression {
                 let var2 = self.right.compile(compiler, cur_function)?;
                 let logical_ne_fn = compiler.predefined_functions()?.logical_ne();
                 Ok(logical_ne_fn.call(compiler, &var1, &var2))
-            }
-            BinaryExpType::SEq => {
-                let var1 = self.left.compile(compiler, cur_function)?;
-                let var2 = self.right.compile(compiler, cur_function)?;
-                let logical_seq_fn = compiler.predefined_functions()?.logical_seq();
-                Ok(logical_seq_fn.call(compiler, &var1, &var2))
-            }
-            BinaryExpType::SNe => {
-                let var1 = self.left.compile(compiler, cur_function)?;
-                let var2 = self.right.compile(compiler, cur_function)?;
-                let logical_sne_fn = compiler.predefined_functions()?.logical_sne();
-                Ok(logical_sne_fn.call(compiler, &var1, &var2))
             }
             BinaryExpType::Gt => {
                 let var1 = self.left.compile(compiler, cur_function)?;

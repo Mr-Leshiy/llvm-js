@@ -138,12 +138,6 @@ impl VariableExpression {
                 Token::Logical(Logical::Ne) => {
                     parse_binary_op(reader, rpn, BinaryExpType::Ne)?;
                 }
-                Token::Logical(Logical::SEq) => {
-                    parse_binary_op(reader, rpn, BinaryExpType::SEq)?;
-                }
-                Token::Logical(Logical::SNe) => {
-                    parse_binary_op(reader, rpn, BinaryExpType::SNe)?;
-                }
                 Token::Logical(Logical::Gt) => {
                     parse_binary_op(reader, rpn, BinaryExpType::Gt)?;
                 }
@@ -455,114 +449,6 @@ mod tests {
                         }
                     )),
                     exp_type: BinaryExpType::Ne,
-                }
-            ))),
-        );
-    }
-
-    #[test]
-    fn parse_seq_logical_expression_test() {
-        let mut reader = TokenReader::new("true === false".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    exp_type: BinaryExpType::SEq,
-                }
-            ))),
-        );
-
-        let mut reader = TokenReader::new("false === a".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        }
-                    )),
-                    exp_type: BinaryExpType::SEq,
-                }
-            ))),
-        );
-
-        let mut reader = TokenReader::new("a === b".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
-                    )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
-                    )),
-                    exp_type: BinaryExpType::SEq,
-                }
-            ))),
-        );
-    }
-
-    #[test]
-    fn parse_sne_logical_expression_test() {
-        let mut reader = TokenReader::new("true !== false".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::Boolean(true)),
-                    right: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    exp_type: BinaryExpType::SNe,
-                }
-            ))),
-        );
-
-        let mut reader = TokenReader::new("false !== a".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
-                    )),
-                    exp_type: BinaryExpType::SNe,
-                }
-            ))),
-        );
-
-        let mut reader = TokenReader::new("a !== b".as_bytes());
-        assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
-                    )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
-                    )),
-                    exp_type: BinaryExpType::SNe,
                 }
             ))),
         );

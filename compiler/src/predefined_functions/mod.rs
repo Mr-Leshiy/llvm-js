@@ -6,7 +6,7 @@ use self::{
     convert::{ConvertToBooleanFn, ConvertToNumberFn, ConvertToStringFn},
     logical::{
         LogicalAndFn, LogicalEqFn, LogicalGeFn, LogicalGtFn, LogicalLeFn, LogicalLtFn, LogicalNeFn,
-        LogicalNotFn, LogicalOrFn, LogicalSEqFn, LogicalSNeFn,
+        LogicalNotFn, LogicalOrFn,
     },
     test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
     variable::{
@@ -56,8 +56,6 @@ pub struct PredefineFunctions<'ctx> {
     logical_or: LogicalOrFn<'ctx>,
     logical_eq: LogicalEqFn<'ctx>,
     logical_ne: LogicalNeFn<'ctx>,
-    logical_seq: LogicalSEqFn<'ctx>,
-    logical_sne: LogicalSNeFn<'ctx>,
     logical_gt: LogicalGtFn<'ctx>,
     logical_ge: LogicalGeFn<'ctx>,
     logical_lt: LogicalLtFn<'ctx>,
@@ -108,8 +106,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
             logical_or: LogicalOrFn::declare(compiler),
             logical_eq: LogicalEqFn::declare(compiler),
             logical_ne: LogicalNeFn::declare(compiler),
-            logical_seq: LogicalSEqFn::declare(compiler),
-            logical_sne: LogicalSNeFn::declare(compiler),
             logical_gt: LogicalGtFn::declare(compiler),
             logical_ge: LogicalGeFn::declare(compiler),
             logical_lt: LogicalLtFn::declare(compiler),
@@ -228,14 +224,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn logical_ne(&self) -> &LogicalNeFn<'ctx> {
         &self.logical_ne
-    }
-
-    pub fn logical_seq(&self) -> &LogicalSEqFn<'ctx> {
-        &self.logical_seq
-    }
-
-    pub fn logical_sne(&self) -> &LogicalSNeFn<'ctx> {
-        &self.logical_sne
     }
 
     pub fn logical_gt(&self) -> &LogicalGtFn<'ctx> {

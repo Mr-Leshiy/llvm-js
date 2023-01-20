@@ -12,10 +12,6 @@ pub enum Logical {
     Eq,
     /// logical inequality, e.g. !=
     Ne,
-    /// logical strict equality, e.g. ===
-    SEq,
-    /// logical strict inequality, e.g. !==
-    SNe,
     /// logical greater than, e.g. >
     Gt,
     /// logical greater than or equal, e.g. >=
@@ -34,8 +30,6 @@ impl Display for Logical {
             Self::Or => write!(f, "Logical OR operator"),
             Self::Eq => write!(f, "Logical EQ operator"),
             Self::Ne => write!(f, "Logical NE operator"),
-            Self::SEq => write!(f, "Logical SEQ operator"),
-            Self::SNe => write!(f, "Logical SNE operator"),
             Self::Gt => write!(f, "Logical GT operator"),
             Self::Ge => write!(f, "Logical GE operator"),
             Self::Lt => write!(f, "Logical LT operator"),
@@ -130,28 +124,6 @@ mod tests {
     }
 
     #[test]
-    fn logical_seq_test() {
-        let mut reader = TokenReader::new("===".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SEq)));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("a === b".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SEq)));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("a===b".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SEq)));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-    }
-
-    #[test]
     fn logical_ne_test() {
         let mut reader = TokenReader::new("!=".as_bytes());
 
@@ -174,33 +146,11 @@ mod tests {
     }
 
     #[test]
-    fn logical_sne_test() {
-        let mut reader = TokenReader::new("!==".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SNe)));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("a !== b".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SNe)));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-
-        let mut reader = TokenReader::new("a!==b".as_bytes());
-
-        assert_eq!(reader.read_token(), Ok(Token::Ident("a".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::SNe)));
-        assert_eq!(reader.read_token(), Ok(Token::Ident("b".to_string())));
-        assert_eq!(reader.read_token(), Ok(Token::Eof));
-    }
-
-    #[test]
     fn logical_gt_test() {
-        // let mut reader = TokenReader::new(">".as_bytes());
+        let mut reader = TokenReader::new(">".as_bytes());
 
-        // assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Gt)));
-        // assert_eq!(reader.read_token(), Ok(Token::Eof));
+        assert_eq!(reader.read_token(), Ok(Token::Logical(Logical::Gt)));
+        assert_eq!(reader.read_token(), Ok(Token::Eof));
 
         let mut reader = TokenReader::new("a > b".as_bytes());
 
