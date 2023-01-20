@@ -2,9 +2,15 @@ use super::{Identifier, VariableExpression};
 use crate::{Compiler, CompilerError, Function};
 use compiler::Variable;
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum PropertyType {
+    Identifier(Identifier),
+    VariableExpression(VariableExpression),
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Property {
-    pub object: VariableExpression,
+    pub object: PropertyType,
     pub property: Option<Box<Property>>,
 }
 
@@ -16,8 +22,15 @@ impl Property {
         variable: &Variable<'ctx>,
         allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let key = self.object.compile(compiler, cur_function)?;
-        let variable = variable.get_property_by_var(compiler, &key, allocate)?;
+        let variable = match self.object {
+            PropertyType::Identifier(identifier) => {
+                variable.get_property_by_str(compiler, String::from(identifier).as_str(), allocate)
+            }
+            PropertyType::VariableExpression(variable_expression) => {
+                let key = variable_expression.compile(compiler, cur_function)?;
+                variable.get_property_by_var(compiler, &key, allocate)
+            }
+        }?;
         if let Some(property) = self.property {
             property.compile(compiler, cur_function, &variable, allocate)
         } else {

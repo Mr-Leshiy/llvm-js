@@ -45,7 +45,10 @@ impl VariableAssigment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, Property, VariableExpression, VariableValue};
+    use crate::js_ast::{
+        member_expression::PropertyType, MemberExpression, Property, VariableExpression,
+        VariableValue,
+    };
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -100,9 +103,7 @@ mod tests {
                     variable_name: "name".to_string().into(),
                     property: Some(
                         Property {
-                            object: VariableExpression::VariableValue(VariableValue::String(
-                                "name".to_string()
-                            )),
+                            object: PropertyType::Identifier("name".to_string().into()),
                             property: None,
                         }
                         .into()
