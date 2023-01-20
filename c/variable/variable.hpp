@@ -71,15 +71,15 @@ struct Variable
 
     // Allocator impl
     friend Allocator<Variable>;
+    // for tests
+    friend test::VariableTest;
+
+private:
     static Variable *allocate_impl()
     {
         return new Variable();
     }
 
-    // for tests
-    friend test::VariableTest;
-
-private:
     Variable();
 
     Type flag;
