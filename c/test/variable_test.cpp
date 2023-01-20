@@ -68,7 +68,7 @@ TEST(Variable, to_boolean_test)
     EXPECT_EQ(test::VariableTest().set_boolean(false).to_boolean(), false);
     EXPECT_EQ(test::VariableTest().set_string("Hello world").to_boolean(), true);
     EXPECT_EQ(test::VariableTest().set_string("").to_boolean(), false);
-    EXPECT_EQ(test::VariableTest().set_object(Object()).to_boolean(), true);
+    EXPECT_EQ(test::VariableTest().set_object(Object()).to_boolean(), false);
     EXPECT_EQ(test::VariableTest().set_array(Array()).to_boolean(), false);
 }
 
@@ -144,7 +144,7 @@ TEST(Variable, logical_not_test)
     EXPECT_EQ(!test::VariableTest().set_number(Number(0)), true);
     EXPECT_EQ(!test::VariableTest().set_string("Hello world"), false);
     EXPECT_EQ(!test::VariableTest().set_string(""), true);
-    EXPECT_EQ(!test::VariableTest().set_object(Object()), false);
+    EXPECT_EQ(!test::VariableTest().set_object(Object()), true);
     EXPECT_EQ(!test::VariableTest().set_array(Array()), true);
 }
 

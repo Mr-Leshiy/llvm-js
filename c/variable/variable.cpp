@@ -118,10 +118,10 @@ bool Variable::to_boolean() const
         return !this->string_field.empty();
         break;
     case Type::Object:
-        return true;
+        return !this->object_field.empty();
         break;
     case Type::Array:
-        return false;
+        return !this->array_field.empty();
         break;
     default:
         ASSERT(false);
