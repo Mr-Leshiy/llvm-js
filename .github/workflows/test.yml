@@ -12,10 +12,8 @@ env:
 jobs:
   test:
     name: Test
-    needs: Clippy
     strategy:
       matrix:
-        # TODO fix macos-latest and windows-latest build
         os: [ubuntu-latest, macos-latest]
         toolchain: [stable]
         mode: ["", "--release"]
@@ -30,6 +28,11 @@ jobs:
       with:
         version: "14.0"
 
+    - name: Build cpp lib 
+      run: |
+        cmake . -Bbuild
+        cmake --build build --parallel 2
+
     - name: Build
       uses: actions-rs/cargo@v1
       with:
@@ -38,8 +41,8 @@ jobs:
 
     - name: Install nextest
       run: cargo install cargo-nextest --locked
-    - if: ${{ runner.os == 'ubuntu-latest' }}
-      name: Run tests
+
+    - name: Run tests
       run: cargo nextest run
 
   mem-check:
