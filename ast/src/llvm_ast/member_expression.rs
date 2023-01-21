@@ -28,7 +28,11 @@ impl Property {
             }
             PropertyType::VariableExpression(variable_expression) => {
                 let key = variable_expression.compile(compiler, cur_function)?;
-                variable.get_property_by_var(compiler, &key, allocate)
+                let res = variable.get_property_by_var(compiler, &key, allocate);
+                if key.is_tmp() {
+                    key.deallocate(compiler)?;
+                }
+                res
             }
         }?;
         if let Some(property) = self.property {
