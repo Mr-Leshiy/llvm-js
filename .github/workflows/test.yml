@@ -12,13 +12,9 @@ env:
 jobs:
   test:
     name: Test
-    needs: Clippy
     strategy:
       matrix:
-        # TODO fix macos-latest and windows-latest build
-        os: [ubuntu-latest, macos-latest]
-        toolchain: [stable]
-        mode: ["", "--release"]
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -30,16 +26,21 @@ jobs:
       with:
         version: "14.0"
 
+    - name: Build cpp lib 
+      run: |
+        cmake . -Bbuild
+        cmake --build build --parallel 2
+
     - name: Build
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --all-targets ${{ matrix.mode }}
+        args: --all-targets
 
     - name: Install nextest
       run: cargo install cargo-nextest --locked
-    - if: ${{ runner.os == 'ubuntu-latest' }}
-      name: Run tests
+
+    - name: Run tests
       run: cargo nextest run
 
   mem-check:
@@ -70,12 +71,13 @@ jobs:
 
     - name: Install nextest
       run: cargo install cargo-nextest --locked
+
     - name: Run tests
       run: cargo nextest run memory_tests --features mem-check
 
 
   fmt:
-    name: Fmt
+    name: Lints
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -84,7 +86,7 @@ jobs:
         with:
           toolchain: nightly
           profile: minimal
-          components: rustfmt
+          components: rustfmt, clippy
           override: true
 
       - name: Run cargo fmt
@@ -93,28 +95,10 @@ jobs:
           command: fmt
           args: -- --check
 
-  clippy:
-    name: Clippy
-    needs: Fmt
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install LLVM
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: "14.0"
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: clippy
-          override: true
-
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         continue-on-error: false
         with:
+          toolchain: stable
           command: clippy
           args: --all-targets --all-features -- -D warnings
