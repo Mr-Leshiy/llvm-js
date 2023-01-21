@@ -325,13 +325,6 @@ void variable_assert_eq(Variable *val1, Variable *val2)
     }
 }
 
-Variable *gb_variables_count()
-{
-    static Variable var = test::VariableTest();
-    var.set_number(Number(GarbageCollector<Variable>::get_instance().get_variables_count()));
-    return &var;
-}
-
 void print(Variable *self)
 {
     ASSERT(self != nullptr);

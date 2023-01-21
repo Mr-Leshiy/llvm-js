@@ -71,43 +71,6 @@ impl<'ctx> AssertEqFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct GbVariablesCount<'ctx> {
-    func: FunctionValue<'ctx>,
-}
-
-impl<'ctx> PredefineFunctionName for GbVariablesCount<'ctx> {
-    const NAME: &'static str = "gb_variables_count";
-}
-
-impl<'ctx> GbVariablesCount<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
-
-        let function_type = var_type.fn_type(&[], false);
-        let func = compiler.module.add_function(
-            "gb_variables_count",
-            function_type,
-            Some(Linkage::External),
-        );
-        Self { func }
-    }
-
-    pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) -> Variable<'ctx> {
-        let value = compiler
-            .builder
-            .build_call(self.func, &[], "")
-            .try_as_basic_value()
-            .left()
-            .unwrap()
-            .into_pointer_value();
-        Variable {
-            value,
-            is_tmp: false,
-        }
-    }
-}
-
-#[derive(Clone)]
 pub struct PrintFn<'ctx> {
     func: FunctionValue<'ctx>,
 }

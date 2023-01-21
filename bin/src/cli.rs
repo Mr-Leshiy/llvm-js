@@ -1,7 +1,7 @@
 use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
 use compiler::predefined_functions::{
-    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
+    test::{AssertEqFn, AssertFn, PrintFn},
     PredefineFunctionName,
 };
 use std::path::PathBuf;
@@ -41,7 +41,6 @@ impl Cli {
             PrintFn::NAME.to_string(),
             AssertFn::NAME.to_string(),
             AssertEqFn::NAME.to_string(),
-            GbVariablesCount::NAME.to_string(),
         ];
 
         Module::new("module_1".to_string(), in_file)?
