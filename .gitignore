@@ -8,5 +8,5 @@ build
 *.a
 *.o
 
-basic.js
+test_scripts/basic.js
 test_run
