@@ -22,6 +22,7 @@ struct Array
     Variable *get(const Number &index, bool allocate);
     uint32_t len() const;
     bool empty() const;
+    void clear();
 
     std::string to_string() const;
 

@@ -3,10 +3,7 @@
 
 Object::~Object()
 {
-    for (const auto &val : this->properties)
-    {
-        GarbageCollector<Variable>::get_instance().dec_counter(val.second);
-    }
+    this->clear();
 }
 
 Object &Object::operator=(const Object &val)
@@ -50,6 +47,14 @@ void Object::remove_property(const std::string &key)
 bool Object::empty() const
 {
     return this->properties.empty();
+}
+
+void Object::clear()
+{
+    for (const auto &val : this->properties)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(val.second);
+    }
 }
 
 bool operator==(const Object &a, const Object &b)

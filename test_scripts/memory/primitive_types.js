@@ -10,6 +10,5 @@ var a9 = "Hello";
 var a10 = { name: {name: "Alex", surname: "Smith"}, age: 1, say: a9 };
 var a11 = [1, 2, a10];
 
-var a = {name: {name: {name: "Alex"}}};
-var name = "name";
-a.name = 10;
+a10.name = "Alex";
+a11[2] = 3;
