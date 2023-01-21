@@ -42,9 +42,8 @@ jobs:
       name: Run tests
       run: cargo nextest run
 
-mem-check:
+  mem-check:
     name: Memory check
-    needs: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -56,7 +55,7 @@ mem-check:
         version: "14.0"
 
     - name: Install Valgrind
-      run: apt-get install valgrind
+      run: sudo apt-get install valgrind
 
     - name: Build
       uses: actions-rs/cargo@v1
