@@ -100,6 +100,6 @@ jobs:
         uses: actions-rs/cargo@v1
         continue-on-error: false
         with:
+          toolchain: stable
           command: clippy
-          args: +stable --all-targets --all-features -- -D warnings
-
+          args: --all-targets --all-features -- -D warnings
