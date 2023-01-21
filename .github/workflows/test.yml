@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        toolchain: [stable]
         mode: ["", "--release"]
 
     runs-on: ${{ matrix.os }}
@@ -73,6 +72,7 @@ jobs:
 
     - name: Install nextest
       run: cargo install cargo-nextest --locked
+
     - name: Run tests
       run: cargo nextest run memory_tests --features mem-check
 
