@@ -78,7 +78,7 @@ jobs:
 
 
   fmt:
-    name: Fmt
+    name: Lints
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -87,7 +87,7 @@ jobs:
         with:
           toolchain: nightly
           profile: minimal
-          components: rustfmt
+          components: rustfmt, clippy
           override: true
 
       - name: Run cargo fmt
@@ -96,28 +96,10 @@ jobs:
           command: fmt
           args: -- --check
 
-  clippy:
-    name: Clippy
-    needs: Fmt
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install LLVM
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: "14.0"
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: clippy
-          override: true
-
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         continue-on-error: false
         with:
           command: clippy
-          args: --all-targets --all-features -- -D warnings
+          args: +stable --all-targets --all-features -- -D warnings
+
