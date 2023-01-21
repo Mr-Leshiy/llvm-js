@@ -3,10 +3,7 @@
 
 Array::~Array()
 {
-    for (const auto &val : this->values)
-    {
-        GarbageCollector<Variable>::get_instance().dec_counter(val);
-    }
+    this->clear();
 }
 
 Array &Array::operator=(const Array &val)
@@ -101,6 +98,14 @@ uint32_t Array::len() const
 bool Array::empty() const
 {
     return this->values.empty();
+}
+
+void Array::clear()
+{
+    for (const auto &val : this->values)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(val);
+    }    
 }
 
 std::string Array::to_string() const

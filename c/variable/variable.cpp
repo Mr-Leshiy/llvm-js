@@ -16,7 +16,9 @@ Variable &Variable::operator=(const Variable &val)
     this->number_field = val.number_field;
     this->boolean_field = val.boolean_field;
     this->string_field = val.string_field;
+    this->object_field.clear();
     this->object_field = val.object_field;
+    this->array_field.clear();
     this->array_field = val.array_field;
     return *this;
 }

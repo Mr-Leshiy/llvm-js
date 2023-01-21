@@ -51,7 +51,6 @@ Variable *logical_le(Variable *val1, Variable *val2);
 
 void variable_assert(Variable *val);
 void variable_assert_eq(Variable *val1, Variable *val2);
-Variable *gb_variables_count();
 void print(Variable *self);
 
 #endif

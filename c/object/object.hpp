@@ -16,6 +16,7 @@ struct Object
     Variable *get_property(const std::string &key, bool allocate);
     void remove_property(const std::string &key);
     bool empty() const;
+    void clear();
 
     std::string to_string() const;
 

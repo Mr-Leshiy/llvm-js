@@ -3,7 +3,7 @@ use crate::{Compiler, CompilerError, Function};
 use compiler::{
     self,
     predefined_functions::{
-        test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
+        test::{AssertEqFn, AssertFn, PrintFn},
         PredefineFunctionName,
     },
     Variable,
@@ -59,10 +59,6 @@ impl FunctionCall {
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
                 Ok(Variable::new_undefined(compiler, true)?)
-            }
-            GbVariablesCount::NAME => {
-                let gb_variables_count = compiler.predefined_functions()?.gb_variables_count();
-                Ok(gb_variables_count.call(compiler))
             }
             _ => {
                 let function = compiler.get_function(self.name)?;

@@ -8,7 +8,7 @@ use self::{
         LogicalAndFn, LogicalEqFn, LogicalGeFn, LogicalGtFn, LogicalLeFn, LogicalLtFn, LogicalNeFn,
         LogicalNotFn, LogicalOrFn,
     },
-    test::{AssertEqFn, AssertFn, GbVariablesCount, PrintFn},
+    test::{AssertEqFn, AssertFn, PrintFn},
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, GetBooleanFn,
         GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn, SetBooleanFn,
@@ -72,7 +72,6 @@ pub struct PredefineFunctions<'ctx> {
     // testing utils
     assert: AssertFn<'ctx>,
     assert_eq: AssertEqFn<'ctx>,
-    gb_variables_count: GbVariablesCount<'ctx>,
     printf: PrintFn<'ctx>,
 }
 
@@ -122,7 +121,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
             // testing utils
             assert: AssertFn::declare(compiler),
             assert_eq: AssertEqFn::declare(compiler),
-            gb_variables_count: GbVariablesCount::declare(compiler),
             printf: PrintFn::declare(compiler),
         }
     }
@@ -279,10 +277,6 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn assert_eq(&self) -> &AssertEqFn<'ctx> {
         &self.assert_eq
-    }
-
-    pub fn gb_variables_count(&self) -> &GbVariablesCount<'ctx> {
-        &self.gb_variables_count
     }
 
     pub fn print(&self) -> &PrintFn<'ctx> {

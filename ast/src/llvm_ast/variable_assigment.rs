@@ -14,12 +14,13 @@ impl VariableAssigment {
         cur_function: &mut Function<'ctx>,
     ) -> Result<(), CompilerError> {
         let var1 = self.left.compile(compiler, cur_function, true)?;
-        match self.right {
-            Some(value) => {
-                let var = value.compile(compiler, cur_function)?;
-                var1.assign_variable(compiler, &var)
+        if let Some(value) = self.right {
+            let var = value.compile(compiler, cur_function)?;
+            var1.assign_variable(compiler, &var)?;
+            if var.is_tmp() {
+                var.deallocate(compiler)?;
             }
-            None => Ok(()),
         }
+        Ok(())
     }
 }
