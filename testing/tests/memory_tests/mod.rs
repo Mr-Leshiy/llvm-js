@@ -8,7 +8,7 @@ fn primitive_types_test() {
     )
     .compile()
     .unwrap()
-    .run()
+    .run_with_valgrind()
     .unwrap()
     .cleanup();
 }

@@ -7,6 +7,9 @@
 )]
 
 mod compiling_tests;
+#[cfg(target_os = "linux")]
+#[cfg(feature = "mem-check")]
+mod memory_tests;
 
 use std::{env::current_dir, fs::remove_file, process::Command};
 
@@ -48,6 +51,12 @@ impl CompileSuite {
         Ok(self)
     }
 
+    #[cfg(target_os = "linux")]
+    pub fn run_with_valgrind(self) -> Result<Self, String> {
+        run_binary_with_valgrind(self.binary_out_file.as_str())?;
+        Ok(self)
+    }
+
     pub fn cleanup(&self) {
         remove_file(self.llvm_ir_out_file.clone()).unwrap();
         remove_file(self.object_out_file.clone()).unwrap();
@@ -66,7 +75,12 @@ fn compile_js(in_file_path: &str, out_file_path: &str) -> Result<(), String> {
     if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", out.status))
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
     }
 }
 
@@ -83,7 +97,12 @@ fn compile_llvm_ir(in_file_path: &str, out_file_name: &str) -> Result<(), String
     if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", out.status))
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
     }
 }
 
@@ -109,7 +128,12 @@ fn compile_binary(in_file_path: &str, out_file_name: &str) -> Result<(), String>
     if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", out.status))
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
     }
 }
 
@@ -119,6 +143,28 @@ fn run_binary(in_file_path: &str) -> Result<(), String> {
     let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
 
     let out = Command::new(in_arg).output().map_err(|e| e.to_string())?;
+    if out.status.success() {
+        Ok(())
+    } else {
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn run_binary_with_valgrind(in_file_path: &str) -> Result<(), String> {
+    let cur_dir = current_dir().unwrap();
+
+    let in_arg = format!("{}/{in_file_path}", cur_dir.to_str().unwrap());
+
+    let out = Command::new("valgrind")
+        .args(["--leak-check=full", "--error-exitcode=1", in_arg.as_str()])
+        .output()
+        .map_err(|e| e.to_string())?;
     if out.status.success() {
         Ok(())
     } else {

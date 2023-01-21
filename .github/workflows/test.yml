@@ -42,6 +42,34 @@ jobs:
       name: Run tests
       run: cargo nextest run
 
+mem-check:
+    name: Memory check
+    needs: Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install LLVM
+      uses: KyleMayes/install-llvm-action@v1.5.4
+      with:
+        version: "14.0"
+
+    - name: Install Valgrind
+      run: apt-get install valgrind
+
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --all-targets
+
+    - name: Install nextest
+      run: cargo install cargo-nextest --locked
+    - name: Run tests
+      run: cargo nextest run memory_tests --features mem-check
+
+
   fmt:
     name: Fmt
     runs-on: ubuntu-latest
