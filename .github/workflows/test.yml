@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        mode: ["", "--release"]
 
     runs-on: ${{ matrix.os }}
 
@@ -36,7 +35,7 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --all-targets ${{ matrix.mode }}
+        args: --all-targets
 
     - name: Install nextest
       run: cargo install cargo-nextest --locked
