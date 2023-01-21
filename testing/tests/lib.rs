@@ -122,6 +122,11 @@ fn run_binary(in_file_path: &str) -> Result<(), String> {
     if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", out.status))
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
     }
 }
