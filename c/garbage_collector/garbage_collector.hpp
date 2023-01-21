@@ -26,7 +26,7 @@ struct GarbageCollector
 {
     ~GarbageCollector()
     {
-        printf("~GarbageCollector: \n %s", this->to_string().c_str());
+        // printf("~GarbageCollector: \n %s", this->to_string().c_str());
     }
 
     GarbageCollector(GarbageCollector &) = delete;
@@ -97,7 +97,7 @@ struct GarbageCollector
         std::string res = "";
         for (const auto &el : this->memory)
         {
-            res += "[ address: " + std::to_string(((uint64_t)el.first)) + " counter: " + std::to_string(el.second) + "]\n";
+            res += "[ address: " + std::to_string(((uint64_t)el.first)) + " counter: " + std::to_string(el.second) + " data: " + el.first->to_string() + "]\n";
         }
 
         return res;
