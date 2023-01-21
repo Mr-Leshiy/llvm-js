@@ -3,8 +3,8 @@ use crate::CompileSuite;
 #[test]
 fn primitive_types_test() {
     CompileSuite::new(
-        "../test_scripts/memory/primitive_types.js",
-        "primitive_types",
+        "../test_scripts/memory/basic.js",
+        "basic",
     )
     .compile()
     .unwrap()
