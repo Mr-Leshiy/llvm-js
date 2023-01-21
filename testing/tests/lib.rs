@@ -99,10 +99,10 @@ fn compile_binary(in_file_path: &str, out_file_name: &str) -> Result<(), String>
     let out = Command::new("clang++")
         .args([
             lib_dir_arg.as_str(),
-            llvm_lib_name_arg.as_str(),
-            fmt_lib_name_arg.as_str(),
             out_arg.as_str(),
             in_arg.as_str(),
+            llvm_lib_name_arg.as_str(),
+            fmt_lib_name_arg.as_str(),
         ])
         .output()
         .map_err(|e| e.to_string())?;
@@ -122,6 +122,11 @@ fn run_binary(in_file_path: &str) -> Result<(), String> {
     if out.status.success() {
         Ok(())
     } else {
-        Err(format!("status code: {}", out.status))
+        Err(format!(
+            "status code: {} \n, stdout: {} \n, stderr: {}",
+            out.status,
+            String::from_utf8(out.stdout).unwrap(),
+            String::from_utf8(out.stderr).unwrap()
+        ))
     }
 }

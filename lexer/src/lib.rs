@@ -326,17 +326,6 @@ impl<R: Read> TokenReader<R> {
                 Err(e) => return Err(Error::ReaderError(e)),
             };
             if char == '=' {
-                char = match self.char_reader.get_char() {
-                    Ok(char) => char,
-                    Err(char_reader::Error::Eof) => {
-                        return Ok(TokenResult::Token(Token::Logical(Logical::Eq)))
-                    }
-                    Err(e) => return Err(Error::ReaderError(e)),
-                };
-                if char == '=' {
-                    return Ok(TokenResult::Token(Token::Logical(Logical::SEq)));
-                }
-                self.char_reader.save(char);
                 return Ok(TokenResult::Token(Token::Logical(Logical::Eq)));
             }
             self.char_reader.save(char);
@@ -351,17 +340,6 @@ impl<R: Read> TokenReader<R> {
                 Err(e) => return Err(Error::ReaderError(e)),
             };
             if char == '=' {
-                char = match self.char_reader.get_char() {
-                    Ok(char) => char,
-                    Err(char_reader::Error::Eof) => {
-                        return Ok(TokenResult::Token(Token::Logical(Logical::Ne)))
-                    }
-                    Err(e) => return Err(Error::ReaderError(e)),
-                };
-                if char == '=' {
-                    return Ok(TokenResult::Token(Token::Logical(Logical::SNe)));
-                }
-                self.char_reader.save(char);
                 return Ok(TokenResult::Token(Token::Logical(Logical::Ne)));
             }
 

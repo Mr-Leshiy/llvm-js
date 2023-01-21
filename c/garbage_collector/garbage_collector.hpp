@@ -26,10 +26,6 @@ struct GarbageCollector
 {
     ~GarbageCollector()
     {
-        for (const auto &el : this->memory)
-        {
-            delete el.first;
-        }
     }
 
     GarbageCollector(GarbageCollector &) = delete;

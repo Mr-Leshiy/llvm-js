@@ -16,8 +16,6 @@ pub enum BinaryExpType {
     Or,
     Eq,
     Ne,
-    SEq,
-    SNe,
     Gt,
     Ge,
     Lt,
@@ -38,8 +36,6 @@ impl Into<llvm_ast::BinaryExpType> for BinaryExpType {
             Self::Or => llvm_ast::BinaryExpType::Or,
             Self::Eq => llvm_ast::BinaryExpType::Eq,
             Self::Ne => llvm_ast::BinaryExpType::Ne,
-            Self::SEq => llvm_ast::BinaryExpType::SEq,
-            Self::SNe => llvm_ast::BinaryExpType::SNe,
             Self::Gt => llvm_ast::BinaryExpType::Gt,
             Self::Ge => llvm_ast::BinaryExpType::Ge,
             Self::Lt => llvm_ast::BinaryExpType::Lt,
@@ -57,7 +53,7 @@ impl Priority for BinaryExpType {
     fn priority(&self) -> u8 {
         match self {
             // Logical
-            BinaryExpType::Eq | BinaryExpType::Ne | BinaryExpType::SEq | BinaryExpType::SNe => 8,
+            BinaryExpType::Eq | BinaryExpType::Ne => 8,
             BinaryExpType::Gt | BinaryExpType::Ge | BinaryExpType::Lt | BinaryExpType::Le => 9,
             BinaryExpType::And => 4,
             BinaryExpType::Or => 3,

@@ -31,26 +31,6 @@ fn logical_or_test() {
 }
 
 #[test]
-fn seq_test() {
-    CompileSuite::new("../test_scripts/logical/seq.js", "seq")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
-}
-
-#[test]
-fn sne_test() {
-    CompileSuite::new("../test_scripts/logical/sne.js", "sne")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
-}
-
-#[test]
 fn gt_test() {
     CompileSuite::new("../test_scripts/logical/gt.js", "gt")
         .compile()

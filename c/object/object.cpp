@@ -47,6 +47,11 @@ void Object::remove_property(const std::string &key)
     this->properties.erase(key);
 }
 
+bool Object::empty() const
+{
+    return this->properties.empty();
+}
+
 bool operator==(const Object &a, const Object &b)
 {
     return a.properties == b.properties;

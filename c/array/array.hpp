@@ -21,6 +21,7 @@ struct Array
     Variable *get(uint32_t index, bool allocate);
     Variable *get(const Number &index, bool allocate);
     uint32_t len() const;
+    bool empty() const;
 
     std::string to_string() const;
 

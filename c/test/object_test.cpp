@@ -7,8 +7,11 @@ TEST(Object, Basic_test)
 {
     Object object;
 
+    EXPECT_EQ(object.empty(), true);
+
     Variable &value = GarbageCollector<Variable>::get_instance().allocate()->set_number(Number(12));
     object.add_property("name", &value);
+    EXPECT_EQ(object.empty(), false);
 
     EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
 

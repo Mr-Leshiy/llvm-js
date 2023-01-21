@@ -244,7 +244,6 @@ Variable *logical_or(Variable *val1, Variable *val2)
 
 Variable *logical_eq(Variable *val1, Variable *val2)
 {
-    // TODO implement
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);
 
@@ -254,27 +253,6 @@ Variable *logical_eq(Variable *val1, Variable *val2)
 }
 
 Variable *logical_ne(Variable *val1, Variable *val2)
-{
-    // TODO implement
-    ASSERT(val1 != nullptr);
-    ASSERT(val2 != nullptr);
-
-    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
-    ret->set_boolean(*val1 != *val2);
-    return ret;
-}
-
-Variable *logical_seq(Variable *val1, Variable *val2)
-{
-    ASSERT(val1 != nullptr);
-    ASSERT(val2 != nullptr);
-
-    Variable *ret = GarbageCollector<Variable>::get_instance().allocate();
-    ret->set_boolean(*val1 == *val2);
-    return ret;
-}
-
-Variable *logical_sne(Variable *val1, Variable *val2)
 {
     ASSERT(val1 != nullptr);
     ASSERT(val2 != nullptr);

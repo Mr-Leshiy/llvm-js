@@ -98,6 +98,11 @@ uint32_t Array::len() const
     return this->values.size();
 }
 
+bool Array::empty() const
+{
+    return this->values.empty();
+}
+
 std::string Array::to_string() const
 {
     std::string res = "[";
