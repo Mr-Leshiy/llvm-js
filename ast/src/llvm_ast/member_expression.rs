@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -18,7 +18,6 @@ impl Property {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
         variable: &Variable<'ctx>,
         allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
@@ -27,7 +26,7 @@ impl Property {
                 variable.get_property_by_str(compiler, String::from(identifier).as_str(), allocate)
             }
             PropertyType::VariableExpression(variable_expression) => {
-                let key = variable_expression.compile(compiler, cur_function)?;
+                let key = variable_expression.compile(compiler)?;
                 let res = variable.get_property_by_var(compiler, &key, allocate);
                 if key.is_tmp() {
                     key.deallocate(compiler)?;
@@ -36,7 +35,7 @@ impl Property {
             }
         }?;
         if let Some(property) = self.property {
-            property.compile(compiler, cur_function, &variable, allocate)
+            property.compile(compiler, &variable, allocate)
         } else {
             Ok(variable)
         }
@@ -53,12 +52,11 @@ impl MemberExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
         allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let variable = compiler.get_variable(self.variable_name)?;
         if let Some(property) = self.property {
-            property.compile(compiler, cur_function, &variable, allocate)
+            property.compile(compiler, &variable, allocate)
         } else {
             Ok(variable)
         }

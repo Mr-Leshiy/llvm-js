@@ -1,5 +1,5 @@
 use super::{Expression, VariableExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::loops::generate_while_loop;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -9,15 +9,9 @@ pub struct WhileLoop {
 }
 
 impl WhileLoop {
-    pub fn compile<'ctx>(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), CompilerError> {
-        let condition = |compiler: &mut Compiler<'ctx>, cur_function: &mut Function<'ctx>| {
-            self.condition.compile(compiler, cur_function)
-        };
+    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), CompilerError> {
+        let condition = |compiler: &mut Compiler<'ctx>| self.condition.compile(compiler);
 
-        generate_while_loop(compiler, condition, cur_function, self.body)
+        generate_while_loop(compiler, condition, self.body)
     }
 }

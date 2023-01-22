@@ -1,26 +1,26 @@
 use crate::{Compile, Compiler, Error, Function};
+use inkwell::values::FunctionValue;
 use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
-pub struct MainFunction<'ctx, T> {
-    func: Function<'ctx, T>,
-}
+pub struct MainFunction;
 
-impl<'ctx, T> MainFunction<'ctx, T>
-where
-    T: Clone + Hash + PartialEq + Eq,
-{
-    fn generate_body<Expr: Compile<T>>(
-        &mut self,
+impl<'ctx> MainFunction {
+    fn generate_body<Expr: Compile<T>, T: Clone + Hash + PartialEq + Eq>(
         compiler: &mut Compiler<'ctx, T>,
+        function: FunctionValue<'ctx>,
         body: Vec<Expr>,
     ) -> Result<(), Error<T>> {
-        let basic_block = compiler
-            .context
-            .append_basic_block(self.func.function, "entry");
+        compiler.cur_function = Some(Function {
+            function,
+            arg_names: Vec::new(),
+            variables: HashMap::new(),
+        });
+
+        let basic_block = compiler.context.append_basic_block(function, "entry");
         compiler.builder.position_at_end(basic_block);
         for expr in body {
-            expr.compile(compiler, &mut self.func)?;
+            expr.compile(compiler)?;
         }
         compiler
             .builder
@@ -28,22 +28,13 @@ where
         Ok(())
     }
 
-    pub fn new<Expr: Compile<T>>(
+    pub fn define<Expr: Compile<T>, T: Clone + Hash + PartialEq + Eq>(
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,
-    ) -> Result<Self, Error<T>> {
+    ) -> Result<(), Error<T>> {
         let function_type = compiler.context.i32_type().fn_type(&[], false);
         let function = compiler.module.add_function("main", function_type, None);
-
-        let mut func = Self {
-            func: Function {
-                function,
-                arg_names: Vec::new(),
-                variables: HashMap::new(),
-            },
-        };
-        compiler.cur_function = Some(func.func.clone());
-        func.generate_body(compiler, body)?;
-        Ok(func)
+        Self::generate_body(compiler, function, body)?;
+        Ok(())
     }
 }

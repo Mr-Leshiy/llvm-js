@@ -2,7 +2,7 @@ use super::{
     DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
     VariableAssigment, VariableDeclaration, WhileLoop,
 };
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Compile;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,42 +20,36 @@ pub enum Expression {
 impl Compile<Identifier> for Expression {
     type Output = bool;
 
-    fn compile<'ctx>(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<Self::Output, CompilerError> {
+    fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<Self::Output, CompilerError> {
         match self {
             Self::VariableDeclaration(variable_declaration) => {
-                variable_declaration.compile(compiler, cur_function)?;
+                variable_declaration.compile(compiler)?;
                 Ok(false)
             }
             Self::VariableAssigment(variable_assigment) => {
-                variable_assigment.compile(compiler, cur_function)?;
+                variable_assigment.compile(compiler)?;
                 Ok(false)
             }
             Self::DeallocateExpression(deallocate_expression) => {
-                deallocate_expression.compile(compiler, cur_function)?;
+                deallocate_expression.compile(compiler)?;
                 Ok(false)
             }
             Self::FunctionCall(function_call) => {
-                let var = function_call.compile(compiler, cur_function)?;
+                let var = function_call.compile(compiler)?;
                 var.deallocate(compiler)?;
                 Ok(false)
             }
             Self::ReturnStatement(return_statement) => {
-                return_statement.compile(compiler, cur_function)?;
+                return_statement.compile(compiler)?;
                 Ok(true)
             }
-            Self::IfElseStatement(if_else_statement) => {
-                if_else_statement.compile(compiler, cur_function)
-            }
+            Self::IfElseStatement(if_else_statement) => if_else_statement.compile(compiler),
             Self::WhileLoop(while_loop) => {
-                while_loop.compile(compiler, cur_function)?;
+                while_loop.compile(compiler)?;
                 Ok(false)
             }
             Self::DoWhileLoop(do_while_loop) => {
-                do_while_loop.compile(compiler, cur_function)?;
+                do_while_loop.compile(compiler)?;
                 Ok(false)
             }
         }

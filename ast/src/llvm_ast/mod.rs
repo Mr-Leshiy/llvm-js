@@ -64,7 +64,7 @@ impl Module {
             func.compile(compiler)?;
         }
         // define main function
-        MainFunction::new(compiler, self.body)?;
+        MainFunction::define(compiler, self.body)?;
         compiler.write_result_into(writer)?;
         Ok(())
     }

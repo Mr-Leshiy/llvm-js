@@ -14,15 +14,16 @@ where
     T: Clone + Hash + PartialEq + Eq,
 {
     fn generate_body<Expr: Compile<T, Output = bool>>(
-        &mut self,
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,
     ) -> Result<(), Error<T>> {
-        let basic_block = compiler.context.append_basic_block(self.function, "entry");
+        let basic_block = compiler
+            .context
+            .append_basic_block(compiler.cur_function.as_ref().unwrap().function, "entry");
         compiler.builder.position_at_end(basic_block);
         let mut is_returned = false;
         for expr in body {
-            let is_return = expr.compile(compiler, self)?;
+            let is_return = expr.compile(compiler)?;
             if is_return {
                 is_returned = true;
                 break;
@@ -46,14 +47,14 @@ where
         let function_type = var_type.fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        let mut func = Self {
+        let func = Self {
             function,
             arg_names,
             variables: HashMap::new(),
         };
 
         compiler.cur_function = Some(func.clone());
-        func.generate_body(compiler, body)?;
+        Self::generate_body(compiler, body)?;
         Ok(func)
     }
 
@@ -91,7 +92,7 @@ where
             .ok_or(Error::UndefinedVariable(name))
     }
 
-    pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: &Variable<'ctx>) {
+    pub fn return_value(compiler: &mut Compiler<'ctx, T>, ret: &Variable<'ctx>) {
         compiler.builder.build_return(Some(&ret.value));
     }
 

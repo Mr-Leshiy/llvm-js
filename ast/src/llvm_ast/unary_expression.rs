@@ -1,5 +1,5 @@
 use super::VariableExpression;
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,11 +17,10 @@ impl UnaryExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self.exp_type {
             UnaryExpType::Not => {
-                let var = self.exp.compile(compiler, cur_function)?;
+                let var = self.exp.compile(compiler)?;
                 let logical_not_fn = compiler.predefined_functions()?.logical_not();
                 Ok(logical_not_fn.call(compiler, &var))
             }
