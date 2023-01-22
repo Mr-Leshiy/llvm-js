@@ -4,9 +4,9 @@ use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
 pub struct Function<'ctx, T> {
-    pub(super) arg_names: Vec<T>,
-    pub(super) function: FunctionValue<'ctx>,
-    pub(super) variables: HashMap<T, Variable<'ctx>>,
+    pub(crate) arg_names: Vec<T>,
+    pub(crate) function: FunctionValue<'ctx>,
+    pub(crate) variables: HashMap<T, Variable<'ctx>>,
 }
 
 impl<'ctx, T> Function<'ctx, T>
@@ -51,11 +51,24 @@ where
             arg_names,
             variables: HashMap::new(),
         };
+
+        compiler.cur_function = Some(func.clone());
         func.generate_body(compiler, body)?;
         Ok(func)
     }
 
-    pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
+    pub(crate) fn insert_variable(
+        &mut self,
+        name: T,
+        variable: Variable<'ctx>,
+    ) -> Result<(), Error<T>> {
+        match self.variables.insert(name.clone(), variable) {
+            None => Ok(()),
+            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
+        }
+    }
+
+    pub(crate) fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
         // firstly look into the function arguments
         for (i, arg_name) in self.arg_names.iter().enumerate() {
             if name.eq(arg_name) {
@@ -76,13 +89,6 @@ where
             .get(&name)
             .cloned()
             .ok_or(Error::UndefinedVariable(name))
-    }
-
-    pub fn insert_variable(&mut self, name: T, variable: Variable<'ctx>) -> Result<(), Error<T>> {
-        match self.variables.insert(name.clone(), variable) {
-            None => Ok(()),
-            Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
-        }
     }
 
     pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: &Variable<'ctx>) {

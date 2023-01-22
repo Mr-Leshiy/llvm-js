@@ -56,7 +56,7 @@ impl MemberExpression {
         cur_function: &mut Function<'ctx>,
         allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let variable = cur_function.get_variable(self.variable_name)?;
+        let variable = compiler.get_variable(self.variable_name)?;
         if let Some(property) = self.property {
             property.compile(compiler, cur_function, &variable, allocate)
         } else {

@@ -8,7 +8,7 @@
 
 pub use context::Context;
 pub use function::Function;
-use inkwell::{types::StructType, values::FunctionValue};
+use inkwell::types::StructType;
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
@@ -62,7 +62,7 @@ pub struct Compiler<'ctx, T> {
     predefined_functions: Option<PredefineFunctions<'ctx>>,
 
     variable_type: StructType<'ctx>,
-    cur_function: Option<FunctionValue<'ctx>>,
+    cur_function: Option<Function<'ctx, T>>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -109,6 +109,17 @@ where
             .get(&name)
             .cloned()
             .ok_or(Error::UndefinedFunction(name))
+    }
+
+    pub fn insert_variable(&mut self, name: T, variable: Variable<'ctx>) -> Result<(), Error<T>> {
+        self.cur_function
+            .as_mut()
+            .unwrap()
+            .insert_variable(name, variable)
+    }
+
+    pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
+        self.cur_function.as_ref().unwrap().get_variable(name)
     }
 
     pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {

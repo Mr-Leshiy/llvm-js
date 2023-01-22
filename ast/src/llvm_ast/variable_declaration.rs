@@ -24,6 +24,6 @@ impl VariableDeclaration {
             }
         }
 
-        cur_function.insert_variable(self.name, var)
+        compiler.insert_variable(self.name, var)
     }
 }

@@ -42,6 +42,7 @@ where
                 variables: HashMap::new(),
             },
         };
+        compiler.cur_function = Some(func.func.clone());
         func.generate_body(compiler, body)?;
         Ok(func)
     }
