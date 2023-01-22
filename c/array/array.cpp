@@ -105,7 +105,17 @@ void Array::clear()
     for (const auto &val : this->values)
     {
         GarbageCollector<Variable>::get_instance().dec_counter(val);
-    }    
+    }
+}
+
+bool operator==(const Array &a, const Array &b)
+{
+    return a.values == b.values;
+}
+
+bool operator!=(const Array &a, const Array &b)
+{
+    return !(a == b);
 }
 
 std::string Array::to_string() const

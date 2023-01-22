@@ -326,38 +326,41 @@ bool operator==(const Variable &a, const Variable &b)
         {
             return a.number_field == b.number_field;
         }
-        else
-        {
-            return false;
-        }
+        return false;
         break;
     case Type::Boolean:
         if (b.flag == Type::Boolean)
         {
             return a.boolean_field == b.boolean_field;
         }
-        else
-        {
-            return false;
-        }
+        return false;
         break;
     case Type::String:
         if (b.flag == Type::String)
         {
             return a.string_field == b.string_field;
         }
-        else
-        {
-            return false;
-        }
+        return false;
         break;
     case Type::Object:
+        if (b.flag == Type::Object)
+        {
+            return a.object_field == b.object_field;
+        }
         return false;
         break;
     case Type::Array:
+        if (b.flag == Type::Array)
+        {
+            return a.array_field == b.array_field;
+        }
         return false;
         break;
     case Type::Function:
+        if (b.flag == Type::Function)
+        {
+            return a.function_field == b.function_field;
+        }
         return false;
         break;
     default:

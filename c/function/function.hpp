@@ -2,7 +2,7 @@
 #define C_FUNCTION_HPP
 
 #include <stdint.h>
-#include <string.h>
+#include <string>
 
 struct Variable;
 
@@ -13,20 +13,11 @@ struct Function
     Function() = default;
     Function(FUNC_TYPE func, uint32_t args_num) : func(func), args_num(args_num) {}
 
-    Variable *call(Variable **args)
-    {
-        return this->func(args);
-    }
+    Variable *call(Variable **args);
 
-    std::string to_string() const
-    {
-        return "function, args num: " + std::to_string(this->args_num);
-    }
+    std::string to_string() const;
 
-    friend bool operator==(const Function &a, const Function &b)
-    {
-        return a.args_num == b.args_num && a.func == b.func;
-    }
+    friend bool operator==(const Function &a, const Function &b);
 
 private:
     FUNC_TYPE func{nullptr};
