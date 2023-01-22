@@ -10,9 +10,12 @@ pub struct FunctionDeclaration {
 
 impl FunctionDeclaration {
     pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
-        let mut function = Function::new(compiler, &String::from(self.name.clone()), self.args);
-        function.generate_body(compiler, self.body)?;
-
+        let function = Function::new(
+            compiler,
+            &String::from(self.name.clone()),
+            self.args,
+            self.body,
+        )?;
         compiler.insert_function(self.name, function)
     }
 }

@@ -13,17 +13,46 @@ impl<'ctx, T> Function<'ctx, T>
 where
     T: Clone + Hash + PartialEq + Eq,
 {
-    pub fn new(compiler: &mut Compiler<'ctx, T>, name: &str, arg_names: Vec<T>) -> Self {
+    fn generate_body<Expr: Compile<T, Output = bool>>(
+        &mut self,
+        compiler: &mut Compiler<'ctx, T>,
+        body: Vec<Expr>,
+    ) -> Result<(), Error<T>> {
+        let basic_block = compiler.context.append_basic_block(self.function, "entry");
+        compiler.builder.position_at_end(basic_block);
+        let mut is_returned = false;
+        for expr in body {
+            let is_return = expr.compile(compiler, self)?;
+            if is_return {
+                is_returned = true;
+                break;
+            }
+        }
+        if !is_returned {
+            let ret = Variable::new_undefined(compiler, true)?;
+            compiler.builder.build_return(Some(&ret.value));
+        }
+        Ok(())
+    }
+
+    pub fn new<Expr: Compile<T, Output = bool>>(
+        compiler: &mut Compiler<'ctx, T>,
+        name: &str,
+        arg_names: Vec<T>,
+        body: Vec<Expr>,
+    ) -> Result<Self, Error<T>> {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
         let args_type: Vec<_> = arg_names.iter().map(|_| var_type.into()).collect();
         let function_type = var_type.fn_type(args_type.as_slice(), false);
         let function = compiler.module.add_function(name, function_type, None);
 
-        Self {
+        let mut func = Self {
             function,
             arg_names,
             variables: HashMap::new(),
-        }
+        };
+        func.generate_body(compiler, body)?;
+        Ok(func)
     }
 
     pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
@@ -54,29 +83,6 @@ where
             None => Ok(()),
             Some(_) => Err(Error::AlreadyDeclaredVariable(name)),
         }
-    }
-
-    // TODO: move this code inside new function
-    pub fn generate_body<Expr: Compile<T, Output = bool>>(
-        &mut self,
-        compiler: &mut Compiler<'ctx, T>,
-        body: Vec<Expr>,
-    ) -> Result<(), Error<T>> {
-        let basic_block = compiler.context.append_basic_block(self.function, "entry");
-        compiler.builder.position_at_end(basic_block);
-        let mut is_returned = false;
-        for expr in body {
-            let is_return = expr.compile(compiler, self)?;
-            if is_return {
-                is_returned = true;
-                break;
-            }
-        }
-        if !is_returned {
-            let ret = Variable::new_undefined(compiler, true)?;
-            compiler.builder.build_return(Some(&ret.value));
-        }
-        Ok(())
     }
 
     pub fn return_value(&self, compiler: &mut Compiler<'ctx, T>, ret: &Variable<'ctx>) {
