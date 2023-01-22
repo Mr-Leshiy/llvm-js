@@ -57,6 +57,13 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val2.get_flag(), Type::Array);
     EXPECT_EQ(val1.get_array().len(), 2);
     EXPECT_EQ(val2.get_array().len(), 2);
+
+    val1.set_function(Function());
+    val2 = val1;
+    EXPECT_EQ(val1.get_flag(), Type::Function);
+    EXPECT_EQ(val2.get_flag(), Type::Function);
+    EXPECT_EQ(val1.get_function(), Function());
+    EXPECT_EQ(val2.get_function(), Function());
 }
 
 TEST(Variable, to_boolean_test)

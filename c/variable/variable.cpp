@@ -20,6 +20,7 @@ Variable &Variable::operator=(const Variable &val)
     this->object_field = val.object_field;
     this->array_field.clear();
     this->array_field = val.array_field;
+    this->function_field = val.function_field;
     return *this;
 }
 
@@ -70,6 +71,13 @@ Variable &Variable::set_array(const Array &val)
     return *this;
 }
 
+Variable &Variable::set_function(const Function &val)
+{
+    this->flag = Type::Function;
+    this->function_field = val;
+    return *this;
+}
+
 Type Variable::get_flag() const
 {
     return this->flag;
@@ -100,6 +108,11 @@ const Array &Variable::get_array() const
     return this->array_field;
 }
 
+const Function &Variable::get_function() const
+{
+    return this->function_field;
+}
+
 bool Variable::to_boolean() const
 {
     switch (this->flag)
@@ -124,6 +137,9 @@ bool Variable::to_boolean() const
         break;
     case Type::Array:
         return !this->array_field.empty();
+        break;
+    case Type::Function:
+        return true;
         break;
     default:
         ASSERT(false);
@@ -155,6 +171,10 @@ Number Variable::to_number() const
         break;
     case Type::Array:
         return Number(NumberType::NaN);
+        break;
+    case Type::Function:
+        return Number(NumberType::NaN);
+        break;
     default:
         ASSERT(false);
         break;
@@ -185,6 +205,10 @@ std::string Variable::to_string() const
         break;
     case Type::Array:
         return this->array_field.to_string();
+        break;
+    case Type::Function:
+        return this->function_field.to_string();
+        break;
     default:
         ASSERT(false);
         break;
@@ -333,6 +357,9 @@ bool operator==(const Variable &a, const Variable &b)
     case Type::Array:
         return false;
         break;
+    case Type::Function:
+        return false;
+        break;
     default:
         ASSERT(false);
         break;
@@ -368,6 +395,8 @@ bool operator>(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -392,6 +421,8 @@ bool operator>(const Variable &a, const Variable &b)
         case Type::Object:
             break;
         case Type::Array:
+            break;
+        case Type::Function:
             break;
         default:
             ASSERT(false);
@@ -418,6 +449,8 @@ bool operator>(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -441,6 +474,8 @@ bool operator>(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -451,6 +486,8 @@ bool operator>(const Variable &a, const Variable &b)
     case Type::Object:
         break;
     case Type::Array:
+        break;
+    case Type::Function:
         break;
     default:
         ASSERT(false);
@@ -483,6 +520,8 @@ bool operator>=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -507,6 +546,8 @@ bool operator>=(const Variable &a, const Variable &b)
         case Type::Object:
             break;
         case Type::Array:
+            break;
+        case Type::Function:
             break;
         default:
             ASSERT(false);
@@ -533,6 +574,8 @@ bool operator>=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -556,6 +599,8 @@ bool operator>=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -566,6 +611,8 @@ bool operator>=(const Variable &a, const Variable &b)
     case Type::Object:
         break;
     case Type::Array:
+        break;
+    case Type::Function:
         break;
     default:
         ASSERT(false);
@@ -598,6 +645,8 @@ bool operator<(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -622,6 +671,8 @@ bool operator<(const Variable &a, const Variable &b)
         case Type::Object:
             break;
         case Type::Array:
+            break;
+        case Type::Function:
             break;
         default:
             ASSERT(false);
@@ -648,6 +699,8 @@ bool operator<(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -671,6 +724,8 @@ bool operator<(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -681,6 +736,8 @@ bool operator<(const Variable &a, const Variable &b)
     case Type::Object:
         break;
     case Type::Array:
+        break;
+    case Type::Function:
         break;
     default:
         ASSERT(false);
@@ -713,6 +770,8 @@ bool operator<=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -737,6 +796,8 @@ bool operator<=(const Variable &a, const Variable &b)
         case Type::Object:
             break;
         case Type::Array:
+            break;
+        case Type::Function:
             break;
         default:
             ASSERT(false);
@@ -763,6 +824,8 @@ bool operator<=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -786,6 +849,8 @@ bool operator<=(const Variable &a, const Variable &b)
             break;
         case Type::Array:
             break;
+        case Type::Function:
+            break;
         default:
             ASSERT(false);
             break;
@@ -796,6 +861,8 @@ bool operator<=(const Variable &a, const Variable &b)
     case Type::Object:
         break;
     case Type::Array:
+        break;
+    case Type::Function:
         break;
     default:
         ASSERT(false);

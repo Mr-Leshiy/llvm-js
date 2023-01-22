@@ -6,6 +6,7 @@
 #include "object/object.hpp"
 #include "number/number.hpp"
 #include "array/array.hpp"
+#include "function/function.hpp"
 #include "garbage_collector/garbage_collector.hpp"
 
 enum class Type
@@ -17,6 +18,7 @@ enum class Type
     String,
     Object,
     Array,
+    Function,
 };
 
 namespace test
@@ -35,6 +37,7 @@ struct Variable
     Variable &set_string(const std::string &);
     Variable &set_object(const Object &);
     Variable &set_array(const Array &);
+    Variable &set_function(const Function &);
 
     Type get_flag() const;
     bool get_boolean() const;
@@ -42,6 +45,7 @@ struct Variable
     const Number &get_number() const;
     const Object &get_object() const;
     const Array &get_array() const;
+    const Function &get_function() const;
 
     bool to_boolean() const;
     Number to_number() const;
@@ -88,6 +92,7 @@ private:
     std::string string_field;
     Object object_field;
     Array array_field;
+    Function function_field;
 };
 
 namespace test
