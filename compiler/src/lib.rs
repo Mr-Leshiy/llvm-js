@@ -8,7 +8,7 @@
 
 pub use context::Context;
 pub use function::Function;
-use inkwell::types::StructType;
+use inkwell::{types::StructType, values::FunctionValue};
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
@@ -62,6 +62,7 @@ pub struct Compiler<'ctx, T> {
     predefined_functions: Option<PredefineFunctions<'ctx>>,
 
     variable_type: StructType<'ctx>,
+    cur_function: Option<FunctionValue<'ctx>>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -73,6 +74,7 @@ impl<'ctx, T> Compiler<'ctx, T> {
             functions: HashMap::new(),
             predefined_functions: None,
             variable_type: context.opaque_struct_type(Variable::TYPE_NAME),
+            cur_function: None,
         }
     }
 

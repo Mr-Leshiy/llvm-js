@@ -10,21 +10,7 @@ impl<'ctx, T> MainFunction<'ctx, T>
 where
     T: Clone + Hash + PartialEq + Eq,
 {
-    pub fn new(compiler: &mut Compiler<'ctx, T>) -> Self {
-        let function_type = compiler.context.i32_type().fn_type(&[], false);
-        let function = compiler.module.add_function("main", function_type, None);
-
-        Self {
-            func: Function {
-                function,
-                arg_names: Vec::new(),
-                variables: HashMap::new(),
-            },
-        }
-    }
-
-    // TODO: move this code inside new function
-    pub fn generate_body<Expr: Compile<T>>(
+    fn generate_body<Expr: Compile<T>>(
         &mut self,
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,
@@ -40,5 +26,23 @@ where
             .builder
             .build_return(Some(&compiler.context.i32_type().const_int(0, false)));
         Ok(())
+    }
+
+    pub fn new<Expr: Compile<T>>(
+        compiler: &mut Compiler<'ctx, T>,
+        body: Vec<Expr>,
+    ) -> Result<Self, Error<T>> {
+        let function_type = compiler.context.i32_type().fn_type(&[], false);
+        let function = compiler.module.add_function("main", function_type, None);
+
+        let mut func = Self {
+            func: Function {
+                function,
+                arg_names: Vec::new(),
+                variables: HashMap::new(),
+            },
+        };
+        func.generate_body(compiler, body)?;
+        Ok(func)
     }
 }

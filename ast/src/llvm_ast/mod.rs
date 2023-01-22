@@ -64,9 +64,7 @@ impl Module {
             func.compile(compiler)?;
         }
         // define main function
-        let mut main = MainFunction::new(compiler);
-        main.generate_body(compiler, self.body)?;
-
+        MainFunction::new(compiler, self.body)?;
         compiler.write_result_into(writer)?;
         Ok(())
     }
