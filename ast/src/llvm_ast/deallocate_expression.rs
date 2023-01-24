@@ -7,7 +7,7 @@ pub struct DeallocateExpression {
 }
 
 impl DeallocateExpression {
-    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let var = compiler.get_variable(self.name)?;
         var.deallocate(compiler)?;
         Ok(())

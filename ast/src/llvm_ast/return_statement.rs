@@ -8,7 +8,7 @@ pub struct ReturnStatement {
 }
 
 impl ReturnStatement {
-    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let value = self.ret.compile(compiler)?;
         let ret = Variable::new_undefined(compiler, true)?;
         ret.assign_variable(compiler, &value)?;

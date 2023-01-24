@@ -8,7 +8,7 @@ pub struct VariableAssigment {
 }
 
 impl VariableAssigment {
-    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let var1 = self.left.compile(compiler, true)?;
         if let Some(value) = self.right {
             let var = value.compile(compiler)?;

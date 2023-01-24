@@ -91,6 +91,14 @@ void set_string(Variable *self, const char *val)
     self->set_string(val);
 }
 
+void set_function(Variable *self, FUNC_TYPE val, uint32_t args_num)
+{
+    ASSERT(self != nullptr);
+    ASSERT(val != nullptr);
+
+    self->set_function(Function(val, args_num));
+}
+
 void set_variable(Variable *self, Variable *val)
 {
     ASSERT(self != nullptr);

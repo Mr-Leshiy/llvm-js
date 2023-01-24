@@ -10,7 +10,7 @@ pub struct IfElseStatement {
 }
 
 impl IfElseStatement {
-    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<bool, CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<bool, CompilerError> {
         let condition = self.condition.compile(compiler)?;
 
         generate_if_else(compiler, &condition, self.if_clause, self.else_clause)

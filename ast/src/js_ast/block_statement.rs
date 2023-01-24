@@ -191,7 +191,15 @@ mod tests {
             })],
         };
 
-        assert_eq!(block_statement.precompile(&mut precompiler), Ok(vec![]));
+        assert_eq!(
+            block_statement.precompile(&mut precompiler),
+            Ok(vec![llvm_ast::Expression::VariableFunctionDeclaration(
+                llvm_ast::VariableFunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    args_num: 0
+                }
+            )])
+        );
         assert_eq!(precompiler.functions_len(), 0);
         assert_eq!(precompiler.get_function_declarations().len(), 1);
     }

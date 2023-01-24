@@ -57,13 +57,21 @@ impl FunctionDeclaration {
     pub fn precompile(
         self,
         precompiler: &mut Precompiler,
-    ) -> Result<llvm_ast::FunctionDeclaration, PrecompilerError> {
+    ) -> Result<
+        (
+            llvm_ast::FunctionDeclaration,
+            llvm_ast::VariableFunctionDeclaration,
+        ),
+        PrecompilerError,
+    > {
         let index = precompiler.insert_function(self.name.clone());
 
         let variables_len = precompiler.variables_len();
+        let name = llvm_ast::Identifier::new(self.name.name, index);
+        let args_num = self.args.len().try_into().expect("");
 
         let function_declaration = llvm_ast::FunctionDeclaration {
-            name: llvm_ast::Identifier::new(self.name.name, index),
+            name: name.clone(),
             args: self
                 .args
                 .into_iter()
@@ -77,7 +85,10 @@ impl FunctionDeclaration {
         };
         precompiler.remove_last_added_variables(precompiler.variables_len() - variables_len);
 
-        Ok(function_declaration)
+        Ok((
+            function_declaration,
+            llvm_ast::VariableFunctionDeclaration { name, args_num },
+        ))
     }
 }
 
@@ -139,27 +150,38 @@ mod tests {
 
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::FunctionDeclaration {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                args: vec![
-                    llvm_ast::Identifier::new("a".to_string(), 0),
-                    llvm_ast::Identifier::new("b".to_string(), 0)
-                ],
-                body: vec![llvm_ast::Expression::VariableAssigment(
-                    llvm_ast::VariableAssigment {
-                        left: llvm_ast::MemberExpression {
-                            variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
-                            property: None
-                        },
-                        right: Some(llvm_ast::VariableExpression::VariableValue(
-                            llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                                variable_name: llvm_ast::Identifier::new("b".to_string(), 0),
+            Ok((
+                llvm_ast::FunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    args: vec![
+                        llvm_ast::Identifier::new("a".to_string(), 0),
+                        llvm_ast::Identifier::new("b".to_string(), 0)
+                    ],
+                    body: vec![llvm_ast::Expression::VariableAssigment(
+                        llvm_ast::VariableAssigment {
+                            left: llvm_ast::MemberExpression {
+                                variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
                                 property: None
-                            })
-                        ))
-                    }
-                )]
-            })
+                            },
+                            right: Some(llvm_ast::VariableExpression::VariableValue(
+                                llvm_ast::VariableValue::MemberExpression(
+                                    llvm_ast::MemberExpression {
+                                        variable_name: llvm_ast::Identifier::new(
+                                            "b".to_string(),
+                                            0
+                                        ),
+                                        property: None
+                                    }
+                                )
+                            ))
+                        }
+                    )]
+                },
+                llvm_ast::VariableFunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    args_num: 2
+                }
+            ))
         );
         assert_eq!(precompiler.variables_len(), 0);
         assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
@@ -192,27 +214,38 @@ mod tests {
 
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::FunctionDeclaration {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                args: vec![
-                    llvm_ast::Identifier::new("a".to_string(), 1),
-                    llvm_ast::Identifier::new("b".to_string(), 1)
-                ],
-                body: vec![llvm_ast::Expression::VariableAssigment(
-                    llvm_ast::VariableAssigment {
-                        left: llvm_ast::MemberExpression {
-                            variable_name: llvm_ast::Identifier::new("a".to_string(), 1),
-                            property: None
-                        },
-                        right: Some(llvm_ast::VariableExpression::VariableValue(
-                            llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                                variable_name: llvm_ast::Identifier::new("b".to_string(), 1),
+            Ok((
+                llvm_ast::FunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    args: vec![
+                        llvm_ast::Identifier::new("a".to_string(), 1),
+                        llvm_ast::Identifier::new("b".to_string(), 1)
+                    ],
+                    body: vec![llvm_ast::Expression::VariableAssigment(
+                        llvm_ast::VariableAssigment {
+                            left: llvm_ast::MemberExpression {
+                                variable_name: llvm_ast::Identifier::new("a".to_string(), 1),
                                 property: None
-                            })
-                        ))
-                    }
-                )]
-            })
+                            },
+                            right: Some(llvm_ast::VariableExpression::VariableValue(
+                                llvm_ast::VariableValue::MemberExpression(
+                                    llvm_ast::MemberExpression {
+                                        variable_name: llvm_ast::Identifier::new(
+                                            "b".to_string(),
+                                            1
+                                        ),
+                                        property: None
+                                    }
+                                )
+                            ))
+                        }
+                    )]
+                },
+                llvm_ast::VariableFunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                    args_num: 2
+                }
+            ))
         );
         assert_eq!(precompiler.variables_len(), 2);
         assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
@@ -232,11 +265,17 @@ mod tests {
 
         assert_eq!(
             function_declaration.precompile(&mut precompiler),
-            Ok(llvm_ast::FunctionDeclaration {
-                name: llvm_ast::Identifier::new("name_1".to_string(), 1),
-                args: vec![],
-                body: vec![],
-            })
+            Ok((
+                llvm_ast::FunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 1),
+                    args: vec![],
+                    body: vec![],
+                },
+                llvm_ast::VariableFunctionDeclaration {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 1),
+                    args_num: 0
+                }
+            ))
         );
     }
 }

@@ -9,7 +9,7 @@ pub struct VariableDeclaration {
 }
 
 impl VariableDeclaration {
-    pub fn compile<'ctx>(self, compiler: &mut Compiler<'ctx>) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let var = Variable::new_undefined(compiler, false)?;
 
         if let Some(value) = self.value {

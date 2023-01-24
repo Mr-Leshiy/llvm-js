@@ -6,7 +6,7 @@ pub use deallocate_expression::DeallocateExpression;
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
-pub use function_declaration::FunctionDeclaration;
+pub use function_declaration::{FunctionDeclaration, VariableFunctionDeclaration};
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
 pub use member_expression::{MemberExpression, Property, PropertyType};
