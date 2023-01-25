@@ -13,6 +13,7 @@ impl<'ctx> MainFunction {
     ) -> Result<(), Error<T>> {
         compiler.cur_function = Some(Function {
             function,
+            args: None,
             arg_names: Vec::new(),
             variables: HashMap::new(),
         });

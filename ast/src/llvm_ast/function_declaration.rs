@@ -9,6 +9,9 @@ pub struct VariableFunctionDeclaration {
 
 impl VariableFunctionDeclaration {
     pub fn compile(self, _compiler: &mut Compiler) -> Result<(), CompilerError> {
+        // let function = compiler.get_function(self.name.clone())?;
+        // let var = Variable::new_function(compiler, &function, false)?;
+        // compiler.insert_variable(self.name, var)?;
         Ok(())
     }
 }

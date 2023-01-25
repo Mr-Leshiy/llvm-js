@@ -1,11 +1,15 @@
 use crate::{Compile, Compiler, Error, Variable};
-use inkwell::{values::FunctionValue, AddressSpace};
+use inkwell::{
+    values::{ArrayValue, FunctionValue},
+    AddressSpace,
+};
 use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
 pub struct Function<'ctx, T> {
     pub(crate) arg_names: Vec<T>,
     pub(crate) function: FunctionValue<'ctx>,
+    pub(crate) args: Option<ArrayValue<'ctx>>,
     pub(crate) variables: HashMap<T, Variable<'ctx>>,
 }
 
@@ -13,14 +17,44 @@ impl<'ctx, T> Function<'ctx, T>
 where
     T: Clone + Hash + PartialEq + Eq,
 {
-    fn generate_body<Expr: Compile<T, Output = bool>>(
+    pub fn new<Expr: Compile<T, Output = bool>>(
         compiler: &mut Compiler<'ctx, T>,
+        name: &str,
+        arg_names: Vec<T>,
         body: Vec<Expr>,
-    ) -> Result<(), Error<T>> {
-        let basic_block = compiler
-            .context
-            .append_basic_block(compiler.cur_function.as_ref().unwrap().function, "entry");
+    ) -> Result<Self, Error<T>> {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let function_type =
+            var_type.fn_type(&[var_type.ptr_type(AddressSpace::from(0)).into()], false);
+        let function = compiler.module.add_function(name, function_type, None);
+
+        // generate body
+        let basic_block = compiler.context.append_basic_block(function, "entry");
         compiler.builder.position_at_end(basic_block);
+
+        // args
+        let args = function.get_params().get(0).expect("").into_pointer_value();
+        let args = compiler
+            .builder
+            .build_bitcast(
+                args,
+                var_type
+                    .array_type(arg_names.len().try_into().unwrap())
+                    .ptr_type(AddressSpace::from(0)),
+                "",
+            )
+            .into_pointer_value();
+        let args = Some(compiler.builder.build_load(args, "").into_array_value());
+
+        let func = Self {
+            function,
+            args,
+            arg_names,
+            variables: HashMap::new(),
+        };
+
+        compiler.cur_function = Some(func.clone());
+
         let mut is_returned = false;
         for expr in body {
             let is_return = expr.compile(compiler)?;
@@ -33,28 +67,7 @@ where
             let ret = Variable::new_undefined(compiler, true)?;
             compiler.builder.build_return(Some(&ret.value));
         }
-        Ok(())
-    }
 
-    pub fn new<Expr: Compile<T, Output = bool>>(
-        compiler: &mut Compiler<'ctx, T>,
-        name: &str,
-        arg_names: Vec<T>,
-        body: Vec<Expr>,
-    ) -> Result<Self, Error<T>> {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
-        let args_type: Vec<_> = arg_names.iter().map(|_| var_type.into()).collect();
-        let function_type = var_type.fn_type(args_type.as_slice(), false);
-        let function = compiler.module.add_function(name, function_type, None);
-
-        let func = Self {
-            function,
-            arg_names,
-            variables: HashMap::new(),
-        };
-
-        compiler.cur_function = Some(func.clone());
-        Self::generate_body(compiler, body)?;
         Ok(func)
     }
 
@@ -69,20 +82,25 @@ where
         }
     }
 
-    pub(crate) fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
-        // firstly look into the function arguments
-        for (i, arg_name) in self.arg_names.iter().enumerate() {
-            if name.eq(arg_name) {
-                let arg = self
-                    .function
-                    .get_params()
-                    .get(i)
-                    .expect("")
-                    .into_pointer_value();
-                return Ok(Variable {
-                    value: arg,
-                    is_tmp: false,
-                });
+    pub(crate) fn get_variable(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        name: T,
+    ) -> Result<Variable<'ctx>, Error<T>> {
+        if let Some(args) = self.args {
+            // firstly look into the function arguments
+            for (i, arg_name) in self.arg_names.iter().enumerate() {
+                if name.eq(arg_name) {
+                    let arg = compiler
+                        .builder
+                        .build_extract_value(args, i.try_into().unwrap(), "")
+                        .unwrap()
+                        .into_pointer_value();
+                    return Ok(Variable {
+                        value: arg,
+                        is_tmp: false,
+                    });
+                }
             }
         }
 
@@ -101,23 +119,44 @@ where
         compiler: &mut Compiler<'ctx, T>,
         args: Vec<Variable<'ctx>>,
     ) -> Result<Variable<'ctx>, Error<T>> {
-        let args_num = self.function.get_type().get_param_types().len();
-        let mut vec = Vec::with_capacity(args_num);
-        for (i, arg) in args.into_iter().enumerate() {
-            if i >= args_num {
-                break;
-            }
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 
-            vec.push(arg.value.into());
+        let array = compiler
+            .builder
+            .build_alloca(var_type.array_type(args.len().try_into().unwrap()), "");
+
+        for (i, arg) in args.iter().enumerate() {
+            unsafe {
+                let ptr = compiler.builder.build_gep(
+                    array,
+                    &[compiler
+                        .context
+                        .i32_type()
+                        .const_int(i.try_into().unwrap(), false)],
+                    "",
+                );
+                let ptr = compiler
+                    .builder
+                    .build_bitcast(ptr, var_type.ptr_type(AddressSpace::from(0)), "")
+                    .into_pointer_value();
+                compiler.builder.build_store(ptr, arg.value);
+            }
         }
+
+        let args =
+            compiler
+                .builder
+                .build_bitcast(array, var_type.ptr_type(AddressSpace::from(0)), "");
 
         let value = compiler
             .builder
-            .build_call(self.function, vec.as_slice(), "")
+            .build_call(self.function, &[args.into()], "")
             .try_as_basic_value()
             .left()
             .unwrap()
             .into_pointer_value();
+
+        // compiler.builder.build_free(array);
         Ok(Variable {
             value,
             is_tmp: true,

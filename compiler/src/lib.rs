@@ -115,7 +115,8 @@ where
     }
 
     pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
-        self.cur_function.as_ref().unwrap().get_variable(name)
+        let cur_function = self.cur_function.as_ref().unwrap();
+        cur_function.get_variable(self, name)
     }
 
     pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {
