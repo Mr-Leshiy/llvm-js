@@ -117,7 +117,7 @@ where
     pub fn call(
         &self,
         compiler: &mut Compiler<'ctx, T>,
-        args: Vec<Variable<'ctx>>,
+        args: &[Variable<'ctx>],
     ) -> Result<Variable<'ctx>, Error<T>> {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
 

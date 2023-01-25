@@ -61,7 +61,7 @@ impl FunctionCall {
             }
             _ => {
                 let function = compiler.get_function(self.name)?;
-                function.call(compiler, args.clone())
+                function.call(compiler, &args)
             }
         };
         // deallocate arguments
