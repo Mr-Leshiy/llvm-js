@@ -129,10 +129,13 @@ where
             unsafe {
                 let ptr = compiler.builder.build_gep(
                     array,
-                    &[compiler
-                        .context
-                        .i32_type()
-                        .const_int(i.try_into().unwrap(), false)],
+                    &[
+                        compiler.context.i32_type().const_int(0, false),
+                        compiler
+                            .context
+                            .i32_type()
+                            .const_int(i.try_into().unwrap(), false),
+                    ],
                     "",
                 );
                 let ptr = compiler
