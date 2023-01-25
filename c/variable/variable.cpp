@@ -225,7 +225,7 @@ Variable *Variable::get_property(const std::string &key, bool allocate)
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(Number(std::stod(key)), allocate);
+        return this->array_field.get(Number(std::stod(key)));
     }
     return GarbageCollector<Variable>::get_instance().allocate();
 }
@@ -238,7 +238,7 @@ Variable *Variable::get_property(const Variable &key, bool allocate)
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(key.to_number(), allocate);
+        return this->array_field.get(key.to_number());
     }
     return GarbageCollector<Variable>::get_instance().allocate();
 }
