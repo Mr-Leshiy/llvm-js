@@ -2,23 +2,25 @@ use crate::CompileSuite;
 
 #[test]
 fn sorts_test() {
-    CompileSuite::new("../test_scripts/algorithms/sorts.js", "sorts")
+    let test = CompileSuite::new("../test_scripts/basic/sorts.js", "sorts")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn double_linked_list_test() {
-    CompileSuite::new(
-        "../test_scripts/algorithms/double_linked_list.js",
+    let test = CompileSuite::new(
+        "../test_scripts/basic/double_linked_list.js",
         "double_linked_list",
     )
     .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }

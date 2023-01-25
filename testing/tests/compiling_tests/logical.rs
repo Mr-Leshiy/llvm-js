@@ -52,20 +52,22 @@ fn ge_test() {
 
 #[test]
 fn lt_test() {
-    CompileSuite::new("../test_scripts/logical/lt.js", "lt")
+    let test = CompileSuite::new("../test_scripts/logical/lt.js", "lt")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn le_test() {
-    CompileSuite::new("../test_scripts/logical/le.js", "le")
+    let test = CompileSuite::new("../test_scripts/logical/le.js", "le")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }

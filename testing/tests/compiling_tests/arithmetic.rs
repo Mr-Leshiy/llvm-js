@@ -2,56 +2,61 @@ use crate::CompileSuite;
 
 #[test]
 fn addition_test() {
-    CompileSuite::new("../test_scripts/arithmetic/addition.js", "addition")
+    let test = CompileSuite::new("../test_scripts/arithmetic/addition.js", "addition")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn string_concat_test() {
-    CompileSuite::new(
+    let test = CompileSuite::new(
         "../test_scripts/arithmetic/string_concat.js",
         "string_concat",
     )
     .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn substraction_test() {
-    CompileSuite::new("../test_scripts/arithmetic/substraction.js", "substraction")
+    let test = CompileSuite::new("../test_scripts/arithmetic/substraction.js", "substraction")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn multiplication_test() {
-    CompileSuite::new(
+    let test = CompileSuite::new(
         "../test_scripts/arithmetic/multiplication.js",
         "multiplication",
     )
     .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn division_test() {
-    CompileSuite::new("../test_scripts/arithmetic/division.js", "division")
+    let test = CompileSuite::new("../test_scripts/arithmetic/division.js", "division")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
