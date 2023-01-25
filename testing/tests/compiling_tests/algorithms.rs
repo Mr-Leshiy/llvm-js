@@ -2,7 +2,7 @@ use crate::CompileSuite;
 
 #[test]
 fn sorts_test() {
-    let test = CompileSuite::new("../test_scripts/basic/sorts.js", "sorts")
+    let test = CompileSuite::new("../test_scripts/algorithms/sorts.js", "sorts")
         .compile()
         .unwrap();
     #[cfg(not(feature = "mem-check"))]
@@ -14,7 +14,7 @@ fn sorts_test() {
 #[test]
 fn double_linked_list_test() {
     let test = CompileSuite::new(
-        "../test_scripts/basic/double_linked_list.js",
+        "../test_scripts/algorithms/double_linked_list.js",
         "double_linked_list",
     )
     .compile()
