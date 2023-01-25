@@ -2,96 +2,105 @@ use crate::CompileSuite;
 
 #[test]
 fn primitive_types_1_test() {
-    CompileSuite::new(
+    let test = CompileSuite::new(
         "../test_scripts/basic/primitive_types_1.js",
         "primitive_types_1",
     )
     .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn primitive_types_2_test() {
-    CompileSuite::new(
+    let test = CompileSuite::new(
         "../test_scripts/basic/primitive_types_2.js",
         "primitive_types_2",
     )
     .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn functions_test() {
-    CompileSuite::new("../test_scripts/basic/functions.js", "functions")
+    let test = CompileSuite::new("../test_scripts/basic/functions.js", "functions")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn block_test() {
-    CompileSuite::new("../test_scripts/basic/block.js", "block")
+    let test = CompileSuite::new("../test_scripts/basic/block.js", "block")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn if_else_test() {
-    CompileSuite::new("../test_scripts/basic/if_else.js", "if_else")
+    let test = CompileSuite::new("../test_scripts/basic/if_else.js", "if_else")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn loops_test() {
-    CompileSuite::new("../test_scripts/basic/loops.js", "loops")
+    let test = CompileSuite::new("../test_scripts/basic/loops.js", "loops")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn object_test() {
-    CompileSuite::new("../test_scripts/basic/object.js", "object")
+    let test = CompileSuite::new("../test_scripts/basic/object.js", "object")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn array_test() {
-    CompileSuite::new("../test_scripts/basic/array.js", "array")
+    let test = CompileSuite::new("../test_scripts/basic/array.js", "array")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }
 
 #[test]
 fn comments_test() {
-    CompileSuite::new("../test_scripts/basic/comments.js", "comments")
+    let test = CompileSuite::new("../test_scripts/basic/comments.js", "comments")
         .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+        .unwrap();
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap().cleanup();
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap().cleanup();
 }

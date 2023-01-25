@@ -7,8 +7,6 @@
 )]
 
 mod compiling_tests;
-#[cfg(all(target_os = "linux", feature = "mem-check"))]
-mod memory_tests;
 
 use std::{env::current_dir, fs::remove_file, process::Command};
 
