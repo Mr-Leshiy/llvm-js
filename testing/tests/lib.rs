@@ -7,8 +7,7 @@
 )]
 
 mod compiling_tests;
-#[cfg(target_os = "linux")]
-#[cfg(feature = "mem-check")]
+#[cfg(all(target_os = "linux", feature = "mem-check"))]
 mod memory_tests;
 
 use std::{env::current_dir, fs::remove_file, process::Command};
@@ -51,7 +50,7 @@ impl CompileSuite {
         Ok(self)
     }
 
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
     pub fn run_with_valgrind(self) -> Result<Self, String> {
         run_binary_with_valgrind(self.binary_out_file.as_str())?;
         Ok(self)
@@ -155,7 +154,7 @@ fn run_binary(in_file_path: &str) -> Result<(), String> {
     }
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "mem-check"))]
 fn run_binary_with_valgrind(in_file_path: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 
