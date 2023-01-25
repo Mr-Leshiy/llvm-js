@@ -26,7 +26,7 @@ struct GarbageCollector
 {
     ~GarbageCollector()
     {
-        // printf("~GarbageCollector: \n %s", this->to_string().c_str());
+        printf("~GarbageCollector: \n %s", this->to_string().c_str());
     }
 
     GarbageCollector(GarbageCollector &) = delete;
