@@ -63,7 +63,7 @@ impl CompileSuite {
     }
 
     #[cfg(all(target_os = "linux", feature = "mem-check"))]
-    pub fn run_with_valgrind(self) -> Result<(), String> {
+    pub fn run_with_valgrind(&self) -> Result<(), String> {
         run_binary_with_valgrind(self.binary_out_file.as_str())?;
         Ok(())
     }
