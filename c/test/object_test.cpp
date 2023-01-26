@@ -15,27 +15,27 @@ TEST(Object, Basic_test)
 
     EXPECT_EQ(object.to_string(), "{name: 12.000000,}");
 
-    auto *prop = object.get_property("name", false);
+    auto *prop = object.get_property("name");
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
 
     Variable &key = GarbageCollector<Variable>::get_instance().allocate()->set_string("name");
-    prop = object.get_property(key.to_string(), false);
+    prop = object.get_property(key.to_string());
     EXPECT_EQ(prop->get_flag(), value.get_flag());
     EXPECT_EQ(prop->get_number(), value.get_number());
 
-    prop = object.get_property("age", true);
+    prop = object.get_property("age");
     EXPECT_EQ(prop->get_flag(), Type::Undefined);
 
     prop->set_null();
-    prop = object.get_property("age", true);
+    prop = object.get_property("age");
     EXPECT_EQ(prop->get_flag(), Type::Null);
 
     object.remove_property("name");
-    prop = object.get_property("name", false);
+    prop = object.get_property("name");
     EXPECT_EQ(prop->get_flag(), Type::Undefined);
 
     prop->set_null();
-    prop = object.get_property("name", true);
-    EXPECT_EQ(prop->get_flag(), Type::Undefined);
+    prop = object.get_property("name");
+    EXPECT_EQ(prop->get_flag(), Type::Null);
 }
