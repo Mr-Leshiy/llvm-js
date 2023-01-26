@@ -9,10 +9,14 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T, Output = bool>>(
 ) -> Result<bool, Error<T>> {
     let get_boolean_fn = compiler.predefined_functions()?.get_boolean();
 
-    let condition = get_boolean_fn.call(compiler, condition);
-    let condition = compiler.builder.build_int_compare(
+    let condition_boolean = get_boolean_fn.call(compiler, condition);
+    if condition.is_tmp() {
+        condition.deallocate(compiler)?;
+    }
+
+    let condition_boolean = compiler.builder.build_int_compare(
         inkwell::IntPredicate::EQ,
-        condition,
+        condition_boolean,
         compiler.context.i8_type().const_int(1_u64, false),
         "",
     );
@@ -29,7 +33,7 @@ pub fn generate_if_else<'ctx, T, Expr: Compile<T, Output = bool>>(
 
     compiler
         .builder
-        .build_conditional_branch(condition, true_block, false_block);
+        .build_conditional_branch(condition_boolean, true_block, false_block);
 
     // describe true case
     compiler.builder.position_at_end(true_block);
