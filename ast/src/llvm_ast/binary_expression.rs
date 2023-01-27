@@ -28,6 +28,30 @@ pub enum BinaryExpType {
 }
 
 impl BinaryExpression {
+    pub fn binary_call<
+        'ctx,
+        F: FnOnce(
+            &Compiler<'ctx>,
+            &Variable<'ctx>,
+            &Variable<'ctx>,
+        ) -> Result<Variable<'ctx>, CompilerError>,
+    >(
+        self,
+        compiler: &mut Compiler<'ctx>,
+        call: F,
+    ) -> Result<Variable<'ctx>, CompilerError> {
+        let var1 = self.left.compile(compiler)?;
+        let var2 = self.right.compile(compiler)?;
+        let ret = call(compiler, &var1, &var2)?;
+        if var1.is_tmp() {
+            var1.deallocate(compiler)?;
+        }
+        if var2.is_tmp() {
+            var2.deallocate(compiler)?;
+        }
+        Ok(ret)
+    }
+
     #[allow(clippy::too_many_lines)]
     pub fn compile<'ctx>(
         self,
@@ -36,162 +60,112 @@ impl BinaryExpression {
         match self.exp_type {
             // Logical
             BinaryExpType::And => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_and_fn = compiler.predefined_functions()?.logical_and();
-                let ret = logical_and_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_and()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Or => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_or_fn = compiler.predefined_functions()?.logical_or();
-                let ret = logical_or_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_or()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Eq => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_eq_fn = compiler.predefined_functions()?.logical_eq();
-                let ret = logical_eq_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_eq()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Ne => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_ne_fn = compiler.predefined_functions()?.logical_ne();
-                let ret = logical_ne_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_ne()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Gt => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_gt_fn = compiler.predefined_functions()?.logical_gt();
-                let ret = logical_gt_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_gt()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Ge => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_ge_fn = compiler.predefined_functions()?.logical_ge();
-                let ret = logical_ge_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_ge()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Lt => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_lt_fn = compiler.predefined_functions()?.logical_lt();
-                let ret = logical_lt_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_lt()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Le => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let logical_le_fn = compiler.predefined_functions()?.logical_le();
-                let ret = logical_le_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .logical_le()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             // Arithmetic
             BinaryExpType::Add => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let arithmetic_addition_fn = compiler.predefined_functions()?.arithmetic_addition();
-                let ret = arithmetic_addition_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .arithmetic_addition()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Sub => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let arithmetic_substraction_fn =
-                    compiler.predefined_functions()?.arithmetic_substraction();
-                let ret = arithmetic_substraction_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .arithmetic_substraction()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Mul => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let arithmetic_multiplication_fn =
-                    compiler.predefined_functions()?.arithmetic_multiplication();
-                let ret = arithmetic_multiplication_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .arithmetic_multiplication()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
             BinaryExpType::Div => {
-                let var1 = self.left.compile(compiler)?;
-                let var2 = self.right.compile(compiler)?;
-                let arithmetic_division_fn = compiler.predefined_functions()?.arithmetic_division();
-                let ret = arithmetic_division_fn.call(compiler, &var1, &var2);
-                if var1.is_tmp() {
-                    var1.deallocate(compiler)?;
-                }
-                if var2.is_tmp() {
-                    var2.deallocate(compiler)?;
-                }
+                let ret = self.binary_call(compiler, |compiler, var1, var2| {
+                    Ok(compiler
+                        .predefined_functions()?
+                        .arithmetic_division()
+                        .call(compiler, var1, var2))
+                })?;
                 Ok(ret)
             }
         }
