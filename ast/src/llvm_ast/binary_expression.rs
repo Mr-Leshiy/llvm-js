@@ -28,6 +28,7 @@ pub enum BinaryExpType {
 }
 
 impl BinaryExpression {
+    #[allow(clippy::too_many_lines)]
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
