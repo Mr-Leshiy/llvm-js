@@ -7,11 +7,22 @@
 )]
 
 mod compiling_tests;
-#[cfg(target_os = "linux")]
-#[cfg(feature = "mem-check")]
-mod memory_tests;
 
 use std::{env::current_dir, fs::remove_file, process::Command};
+
+fn run_test(source_code_path: &str, test_name: &str) {
+    let test = CompileSuite::new(source_code_path, test_name);
+    let cleanup = |e| {
+        test.cleanup();
+        panic!("error: {e}");
+    };
+    test.compile().unwrap_or_else(cleanup);
+    #[cfg(not(feature = "mem-check"))]
+    test.run().unwrap_or_else(cleanup);
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    test.run_with_valgrind().unwrap_or_else(cleanup);
+    test.cleanup();
+}
 
 pub struct CompileSuite {
     source_code_path: String,
@@ -21,7 +32,7 @@ pub struct CompileSuite {
 }
 
 impl CompileSuite {
-    pub fn new(source_code_path: &'static str, test_name: &'static str) -> Self {
+    pub fn new(source_code_path: &str, test_name: &str) -> Self {
         let llvm_ir_out_file = format!("{test_name}.ll");
         let object_out_file = format!("{test_name}.o");
         let binary_out_file = format!("{test_name}_run");
@@ -33,7 +44,7 @@ impl CompileSuite {
         }
     }
 
-    pub fn compile(self) -> Result<Self, String> {
+    pub fn compile(&self) -> Result<(), String> {
         compile_js(
             self.source_code_path.as_str(),
             self.llvm_ir_out_file.as_str(),
@@ -43,18 +54,18 @@ impl CompileSuite {
             self.object_out_file.as_str(),
         )?;
         compile_binary(self.object_out_file.as_str(), self.binary_out_file.as_str())?;
-        Ok(self)
+        Ok(())
     }
 
-    pub fn run(self) -> Result<Self, String> {
+    pub fn run(&self) -> Result<(), String> {
         run_binary(self.binary_out_file.as_str())?;
-        Ok(self)
+        Ok(())
     }
 
-    #[cfg(target_os = "linux")]
-    pub fn run_with_valgrind(self) -> Result<Self, String> {
+    #[cfg(all(target_os = "linux", feature = "mem-check"))]
+    pub fn run_with_valgrind(&self) -> Result<(), String> {
         run_binary_with_valgrind(self.binary_out_file.as_str())?;
-        Ok(self)
+        Ok(())
     }
 
     pub fn cleanup(&self) {
@@ -155,7 +166,7 @@ fn run_binary(in_file_path: &str) -> Result<(), String> {
     }
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "mem-check"))]
 fn run_binary_with_valgrind(in_file_path: &str) -> Result<(), String> {
     let cur_dir = current_dir().unwrap();
 

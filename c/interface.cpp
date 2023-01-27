@@ -128,7 +128,7 @@ Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
     ASSERT(self != nullptr);
     ASSERT(key != nullptr);
 
-    return self->get_property(std::string(key), allocate);
+    return self->get_property(std::string(key));
 }
 
 Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
@@ -136,7 +136,7 @@ Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
     ASSERT(self != nullptr);
     ASSERT(key != nullptr);
 
-    return self->get_property(*key, allocate);
+    return self->get_property(*key);
 }
 
 void remove_property(Variable *self, const char *key)

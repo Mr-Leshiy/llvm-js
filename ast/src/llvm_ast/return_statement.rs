@@ -12,9 +12,7 @@ impl ReturnStatement {
         let value = self.ret.compile(compiler)?;
         let ret = Variable::new_undefined(compiler, true)?;
         ret.assign_variable(compiler, &value)?;
-        if value.is_tmp() {
-            value.deallocate(compiler)?;
-        }
+        value.deallocate(compiler)?;
         Function::return_value(compiler, &ret);
         Ok(())
     }

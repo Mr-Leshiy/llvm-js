@@ -19,8 +19,8 @@ struct Array
     Variable *pop();
     void put(Variable &value, uint32_t index);
     void put(Variable &value, const Number &index);
-    Variable *get(uint32_t index, bool allocate);
-    Variable *get(const Number &index, bool allocate);
+    Variable *get(uint32_t index);
+    Variable *get(const Number &index);
     uint32_t len() const;
     bool empty() const;
     void clear();

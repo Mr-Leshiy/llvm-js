@@ -53,8 +53,8 @@ struct Variable
 
     void add_property(const std::string &, Variable *);
     void add_property(const Variable &, Variable *);
-    Variable *get_property(const std::string &, bool allocate);
-    Variable *get_property(const Variable &, bool allocate);
+    Variable *get_property(const std::string &);
+    Variable *get_property(const Variable &);
     void remove_property(const std::string &);
 
     friend Variable operator+(const Variable &a, const Variable &b);

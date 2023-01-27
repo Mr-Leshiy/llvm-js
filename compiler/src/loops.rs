@@ -21,16 +21,24 @@ pub fn generate_while_loop<'ctx, T, Expr: Compile<T, Output = bool>>(
     compiler.builder.position_at_end(condition_block);
     let condition = condition(compiler)?;
     let get_boolean_fn = compiler.predefined_functions()?.get_boolean();
-    let condition = get_boolean_fn.call(compiler, &condition);
-    let condition = compiler.builder.build_int_compare(
+    let convert_to_boolean = compiler.predefined_functions()?.convert_to_boolean();
+    let boolean_condition = convert_to_boolean.call(compiler, &condition);
+    if condition.is_tmp() {
+        condition.deallocate(compiler)?;
+    }
+    let int_val = get_boolean_fn.call(compiler, &boolean_condition);
+    if boolean_condition.is_tmp() {
+        boolean_condition.deallocate(compiler)?;
+    }
+    let int_val = compiler.builder.build_int_compare(
         inkwell::IntPredicate::EQ,
-        condition,
+        int_val,
         compiler.context.i8_type().const_int(1_u64, false),
         "",
     );
     compiler
         .builder
-        .build_conditional_branch(condition, body_block, continue_block);
+        .build_conditional_branch(int_val, body_block, continue_block);
 
     // describe body
     compiler.builder.position_at_end(body_block);
@@ -74,17 +82,23 @@ pub fn generate_do_while_loop<'ctx, T, Expr: Compile<T, Output = bool>>(
     let condition = condition(compiler)?;
     let get_boolean_fn = compiler.predefined_functions()?.get_boolean();
     let convert_to_boolean = compiler.predefined_functions()?.convert_to_boolean();
-    let condition = convert_to_boolean.call(compiler, &condition);
-    let condition = get_boolean_fn.call(compiler, &condition);
-    let condition = compiler.builder.build_int_compare(
+    let boolean_condition = convert_to_boolean.call(compiler, &condition);
+    if condition.is_tmp() {
+        condition.deallocate(compiler)?;
+    }
+    let int_val = get_boolean_fn.call(compiler, &boolean_condition);
+    if boolean_condition.is_tmp() {
+        boolean_condition.deallocate(compiler)?;
+    }
+    let int_val = compiler.builder.build_int_compare(
         inkwell::IntPredicate::EQ,
-        condition,
+        int_val,
         compiler.context.i8_type().const_int(1_u64, false),
         "",
     );
     compiler
         .builder
-        .build_conditional_branch(condition, body_block, continue_block);
+        .build_conditional_branch(int_val, body_block, continue_block);
 
     // describe body
     compiler.builder.position_at_end(body_block);
