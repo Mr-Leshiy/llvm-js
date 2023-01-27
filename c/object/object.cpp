@@ -21,7 +21,7 @@ void Object::add_property(const std::string &key, Variable *val)
     this->properties[key] = val;
 }
 
-Variable *Object::get_property(const std::string &key, bool allocate)
+Variable *Object::get_property(const std::string &key)
 {
     auto it = this->properties.find(key);
     if (it != this->properties.end())
@@ -31,10 +31,7 @@ Variable *Object::get_property(const std::string &key, bool allocate)
     else
     {
         auto *ret = GarbageCollector<Variable>::get_instance().allocate();
-        if (allocate)
-        {
-            this->add_property(key, ret);
-        }
+        this->add_property(key, ret);
         return ret;
     }
 }

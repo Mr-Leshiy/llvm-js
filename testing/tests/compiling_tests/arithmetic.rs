@@ -1,57 +1,32 @@
-use crate::CompileSuite;
+use crate::run_test;
 
 #[test]
 fn addition_test() {
-    CompileSuite::new("../test_scripts/arithmetic/addition.js", "addition")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+    run_test("../test_scripts/arithmetic/addition.js", "addition");
 }
 
 #[test]
 fn string_concat_test() {
-    CompileSuite::new(
+    run_test(
         "../test_scripts/arithmetic/string_concat.js",
         "string_concat",
-    )
-    .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    );
 }
 
 #[test]
 fn substraction_test() {
-    CompileSuite::new("../test_scripts/arithmetic/substraction.js", "substraction")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+    run_test("../test_scripts/arithmetic/substraction.js", "substraction");
 }
 
 #[test]
 fn multiplication_test() {
-    CompileSuite::new(
+    run_test(
         "../test_scripts/arithmetic/multiplication.js",
         "multiplication",
-    )
-    .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    );
 }
 
 #[test]
 fn division_test() {
-    CompileSuite::new("../test_scripts/arithmetic/division.js", "division")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+    run_test("../test_scripts/arithmetic/division.js", "division");
 }

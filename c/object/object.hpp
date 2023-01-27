@@ -13,7 +13,7 @@ struct Object
     Object &operator=(const Object &);
 
     void add_property(const std::string &key, Variable *val);
-    Variable *get_property(const std::string &key, bool allocate);
+    Variable *get_property(const std::string &key);
     void remove_property(const std::string &key);
     bool empty() const;
     void clear();

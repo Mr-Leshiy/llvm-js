@@ -1,24 +1,14 @@
-use crate::CompileSuite;
+use crate::run_test;
 
 #[test]
 fn sorts_test() {
-    CompileSuite::new("../test_scripts/algorithms/sorts.js", "sorts")
-        .compile()
-        .unwrap()
-        .run()
-        .unwrap()
-        .cleanup();
+    run_test("../test_scripts/algorithms/sorts.js", "sorts");
 }
 
 #[test]
 fn double_linked_list_test() {
-    CompileSuite::new(
+    run_test(
         "../test_scripts/algorithms/double_linked_list.js",
         "double_linked_list",
-    )
-    .compile()
-    .unwrap()
-    .run()
-    .unwrap()
-    .cleanup();
+    );
 }

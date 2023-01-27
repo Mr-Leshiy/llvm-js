@@ -16,13 +16,13 @@ impl IfElseStatement {
         cur_function: &mut Function<'ctx>,
     ) -> Result<bool, CompilerError> {
         let condition = self.condition.compile(compiler, cur_function)?;
-
-        generate_if_else(
+        let res = generate_if_else(
             compiler,
             &condition,
             cur_function,
             self.if_clause,
             self.else_clause,
-        )
+        )?;
+        Ok(res)
     }
 }

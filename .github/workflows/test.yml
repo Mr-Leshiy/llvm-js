@@ -73,7 +73,7 @@ jobs:
       run: cargo install cargo-nextest --locked
 
     - name: Run tests
-      run: cargo nextest run memory_tests --features mem-check
+      run: cargo nextest run --features mem-check
 
 
   fmt:

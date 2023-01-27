@@ -217,28 +217,28 @@ void Variable::add_property(const Variable &key, Variable *val)
     }
 }
 
-Variable *Variable::get_property(const std::string &key, bool allocate)
+Variable *Variable::get_property(const std::string &key)
 {
     if (this->flag == Type::Object)
     {
-        return this->object_field.get_property(key, allocate);
+        return this->object_field.get_property(key);
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(Number(std::stod(key)), allocate);
+        return this->array_field.get(Number(std::stod(key)));
     }
     return GarbageCollector<Variable>::get_instance().allocate();
 }
 
-Variable *Variable::get_property(const Variable &key, bool allocate)
+Variable *Variable::get_property(const Variable &key)
 {
     if (this->flag == Type::Object)
     {
-        return this->object_field.get_property(key.to_string(), allocate);
+        return this->object_field.get_property(key.to_string());
     }
     if (this->flag == Type::Array)
     {
-        return this->array_field.get(key.to_number(), allocate);
+        return this->array_field.get(key.to_number());
     }
     return GarbageCollector<Variable>::get_instance().allocate();
 }
