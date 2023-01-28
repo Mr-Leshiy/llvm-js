@@ -12,8 +12,8 @@ use self::{
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, GetBooleanFn,
         GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn, SetBooleanFn,
-        SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn, SetObjectFn,
-        SetStringFn, SetUndefinedFn, SetVariableFn,
+        SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn,
+        SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -42,6 +42,7 @@ pub struct PredefineFunctions<'ctx> {
     set_number: SetNumberFn<'ctx>,
     set_boolean: SetBooleanFn<'ctx>,
     set_string: SetStringFn<'ctx>,
+    set_function: SetFunctionFn<'ctx>,
     set_variable: SetVariableFn<'ctx>,
     get_boolean: GetBooleanFn<'ctx>,
     // object functions
@@ -91,6 +92,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_number: SetNumberFn::declare(compiler),
             set_boolean: SetBooleanFn::declare(compiler),
             set_string: SetStringFn::declare(compiler),
+            set_function: SetFunctionFn::declare(compiler),
             set_variable: SetVariableFn::declare(compiler),
             get_boolean: GetBooleanFn::declare(compiler),
             // object functions
@@ -172,6 +174,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn set_string(&self) -> &SetStringFn<'ctx> {
         &self.set_string
+    }
+
+    pub fn set_function(&self) -> &SetFunctionFn<'ctx> {
+        &self.set_function
     }
 
     pub fn set_variable(&self) -> &SetVariableFn<'ctx> {

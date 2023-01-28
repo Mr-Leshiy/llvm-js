@@ -1,5 +1,5 @@
 use super::{Compiler, PredefineFunctionName};
-use crate::Variable;
+use crate::{Function, Variable};
 use inkwell::{
     module::Linkage,
     values::{FunctionValue, IntValue},
@@ -391,6 +391,55 @@ impl<'ctx> SetStringFn<'ctx> {
         compiler
             .builder
             .build_call(self.func, &[val.value.into(), literal.into()], "");
+    }
+}
+
+#[derive(Clone)]
+pub struct SetFunctionFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for SetFunctionFn<'ctx> {
+    const NAME: &'static str = "set_function";
+}
+
+impl<'ctx> SetFunctionFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let func_type = var_type
+            .fn_type(&[var_type.ptr_type(AddressSpace::from(0)).into()], false)
+            .ptr_type(AddressSpace::from(0));
+        let u32_type = compiler.context.i32_type();
+
+        let function_type = compiler
+            .context
+            .void_type()
+            .fn_type(&[var_type.into(), func_type.into(), u32_type.into()], false);
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        func: &Function<'ctx, T>,
+    ) {
+        let args_num = compiler
+            .context
+            .i32_type()
+            .const_int(func.arg_names.len().try_into().unwrap(), false);
+        compiler.builder.build_call(
+            self.func,
+            &[
+                val.value.into(),
+                func.function.as_global_value().as_pointer_value().into(),
+                args_num.into(),
+            ],
+            "",
+        );
     }
 }
 

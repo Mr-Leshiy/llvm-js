@@ -125,10 +125,12 @@ impl<'ctx> Variable<'ctx> {
 
     pub fn new_function<T>(
         compiler: &Compiler<'ctx, T>,
-        _function: &Function<'ctx, T>,
+        function: &Function<'ctx, T>,
         is_tmp: bool,
     ) -> Result<Self, Error<T>> {
         let mut variable = Self::new(compiler)?;
+        let set_function_fn = compiler.predefined_functions()?.set_function();
+        set_function_fn.call(compiler, &variable, function);
         variable.is_tmp = is_tmp;
         Ok(variable)
     }

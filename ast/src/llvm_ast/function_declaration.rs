@@ -1,5 +1,6 @@
 use super::{Expression, Identifier};
 use crate::{Compiler, CompilerError, Function};
+use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VariableFunctionDeclaration {
@@ -8,10 +9,10 @@ pub struct VariableFunctionDeclaration {
 }
 
 impl VariableFunctionDeclaration {
-    pub fn compile(self, _compiler: &mut Compiler) -> Result<(), CompilerError> {
-        // let function = compiler.get_function(self.name.clone())?;
-        // let var = Variable::new_function(compiler, &function, false)?;
-        // compiler.insert_variable(self.name, var)?;
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
+        let function = compiler.get_function(self.name.clone())?;
+        let var = Variable::new_function(compiler, &function, false)?;
+        compiler.insert_variable(self.name, var)?;
         Ok(())
     }
 }
