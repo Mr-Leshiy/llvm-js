@@ -29,6 +29,9 @@ jobs:
         run: cmake --build build --parallel 2
       - name: test
         run: cd build && ctest
+      - name: test result
+        if: failure()
+        run: cat build/Testing/Temporary/LastTest.log
 
   c-test-macos:
     name: C tests macos
@@ -52,6 +55,9 @@ jobs:
         run: cmake --build build --parallel 2
       - name: test
         run: cd build && ctest
+      - name: test result
+        if: failure()
+        run: cat build/Testing/Temporary/LastTest.log
         
   c-test-windows:
     name: C tests windows
@@ -75,3 +81,6 @@ jobs:
         run: cmake --build build --parallel 2
       - name: test
         run: cd build && ctest -C Debug
+      - name: test result
+        if: failure()
+        run: type build/Testing/Temporary/LastTest.log
