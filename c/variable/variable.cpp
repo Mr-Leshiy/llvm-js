@@ -7,6 +7,7 @@
 
 Variable::Variable()
 {
+    printf("Variable() \n");
     this->flag = Type::Undefined;
 }
 
