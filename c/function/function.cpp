@@ -1,9 +1,21 @@
 #include "function.hpp"
 #include "variable/variable.hpp"
+#include "garbage_collector/garbage_collector.hpp"
 
-Variable *Function::call(Variable **args) const
+Variable *Function::call(std::vector<Variable *> args) const
 {
-    return this->func(args);
+    auto args_size = args.size();
+    while (args.size() < this->args_num)
+    {
+        args.push_back(GarbageCollector<Variable>::get_instance().allocate());
+    }
+
+    auto ret = this->func(args.data());
+    for (auto i = args_size; i < args.size(); ++i)
+    {
+        GarbageCollector<Variable>::get_instance().dec_counter(args[i]);
+    }
+    return ret;
 }
 
 std::string Function::to_string() const

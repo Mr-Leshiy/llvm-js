@@ -32,3 +32,10 @@ assert_eq(res, 5);
 assert_eq(bar(3), 3);
 assert_eq(bar(true), true);
 assert_eq(bar("Hello"), "Hello");
+
+function foo(arg) {
+  return arg;
+}
+assert_eq(foo(), undefined);
+assert_eq(foo(5), 5);
+

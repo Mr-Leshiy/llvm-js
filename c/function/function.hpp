@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 struct Variable;
 
@@ -13,7 +14,7 @@ struct Function
     Function() = default;
     Function(FUNC_TYPE func, uint32_t args_num) : func(func), args_num(args_num) {}
 
-    Variable *call(Variable **args) const;
+    Variable *call(std::vector<Variable *> args) const;
 
     std::string to_string() const;
 

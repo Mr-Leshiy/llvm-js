@@ -276,7 +276,7 @@ void Variable::remove_property(const std::string &key)
     }
 }
 
-Variable *Variable::function_call(Variable **args) const
+Variable *Variable::function_call(std::vector<Variable*> args) const
 {
     if (this->flag == Type::Function)
     {

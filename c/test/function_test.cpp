@@ -10,5 +10,5 @@ Variable *foo(Variable **args)
 TEST(Function, Basic_test)
 {
     Function func(foo, 0);
-    func.call(nullptr);
+    func.call({});
 }

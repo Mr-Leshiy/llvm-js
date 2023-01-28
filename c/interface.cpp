@@ -154,12 +154,12 @@ uint8_t get_boolean(Variable *self)
     return self->to_boolean();
 }
 
-Variable *function_call(Variable *self, Variable **args)
+Variable *function_call(Variable *self, Variable **args, uint32_t args_num)
 {
     ASSERT(self != nullptr);
     ASSERT(args != nullptr);
 
-    return self->function_call(args);
+    return self->function_call(std::vector<Variable *>{args, args + args_num});
 }
 
 Variable *convert_to_boolean(Variable *val)

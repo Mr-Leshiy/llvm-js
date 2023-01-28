@@ -528,11 +528,13 @@ impl<'ctx> PredefineFunctionName for FunctionCallFn<'ctx> {
 impl<'ctx> FunctionCallFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
         let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let u32_type = compiler.context.i32_type();
 
         let function_type = var_type.fn_type(
             &[
                 var_type.into(),
                 var_type.ptr_type(AddressSpace::from(0)).into(),
+                u32_type.into(),
             ],
             false,
         );
@@ -553,6 +555,10 @@ impl<'ctx> FunctionCallFn<'ctx> {
         let array = compiler
             .builder
             .build_alloca(var_type.array_type(args.len().try_into().unwrap()), "");
+        let args_len = compiler
+            .context
+            .i32_type()
+            .const_int(args.len().try_into().unwrap(), false);
 
         for (i, arg) in args.iter().enumerate() {
             unsafe {
@@ -582,7 +588,11 @@ impl<'ctx> FunctionCallFn<'ctx> {
 
         let value = compiler
             .builder
-            .build_call(self.func, &[val.value.into(), args.into()], "")
+            .build_call(
+                self.func,
+                &[val.value.into(), args.into(), args_len.into()],
+                "",
+            )
             .try_as_basic_value()
             .left()
             .unwrap()

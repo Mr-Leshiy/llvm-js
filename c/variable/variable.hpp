@@ -57,7 +57,7 @@ struct Variable
     Variable *get_property(const Variable &);
     void remove_property(const std::string &);
 
-    Variable *function_call(Variable **args) const;
+    Variable *function_call(std::vector<Variable *> args) const;
 
     friend Variable operator+(const Variable &a, const Variable &b);
     friend Variable operator-(const Variable &a, const Variable &b);
