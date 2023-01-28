@@ -105,7 +105,7 @@ TEST(Variable, to_string_test)
     EXPECT_EQ(test::VariableTest().set_string("").to_string(), "");
     EXPECT_EQ(test::VariableTest().set_object(Object()).to_string(), "{}");
     EXPECT_EQ(test::VariableTest().set_array(Array()).to_string(), "[]");
-    EXPECT_EQ(test::VariableTest().set_function(Function()).to_string(), "function, args num: 0");
+    EXPECT_EQ(test::VariableTest().set_function(Function()).to_string(), "Function, args num: 0");
 }
 
 TEST(Variable, arithmetic_test)

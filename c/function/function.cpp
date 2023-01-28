@@ -20,7 +20,7 @@ Variable *Function::call(std::vector<Variable *> args) const
 
 std::string Function::to_string() const
 {
-    return "function, args num: " + std::to_string(this->args_num);
+    return "Function, args num: " + std::to_string(this->args_num);
 }
 
 bool operator==(const Function &a, const Function &b)
