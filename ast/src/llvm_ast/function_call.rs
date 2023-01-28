@@ -60,8 +60,9 @@ impl FunctionCall {
                 Ok(Variable::new_undefined(compiler, true)?)
             }
             _ => {
-                let function = compiler.get_function(self.name)?;
-                function.call(compiler, &args)
+                let var = compiler.get_variable(self.name)?;
+                let ret = var.function_call(compiler, &args)?;
+                Ok(ret)
             }
         };
         // deallocate arguments

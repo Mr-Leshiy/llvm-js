@@ -10,10 +10,10 @@ use self::{
     },
     test::{AssertEqFn, AssertFn, PrintFn},
     variable::{
-        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, GetBooleanFn,
-        GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn, SetBooleanFn,
-        SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn,
-        SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, FunctionCallFn,
+        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn,
+        SetBooleanFn, SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
+        SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::Compiler;
@@ -45,6 +45,7 @@ pub struct PredefineFunctions<'ctx> {
     set_function: SetFunctionFn<'ctx>,
     set_variable: SetVariableFn<'ctx>,
     get_boolean: GetBooleanFn<'ctx>,
+    function_call: FunctionCallFn<'ctx>,
     // object functions
     add_property_by_str: AddPropertyByStrFn<'ctx>,
     add_property_by_var: AddPropertyByVarFn<'ctx>,
@@ -95,6 +96,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_function: SetFunctionFn::declare(compiler),
             set_variable: SetVariableFn::declare(compiler),
             get_boolean: GetBooleanFn::declare(compiler),
+            function_call: FunctionCallFn::declare(compiler),
             // object functions
             add_property_by_str: AddPropertyByStrFn::declare(compiler),
             add_property_by_var: AddPropertyByVarFn::declare(compiler),
@@ -186,6 +188,10 @@ impl<'ctx> PredefineFunctions<'ctx> {
 
     pub fn get_boolean(&self) -> &GetBooleanFn<'ctx> {
         &self.get_boolean
+    }
+
+    pub fn function_call(&self) -> &FunctionCallFn<'ctx> {
+        &self.function_call
     }
 
     // object functions

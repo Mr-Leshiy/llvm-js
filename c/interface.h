@@ -30,6 +30,8 @@ void remove_property(Variable *self, const char *key);
 
 uint8_t get_boolean(Variable *self);
 
+Variable *function_call(Variable *self, Variable **args);
+
 Variable *convert_to_boolean(Variable *val);
 Variable *convert_to_number(Variable *val);
 Variable *convert_to_string(Variable *val);

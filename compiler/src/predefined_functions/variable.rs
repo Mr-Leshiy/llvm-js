@@ -517,6 +517,86 @@ impl<'ctx> GetBooleanFn<'ctx> {
 }
 
 #[derive(Clone)]
+pub struct FunctionCallFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> PredefineFunctionName for FunctionCallFn<'ctx> {
+    const NAME: &'static str = "function_call";
+}
+
+impl<'ctx> FunctionCallFn<'ctx> {
+    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+
+        let function_type = var_type.fn_type(
+            &[
+                var_type.into(),
+                var_type.ptr_type(AddressSpace::from(0)).into(),
+            ],
+            false,
+        );
+        let func = compiler
+            .module
+            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        args: &[Variable<'ctx>],
+    ) -> Variable<'ctx> {
+        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+
+        let array = compiler
+            .builder
+            .build_alloca(var_type.array_type(args.len().try_into().unwrap()), "");
+
+        for (i, arg) in args.iter().enumerate() {
+            unsafe {
+                let ptr = compiler.builder.build_gep(
+                    array,
+                    &[
+                        compiler.context.i32_type().const_int(0, false),
+                        compiler
+                            .context
+                            .i32_type()
+                            .const_int(i.try_into().unwrap(), false),
+                    ],
+                    "",
+                );
+                let ptr = compiler
+                    .builder
+                    .build_bitcast(ptr, var_type.ptr_type(AddressSpace::from(0)), "")
+                    .into_pointer_value();
+                compiler.builder.build_store(ptr, arg.value);
+            }
+        }
+
+        let args =
+            compiler
+                .builder
+                .build_bitcast(array, var_type.ptr_type(AddressSpace::from(0)), "");
+
+        let value = compiler
+            .builder
+            .build_call(self.func, &[val.value.into(), args.into()], "")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+
+        // compiler.builder.build_free(array);
+        Variable {
+            value,
+            is_tmp: true,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }

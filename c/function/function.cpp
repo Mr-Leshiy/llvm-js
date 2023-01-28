@@ -1,7 +1,7 @@
 #include "function.hpp"
 #include "variable/variable.hpp"
 
-Variable *Function::call(Variable **args)
+Variable *Function::call(Variable **args) const
 {
     return this->func(args);
 }

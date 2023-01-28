@@ -154,6 +154,14 @@ uint8_t get_boolean(Variable *self)
     return self->to_boolean();
 }
 
+Variable *function_call(Variable *self, Variable **args)
+{
+    ASSERT(self != nullptr);
+    ASSERT(args != nullptr);
+
+    return self->function_call(args);
+}
+
 Variable *convert_to_boolean(Variable *val)
 {
     ASSERT(val != nullptr);

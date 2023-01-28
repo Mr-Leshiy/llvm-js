@@ -276,6 +276,15 @@ void Variable::remove_property(const std::string &key)
     }
 }
 
+Variable *Variable::function_call(Variable **args) const
+{
+    if (this->flag == Type::Function)
+    {
+        return this->function_field.call(args);
+    }
+    return GarbageCollector<Variable>::get_instance().allocate();
+}
+
 Variable operator+(const Variable &a, const Variable &b)
 {
     Variable ret;

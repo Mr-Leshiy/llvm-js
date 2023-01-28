@@ -156,6 +156,18 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
+    pub fn function_call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        args: &[Self],
+    ) -> Result<Self, Error<T>> {
+        let function_call_fn = compiler.predefined_functions()?.function_call();
+        let ret = function_call_fn.call(compiler, self, args);
+        Ok(ret)
+    }
+}
+
+impl<'ctx> Variable<'ctx> {
     pub fn add_property_by_str<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
