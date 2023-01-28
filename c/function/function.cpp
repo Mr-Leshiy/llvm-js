@@ -11,10 +11,10 @@ Variable *Function::call(std::vector<Variable *> args) const
     }
 
     auto ret = this->func(args.data());
-    for (auto i = args_size; i < args.size(); ++i)
-    {
-        GarbageCollector<Variable>::get_instance().dec_counter(args[i]);
-    }
+    // for (auto i = args_size; i < args.size(); ++i)
+    // {
+    //     GarbageCollector<Variable>::get_instance().dec_counter(args[i]);
+    // }
     return ret;
 }
 

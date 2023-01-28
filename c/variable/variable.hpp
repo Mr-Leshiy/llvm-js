@@ -11,14 +11,14 @@
 
 enum class Type
 {
-    Undefined = 1,
-    Null = 2,
-    Number = 3,
-    Boolean = 4,
-    String = 5,
-    Object = 6,
-    Array = 7,
-    Function = 8,
+    Undefined,
+    Null,
+    Number,
+    Boolean,
+    String,
+    Object,
+    Array,
+    Function,
 };
 
 namespace test
