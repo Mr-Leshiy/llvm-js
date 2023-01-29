@@ -1,6 +1,7 @@
 use super::{
-    DeallocateExpression, DoWhileLoop, FunctionCall, Identifier, IfElseStatement, ReturnStatement,
-    VariableAssigment, VariableDeclaration, VariableFunctionDeclaration, WhileLoop,
+    DeallocateExpression, DoWhileLoop, Identifier, IfElseStatement, ReturnStatement,
+    VariableAssigment, VariableDeclaration, VariableExpression, VariableFunctionDeclaration,
+    WhileLoop,
 };
 use crate::{Compiler, CompilerError};
 use compiler::Compile;
@@ -10,8 +11,8 @@ pub enum Expression {
     VariableDeclaration(VariableDeclaration),
     VariableFunctionDeclaration(VariableFunctionDeclaration),
     VariableAssigment(VariableAssigment),
+    VariableExpression(VariableExpression),
     DeallocateExpression(DeallocateExpression),
-    FunctionCall(FunctionCall),
     ReturnStatement(ReturnStatement),
     IfElseStatement(IfElseStatement),
     WhileLoop(WhileLoop),
@@ -35,13 +36,12 @@ impl Compile<Identifier> for Expression {
                 variable_assigment.compile(compiler)?;
                 Ok(false)
             }
-            Self::DeallocateExpression(deallocate_expression) => {
-                deallocate_expression.compile(compiler)?;
+            Self::VariableExpression(variable_expression) => {
+                variable_expression.compile(compiler)?.deallocate(compiler);
                 Ok(false)
             }
-            Self::FunctionCall(function_call) => {
-                let var = function_call.compile(compiler)?;
-                var.deallocate(compiler);
+            Self::DeallocateExpression(deallocate_expression) => {
+                deallocate_expression.compile(compiler)?;
                 Ok(false)
             }
             Self::ReturnStatement(return_statement) => {

@@ -1,6 +1,6 @@
 use super::{
-    return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionCall,
-    FunctionDeclaration, IfElseStatement, VariableAssigment, VariableDeclaration, WhileLoop,
+    return_statement::ReturnStatement, BlockStatement, DoWhileLoop, FunctionDeclaration,
+    IfElseStatement, VariableAssigment, VariableDeclaration, VariableExpression, WhileLoop,
 };
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Keyword, Separator, Token, TokenReader};
@@ -9,9 +9,9 @@ use std::{fmt::Debug, io::Read};
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expression {
     FunctionDeclaration(FunctionDeclaration),
-    FunctionCall(FunctionCall),
     VariableDeclaration(VariableDeclaration),
     VariableAssigment(VariableAssigment),
+    VariableExpression(VariableExpression),
     BlockStatement(BlockStatement),
     IfElseStatement(IfElseStatement),
     WhileLoop(WhileLoop),
@@ -33,12 +33,12 @@ impl Expression {
             )),
             Token::Ident(_) => {
                 reader.start_saving();
-                if let Ok(res) = FunctionCall::parse(cur_token.clone(), reader) {
+                if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
                     reader.reset_saving();
-                    Ok(Self::FunctionCall(res))
+                    Ok(Self::VariableAssigment(res))
                 } else {
                     reader.stop_saving();
-                    Ok(Self::VariableAssigment(VariableAssigment::parse(
+                    Ok(Self::VariableExpression(VariableExpression::parse(
                         cur_token, reader,
                     )?))
                 }
@@ -77,9 +77,6 @@ impl Expression {
                     variable_function_declaration,
                 )])
             }
-            Self::FunctionCall(function_call) => Ok(vec![llvm_ast::Expression::FunctionCall(
-                function_call.precompile(precompiler)?,
-            )]),
             Self::VariableDeclaration(variable_declaration) => {
                 Ok(vec![llvm_ast::Expression::VariableDeclaration(
                     variable_declaration.precompile(precompiler)?,
@@ -88,6 +85,11 @@ impl Expression {
             Self::VariableAssigment(variable_assigment) => {
                 Ok(vec![llvm_ast::Expression::VariableAssigment(
                     variable_assigment.precompile(precompiler)?,
+                )])
+            }
+            Self::VariableExpression(variable_expression) => {
+                Ok(vec![llvm_ast::Expression::VariableExpression(
+                    variable_expression.precompile(precompiler)?,
                 )])
             }
             Self::ReturnStatement(return_statement) => {
@@ -114,7 +116,7 @@ impl Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, VariableExpression, VariableValue};
+    use crate::js_ast::{FunctionCall, MemberExpression, VariableExpression, VariableValue};
 
     #[test]
     fn parse_expression_test1() {
@@ -243,7 +245,7 @@ mod tests {
         let mut reader = TokenReader::new("foo(a, b); a = 6;".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
-            Expression::FunctionCall(FunctionCall {
+            Expression::VariableExpression(VariableExpression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
                     VariableExpression::VariableValue(VariableValue::MemberExpression(
@@ -259,7 +261,7 @@ mod tests {
                         }
                     ))
                 ]
-            })
+            }))
         );
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
