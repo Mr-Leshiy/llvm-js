@@ -52,6 +52,7 @@ impl BinaryExpression {
         Ok(ret)
     }
 
+    #[allow(clippy::too_many_lines)]
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
