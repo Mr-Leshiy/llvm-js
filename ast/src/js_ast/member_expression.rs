@@ -24,7 +24,7 @@ impl Property {
         match cur_token {
             Token::Separator(Separator::Dot) => {
                 reader.start_saving();
-                let object = if let Ok(res) = FunctionCall::parse(cur_token.clone(), reader) {
+                let object = if let Ok(res) = FunctionCall::parse(reader.next_token()?, reader) {
                     reader.reset_saving();
                     PropertyType::FunctionCall(res)
                 } else {
@@ -202,8 +202,92 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::too_many_lines)]
     fn parse_member_expression_test2() {
+        let mut reader = TokenReader::new("name.name()".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "name".to_string().into(),
+                            args: vec![]
+                        }),
+                        property: None
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name.name().name()".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "name".to_string().into(),
+                            args: vec![]
+                        }),
+                        property: Some(
+                            Property {
+                                object: PropertyType::FunctionCall(FunctionCall {
+                                    name: "name".to_string().into(),
+                                    args: vec![]
+                                }),
+                                property: None
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+
+        let mut reader = TokenReader::new("name.name().name().name()".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                variable_name: "name".to_string().into(),
+                property: Some(
+                    Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "name".to_string().into(),
+                            args: vec![]
+                        }),
+                        property: Some(
+                            Property {
+                                object: PropertyType::FunctionCall(FunctionCall {
+                                    name: "name".to_string().into(),
+                                    args: vec![]
+                                }),
+                                property: Some(
+                                    Property {
+                                        object: PropertyType::FunctionCall(FunctionCall {
+                                            name: "name".to_string().into(),
+                                            args: vec![]
+                                        }),
+                                        property: None
+                                    }
+                                    .into()
+                                )
+                            }
+                            .into()
+                        )
+                    }
+                    .into()
+                )
+            }),
+        );
+    }
+
+    #[test]
+    #[allow(clippy::too_many_lines)]
+    fn parse_member_expression_test3() {
         let mut reader = TokenReader::new("name[name]".as_bytes());
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
