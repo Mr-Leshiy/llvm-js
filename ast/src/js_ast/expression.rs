@@ -58,7 +58,9 @@ impl Expression {
             Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
                 cur_token, reader,
             )?)),
-            token => Err(LexerError::UnexpectedToken(token)),
+            cur_token => Ok(Expression::VariableExpression(VariableExpression::parse(
+                cur_token, reader,
+            )?)),
         }
     }
 }
@@ -116,7 +118,10 @@ impl Expression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{FunctionCall, MemberExpression, VariableExpression, VariableValue};
+    use crate::js_ast::{
+        BinaryExpType, BinaryExpression, FunctionCall, MemberExpression, VariableExpression,
+        VariableValue,
+    };
 
     #[test]
     fn parse_expression_test1() {
@@ -242,7 +247,24 @@ mod tests {
 
     #[test]
     fn parse_expression_test5() {
-        let mut reader = TokenReader::new("foo(a, b); a = 6;".as_bytes());
+        let mut reader = TokenReader::new("1; (1 + 2); foo(a, b); a = 6;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::Number(1_f64)
+            ))
+        );
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableExpression(VariableExpression::BinaryExpression(
+                BinaryExpression {
+                    left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                    right: VariableExpression::VariableValue(VariableValue::Number(2_f64)),
+                    exp_type: BinaryExpType::Add,
+                }
+                .into()
+            ))
+        );
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableExpression(VariableExpression::FunctionCall(FunctionCall {
