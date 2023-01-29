@@ -12,9 +12,9 @@ impl VariableAssigment {
         let var1 = self.left.compile(compiler, true)?;
         if let Some(value) = self.right {
             let var = value.compile(compiler)?;
-            var1.assign_variable(compiler, &var)?;
+            var1.assign_variable(compiler, &var);
             if var.is_tmp() {
-                var.deallocate(compiler)?;
+                var.deallocate(compiler);
             }
         }
         Ok(())

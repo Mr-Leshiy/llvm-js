@@ -12,10 +12,10 @@ impl ArrayExpression {
         self,
         compiler: &mut Compiler<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let res = Variable::new_array(compiler, true)?;
+        let res = Variable::new_array(compiler, true);
         for (i, el) in self.values.into_iter().enumerate() {
             let value = el.compile(compiler)?;
-            res.add_property_by_str(compiler, i.to_string().as_str(), &value)?;
+            res.add_property_by_str(compiler, i.to_string().as_str(), &value);
         }
         Ok(res)
     }

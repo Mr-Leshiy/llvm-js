@@ -29,11 +29,11 @@ impl Property {
                 let key = variable_expression.compile(compiler)?;
                 let res = variable.get_property_by_var(compiler, &key, allocate);
                 if key.is_tmp() {
-                    key.deallocate(compiler)?;
+                    key.deallocate(compiler);
                 }
                 res
             }
-        }?;
+        };
         if let Some(property) = self.property {
             property.compile(compiler, &variable, allocate)
         } else {

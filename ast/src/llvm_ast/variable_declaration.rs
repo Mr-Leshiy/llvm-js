@@ -10,13 +10,13 @@ pub struct VariableDeclaration {
 
 impl VariableDeclaration {
     pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
-        let var = Variable::new_undefined(compiler, false)?;
+        let var = Variable::new_undefined(compiler, false);
 
         if let Some(value) = self.value {
             let value = value.compile(compiler)?;
-            var.assign_variable(compiler, &value)?;
+            var.assign_variable(compiler, &value);
             if value.is_tmp() {
-                value.deallocate(compiler)?;
+                value.deallocate(compiler);
             }
         }
 

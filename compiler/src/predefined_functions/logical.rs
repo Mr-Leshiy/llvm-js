@@ -1,5 +1,5 @@
 use super::{Compiler, PredefineFunctionName};
-use crate::Variable;
+use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue};
 
 #[derive(Clone)]
@@ -12,18 +12,19 @@ impl<'ctx> PredefineFunctionName for LogicalNotFn<'ctx> {
 }
 
 impl<'ctx> LogicalNotFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "")
             .try_as_basic_value()
@@ -47,13 +48,13 @@ impl<'ctx> PredefineFunctionName for LogicalAndFn<'ctx> {
 }
 
 impl<'ctx> LogicalAndFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -64,6 +65,7 @@ impl<'ctx> LogicalAndFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -87,13 +89,13 @@ impl<'ctx> PredefineFunctionName for LogicalOrFn<'ctx> {
 }
 
 impl<'ctx> LogicalOrFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -104,6 +106,7 @@ impl<'ctx> LogicalOrFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -127,13 +130,13 @@ impl<'ctx> PredefineFunctionName for LogicalEqFn<'ctx> {
 }
 
 impl<'ctx> LogicalEqFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -144,6 +147,7 @@ impl<'ctx> LogicalEqFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -167,13 +171,13 @@ impl<'ctx> PredefineFunctionName for LogicalNeFn<'ctx> {
 }
 
 impl<'ctx> LogicalNeFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -184,6 +188,7 @@ impl<'ctx> LogicalNeFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -207,13 +212,13 @@ impl<'ctx> PredefineFunctionName for LogicalGtFn<'ctx> {
 }
 
 impl<'ctx> LogicalGtFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -224,6 +229,7 @@ impl<'ctx> LogicalGtFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -247,13 +253,13 @@ impl<'ctx> PredefineFunctionName for LogicalGeFn<'ctx> {
 }
 
 impl<'ctx> LogicalGeFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -264,6 +270,7 @@ impl<'ctx> LogicalGeFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -287,13 +294,13 @@ impl<'ctx> PredefineFunctionName for LogicalLtFn<'ctx> {
 }
 
 impl<'ctx> LogicalLtFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -304,6 +311,7 @@ impl<'ctx> LogicalLtFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -327,13 +335,13 @@ impl<'ctx> PredefineFunctionName for LogicalLeFn<'ctx> {
 }
 
 impl<'ctx> LogicalLeFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -344,6 +352,7 @@ impl<'ctx> LogicalLeFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()

@@ -18,14 +18,24 @@ impl<'ctx> MainFunction {
             variables: HashMap::new(),
         });
 
-        let basic_block = compiler.context.append_basic_block(function, "entry");
-        compiler.builder.position_at_end(basic_block);
+        let basic_block = compiler
+            .inkwell_context
+            .context
+            .append_basic_block(function, "entry");
+        compiler
+            .inkwell_context
+            .builder
+            .position_at_end(basic_block);
         for expr in body {
             expr.compile(compiler)?;
         }
-        compiler
-            .builder
-            .build_return(Some(&compiler.context.i32_type().const_int(0, false)));
+        compiler.inkwell_context.builder.build_return(Some(
+            &compiler
+                .inkwell_context
+                .context
+                .i32_type()
+                .const_int(0, false),
+        ));
         Ok(())
     }
 
@@ -33,8 +43,15 @@ impl<'ctx> MainFunction {
         compiler: &mut Compiler<'ctx, T>,
         body: Vec<Expr>,
     ) -> Result<(), Error<T>> {
-        let function_type = compiler.context.i32_type().fn_type(&[], false);
-        let function = compiler.module.add_function("main", function_type, None);
+        let function_type = compiler
+            .inkwell_context
+            .context
+            .i32_type()
+            .fn_type(&[], false);
+        let function = compiler
+            .inkwell_context
+            .module
+            .add_function("main", function_type, None);
         Self::generate_body(compiler, function, body)?;
         Ok(())
     }

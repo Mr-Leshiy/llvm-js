@@ -13,10 +13,10 @@ impl ObjectExpression {
         self,
         compiler: &mut Compiler<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let res = Variable::new_object(compiler, true)?;
+        let res = Variable::new_object(compiler, true);
         for (key, value) in self.properties {
             let value = value.compile(compiler)?;
-            res.add_property_by_str(compiler, &String::from(key), &value)?;
+            res.add_property_by_str(compiler, &String::from(key), &value);
         }
         Ok(res)
     }

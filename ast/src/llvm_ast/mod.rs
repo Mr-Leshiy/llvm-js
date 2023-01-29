@@ -1,7 +1,7 @@
 use crate::CompilerError;
 pub use array_expression::ArrayExpression;
 pub use binary_expression::{BinaryExpType, BinaryExpression};
-use compiler::{Compiler, Context, MainFunction};
+use compiler::{Compiler, Context, MainFunction, Variable};
 pub use deallocate_expression::DeallocateExpression;
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
@@ -58,7 +58,7 @@ impl Module {
         let context = Context::new();
         let compiler = &mut Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_extern_functions();
+        Variable::declare_global(compiler);
 
         for func in self.functions {
             func.compile(compiler)?;

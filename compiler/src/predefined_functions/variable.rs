@@ -1,5 +1,5 @@
 use super::{Compiler, PredefineFunctionName};
-use crate::{Function, Variable};
+use crate::{Function, InkwellContext, Variable};
 use inkwell::{
     module::Linkage,
     values::{FunctionValue, IntValue},
@@ -16,19 +16,19 @@ impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
 }
 
 impl<'ctx> AllocateFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
-
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[], "")
             .try_as_basic_value()
@@ -52,22 +52,23 @@ impl<'ctx> PredefineFunctionName for DeallocateFn<'ctx> {
 }
 
 impl<'ctx> DeallocateFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
 
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -83,21 +84,22 @@ impl<'ctx> PredefineFunctionName for SetUndefinedFn<'ctx> {
 }
 
 impl<'ctx> SetUndefinedFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -113,21 +115,22 @@ impl<'ctx> PredefineFunctionName for SetNullFn<'ctx> {
 }
 
 impl<'ctx> SetNullFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -143,21 +146,22 @@ impl<'ctx> PredefineFunctionName for SetNaNFn<'ctx> {
 }
 
 impl<'ctx> SetNaNFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -173,21 +177,22 @@ impl<'ctx> PredefineFunctionName for SetObjectFn<'ctx> {
 }
 
 impl<'ctx> SetObjectFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -203,21 +208,22 @@ impl<'ctx> PredefineFunctionName for SetArrayFn<'ctx> {
 }
 
 impl<'ctx> SetArrayFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -233,21 +239,22 @@ impl<'ctx> PredefineFunctionName for SetInfinityFn<'ctx> {
 }
 
 impl<'ctx> SetInfinityFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -263,21 +270,22 @@ impl<'ctx> PredefineFunctionName for SetNegInfinityFn<'ctx> {
 }
 
 impl<'ctx> SetNegInfinityFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>) {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "");
     }
@@ -293,26 +301,31 @@ impl<'ctx> PredefineFunctionName for SetNumberFn<'ctx> {
 }
 
 impl<'ctx> SetNumberFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let number_type = compiler.context.f64_type();
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let number_type = inkwell_context.context.f64_type();
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), number_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: f64) {
-        compiler.builder.build_call(
+        compiler.inkwell_context.builder.build_call(
             self.func,
             &[
                 val.value.into(),
-                compiler.context.f64_type().const_float(literal).into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .f64_type()
+                    .const_float(literal)
+                    .into(),
             ],
             "",
         );
@@ -329,26 +342,27 @@ impl<'ctx> PredefineFunctionName for SetBooleanFn<'ctx> {
 }
 
 impl<'ctx> SetBooleanFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let boolean_type = compiler.context.bool_type();
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let boolean_type = inkwell_context.context.bool_type();
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), boolean_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: bool) {
-        compiler.builder.build_call(
+        compiler.inkwell_context.builder.build_call(
             self.func,
             &[
                 val.value.into(),
                 compiler
+                    .inkwell_context
                     .context
                     .bool_type()
                     .const_int(literal.into(), false)
@@ -369,28 +383,34 @@ impl<'ctx> PredefineFunctionName for SetStringFn<'ctx> {
 }
 
 impl<'ctx> SetStringFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let string_type = inkwell_context
+            .context
+            .i8_type()
+            .ptr_type(AddressSpace::from(0));
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), string_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, literal: &str) {
         let literal = compiler
+            .inkwell_context
             .builder
             .build_global_string_ptr(literal, "")
             .as_pointer_value();
-        compiler
-            .builder
-            .build_call(self.func, &[val.value.into(), literal.into()], "");
+        compiler.inkwell_context.builder.build_call(
+            self.func,
+            &[val.value.into(), literal.into()],
+            "",
+        );
     }
 }
 
@@ -404,20 +424,20 @@ impl<'ctx> PredefineFunctionName for SetFunctionFn<'ctx> {
 }
 
 impl<'ctx> SetFunctionFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let func_type = var_type
             .fn_type(&[var_type.ptr_type(AddressSpace::from(0)).into()], false)
             .ptr_type(AddressSpace::from(0));
-        let u32_type = compiler.context.i32_type();
-
-        let function_type = compiler
+        let u32_type = inkwell_context.context.i32_type();
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), func_type.into(), u32_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -428,10 +448,11 @@ impl<'ctx> SetFunctionFn<'ctx> {
         func: &Function<'ctx, T>,
     ) {
         let args_num = compiler
+            .inkwell_context
             .context
             .i32_type()
             .const_int(func.arg_names.len().try_into().unwrap(), false);
-        compiler.builder.build_call(
+        compiler.inkwell_context.builder.build_call(
             self.func,
             &[
                 val.value.into(),
@@ -453,16 +474,16 @@ impl<'ctx> PredefineFunctionName for SetVariableFn<'ctx> {
 }
 
 impl<'ctx> SetVariableFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -472,9 +493,11 @@ impl<'ctx> SetVariableFn<'ctx> {
         val1: &Variable<'ctx>,
         val2: &Variable<'ctx>,
     ) {
-        compiler
-            .builder
-            .build_call(self.func, &[val1.value.into(), val2.value.into()], "");
+        compiler.inkwell_context.builder.build_call(
+            self.func,
+            &[val1.value.into(), val2.value.into()],
+            "",
+        );
     }
 }
 
@@ -488,16 +511,16 @@ impl<'ctx> PredefineFunctionName for GetBooleanFn<'ctx> {
 }
 
 impl<'ctx> GetBooleanFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .i8_type()
             .fn_type(&[var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -507,6 +530,7 @@ impl<'ctx> GetBooleanFn<'ctx> {
         val: &Variable<'ctx>,
     ) -> IntValue<'ctx> {
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into()], "")
             .try_as_basic_value()
@@ -526,10 +550,9 @@ impl<'ctx> PredefineFunctionName for FunctionCallFn<'ctx> {
 }
 
 impl<'ctx> FunctionCallFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let u32_type = compiler.context.i32_type();
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let u32_type = inkwell_context.context.i32_type();
         let function_type = var_type.fn_type(
             &[
                 var_type.into(),
@@ -538,9 +561,10 @@ impl<'ctx> FunctionCallFn<'ctx> {
             ],
             false,
         );
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -550,23 +574,30 @@ impl<'ctx> FunctionCallFn<'ctx> {
         val: &Variable<'ctx>,
         args: &[Variable<'ctx>],
     ) -> Variable<'ctx> {
-        let var_type = compiler.variable_type;
+        let var_type = compiler.inkwell_context.variable_type;
 
         let array = compiler
+            .inkwell_context
             .builder
             .build_alloca(var_type.array_type(args.len().try_into().unwrap()), "");
         let args_len = compiler
+            .inkwell_context
             .context
             .i32_type()
             .const_int(args.len().try_into().unwrap(), false);
 
         for (i, arg) in args.iter().enumerate() {
             unsafe {
-                let ptr = compiler.builder.build_gep(
+                let ptr = compiler.inkwell_context.builder.build_gep(
                     array,
                     &[
-                        compiler.context.i32_type().const_int(0, false),
                         compiler
+                            .inkwell_context
+                            .context
+                            .i32_type()
+                            .const_int(0, false),
+                        compiler
+                            .inkwell_context
                             .context
                             .i32_type()
                             .const_int(i.try_into().unwrap(), false),
@@ -574,19 +605,22 @@ impl<'ctx> FunctionCallFn<'ctx> {
                     "",
                 );
                 let ptr = compiler
+                    .inkwell_context
                     .builder
                     .build_bitcast(ptr, var_type.ptr_type(AddressSpace::from(0)), "")
                     .into_pointer_value();
-                compiler.builder.build_store(ptr, arg.value);
+                compiler.inkwell_context.builder.build_store(ptr, arg.value);
             }
         }
 
-        let args =
-            compiler
-                .builder
-                .build_bitcast(array, var_type.ptr_type(AddressSpace::from(0)), "");
+        let args = compiler.inkwell_context.builder.build_bitcast(
+            array,
+            var_type.ptr_type(AddressSpace::from(0)),
+            "",
+        );
 
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(
                 self.func,
@@ -597,8 +631,6 @@ impl<'ctx> FunctionCallFn<'ctx> {
             .left()
             .unwrap()
             .into_pointer_value();
-
-        // compiler.builder.build_free(array);
         Variable {
             value,
             is_tmp: true,
@@ -616,17 +648,20 @@ impl<'ctx> PredefineFunctionName for AddPropertyByStrFn<'ctx> {
 }
 
 impl<'ctx> AddPropertyByStrFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
-
-        let function_type = compiler.context.void_type().fn_type(
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let string_type = inkwell_context
+            .context
+            .i8_type()
+            .ptr_type(AddressSpace::from(0));
+        let function_type = inkwell_context.context.void_type().fn_type(
             &[var_type.into(), string_type.into(), var_type.into()],
             false,
         );
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -638,10 +673,11 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
         value: &Variable<'ctx>,
     ) {
         let key = compiler
+            .inkwell_context
             .builder
             .build_global_string_ptr(key, "")
             .as_pointer_value();
-        compiler.builder.build_call(
+        compiler.inkwell_context.builder.build_call(
             self.func,
             &[val.value.into(), key.into(), value.value.into()],
             "",
@@ -659,16 +695,16 @@ impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
 }
 
 impl<'ctx> AddPropertyByVarFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -680,7 +716,7 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
         key: &Variable<'ctx>,
         value: &Variable<'ctx>,
     ) {
-        compiler.builder.build_call(
+        compiler.inkwell_context.builder.build_call(
             self.func,
             &[val.value.into(), key.value.into(), value.value.into()],
             "",
@@ -698,18 +734,21 @@ impl<'ctx> PredefineFunctionName for GetPropertyByStrFn<'ctx> {
 }
 
 impl<'ctx> GetPropertyByStrFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
-        let boolean_type = compiler.context.bool_type();
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let string_type = inkwell_context
+            .context
+            .i8_type()
+            .ptr_type(AddressSpace::from(0));
+        let boolean_type = inkwell_context.context.bool_type();
         let function_type = var_type.fn_type(
             &[var_type.into(), string_type.into(), boolean_type.into()],
             false,
         );
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -721,10 +760,12 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
         allocate: bool,
     ) -> Variable<'ctx> {
         let key = compiler
+            .inkwell_context
             .builder
             .build_global_string_ptr(key, "")
             .as_pointer_value();
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(
                 self.func,
@@ -732,6 +773,7 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
                     val.value.into(),
                     key.into(),
                     compiler
+                        .inkwell_context
                         .context
                         .bool_type()
                         .const_int(allocate.into(), false)
@@ -760,17 +802,17 @@ impl<'ctx> PredefineFunctionName for GetPropertyByVarFn<'ctx> {
 }
 
 impl<'ctx> GetPropertyByVarFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let boolean_type = compiler.context.bool_type();
-
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let boolean_type = inkwell_context.context.bool_type();
         let function_type = var_type.fn_type(
             &[var_type.into(), var_type.into(), boolean_type.into()],
             false,
         );
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -782,6 +824,7 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
         allocate: bool,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(
                 self.func,
@@ -789,6 +832,7 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
                     val.value.into(),
                     key.value.into(),
                     compiler
+                        .inkwell_context
                         .context
                         .bool_type()
                         .const_int(allocate.into(), false)
@@ -817,26 +861,31 @@ impl<'ctx> PredefineFunctionName for RemovePropertyFn<'ctx> {
 }
 
 impl<'ctx> RemovePropertyFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type;
-        let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
-
-        let function_type = compiler
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let string_type = inkwell_context
+            .context
+            .i8_type()
+            .ptr_type(AddressSpace::from(0));
+        let function_type = inkwell_context
             .context
             .void_type()
             .fn_type(&[var_type.into(), string_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
     pub(crate) fn call<T>(&self, compiler: &Compiler<'ctx, T>, val: &Variable<'ctx>, key: &str) {
         let key = compiler
+            .inkwell_context
             .builder
             .build_global_string_ptr(key, "")
             .as_pointer_value();
         compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val.value.into(), key.into()], "");
     }
