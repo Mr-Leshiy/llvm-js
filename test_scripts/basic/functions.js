@@ -39,3 +39,7 @@ function foo(arg) {
 assert_eq(foo(), undefined);
 assert_eq(foo(5), 5);
 
+var bar = foo;
+assert_eq(bar(), undefined);
+assert_eq(bar(5), 5);
+
