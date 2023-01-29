@@ -154,9 +154,7 @@ mod tests {
                     variable_name: "name".to_string().into(),
                     property: None
                 },
-                right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                    12_f64
-                )))
+                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             })
         );
     }
@@ -178,11 +176,11 @@ mod tests {
                         variable_name: "name1".to_string().into(),
                         property: None
                     },
-                    right: Some(VariableExpression::VariableValue(
-                        VariableValue::MemberExpression(MemberExpression {
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
                             variable_name: "name2".to_string().into(),
                             property: None,
-                        })
+                        }
                     ))
                 })]
             })
@@ -200,11 +198,11 @@ mod tests {
                             variable_name: "name1".to_string().into(),
                             property: None
                         },
-                        right: Some(VariableExpression::VariableValue(
-                            VariableValue::MemberExpression(MemberExpression {
+                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
                                 variable_name: "name2".to_string().into(),
                                 property: None
-                            })
+                            }
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
@@ -214,24 +212,24 @@ mod tests {
                                     variable_name: "name1".to_string().into(),
                                     property: None
                                 },
-                                right: Some(VariableExpression::VariableValue(
+                                right: VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
                                         property: None
                                     })
-                                ))
+                                )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
                                 left: MemberExpression {
                                     variable_name: "name1".to_string().into(),
                                     property: None
                                 },
-                                right: Some(VariableExpression::VariableValue(
+                                right: VariableExpression::VariableValue(
                                     VariableValue::MemberExpression(MemberExpression {
                                         variable_name: "name2".to_string().into(),
                                         property: None
                                     })
-                                ))
+                                )
                             }),
                         ]
                     })
@@ -270,9 +268,7 @@ mod tests {
                     variable_name: "a".to_string().into(),
                     property: None
                 },
-                right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                    6_f64
-                )))
+                right: VariableExpression::VariableValue(VariableValue::Number(6_f64))
             }))
         );
     }

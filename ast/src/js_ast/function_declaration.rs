@@ -113,11 +113,11 @@ mod tests {
                             variable_name: "a".to_string().into(),
                             property: None
                         },
-                        right: Some(VariableExpression::VariableValue(
-                            VariableValue::MemberExpression(MemberExpression {
+                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                            MemberExpression {
                                 variable_name: "b".to_string().into(),
                                 property: None
-                            })
+                            }
                         )),
                     })]
                 }
@@ -138,11 +138,11 @@ mod tests {
                         variable_name: "a".to_string().into(),
                         property: None,
                     },
-                    right: Some(VariableExpression::VariableValue(
-                        VariableValue::MemberExpression(MemberExpression {
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
                             variable_name: "b".to_string().into(),
                             property: None,
-                        }),
+                        },
                     )),
                 })],
             },
@@ -163,7 +163,7 @@ mod tests {
                                 variable_name: llvm_ast::Identifier::new("a".to_string(), 0),
                                 property: None
                             },
-                            right: Some(llvm_ast::VariableExpression::VariableValue(
+                            right: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
                                         variable_name: llvm_ast::Identifier::new(
@@ -173,7 +173,7 @@ mod tests {
                                         property: None
                                     }
                                 )
-                            ))
+                            )
                         }
                     )]
                 },
@@ -202,11 +202,11 @@ mod tests {
                         variable_name: "a".to_string().into(),
                         property: None,
                     },
-                    right: Some(VariableExpression::VariableValue(
-                        VariableValue::MemberExpression(MemberExpression {
+                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                        MemberExpression {
                             variable_name: "b".to_string().into(),
                             property: None,
-                        }),
+                        },
                     )),
                 })],
             },
@@ -227,7 +227,7 @@ mod tests {
                                 variable_name: llvm_ast::Identifier::new("a".to_string(), 1),
                                 property: None
                             },
-                            right: Some(llvm_ast::VariableExpression::VariableValue(
+                            right: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
                                         variable_name: llvm_ast::Identifier::new(
@@ -237,7 +237,7 @@ mod tests {
                                         property: None
                                     }
                                 )
-                            ))
+                            )
                         }
                     )]
                 },

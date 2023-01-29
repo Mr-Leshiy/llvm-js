@@ -6,7 +6,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableAssigment {
     pub left: MemberExpression,
-    pub right: Option<VariableExpression>,
+    pub right: VariableExpression,
 }
 
 impl VariableAssigment {
@@ -15,15 +15,12 @@ impl VariableAssigment {
         reader: &mut TokenReader<R>,
     ) -> Result<Self, LexerError> {
         let left = MemberExpression::parse(cur_token, reader)?;
-
-        reader.start_saving();
-        if let Token::Assign = reader.next_token()? {
-            reader.reset_saving();
-            let right = Some(VariableExpression::parse(reader.next_token()?, reader)?);
-            Ok(Self { left, right })
-        } else {
-            reader.stop_saving();
-            Ok(Self { left, right: None })
+        match reader.next_token()? {
+            Token::Assign => {
+                let right = VariableExpression::parse(reader.next_token()?, reader)?;
+                Ok(Self { left, right })
+            }
+            token => Err(LexerError::UnexpectedToken(token)),
         }
     }
 }
@@ -34,21 +31,15 @@ impl VariableAssigment {
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::VariableAssigment, PrecompilerError> {
         let left = self.left.precompile(precompiler)?;
-        let value = match self.right {
-            Some(expr) => Some(expr.precompile(precompiler)?),
-            None => None,
-        };
-        Ok(llvm_ast::VariableAssigment { left, right: value })
+        let right = self.right.precompile(precompiler)?;
+        Ok(llvm_ast::VariableAssigment { left, right })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{
-        member_expression::PropertyType, MemberExpression, Property, VariableExpression,
-        VariableValue,
-    };
+    use crate::js_ast::{MemberExpression, VariableExpression, VariableValue};
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -60,9 +51,7 @@ mod tests {
                     variable_name: "name".to_string().into(),
                     property: None
                 },
-                right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                    12_f64
-                )))
+                right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             })
         );
 
@@ -74,42 +63,12 @@ mod tests {
                     variable_name: "name1".to_string().into(),
                     property: None
                 },
-                right: Some(VariableExpression::VariableValue(
-                    VariableValue::MemberExpression(MemberExpression {
+                right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                    MemberExpression {
                         variable_name: "name2".to_string().into(),
                         property: None
-                    })
+                    }
                 ))
-            })
-        );
-
-        let mut reader = TokenReader::new("name1;".as_bytes());
-        assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "name1".to_string().into(),
-                    property: None
-                },
-                right: None
-            })
-        );
-
-        let mut reader = TokenReader::new("name.name".as_bytes());
-        assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "name".to_string().into(),
-                    property: Some(
-                        Property {
-                            object: PropertyType::Identifier("name".to_string().into()),
-                            property: None,
-                        }
-                        .into()
-                    ),
-                },
-                right: None
             })
         );
     }
@@ -124,9 +83,7 @@ mod tests {
                 variable_name: "name_1".to_string().into(),
                 property: None,
             },
-            right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                64_f64,
-            ))),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         };
 
         assert_eq!(
@@ -136,9 +93,9 @@ mod tests {
                     variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                     property: None,
                 },
-                right: Some(llvm_ast::VariableExpression::VariableValue(
+                right: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
-                )),
+                ),
             })
         );
         assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
@@ -155,11 +112,11 @@ mod tests {
                 variable_name: "name_1".to_string().into(),
                 property: None,
             },
-            right: Some(VariableExpression::VariableValue(
-                VariableValue::MemberExpression(MemberExpression {
+            right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
                     variable_name: "name_2".to_string().into(),
                     property: None,
-                }),
+                },
             )),
         };
 
@@ -170,38 +127,12 @@ mod tests {
                     variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                     property: None
                 },
-                right: Some(llvm_ast::VariableExpression::VariableValue(
+                right: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                         variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
                         property: None,
                     })
-                )),
-            })
-        );
-        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
-    }
-
-    #[test]
-    fn precompile_variable_assigment_test_3() {
-        let mut precompiler = Precompiler::new(std::iter::empty());
-        precompiler.insert_variable("name_1".to_string().into());
-
-        let variable_assigment = VariableAssigment {
-            left: MemberExpression {
-                variable_name: "name_1".to_string().into(),
-                property: None,
-            },
-            right: None,
-        };
-
-        assert_eq!(
-            variable_assigment.precompile(&mut precompiler),
-            Ok(llvm_ast::VariableAssigment {
-                left: llvm_ast::MemberExpression {
-                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                    property: None
-                },
-                right: None,
+                ),
             })
         );
         assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
@@ -216,9 +147,7 @@ mod tests {
                 variable_name: "name_1".to_string().into(),
                 property: None,
             },
-            right: Some(VariableExpression::VariableValue(VariableValue::Number(
-                64_f64,
-            ))),
+            right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         };
 
         assert_eq!(
@@ -239,11 +168,11 @@ mod tests {
                 variable_name: "name_1".to_string().into(),
                 property: None,
             },
-            right: Some(VariableExpression::VariableValue(
-                VariableValue::MemberExpression(MemberExpression {
+            right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
                     variable_name: "name_2".to_string().into(),
                     property: None,
-                }),
+                },
             )),
         };
 
