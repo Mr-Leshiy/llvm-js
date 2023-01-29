@@ -1,4 +1,4 @@
-use super::{Identifier, VariableExpression};
+use super::{FunctionCall, Identifier, VariableExpression};
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Separator, Token, TokenReader};
 use std::io::Read;
@@ -6,6 +6,7 @@ use std::io::Read;
 #[derive(Clone, Debug, PartialEq)]
 pub enum PropertyType {
     Identifier(Identifier),
+    FunctionCall(FunctionCall),
     VariableExpression(VariableExpression),
 }
 
@@ -22,9 +23,14 @@ impl Property {
     ) -> Result<Option<Box<Self>>, LexerError> {
         match cur_token {
             Token::Separator(Separator::Dot) => {
-                // Actually it is as a hack how we are representing Indetifier
-                let object =
-                    PropertyType::Identifier(Identifier::parse(reader.next_token()?, reader)?);
+                reader.start_saving();
+                let object = if let Ok(res) = FunctionCall::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    PropertyType::FunctionCall(res)
+                } else {
+                    reader.stop_saving();
+                    PropertyType::Identifier(Identifier::parse(reader.next_token()?, reader)?)
+                };
                 reader.start_saving();
                 let property = Self::parse(&reader.next_token()?, reader)?;
                 Ok(Some(Self { object, property }.into()))
@@ -57,6 +63,9 @@ impl Property {
         let object = match self.object {
             PropertyType::Identifier(identifier) => {
                 llvm_ast::PropertyType::Identifier(llvm_ast::Identifier::new(identifier.name, 0))
+            }
+            PropertyType::FunctionCall(function_call) => {
+                llvm_ast::PropertyType::FunctionCall(function_call.precompile(precompiler)?)
             }
             PropertyType::VariableExpression(variable_expression) => {
                 llvm_ast::PropertyType::VariableExpression(
