@@ -1,5 +1,5 @@
 use super::{ArrayExpression, MemberExpression, ObjectExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,7 +21,6 @@ impl VariableValue {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
             Self::Undefined => Variable::new_undefined(compiler, true),
@@ -32,15 +31,9 @@ impl VariableValue {
             Self::Boolean(boolean) => Variable::new_boolean(compiler, boolean, true),
             Self::String(string) => Variable::new_string(compiler, &string, true),
             Self::FloatNumber(number) => Variable::new_number(compiler, number, true),
-            Self::MemberExpression(member_expression) => {
-                member_expression.compile(compiler, cur_function, false)
-            }
-            Self::ObjectExpression(object_expression) => {
-                object_expression.compile(compiler, cur_function)
-            }
-            Self::ArrayExpression(array_expression) => {
-                array_expression.compile(compiler, cur_function)
-            }
+            Self::MemberExpression(member_expression) => member_expression.compile(compiler, false),
+            Self::ObjectExpression(object_expression) => object_expression.compile(compiler),
+            Self::ArrayExpression(array_expression) => array_expression.compile(compiler),
         }
     }
 }

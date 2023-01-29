@@ -1,6 +1,7 @@
 #ifndef C_ARRAY_HPP
 #define C_ARRAY_HPP
 
+#include <stdint.h>
 #include <vector>
 #include <string>
 
@@ -25,6 +26,9 @@ struct Array
     void clear();
 
     std::string to_string() const;
+
+    friend bool operator==(const Array &a, const Array &b);
+    friend bool operator!=(const Array &a, const Array &b);
 
 private:
     std::vector<Variable *> values;

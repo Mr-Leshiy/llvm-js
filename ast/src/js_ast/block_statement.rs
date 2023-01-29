@@ -41,7 +41,6 @@ impl BlockStatement {
     ) -> Result<Vec<llvm_ast::Expression>, PrecompilerError> {
         let mut res = Vec::with_capacity(self.body.len());
         let variables_len = precompiler.variables_len();
-        let functions_len = precompiler.functions_len();
         for expr in self.body {
             expr.precompile(precompiler)?
                 .into_iter()
@@ -56,7 +55,6 @@ impl BlockStatement {
                 },
             ));
         }
-        precompiler.remove_last_added_functions(precompiler.functions_len() - functions_len);
         Ok(res)
     }
 }
@@ -181,7 +179,7 @@ mod tests {
     #[test]
     fn precompile_block_statement_test_2() {
         let mut precompiler = Precompiler::new(std::iter::empty());
-        assert_eq!(precompiler.functions_len(), 0);
+        assert_eq!(precompiler.variables_len(), 0);
 
         let block_statement = BlockStatement {
             body: vec![Expression::FunctionDeclaration(FunctionDeclaration {
@@ -191,8 +189,21 @@ mod tests {
             })],
         };
 
-        assert_eq!(block_statement.precompile(&mut precompiler), Ok(vec![]));
-        assert_eq!(precompiler.functions_len(), 0);
+        assert_eq!(
+            block_statement.precompile(&mut precompiler),
+            Ok(vec![
+                llvm_ast::Expression::VariableFunctionDeclaration(
+                    llvm_ast::VariableFunctionDeclaration {
+                        name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                        args_num: 0
+                    }
+                ),
+                llvm_ast::Expression::DeallocateExpression(llvm_ast::DeallocateExpression {
+                    name: llvm_ast::Identifier::new("name_1".to_string(), 0)
+                })
+            ])
+        );
+        assert_eq!(precompiler.variables_len(), 0);
         assert_eq!(precompiler.get_function_declarations().len(), 1);
     }
 }

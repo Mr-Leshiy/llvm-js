@@ -5,6 +5,7 @@ set(SOURCES
         number/number.cpp
         object/object.cpp
         array/array.cpp
+        function/function.cpp
         interface.cpp
         )
 

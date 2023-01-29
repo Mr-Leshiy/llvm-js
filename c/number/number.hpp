@@ -33,8 +33,8 @@ struct Number
     friend bool operator<=(const Number &a, const Number &b);
 
 private:
-    double value;
-    NumberType type;
+    double value{0};
+    NumberType type{NumberType::Number};
 };
 
 #endif

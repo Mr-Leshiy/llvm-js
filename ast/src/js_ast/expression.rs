@@ -70,9 +70,12 @@ impl Expression {
     ) -> Result<Vec<llvm_ast::Expression>, PrecompilerError> {
         match self {
             Self::FunctionDeclaration(function_declaration) => {
-                let function_declaration = function_declaration.precompile(precompiler)?;
+                let (function_declaration, variable_function_declaration) =
+                    function_declaration.precompile(precompiler)?;
                 precompiler.insert_function_declaration(function_declaration);
-                Ok(Vec::new())
+                Ok(vec![llvm_ast::Expression::VariableFunctionDeclaration(
+                    variable_function_declaration,
+                )])
             }
             Self::FunctionCall(function_call) => Ok(vec![llvm_ast::Expression::FunctionCall(
                 function_call.precompile(precompiler)?,

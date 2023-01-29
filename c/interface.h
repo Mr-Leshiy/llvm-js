@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef struct Variable Variable;
+typedef Variable *(*FUNC_TYPE)(Variable **);
 
 Variable *allocate();
 void deallocate(Variable *);
@@ -18,6 +19,7 @@ void set_neginfinity(Variable *self);
 void set_number(Variable *self, double val);
 void set_boolean(Variable *self, uint8_t val);
 void set_string(Variable *self, const char *val);
+void set_function(Variable *self, FUNC_TYPE func, uint32_t args_num);
 void set_variable(Variable *self, Variable *val);
 
 void add_property_by_str(Variable *self, const char *key, Variable *val);
@@ -27,6 +29,8 @@ Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate);
 void remove_property(Variable *self, const char *key);
 
 uint8_t get_boolean(Variable *self);
+
+Variable *function_call(Variable *self, Variable **args, uint32_t args_num);
 
 Variable *convert_to_boolean(Variable *val);
 Variable *convert_to_number(Variable *val);

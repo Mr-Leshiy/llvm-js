@@ -1,5 +1,5 @@
 use super::Compiler;
-use crate::Error;
+use crate::{Error, Function};
 use inkwell::values::PointerValue;
 
 #[derive(Clone)]
@@ -123,6 +123,18 @@ impl<'ctx> Variable<'ctx> {
         Ok(variable)
     }
 
+    pub fn new_function<T>(
+        compiler: &Compiler<'ctx, T>,
+        function: &Function<'ctx, T>,
+        is_tmp: bool,
+    ) -> Result<Self, Error<T>> {
+        let mut variable = Self::new(compiler)?;
+        let set_function_fn = compiler.predefined_functions()?.set_function();
+        set_function_fn.call(compiler, &variable, function);
+        variable.is_tmp = is_tmp;
+        Ok(variable)
+    }
+
     pub fn new_variable<T>(
         compiler: &Compiler<'ctx, T>,
         variable2: &Self,
@@ -140,6 +152,18 @@ impl<'ctx> Variable<'ctx> {
         let set_variable_fn = compiler.predefined_functions()?.set_variable();
         set_variable_fn.call(compiler, self, variable);
         Ok(())
+    }
+}
+
+impl<'ctx> Variable<'ctx> {
+    pub fn function_call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        args: &[Self],
+    ) -> Result<Self, Error<T>> {
+        let function_call_fn = compiler.predefined_functions()?.function_call();
+        let ret = function_call_fn.call(compiler, self, args);
+        Ok(ret)
     }
 }
 

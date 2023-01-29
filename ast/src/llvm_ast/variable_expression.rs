@@ -1,5 +1,5 @@
 use super::{BinaryExpression, FunctionCall, UnaryExpression, VariableValue};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -14,13 +14,12 @@ impl VariableExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         match self {
-            Self::VariableValue(value) => value.compile(compiler, cur_function),
-            Self::UnaryExpression(expr) => expr.compile(compiler, cur_function),
-            Self::BinaryExpression(expr) => expr.compile(compiler, cur_function),
-            Self::FunctionCall(function_call) => function_call.compile(compiler, cur_function),
+            Self::VariableValue(value) => value.compile(compiler),
+            Self::UnaryExpression(expr) => expr.compile(compiler),
+            Self::BinaryExpression(expr) => expr.compile(compiler),
+            Self::FunctionCall(function_call) => function_call.compile(compiler),
         }
     }
 }

@@ -17,8 +17,6 @@ use thiserror::Error;
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),
-    #[error("Undefined function identifier {0}")]
-    UndefinedFunction(T),
 }
 
 /// Precompiler - validate the exisitng AST tree, prepare data for the compiler
@@ -28,7 +26,6 @@ where
     T1: Clone + Hash + PartialEq + Eq + Display,
 {
     variables: Set<T1>,
-    functions: Set<T1>,
 
     function_declarations: Vec<T2>,
 }
@@ -42,9 +39,7 @@ where
         Iter: Iterator<Item = T1>,
     {
         Self {
-            variables: Set::new(),
-            functions: predefined_functions.collect(),
-
+            variables: predefined_functions.collect(),
             function_declarations: Vec::new(),
         }
     }
@@ -65,24 +60,6 @@ where
 
     pub fn variables_len(&self) -> usize {
         self.variables.len()
-    }
-
-    pub fn insert_function(&mut self, function: T1) -> u32 {
-        self.functions.insert(function)
-    }
-
-    pub fn get_function(&mut self, function: T1) -> Result<u32, Error<T1>> {
-        self.functions
-            .get(&function)
-            .ok_or(Error::UndefinedFunction(function))
-    }
-
-    pub fn remove_last_added_functions(&mut self, size: usize) -> Vec<(T1, u32)> {
-        self.functions.remove_last_added(size)
-    }
-
-    pub fn functions_len(&self) -> usize {
-        self.functions.len()
     }
 
     pub fn insert_function_declaration(&mut self, function_declaration: T2) {
@@ -124,33 +101,5 @@ mod tests {
             ]
         );
         assert_eq!(precompiler.variables_len(), 0);
-    }
-
-    #[test]
-    fn precompiler_functions_test() {
-        let mut precompiler = Precompiler::<String, String>::new(std::iter::empty());
-
-        assert_eq!(precompiler.functions_len(), 0);
-        assert_eq!(precompiler.insert_function("fn1".to_string()), 0);
-        assert_eq!(precompiler.insert_function("fn1".to_string()), 1);
-        assert_eq!(precompiler.insert_function("fn2".to_string()), 0);
-        assert_eq!(precompiler.functions_len(), 3);
-
-        assert_eq!(precompiler.get_function("fn1".to_string()), Ok(1));
-        assert_eq!(precompiler.get_function("fn2".to_string()), Ok(0));
-        assert_eq!(
-            precompiler.get_function("fn3".to_string()),
-            Err(Error::UndefinedFunction("fn3".to_string()))
-        );
-
-        assert_eq!(
-            precompiler.remove_last_added_functions(3),
-            vec![
-                ("fn2".to_string(), 0),
-                ("fn1".to_string(), 1),
-                ("fn1".to_string(), 0)
-            ]
-        );
-        assert_eq!(precompiler.functions_len(), 0);
     }
 }

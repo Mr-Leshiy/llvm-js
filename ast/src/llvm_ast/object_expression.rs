@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 use std::collections::HashMap;
 
@@ -12,11 +12,10 @@ impl ObjectExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let res = Variable::new_object(compiler, true)?;
         for (key, value) in self.properties {
-            let value = value.compile(compiler, cur_function)?;
+            let value = value.compile(compiler)?;
             res.add_property_by_str(compiler, &String::from(key), &value)?;
         }
         Ok(res)

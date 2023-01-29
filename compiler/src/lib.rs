@@ -46,11 +46,7 @@ pub enum Error<T> {
 pub trait Compile<T> {
     type Output;
 
-    fn compile<'ctx>(
-        self,
-        compiler: &mut Compiler<'ctx, T>,
-        cur_function: &mut Function<'ctx, T>,
-    ) -> Result<Self::Output, Error<T>>;
+    fn compile(self, compiler: &mut Compiler<T>) -> Result<Self::Output, Error<T>>;
 }
 
 pub struct Compiler<'ctx, T> {
@@ -62,6 +58,7 @@ pub struct Compiler<'ctx, T> {
     predefined_functions: Option<PredefineFunctions<'ctx>>,
 
     variable_type: StructType<'ctx>,
+    cur_function: Option<Function<'ctx, T>>,
 }
 
 impl<'ctx, T> Compiler<'ctx, T> {
@@ -73,6 +70,7 @@ impl<'ctx, T> Compiler<'ctx, T> {
             functions: HashMap::new(),
             predefined_functions: None,
             variable_type: context.opaque_struct_type(Variable::TYPE_NAME),
+            cur_function: None,
         }
     }
 
@@ -107,6 +105,18 @@ where
             .get(&name)
             .cloned()
             .ok_or(Error::UndefinedFunction(name))
+    }
+
+    pub fn insert_variable(&mut self, name: T, variable: Variable<'ctx>) -> Result<(), Error<T>> {
+        self.cur_function
+            .as_mut()
+            .unwrap()
+            .insert_variable(name, variable)
+    }
+
+    pub fn get_variable(&self, name: T) -> Result<Variable<'ctx>, Error<T>> {
+        let cur_function = self.cur_function.as_ref().unwrap();
+        cur_function.get_variable(self, name)
     }
 
     pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {

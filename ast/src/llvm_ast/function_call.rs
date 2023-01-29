@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::{
     self,
     predefined_functions::{
@@ -19,11 +19,10 @@ impl FunctionCall {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let mut args = Vec::new();
         for arg in self.args {
-            let value = arg.compile(compiler, cur_function)?;
+            let value = arg.compile(compiler)?;
             let arg = Variable::new_undefined(compiler, true)?;
             arg.assign_variable(compiler, &value)?;
             if value.is_tmp() {
@@ -61,8 +60,9 @@ impl FunctionCall {
                 Ok(Variable::new_undefined(compiler, true)?)
             }
             _ => {
-                let function = compiler.get_function(self.name)?;
-                function.call(compiler, args.clone())
+                let var = compiler.get_variable(self.name)?;
+                let ret = var.function_call(compiler, &args)?;
+                Ok(ret)
             }
         };
         // deallocate arguments

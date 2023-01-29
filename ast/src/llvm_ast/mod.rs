@@ -6,7 +6,7 @@ pub use deallocate_expression::DeallocateExpression;
 pub use do_while_loop::DoWhileLoop;
 pub use expression::Expression;
 pub use function_call::FunctionCall;
-pub use function_declaration::FunctionDeclaration;
+pub use function_declaration::{FunctionDeclaration, VariableFunctionDeclaration};
 pub use identifier::Identifier;
 pub use if_else_statement::IfElseStatement;
 pub use member_expression::{MemberExpression, Property, PropertyType};
@@ -64,9 +64,7 @@ impl Module {
             func.compile(compiler)?;
         }
         // define main function
-        let mut main = MainFunction::new(compiler);
-        main.generate_body(compiler, self.body)?;
-
+        MainFunction::define(compiler, self.body)?;
         compiler.write_result_into(writer)?;
         Ok(())
     }

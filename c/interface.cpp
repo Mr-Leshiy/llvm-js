@@ -91,6 +91,14 @@ void set_string(Variable *self, const char *val)
     self->set_string(val);
 }
 
+void set_function(Variable *self, FUNC_TYPE val, uint32_t args_num)
+{
+    ASSERT(self != nullptr);
+    ASSERT(val != nullptr);
+
+    self->set_function(Function(val, args_num));
+}
+
 void set_variable(Variable *self, Variable *val)
 {
     ASSERT(self != nullptr);
@@ -144,6 +152,14 @@ uint8_t get_boolean(Variable *self)
     ASSERT(self != nullptr);
 
     return self->to_boolean();
+}
+
+Variable *function_call(Variable *self, Variable **args, uint32_t args_num)
+{
+    ASSERT(self != nullptr);
+    ASSERT(args != nullptr);
+
+    return self->function_call(std::vector<Variable *>{args, args + args_num});
 }
 
 Variable *convert_to_boolean(Variable *val)

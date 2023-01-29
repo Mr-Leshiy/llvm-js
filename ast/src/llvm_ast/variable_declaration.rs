@@ -1,5 +1,5 @@
 use super::{Identifier, VariableExpression};
-use crate::{Compiler, CompilerError, Function};
+use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -9,21 +9,17 @@ pub struct VariableDeclaration {
 }
 
 impl VariableDeclaration {
-    pub fn compile<'ctx>(
-        self,
-        compiler: &mut Compiler<'ctx>,
-        cur_function: &mut Function<'ctx>,
-    ) -> Result<(), CompilerError> {
+    pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
         let var = Variable::new_undefined(compiler, false)?;
 
         if let Some(value) = self.value {
-            let value = value.compile(compiler, cur_function)?;
+            let value = value.compile(compiler)?;
             var.assign_variable(compiler, &value)?;
             if value.is_tmp() {
                 value.deallocate(compiler)?;
             }
         }
 
-        cur_function.insert_variable(self.name, var)
+        compiler.insert_variable(self.name, var)
     }
 }

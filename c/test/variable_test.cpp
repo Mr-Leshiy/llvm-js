@@ -57,6 +57,13 @@ TEST(Variable, Basic_test)
     EXPECT_EQ(val2.get_flag(), Type::Array);
     EXPECT_EQ(val1.get_array().len(), 2);
     EXPECT_EQ(val2.get_array().len(), 2);
+
+    val1.set_function(Function());
+    val2 = val1;
+    EXPECT_EQ(val1.get_flag(), Type::Function);
+    EXPECT_EQ(val2.get_flag(), Type::Function);
+    EXPECT_EQ(val1.get_function(), Function());
+    EXPECT_EQ(val2.get_function(), Function());
 }
 
 TEST(Variable, to_boolean_test)
@@ -70,6 +77,7 @@ TEST(Variable, to_boolean_test)
     EXPECT_EQ(test::VariableTest().set_string("").to_boolean(), false);
     EXPECT_EQ(test::VariableTest().set_object(Object()).to_boolean(), false);
     EXPECT_EQ(test::VariableTest().set_array(Array()).to_boolean(), false);
+    EXPECT_EQ(test::VariableTest().set_function(Function()).to_boolean(), true);
 }
 
 TEST(Variable, to_number_test)
@@ -83,6 +91,7 @@ TEST(Variable, to_number_test)
     EXPECT_EQ(test::VariableTest().set_string("").to_number(), Number(NumberType::NaN));
     EXPECT_EQ(test::VariableTest().set_object(Object()).to_number(), Number(NumberType::NaN));
     EXPECT_EQ(test::VariableTest().set_array(Array()).to_number(), Number(NumberType::NaN));
+    EXPECT_EQ(test::VariableTest().set_function(Function()).to_number(), Number(NumberType::NaN));
 }
 
 TEST(Variable, to_string_test)
@@ -96,6 +105,7 @@ TEST(Variable, to_string_test)
     EXPECT_EQ(test::VariableTest().set_string("").to_string(), "");
     EXPECT_EQ(test::VariableTest().set_object(Object()).to_string(), "{}");
     EXPECT_EQ(test::VariableTest().set_array(Array()).to_string(), "[]");
+    EXPECT_EQ(test::VariableTest().set_function(Function()).to_string(), "Function, args num: 0");
 }
 
 TEST(Variable, arithmetic_test)
@@ -146,6 +156,7 @@ TEST(Variable, logical_not_test)
     EXPECT_EQ(!test::VariableTest().set_string(""), true);
     EXPECT_EQ(!test::VariableTest().set_object(Object()), true);
     EXPECT_EQ(!test::VariableTest().set_array(Array()), true);
+    EXPECT_EQ(!test::VariableTest().set_function(Function()), false);
 }
 
 TEST(Variable, logical_and_test)
@@ -246,8 +257,9 @@ TEST(Variable, logical_eq_test)
     EXPECT_TRUE(test::VariableTest().set_boolean(false) == test::VariableTest().set_boolean(false));
     EXPECT_TRUE(test::VariableTest().set_number(Number(13)) == test::VariableTest().set_number(Number(13)));
     EXPECT_TRUE(test::VariableTest().set_string("Hello world") == test::VariableTest().set_string("Hello world"));
-    EXPECT_TRUE(test::VariableTest().set_object(Object()) != test::VariableTest().set_object(Object()));
-    EXPECT_TRUE(test::VariableTest().set_array(Array()) != test::VariableTest().set_array(Array()));
+    EXPECT_TRUE(test::VariableTest().set_object(Object()) == test::VariableTest().set_object(Object()));
+    EXPECT_TRUE(test::VariableTest().set_array(Array()) == test::VariableTest().set_array(Array()));
+    EXPECT_TRUE(test::VariableTest().set_function(Function()) == test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() != test::VariableTest());
     EXPECT_FALSE(test::VariableTest().set_null() != test::VariableTest().set_null());
@@ -255,8 +267,9 @@ TEST(Variable, logical_eq_test)
     EXPECT_FALSE(test::VariableTest().set_boolean(false) != test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_number(Number(13)) != test::VariableTest().set_number(Number(13)));
     EXPECT_FALSE(test::VariableTest().set_string("Hello world") != test::VariableTest().set_string("Hello world"));
-    EXPECT_FALSE(test::VariableTest().set_object(Object()) == test::VariableTest().set_object(Object()));
-    EXPECT_FALSE(test::VariableTest().set_array(Array()) == test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_object(Object()) != test::VariableTest().set_object(Object()));
+    EXPECT_FALSE(test::VariableTest().set_array(Array()) != test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) != test::VariableTest().set_function(Function()));
 }
 
 TEST(Variable, logical_cmp_test)
@@ -278,6 +291,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) > test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) > test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) > test::VariableTest().set_number(Number(2)));
+    EXPECT_FALSE(test::VariableTest().set_number(Number(2)) > test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) > test::VariableTest().set_number(Number(2)));
 
     EXPECT_FALSE(test::VariableTest().set_boolean(true) > test::VariableTest());
     EXPECT_FALSE(test::VariableTest() > test::VariableTest().set_boolean(true));
@@ -287,6 +302,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) > test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) > test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) > test::VariableTest().set_boolean(true));
+    EXPECT_FALSE(test::VariableTest().set_boolean(true) > test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) > test::VariableTest().set_boolean(true));
 
     EXPECT_FALSE(test::VariableTest().set_boolean(false) > test::VariableTest());
     EXPECT_FALSE(test::VariableTest() > test::VariableTest().set_boolean(false));
@@ -296,6 +313,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) > test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) > test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) > test::VariableTest().set_boolean(false));
+    EXPECT_FALSE(test::VariableTest().set_boolean(false) > test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) > test::VariableTest().set_boolean(false));
 
     EXPECT_FALSE(test::VariableTest().set_null() > test::VariableTest());
     EXPECT_FALSE(test::VariableTest() > test::VariableTest().set_null());
@@ -305,15 +324,17 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) > test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() > test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) > test::VariableTest().set_null());
+    EXPECT_FALSE(test::VariableTest().set_null() > test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) > test::VariableTest().set_null());
 
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) > test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) > test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) > test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_string("Hello") > test::VariableTest().set_string("Hello"));
     EXPECT_FALSE(test::VariableTest().set_null() > test::VariableTest().set_null());
-    EXPECT_FALSE(test::VariableTest() > test::VariableTest());
     EXPECT_FALSE(test::VariableTest().set_object(Object()) > test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) > test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) > test::VariableTest().set_function(Function()));
 
     // >= tests
     EXPECT_TRUE(test::VariableTest().set_number(Number(2)) >= test::VariableTest().set_number(Number(0)));
@@ -337,6 +358,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) >= test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) >= test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) >= test::VariableTest().set_number(Number(2)));
+    EXPECT_FALSE(test::VariableTest().set_number(Number(2)) >= test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) >= test::VariableTest().set_number(Number(2)));
 
     EXPECT_FALSE(test::VariableTest().set_boolean(true) >= test::VariableTest());
     EXPECT_FALSE(test::VariableTest() >= test::VariableTest().set_boolean(true));
@@ -346,6 +369,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) >= test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) >= test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) >= test::VariableTest().set_boolean(true));
+    EXPECT_FALSE(test::VariableTest().set_boolean(true) >= test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) >= test::VariableTest().set_boolean(true));
 
     EXPECT_FALSE(test::VariableTest().set_boolean(false) >= test::VariableTest());
     EXPECT_FALSE(test::VariableTest() >= test::VariableTest().set_boolean(false));
@@ -355,6 +380,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) >= test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) >= test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) >= test::VariableTest().set_boolean(false));
+    EXPECT_FALSE(test::VariableTest().set_boolean(false) >= test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) >= test::VariableTest().set_boolean(false));
 
     EXPECT_FALSE(test::VariableTest().set_null() >= test::VariableTest());
     EXPECT_FALSE(test::VariableTest() >= test::VariableTest().set_null());
@@ -364,10 +391,12 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_object(Object()) >= test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() >= test::VariableTest().set_array(Array()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) >= test::VariableTest().set_null());
+    EXPECT_FALSE(test::VariableTest().set_null() >= test::VariableTest().set_function(Function()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) >= test::VariableTest().set_null());
 
-    EXPECT_FALSE(test::VariableTest() >= test::VariableTest());
     EXPECT_FALSE(test::VariableTest().set_object(Object()) >= test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) >= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) >= test::VariableTest().set_function(Function()));
 
     // < tests
     EXPECT_TRUE(test::VariableTest().set_number(Number(0)) < test::VariableTest().set_number(Number(2)));
@@ -386,6 +415,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) < test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) < test::VariableTest().set_number(Number(2)));
+    EXPECT_FALSE(test::VariableTest().set_number(Number(2)) < test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() < test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) < test::VariableTest());
@@ -395,6 +426,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_boolean(true) < test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) < test::VariableTest().set_boolean(true));
+    EXPECT_FALSE(test::VariableTest().set_boolean(true) < test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() < test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) < test::VariableTest());
@@ -404,6 +437,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_boolean(false) < test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) < test::VariableTest().set_boolean(false));
+    EXPECT_FALSE(test::VariableTest().set_boolean(false) < test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() < test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() < test::VariableTest());
@@ -413,6 +448,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_null() < test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) < test::VariableTest().set_null());
+    EXPECT_FALSE(test::VariableTest().set_null() < test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) < test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) < test::VariableTest().set_boolean(true));
@@ -422,6 +459,7 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest() < test::VariableTest());
     EXPECT_FALSE(test::VariableTest().set_object(Object()) < test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) < test::VariableTest().set_function(Function()));
 
     // <= tests
     EXPECT_TRUE(test::VariableTest().set_number(Number(0)) <= test::VariableTest().set_number(Number(2)));
@@ -445,6 +483,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) <= test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) <= test::VariableTest().set_number(Number(2)));
     EXPECT_FALSE(test::VariableTest().set_number(Number(2)) <= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) <= test::VariableTest().set_number(Number(2)));
+    EXPECT_FALSE(test::VariableTest().set_number(Number(2)) <= test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() <= test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) <= test::VariableTest());
@@ -454,6 +494,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_boolean(true) <= test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) <= test::VariableTest().set_boolean(true));
     EXPECT_FALSE(test::VariableTest().set_boolean(true) <= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) <= test::VariableTest().set_boolean(true));
+    EXPECT_FALSE(test::VariableTest().set_boolean(true) <= test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() <= test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) <= test::VariableTest());
@@ -463,6 +505,8 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_boolean(false) <= test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) <= test::VariableTest().set_boolean(false));
     EXPECT_FALSE(test::VariableTest().set_boolean(false) <= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) <= test::VariableTest().set_boolean(false));
+    EXPECT_FALSE(test::VariableTest().set_boolean(false) <= test::VariableTest().set_function(Function()));
 
     EXPECT_FALSE(test::VariableTest() <= test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() <= test::VariableTest());
@@ -472,8 +516,10 @@ TEST(Variable, logical_cmp_test)
     EXPECT_FALSE(test::VariableTest().set_null() <= test::VariableTest().set_object(Object()));
     EXPECT_FALSE(test::VariableTest().set_array(Array()) <= test::VariableTest().set_null());
     EXPECT_FALSE(test::VariableTest().set_null() <= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) <= test::VariableTest().set_null());
+    EXPECT_FALSE(test::VariableTest().set_null() <= test::VariableTest().set_function(Function()));
 
-    EXPECT_FALSE(test::VariableTest() < test::VariableTest());
-    EXPECT_FALSE(test::VariableTest().set_object(Object()) < test::VariableTest().set_object(Object()));
-    EXPECT_FALSE(test::VariableTest().set_array(Array()) < test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_object(Object()) <= test::VariableTest().set_object(Object()));
+    EXPECT_FALSE(test::VariableTest().set_array(Array()) <= test::VariableTest().set_array(Array()));
+    EXPECT_FALSE(test::VariableTest().set_function(Function()) <= test::VariableTest().set_function(Function()));
 }
