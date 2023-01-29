@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunctionName};
+use super::Compiler;
 use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue};
 
@@ -7,11 +7,9 @@ pub struct ArithmeticAdditionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticAdditionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_addition";
-}
-
 impl<'ctx> ArithmeticAdditionFn<'ctx> {
+    pub const NAME: &'static str = "arithmetic_addition";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -48,11 +46,9 @@ pub struct ArithmeticSubstractionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticSubstractionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_substraction";
-}
-
 impl<'ctx> ArithmeticSubstractionFn<'ctx> {
+    const NAME: &'static str = "arithmetic_substraction";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -89,11 +85,9 @@ pub struct ArithmeticMultiplicationFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticMultiplicationFn<'ctx> {
-    const NAME: &'static str = "arithmetic_multiplication";
-}
-
 impl<'ctx> ArithmeticMultiplicationFn<'ctx> {
+    const NAME: &'static str = "arithmetic_multiplication";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -130,11 +124,9 @@ pub struct ArithmeticDivisionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticDivisionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_division";
-}
-
 impl<'ctx> ArithmeticDivisionFn<'ctx> {
+    const NAME: &'static str = "arithmetic_division";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);

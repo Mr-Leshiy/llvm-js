@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunctionName};
+use super::Compiler;
 use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue};
 
@@ -7,11 +7,9 @@ pub struct ConvertToBooleanFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ConvertToBooleanFn<'ctx> {
-    const NAME: &'static str = "convert_to_boolean";
-}
-
 impl<'ctx> ConvertToBooleanFn<'ctx> {
+    const NAME: &'static str = "convert_to_boolean";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into()], false);
@@ -43,11 +41,9 @@ pub struct ConvertToNumberFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ConvertToNumberFn<'ctx> {
-    const NAME: &'static str = "convert_to_number";
-}
-
 impl<'ctx> ConvertToNumberFn<'ctx> {
+    const NAME: &'static str = "convert_to_number";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into()], false);
@@ -79,11 +75,9 @@ pub struct ConvertToStringFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ConvertToStringFn<'ctx> {
-    const NAME: &'static str = "convert_to_string";
-}
-
 impl<'ctx> ConvertToStringFn<'ctx> {
+    const NAME: &'static str = "convert_to_string";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into()], false);

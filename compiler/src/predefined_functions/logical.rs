@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunctionName};
+use super::Compiler;
 use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue};
 
@@ -7,11 +7,9 @@ pub struct LogicalNotFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalNotFn<'ctx> {
-    const NAME: &'static str = "logical_not";
-}
-
 impl<'ctx> LogicalNotFn<'ctx> {
+    const NAME: &'static str = "logical_not";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into()], false);
@@ -43,11 +41,9 @@ pub struct LogicalAndFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalAndFn<'ctx> {
-    const NAME: &'static str = "logical_and";
-}
-
 impl<'ctx> LogicalAndFn<'ctx> {
+    const NAME: &'static str = "logical_and";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -84,11 +80,9 @@ pub struct LogicalOrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalOrFn<'ctx> {
-    const NAME: &'static str = "logical_or";
-}
-
 impl<'ctx> LogicalOrFn<'ctx> {
+    const NAME: &'static str = "logical_or";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -125,11 +119,9 @@ pub struct LogicalEqFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalEqFn<'ctx> {
-    const NAME: &'static str = "logical_eq";
-}
-
 impl<'ctx> LogicalEqFn<'ctx> {
+    const NAME: &'static str = "logical_eq";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -166,11 +158,9 @@ pub struct LogicalNeFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalNeFn<'ctx> {
-    const NAME: &'static str = "logical_ne";
-}
-
 impl<'ctx> LogicalNeFn<'ctx> {
+    const NAME: &'static str = "logical_ne";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -207,11 +197,9 @@ pub struct LogicalGtFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalGtFn<'ctx> {
-    const NAME: &'static str = "logical_gt";
-}
-
 impl<'ctx> LogicalGtFn<'ctx> {
+    const NAME: &'static str = "logical_gt";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -248,11 +236,9 @@ pub struct LogicalGeFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalGeFn<'ctx> {
-    const NAME: &'static str = "logical_ge";
-}
-
 impl<'ctx> LogicalGeFn<'ctx> {
+    const NAME: &'static str = "logical_ge";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -289,11 +275,9 @@ pub struct LogicalLtFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalLtFn<'ctx> {
-    const NAME: &'static str = "logical_lt";
-}
-
 impl<'ctx> LogicalLtFn<'ctx> {
+    const NAME: &'static str = "logical_lt";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
@@ -330,11 +314,9 @@ pub struct LogicalLeFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for LogicalLeFn<'ctx> {
-    const NAME: &'static str = "logical_le";
-}
-
 impl<'ctx> LogicalLeFn<'ctx> {
+    const NAME: &'static str = "logical_le";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);

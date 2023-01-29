@@ -2,10 +2,7 @@ use super::{Identifier, VariableExpression};
 use crate::{Compiler, CompilerError};
 use compiler::{
     self,
-    predefined_functions::{
-        test::{AssertEqFn, AssertFn, PrintFn},
-        PredefineFunctionName,
-    },
+    predefined_functions::test::{AssertEqFn, AssertFn, PrintFn},
     Variable,
 };
 

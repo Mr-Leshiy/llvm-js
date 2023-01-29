@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunctionName};
+use super::Compiler;
 use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue};
 
@@ -7,11 +7,9 @@ pub struct AssertFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AssertFn<'ctx> {
-    const NAME: &'static str = "assert";
-}
-
 impl<'ctx> AssertFn<'ctx> {
+    pub const NAME: &'static str = "assert";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -39,11 +37,9 @@ pub struct AssertEqFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AssertEqFn<'ctx> {
-    const NAME: &'static str = "assert_eq";
-}
-
 impl<'ctx> AssertEqFn<'ctx> {
+    pub const NAME: &'static str = "assert_eq";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -77,11 +73,9 @@ pub struct PrintFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
-    const NAME: &'static str = "print";
-}
-
 impl<'ctx> PrintFn<'ctx> {
+    pub const NAME: &'static str = "print";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context

@@ -24,10 +24,6 @@ pub mod logical;
 pub mod test;
 pub mod variable;
 
-pub trait PredefineFunctionName {
-    const NAME: &'static str;
-}
-
 pub struct PredefineFunctions<'ctx> {
     // variable functions
     allocate: AllocateFn<'ctx>,

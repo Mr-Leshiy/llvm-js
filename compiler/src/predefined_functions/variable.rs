@@ -1,4 +1,4 @@
-use super::{Compiler, PredefineFunctionName};
+use super::Compiler;
 use crate::{Function, InkwellContext, Variable};
 use inkwell::{
     module::Linkage,
@@ -11,11 +11,9 @@ pub struct AllocateFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
-    const NAME: &'static str = "allocate";
-}
-
 impl<'ctx> AllocateFn<'ctx> {
+    const NAME: &'static str = "allocate";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[], false);
@@ -47,11 +45,9 @@ pub struct DeallocateFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for DeallocateFn<'ctx> {
-    const NAME: &'static str = "deallocate";
-}
-
 impl<'ctx> DeallocateFn<'ctx> {
+    const NAME: &'static str = "deallocate";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -79,11 +75,9 @@ pub struct SetUndefinedFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetUndefinedFn<'ctx> {
-    const NAME: &'static str = "set_undefined";
-}
-
 impl<'ctx> SetUndefinedFn<'ctx> {
+    const NAME: &'static str = "set_undefined";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -110,11 +104,9 @@ pub struct SetNullFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetNullFn<'ctx> {
-    const NAME: &'static str = "set_null";
-}
-
 impl<'ctx> SetNullFn<'ctx> {
+    const NAME: &'static str = "set_null";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -141,11 +133,9 @@ pub struct SetNaNFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetNaNFn<'ctx> {
-    const NAME: &'static str = "set_nan";
-}
-
 impl<'ctx> SetNaNFn<'ctx> {
+    const NAME: &'static str = "set_nan";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -172,11 +162,9 @@ pub struct SetObjectFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetObjectFn<'ctx> {
-    const NAME: &'static str = "set_object";
-}
-
 impl<'ctx> SetObjectFn<'ctx> {
+    const NAME: &'static str = "set_object";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -203,11 +191,9 @@ pub struct SetArrayFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetArrayFn<'ctx> {
-    const NAME: &'static str = "set_array";
-}
-
 impl<'ctx> SetArrayFn<'ctx> {
+    const NAME: &'static str = "set_array";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -234,11 +220,9 @@ pub struct SetInfinityFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetInfinityFn<'ctx> {
-    const NAME: &'static str = "set_infinity";
-}
-
 impl<'ctx> SetInfinityFn<'ctx> {
+    const NAME: &'static str = "set_infinity";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -265,11 +249,9 @@ pub struct SetNegInfinityFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetNegInfinityFn<'ctx> {
-    const NAME: &'static str = "set_neginfinity";
-}
-
 impl<'ctx> SetNegInfinityFn<'ctx> {
+    const NAME: &'static str = "set_neginfinity";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -296,11 +278,9 @@ pub struct SetNumberFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetNumberFn<'ctx> {
-    const NAME: &'static str = "set_number";
-}
-
 impl<'ctx> SetNumberFn<'ctx> {
+    const NAME: &'static str = "set_number";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let number_type = inkwell_context.context.f64_type();
@@ -337,11 +317,9 @@ pub struct SetBooleanFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetBooleanFn<'ctx> {
-    const NAME: &'static str = "set_boolean";
-}
-
 impl<'ctx> SetBooleanFn<'ctx> {
+    const NAME: &'static str = "set_boolean";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let boolean_type = inkwell_context.context.bool_type();
@@ -378,11 +356,9 @@ pub struct SetStringFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetStringFn<'ctx> {
-    const NAME: &'static str = "set_string";
-}
-
 impl<'ctx> SetStringFn<'ctx> {
+    const NAME: &'static str = "set_string";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let string_type = inkwell_context
@@ -419,11 +395,9 @@ pub struct SetFunctionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetFunctionFn<'ctx> {
-    const NAME: &'static str = "set_function";
-}
-
 impl<'ctx> SetFunctionFn<'ctx> {
+    const NAME: &'static str = "set_function";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let func_type = var_type
@@ -469,11 +443,9 @@ pub struct SetVariableFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for SetVariableFn<'ctx> {
-    const NAME: &'static str = "set_variable";
-}
-
 impl<'ctx> SetVariableFn<'ctx> {
+    const NAME: &'static str = "set_variable";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -506,11 +478,9 @@ pub struct GetBooleanFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for GetBooleanFn<'ctx> {
-    const NAME: &'static str = "get_boolean";
-}
-
 impl<'ctx> GetBooleanFn<'ctx> {
+    const NAME: &'static str = "get_boolean";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -545,11 +515,9 @@ pub struct FunctionCallFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for FunctionCallFn<'ctx> {
-    const NAME: &'static str = "function_call";
-}
-
 impl<'ctx> FunctionCallFn<'ctx> {
+    const NAME: &'static str = "function_call";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let u32_type = inkwell_context.context.i32_type();
@@ -643,11 +611,9 @@ pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AddPropertyByStrFn<'ctx> {
-    const NAME: &'static str = "add_property_by_str";
-}
-
 impl<'ctx> AddPropertyByStrFn<'ctx> {
+    const NAME: &'static str = "add_property_by_str";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let string_type = inkwell_context
@@ -690,11 +656,9 @@ pub struct AddPropertyByVarFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
-    const NAME: &'static str = "add_property_by_var";
-}
-
 impl<'ctx> AddPropertyByVarFn<'ctx> {
+    const NAME: &'static str = "add_property_by_var";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let function_type = inkwell_context
@@ -729,11 +693,9 @@ pub struct GetPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for GetPropertyByStrFn<'ctx> {
-    const NAME: &'static str = "get_property_by_str";
-}
-
 impl<'ctx> GetPropertyByStrFn<'ctx> {
+    const NAME: &'static str = "get_property_by_str";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let string_type = inkwell_context
@@ -797,11 +759,9 @@ pub struct GetPropertyByVarFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for GetPropertyByVarFn<'ctx> {
-    const NAME: &'static str = "get_property_by_var";
-}
-
 impl<'ctx> GetPropertyByVarFn<'ctx> {
+    const NAME: &'static str = "get_property_by_var";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let boolean_type = inkwell_context.context.bool_type();
@@ -856,11 +816,9 @@ pub struct RemovePropertyFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for RemovePropertyFn<'ctx> {
-    const NAME: &'static str = "remove_property";
-}
-
 impl<'ctx> RemovePropertyFn<'ctx> {
+    const NAME: &'static str = "remove_property";
+
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let string_type = inkwell_context
