@@ -1,6 +1,6 @@
 use super::{Compiler, PredefineFunctionName};
 use crate::Variable;
-use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
+use inkwell::{module::Linkage, values::FunctionValue};
 
 #[derive(Clone)]
 pub struct ArithmeticAdditionFn<'ctx> {
@@ -13,7 +13,7 @@ impl<'ctx> PredefineFunctionName for ArithmeticAdditionFn<'ctx> {
 
 impl<'ctx> ArithmeticAdditionFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -53,7 +53,7 @@ impl<'ctx> PredefineFunctionName for ArithmeticSubstractionFn<'ctx> {
 
 impl<'ctx> ArithmeticSubstractionFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -93,7 +93,7 @@ impl<'ctx> PredefineFunctionName for ArithmeticMultiplicationFn<'ctx> {
 
 impl<'ctx> ArithmeticMultiplicationFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler
@@ -133,7 +133,7 @@ impl<'ctx> PredefineFunctionName for ArithmeticDivisionFn<'ctx> {
 
 impl<'ctx> ArithmeticDivisionFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func = compiler

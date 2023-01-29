@@ -17,7 +17,7 @@ impl<'ctx> PredefineFunctionName for AllocateFn<'ctx> {
 
 impl<'ctx> AllocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = var_type.fn_type(&[], false);
         let func = compiler
@@ -53,7 +53,7 @@ impl<'ctx> PredefineFunctionName for DeallocateFn<'ctx> {
 
 impl<'ctx> DeallocateFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -84,7 +84,7 @@ impl<'ctx> PredefineFunctionName for SetUndefinedFn<'ctx> {
 
 impl<'ctx> SetUndefinedFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -114,7 +114,7 @@ impl<'ctx> PredefineFunctionName for SetNullFn<'ctx> {
 
 impl<'ctx> SetNullFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -144,7 +144,7 @@ impl<'ctx> PredefineFunctionName for SetNaNFn<'ctx> {
 
 impl<'ctx> SetNaNFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -174,7 +174,7 @@ impl<'ctx> PredefineFunctionName for SetObjectFn<'ctx> {
 
 impl<'ctx> SetObjectFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -204,7 +204,7 @@ impl<'ctx> PredefineFunctionName for SetArrayFn<'ctx> {
 
 impl<'ctx> SetArrayFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -234,7 +234,7 @@ impl<'ctx> PredefineFunctionName for SetInfinityFn<'ctx> {
 
 impl<'ctx> SetInfinityFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -264,7 +264,7 @@ impl<'ctx> PredefineFunctionName for SetNegInfinityFn<'ctx> {
 
 impl<'ctx> SetNegInfinityFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -294,7 +294,7 @@ impl<'ctx> PredefineFunctionName for SetNumberFn<'ctx> {
 
 impl<'ctx> SetNumberFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let number_type = compiler.context.f64_type();
 
         let function_type = compiler
@@ -330,7 +330,7 @@ impl<'ctx> PredefineFunctionName for SetBooleanFn<'ctx> {
 
 impl<'ctx> SetBooleanFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let boolean_type = compiler.context.bool_type();
 
         let function_type = compiler
@@ -370,7 +370,7 @@ impl<'ctx> PredefineFunctionName for SetStringFn<'ctx> {
 
 impl<'ctx> SetStringFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
 
         let function_type = compiler
@@ -405,7 +405,7 @@ impl<'ctx> PredefineFunctionName for SetFunctionFn<'ctx> {
 
 impl<'ctx> SetFunctionFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let func_type = var_type
             .fn_type(&[var_type.ptr_type(AddressSpace::from(0)).into()], false)
             .ptr_type(AddressSpace::from(0));
@@ -454,7 +454,7 @@ impl<'ctx> PredefineFunctionName for SetVariableFn<'ctx> {
 
 impl<'ctx> SetVariableFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -489,7 +489,7 @@ impl<'ctx> PredefineFunctionName for GetBooleanFn<'ctx> {
 
 impl<'ctx> GetBooleanFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -527,7 +527,7 @@ impl<'ctx> PredefineFunctionName for FunctionCallFn<'ctx> {
 
 impl<'ctx> FunctionCallFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let u32_type = compiler.context.i32_type();
 
         let function_type = var_type.fn_type(
@@ -550,7 +550,7 @@ impl<'ctx> FunctionCallFn<'ctx> {
         val: &Variable<'ctx>,
         args: &[Variable<'ctx>],
     ) -> Variable<'ctx> {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let array = compiler
             .builder
@@ -617,7 +617,7 @@ impl<'ctx> PredefineFunctionName for AddPropertyByStrFn<'ctx> {
 
 impl<'ctx> AddPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
 
         let function_type = compiler.context.void_type().fn_type(
@@ -660,7 +660,7 @@ impl<'ctx> PredefineFunctionName for AddPropertyByVarFn<'ctx> {
 
 impl<'ctx> AddPropertyByVarFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -699,7 +699,7 @@ impl<'ctx> PredefineFunctionName for GetPropertyByStrFn<'ctx> {
 
 impl<'ctx> GetPropertyByStrFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
         let boolean_type = compiler.context.bool_type();
 
@@ -761,7 +761,7 @@ impl<'ctx> PredefineFunctionName for GetPropertyByVarFn<'ctx> {
 
 impl<'ctx> GetPropertyByVarFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let boolean_type = compiler.context.bool_type();
 
         let function_type = var_type.fn_type(
@@ -818,7 +818,7 @@ impl<'ctx> PredefineFunctionName for RemovePropertyFn<'ctx> {
 
 impl<'ctx> RemovePropertyFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let string_type = compiler.context.i8_type().ptr_type(AddressSpace::from(0));
 
         let function_type = compiler

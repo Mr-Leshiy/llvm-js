@@ -1,6 +1,6 @@
 use super::{Compiler, PredefineFunctionName};
 use crate::Variable;
-use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
+use inkwell::{module::Linkage, values::FunctionValue};
 
 #[derive(Clone)]
 pub struct AssertFn<'ctx> {
@@ -13,7 +13,7 @@ impl<'ctx> PredefineFunctionName for AssertFn<'ctx> {
 
 impl<'ctx> AssertFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -44,7 +44,7 @@ impl<'ctx> PredefineFunctionName for AssertEqFn<'ctx> {
 
 impl<'ctx> AssertEqFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context
@@ -81,7 +81,7 @@ impl<'ctx> PredefineFunctionName for PrintFn<'ctx> {
 
 impl<'ctx> PrintFn<'ctx> {
     pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
 
         let function_type = compiler
             .context

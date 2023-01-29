@@ -23,7 +23,7 @@ where
         arg_names: Vec<T>,
         body: Vec<Expr>,
     ) -> Result<Self, Error<T>> {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+        let var_type = compiler.variable_type;
         let function_type =
             var_type.fn_type(&[var_type.ptr_type(AddressSpace::from(0)).into()], false);
         let function = compiler.module.add_function(name, function_type, None);
