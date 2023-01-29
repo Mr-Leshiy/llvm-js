@@ -71,6 +71,7 @@ impl Module {
         Iter: Iterator<Item = Identifier>,
     {
         let mut precompiler = Precompiler::new(predefined_functions);
+        let vars_count = precompiler.variables_len();
 
         let mut body = Vec::new();
         for expr in self.body {
@@ -78,7 +79,9 @@ impl Module {
                 .into_iter()
                 .for_each(|expr| body.push(expr));
         }
-        let vars = precompiler.remove_last_added_variables(precompiler.variables_len());
+        // Do not deallocate predefined function variables
+        let vars =
+            precompiler.remove_last_added_variables(precompiler.variables_len() - vars_count);
         for (var, index) in vars {
             body.push(llvm_ast::Expression::DeallocateExpression(
                 llvm_ast::DeallocateExpression {

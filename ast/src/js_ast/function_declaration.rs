@@ -64,7 +64,7 @@ impl FunctionDeclaration {
         ),
         PrecompilerError,
     > {
-        let index = precompiler.insert_function(self.name.clone());
+        let index = precompiler.insert_variable(self.name.clone());
 
         let variables_len = precompiler.variables_len();
         let name = llvm_ast::Identifier::new(self.name.name, index);
@@ -183,8 +183,8 @@ mod tests {
                 }
             ))
         );
-        assert_eq!(precompiler.variables_len(), 0);
-        assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
+        assert_eq!(precompiler.variables_len(), 1);
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
@@ -247,14 +247,14 @@ mod tests {
                 }
             ))
         );
-        assert_eq!(precompiler.variables_len(), 2);
-        assert_eq!(precompiler.get_function("name_1".to_string().into()), Ok(0));
+        assert_eq!(precompiler.variables_len(), 3);
+        assert_eq!(precompiler.get_variable("name_1".to_string().into()), Ok(0));
     }
 
     #[test]
     fn precompile_function_declaration_test_3() {
         let mut precompiler = Precompiler::new(std::iter::empty());
-        precompiler.insert_function("name_1".to_string().into());
+        precompiler.insert_variable("name_1".to_string().into());
 
         let function_declaration = FunctionDeclaration {
             name: "name_1".to_string().into(),
