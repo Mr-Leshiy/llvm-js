@@ -32,8 +32,25 @@ impl Property {
                     PropertyType::Identifier(Identifier::parse(reader.next_token()?, reader)?)
                 };
                 reader.start_saving();
-                let property = Self::parse(&reader.next_token()?, reader)?;
-                Ok(Some(Self { object, property }.into()))
+                if let Some(property) = Self::parse(&reader.next_token()?, reader)? {
+                    reader.reset_saving();
+                    Ok(Some(
+                        Self {
+                            object,
+                            property: Some(property),
+                        }
+                        .into(),
+                    ))
+                } else {
+                    reader.stop_saving();
+                    Ok(Some(
+                        Self {
+                            object,
+                            property: None,
+                        }
+                        .into(),
+                    ))
+                }
             }
             Token::Separator(Separator::OpenSquareBracket) => {
                 let object = PropertyType::VariableExpression(VariableExpression::parse(
@@ -43,16 +60,30 @@ impl Property {
                 match reader.next_token()? {
                     Token::Separator(Separator::CloseSquareBracket) => {
                         reader.start_saving();
-                        let property = Self::parse(&reader.next_token()?, reader)?;
-                        Ok(Some(Self { object, property }.into()))
+                        if let Some(property) = Self::parse(&reader.next_token()?, reader)? {
+                            reader.reset_saving();
+                            Ok(Some(
+                                Self {
+                                    object,
+                                    property: Some(property),
+                                }
+                                .into(),
+                            ))
+                        } else {
+                            reader.stop_saving();
+                            Ok(Some(
+                                Self {
+                                    object,
+                                    property: None,
+                                }
+                                .into(),
+                            ))
+                        }
                     }
                     token => Err(LexerError::UnexpectedToken(token)),
                 }
             }
-            _ => {
-                reader.stop_saving();
-                Ok(None)
-            }
+            _ => Ok(None),
         }
     }
 
@@ -65,7 +96,16 @@ impl Property {
                 llvm_ast::PropertyType::Identifier(llvm_ast::Identifier::new(identifier.name, 0))
             }
             PropertyType::FunctionCall(function_call) => {
-                llvm_ast::PropertyType::FunctionCall(function_call.precompile(precompiler)?)
+                // check if arguments exist
+                let mut args = Vec::new();
+                for arg in function_call.args {
+                    args.push(arg.precompile(precompiler)?);
+                }
+
+                llvm_ast::PropertyType::FunctionCall(llvm_ast::FunctionCall {
+                    name: llvm_ast::Identifier::new(function_call.name.name, 0),
+                    args,
+                })
             }
             PropertyType::VariableExpression(variable_expression) => {
                 llvm_ast::PropertyType::VariableExpression(
@@ -95,11 +135,19 @@ impl MemberExpression {
     ) -> Result<Self, LexerError> {
         let variable_name = Identifier::parse(cur_token, reader)?;
         reader.start_saving();
-        let property = Property::parse(&reader.next_token()?, reader)?;
-        Ok(Self {
-            variable_name,
-            property,
-        })
+        if let Some(property) = Property::parse(&reader.next_token()?, reader)? {
+            reader.reset_saving();
+            Ok(Self {
+                variable_name,
+                property: Some(property),
+            })
+        } else {
+            reader.stop_saving();
+            Ok(Self {
+                variable_name,
+                property: None,
+            })
+        }
     }
 
     pub fn precompile(

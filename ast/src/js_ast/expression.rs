@@ -119,8 +119,8 @@ impl Expression {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BinaryExpType, BinaryExpression, FunctionCall, MemberExpression, VariableExpression,
-        VariableValue,
+        member_expression::PropertyType, BinaryExpType, BinaryExpression, FunctionCall,
+        MemberExpression, Property, VariableExpression, VariableValue,
     };
 
     #[test]
@@ -294,6 +294,29 @@ mod tests {
                 },
                 right: VariableExpression::VariableValue(VariableValue::Number(6_f64))
             }))
+        );
+    }
+
+    #[test]
+    fn parse_expression_test6() {
+        let mut reader = TokenReader::new("name.name()".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::MemberExpression(MemberExpression {
+                    variable_name: "name".to_string().into(),
+                    property: Some(
+                        Property {
+                            object: PropertyType::FunctionCall(FunctionCall {
+                                name: "name".to_string().into(),
+                                args: vec![]
+                            }),
+                            property: None
+                        }
+                        .into()
+                    )
+                })
+            ))
         );
     }
 }

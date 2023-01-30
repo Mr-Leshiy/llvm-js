@@ -43,3 +43,7 @@ var bar = foo;
 assert_eq(bar(), undefined);
 assert_eq(bar(5), 5);
 
+var a = {func: foo};
+assert_eq(a.foo(), undefined);
+assert_eq(a.foo(5), 5);
+
