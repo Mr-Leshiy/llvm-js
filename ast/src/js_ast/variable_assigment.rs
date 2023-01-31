@@ -138,7 +138,13 @@ mod tests {
             Ok(llvm_ast::VariableAssigment {
                 left: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                        variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                        object: llvm_ast::VariableExpression::VariableValue(
+                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                "name_1".to_string(),
+                                0
+                            ))
+                        )
+                        .into(),
                         property: None,
                     })
                 ),
@@ -176,13 +182,25 @@ mod tests {
             Ok(llvm_ast::VariableAssigment {
                 left: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                        variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                        object: llvm_ast::VariableExpression::VariableValue(
+                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                "name_1".to_string(),
+                                0
+                            ))
+                        )
+                        .into(),
                         property: None
                     })
                 ),
                 right: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                        variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
+                        object: llvm_ast::VariableExpression::VariableValue(
+                            llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                "name_2".to_string(),
+                                0
+                            ))
+                        )
+                        .into(),
                         property: None,
                     })
                 ),

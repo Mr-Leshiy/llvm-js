@@ -155,17 +155,18 @@ impl MemberExpression {
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::MemberExpression, PrecompilerError> {
         let index = precompiler.get_variable(self.variable_name.clone())?;
-        let variable_name = llvm_ast::Identifier::new(self.variable_name.name, index);
+        let object =
+            llvm_ast::VariableExpression::VariableValue(llvm_ast::VariableValue::Identifier(
+                llvm_ast::Identifier::new(self.variable_name.name, index),
+            ))
+            .into();
         let property = if let Some(property) = self.property {
             Some(property.precompile(precompiler)?.into())
         } else {
             None
         };
 
-        Ok(llvm_ast::MemberExpression {
-            variable_name,
-            property,
-        })
+        Ok(llvm_ast::MemberExpression { object, property })
     }
 }
 

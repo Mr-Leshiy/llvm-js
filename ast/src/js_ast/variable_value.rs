@@ -1,4 +1,4 @@
-use super::{ArrayExpression, MemberExpression, ObjectExpression};
+use super::{ArrayExpression, Identifier, MemberExpression, ObjectExpression};
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use std::io::Read;
@@ -13,6 +13,7 @@ pub enum VariableValue {
     Boolean(bool),
     Number(f64),
     String(String),
+    Identifier(Identifier),
     MemberExpression(MemberExpression),
     ObjectExpression(ObjectExpression),
     ArrayExpression(ArrayExpression),
@@ -63,6 +64,12 @@ impl VariableValue {
             Self::Infinity => Ok(llvm_ast::VariableValue::Infinity),
             Self::NegInfinity => Ok(llvm_ast::VariableValue::NegInfinity),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
+            Self::Identifier(identifier) => {
+                let index = precompiler.get_variable(identifier.clone())?;
+                Ok(llvm_ast::VariableValue::Identifier(
+                    llvm_ast::Identifier::new(identifier.name, index),
+                ))
+            }
             Self::MemberExpression(member_expression) => {
                 Ok(llvm_ast::VariableValue::MemberExpression(
                     member_expression.precompile(precompiler)?,

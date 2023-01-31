@@ -166,10 +166,12 @@ mod tests {
                             left: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
-                                        variable_name: llvm_ast::Identifier::new(
-                                            "a".to_string(),
-                                            0
-                                        ),
+                                        object: llvm_ast::VariableExpression::VariableValue(
+                                            llvm_ast::VariableValue::Identifier(
+                                                llvm_ast::Identifier::new("a".to_string(), 0)
+                                            )
+                                        )
+                                        .into(),
                                         property: None
                                     }
                                 )
@@ -177,10 +179,12 @@ mod tests {
                             right: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
-                                        variable_name: llvm_ast::Identifier::new(
-                                            "b".to_string(),
-                                            0
-                                        ),
+                                        object: llvm_ast::VariableExpression::VariableValue(
+                                            llvm_ast::VariableValue::Identifier(
+                                                llvm_ast::Identifier::new("b".to_string(), 0)
+                                            )
+                                        )
+                                        .into(),
                                         property: None
                                     }
                                 )
@@ -239,10 +243,12 @@ mod tests {
                             left: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
-                                        variable_name: llvm_ast::Identifier::new(
-                                            "a".to_string(),
-                                            1
-                                        ),
+                                        object: llvm_ast::VariableExpression::VariableValue(
+                                            llvm_ast::VariableValue::Identifier(
+                                                llvm_ast::Identifier::new("a".to_string(), 1)
+                                            )
+                                        )
+                                        .into(),
                                         property: None
                                     }
                                 )
@@ -250,10 +256,12 @@ mod tests {
                             right: llvm_ast::VariableExpression::VariableValue(
                                 llvm_ast::VariableValue::MemberExpression(
                                     llvm_ast::MemberExpression {
-                                        variable_name: llvm_ast::Identifier::new(
-                                            "b".to_string(),
-                                            1
-                                        ),
+                                        object: llvm_ast::VariableExpression::VariableValue(
+                                            llvm_ast::VariableValue::Identifier(
+                                                llvm_ast::Identifier::new("b".to_string(), 1)
+                                            )
+                                        )
+                                        .into(),
                                         property: None
                                     }
                                 )
