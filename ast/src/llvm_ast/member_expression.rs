@@ -1,10 +1,11 @@
-use super::{Identifier, VariableExpression};
+use super::{FunctionCall, Identifier, VariableExpression};
 use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum PropertyType {
     Identifier(Identifier),
+    FunctionCall(FunctionCall),
     VariableExpression(VariableExpression),
 }
 
@@ -25,15 +26,40 @@ impl Property {
             PropertyType::Identifier(identifier) => {
                 variable.get_property_by_str(compiler, String::from(identifier).as_str(), allocate)
             }
+            PropertyType::FunctionCall(function_call) => {
+                let mut args = Vec::new();
+                for arg in function_call.args {
+                    let value = arg.compile(compiler)?;
+                    let arg = Variable::new_undefined(compiler, true);
+                    arg.assign_variable(compiler, &value);
+                    if value.is_tmp() {
+                        value.deallocate(compiler);
+                    }
+                    args.push(arg);
+                }
+
+                let var = variable.get_property_by_str(
+                    compiler,
+                    String::from(function_call.name).as_str(),
+                    allocate,
+                );
+                let ret = var.function_call(compiler, &args);
+
+                // deallocate arguments
+                for arg in args {
+                    arg.deallocate(compiler);
+                }
+                ret
+            }
             PropertyType::VariableExpression(variable_expression) => {
                 let key = variable_expression.compile(compiler)?;
                 let res = variable.get_property_by_var(compiler, &key, allocate);
                 if key.is_tmp() {
-                    key.deallocate(compiler)?;
+                    key.deallocate(compiler);
                 }
                 res
             }
-        }?;
+        };
         if let Some(property) = self.property {
             property.compile(compiler, &variable, allocate)
         } else {

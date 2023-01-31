@@ -1,24 +1,22 @@
-use super::{Compiler, PredefineFunctionName};
-use crate::Variable;
-use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
+use super::Compiler;
+use crate::{InkwellContext, Variable};
+use inkwell::{module::Linkage, values::FunctionValue};
 
 #[derive(Clone)]
 pub struct ArithmeticAdditionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticAdditionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_addition";
-}
-
 impl<'ctx> ArithmeticAdditionFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+    pub const NAME: &'static str = "arithmetic_addition";
 
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -29,6 +27,7 @@ impl<'ctx> ArithmeticAdditionFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -47,18 +46,16 @@ pub struct ArithmeticSubstractionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticSubstractionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_substraction";
-}
-
 impl<'ctx> ArithmeticSubstractionFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+    const NAME: &'static str = "arithmetic_substraction";
 
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -69,6 +66,7 @@ impl<'ctx> ArithmeticSubstractionFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -87,18 +85,16 @@ pub struct ArithmeticMultiplicationFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticMultiplicationFn<'ctx> {
-    const NAME: &'static str = "arithmetic_multiplication";
-}
-
 impl<'ctx> ArithmeticMultiplicationFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+    const NAME: &'static str = "arithmetic_multiplication";
 
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -109,6 +105,7 @@ impl<'ctx> ArithmeticMultiplicationFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()
@@ -127,18 +124,16 @@ pub struct ArithmeticDivisionFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> PredefineFunctionName for ArithmeticDivisionFn<'ctx> {
-    const NAME: &'static str = "arithmetic_division";
-}
-
 impl<'ctx> ArithmeticDivisionFn<'ctx> {
-    pub(super) fn declare<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.variable_type.ptr_type(AddressSpace::from(0));
+    const NAME: &'static str = "arithmetic_division";
 
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
         let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
-        let func = compiler
-            .module
-            .add_function(Self::NAME, function_type, Some(Linkage::External));
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
         Self { func }
     }
 
@@ -149,6 +144,7 @@ impl<'ctx> ArithmeticDivisionFn<'ctx> {
         val2: &Variable<'ctx>,
     ) -> Variable<'ctx> {
         let value = compiler
+            .inkwell_context
             .builder
             .build_call(self.func, &[val1.value.into(), val2.value.into()], "")
             .try_as_basic_value()

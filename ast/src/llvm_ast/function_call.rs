@@ -2,10 +2,7 @@ use super::{Identifier, VariableExpression};
 use crate::{Compiler, CompilerError};
 use compiler::{
     self,
-    predefined_functions::{
-        test::{AssertEqFn, AssertFn, PrintFn},
-        PredefineFunctionName,
-    },
+    predefined_functions::test::{AssertEqFn, AssertFn, PrintFn},
     Variable,
 };
 
@@ -23,51 +20,51 @@ impl FunctionCall {
         let mut args = Vec::new();
         for arg in self.args {
             let value = arg.compile(compiler)?;
-            let arg = Variable::new_undefined(compiler, true)?;
-            arg.assign_variable(compiler, &value)?;
+            let arg = Variable::new_undefined(compiler, true);
+            arg.assign_variable(compiler, &value);
             if value.is_tmp() {
-                value.deallocate(compiler)?;
+                value.deallocate(compiler);
             }
             args.push(arg);
         }
         let res = match String::from(self.name.clone()).as_str() {
             PrintFn::NAME => {
                 let mut iter = args.clone().into_iter();
-                let pritn = compiler.predefined_functions()?.print();
+                let pritn = compiler.predefined_functions().print();
                 pritn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler, true)?)
+                Ok(Variable::new_undefined(compiler, true))
             }
             AssertFn::NAME => {
                 let mut iter = args.clone().into_iter();
-                let assert_fn = compiler.predefined_functions()?.assert();
+                let assert_fn = compiler.predefined_functions().assert();
                 assert_fn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler, true)?)
+                Ok(Variable::new_undefined(compiler, true))
             }
             AssertEqFn::NAME => {
                 let mut iter = args.clone().into_iter();
-                let assert_eq_fn = compiler.predefined_functions()?.assert_eq();
+                let assert_eq_fn = compiler.predefined_functions().assert_eq();
                 assert_eq_fn.call(
                     compiler,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                     &iter.next().ok_or(compiler::Error::NotEnoughArguments)?,
                 );
-                Ok(Variable::new_undefined(compiler, true)?)
+                Ok(Variable::new_undefined(compiler, true))
             }
             _ => {
                 let var = compiler.get_variable(self.name)?;
-                let ret = var.function_call(compiler, &args)?;
+                let ret = var.function_call(compiler, &args);
                 Ok(ret)
             }
         };
         // deallocate arguments
         for arg in args {
-            arg.deallocate(compiler)?;
+            arg.deallocate(compiler);
         }
         res
     }

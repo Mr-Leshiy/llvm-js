@@ -21,10 +21,10 @@ impl UnaryExpression {
         match self.exp_type {
             UnaryExpType::Not => {
                 let var = self.exp.compile(compiler)?;
-                let logical_not_fn = compiler.predefined_functions()?.logical_not();
+                let logical_not_fn = compiler.predefined_functions().logical_not();
                 let ret = logical_not_fn.call(compiler, &var);
                 if var.is_tmp() {
-                    var.deallocate(compiler)?;
+                    var.deallocate(compiler);
                 }
                 Ok(ret)
             }

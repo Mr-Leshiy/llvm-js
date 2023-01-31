@@ -58,8 +58,6 @@ impl Module {
         let context = Context::new();
         let compiler = &mut Compiler::new(&context, self.name.as_str());
 
-        compiler.declare_extern_functions();
-
         for func in self.functions {
             func.compile(compiler)?;
         }

@@ -36,10 +36,15 @@ assert_eq(bar("Hello"), "Hello");
 function foo(arg) {
   return arg;
 }
+
 assert_eq(foo(), undefined);
 assert_eq(foo(5), 5);
 
 var bar = foo;
 assert_eq(bar(), undefined);
 assert_eq(bar(5), 5);
+
+var a = {func: bar};
+assert_eq(a.func(), undefined);
+assert_eq(a.func(5), 5);
 

@@ -16,17 +16,13 @@ use self::{
         SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
-use crate::Compiler;
+use crate::{Compiler, InkwellContext};
 
 pub mod arithmetic;
 pub mod convert;
 pub mod logical;
 pub mod test;
 pub mod variable;
-
-pub trait PredefineFunctionName {
-    const NAME: &'static str;
-}
 
 pub struct PredefineFunctions<'ctx> {
     // variable functions
@@ -78,54 +74,54 @@ pub struct PredefineFunctions<'ctx> {
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
-    pub(crate) fn declare<T>(compiler: &mut Compiler<'ctx, T>) -> Self {
+    pub(crate) fn declare<T>(inkwell_context: &InkwellContext<'ctx>) -> Self {
         Self {
             // variable functions
-            allocate: AllocateFn::declare(compiler),
-            deallocate: DeallocateFn::declare(compiler),
-            set_undefined: SetUndefinedFn::declare(compiler),
-            set_null: SetNullFn::declare(compiler),
-            set_nan: SetNaNFn::declare(compiler),
-            set_object: SetObjectFn::declare(compiler),
-            set_array: SetArrayFn::declare(compiler),
-            set_infinity: SetInfinityFn::declare(compiler),
-            set_neginfinity: SetNegInfinityFn::declare(compiler),
-            set_number: SetNumberFn::declare(compiler),
-            set_boolean: SetBooleanFn::declare(compiler),
-            set_string: SetStringFn::declare(compiler),
-            set_function: SetFunctionFn::declare(compiler),
-            set_variable: SetVariableFn::declare(compiler),
-            get_boolean: GetBooleanFn::declare(compiler),
-            function_call: FunctionCallFn::declare(compiler),
+            allocate: AllocateFn::declare(inkwell_context),
+            deallocate: DeallocateFn::declare(inkwell_context),
+            set_undefined: SetUndefinedFn::declare(inkwell_context),
+            set_null: SetNullFn::declare(inkwell_context),
+            set_nan: SetNaNFn::declare(inkwell_context),
+            set_object: SetObjectFn::declare(inkwell_context),
+            set_array: SetArrayFn::declare(inkwell_context),
+            set_infinity: SetInfinityFn::declare(inkwell_context),
+            set_neginfinity: SetNegInfinityFn::declare(inkwell_context),
+            set_number: SetNumberFn::declare(inkwell_context),
+            set_boolean: SetBooleanFn::declare(inkwell_context),
+            set_string: SetStringFn::declare(inkwell_context),
+            set_function: SetFunctionFn::declare(inkwell_context),
+            set_variable: SetVariableFn::declare(inkwell_context),
+            get_boolean: GetBooleanFn::declare(inkwell_context),
+            function_call: FunctionCallFn::declare(inkwell_context),
             // object functions
-            add_property_by_str: AddPropertyByStrFn::declare(compiler),
-            add_property_by_var: AddPropertyByVarFn::declare(compiler),
-            get_property_by_str: GetPropertyByStrFn::declare(compiler),
-            get_property_by_var: GetPropertyByVarFn::declare(compiler),
-            remove_property: RemovePropertyFn::declare(compiler),
+            add_property_by_str: AddPropertyByStrFn::declare(inkwell_context),
+            add_property_by_var: AddPropertyByVarFn::declare(inkwell_context),
+            get_property_by_str: GetPropertyByStrFn::declare(inkwell_context),
+            get_property_by_var: GetPropertyByVarFn::declare(inkwell_context),
+            remove_property: RemovePropertyFn::declare(inkwell_context),
             // logical functions
-            logical_not: LogicalNotFn::declare(compiler),
-            logical_and: LogicalAndFn::declare(compiler),
-            logical_or: LogicalOrFn::declare(compiler),
-            logical_eq: LogicalEqFn::declare(compiler),
-            logical_ne: LogicalNeFn::declare(compiler),
-            logical_gt: LogicalGtFn::declare(compiler),
-            logical_ge: LogicalGeFn::declare(compiler),
-            logical_lt: LogicalLtFn::declare(compiler),
-            logical_le: LogicalLeFn::declare(compiler),
+            logical_not: LogicalNotFn::declare(inkwell_context),
+            logical_and: LogicalAndFn::declare(inkwell_context),
+            logical_or: LogicalOrFn::declare(inkwell_context),
+            logical_eq: LogicalEqFn::declare(inkwell_context),
+            logical_ne: LogicalNeFn::declare(inkwell_context),
+            logical_gt: LogicalGtFn::declare(inkwell_context),
+            logical_ge: LogicalGeFn::declare(inkwell_context),
+            logical_lt: LogicalLtFn::declare(inkwell_context),
+            logical_le: LogicalLeFn::declare(inkwell_context),
             // arithmetic functions
-            arithmetic_addition: ArithmeticAdditionFn::declare(compiler),
-            arithmetic_substraction: ArithmeticSubstractionFn::declare(compiler),
-            arithmetic_multiplication: ArithmeticMultiplicationFn::declare(compiler),
-            arithmetic_division: ArithmeticDivisionFn::declare(compiler),
+            arithmetic_addition: ArithmeticAdditionFn::declare(inkwell_context),
+            arithmetic_substraction: ArithmeticSubstractionFn::declare(inkwell_context),
+            arithmetic_multiplication: ArithmeticMultiplicationFn::declare(inkwell_context),
+            arithmetic_division: ArithmeticDivisionFn::declare(inkwell_context),
             // convert
-            convert_to_boolean: ConvertToBooleanFn::declare(compiler),
-            convert_to_number: ConvertToNumberFn::declare(compiler),
-            convert_to_string: ConvertToStringFn::declare(compiler),
+            convert_to_boolean: ConvertToBooleanFn::declare(inkwell_context),
+            convert_to_number: ConvertToNumberFn::declare(inkwell_context),
+            convert_to_string: ConvertToStringFn::declare(inkwell_context),
             // testing utils
-            assert: AssertFn::declare(compiler),
-            assert_eq: AssertEqFn::declare(compiler),
-            printf: PrintFn::declare(compiler),
+            assert: AssertFn::declare(inkwell_context),
+            assert_eq: AssertEqFn::declare(inkwell_context),
+            printf: PrintFn::declare(inkwell_context),
         }
     }
 
