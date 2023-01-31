@@ -277,7 +277,10 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableExpression(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
-                    variable_name: "name".to_string().into(),
+                    object: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name".to_string().into()
+                    ))
+                    .into(),
                     property: Property {
                         object: PropertyType::FunctionCall(FunctionCall {
                             name: "name".to_string().into(),
@@ -289,14 +292,11 @@ mod tests {
                 })
             ))
         );
-    }
 
-    #[test]
-    fn parse_expression_test7() {
         let mut reader = TokenReader::new("(1 + 2) = name2;".as_bytes());
         assert_eq!(
-            Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableAssigment(VariableAssigment {
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableAssigment(VariableAssigment {
                 left: VariableExpression::BinaryExpression(
                     BinaryExpression {
                         left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
@@ -308,7 +308,33 @@ mod tests {
                 right: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name2".to_string().into()
                 ))
-            }))
+            })
+        );
+
+        let mut reader = TokenReader::new("(1 + 2).foo();".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::MemberExpression(MemberExpression {
+                    object: VariableExpression::BinaryExpression(
+                        BinaryExpression {
+                            left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                            right: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                            exp_type: BinaryExpType::Add,
+                        }
+                        .into(),
+                    )
+                    .into(),
+                    property: Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "foo".to_string().into(),
+                            args: vec![],
+                        }),
+                        property: None,
+                    }
+                    .into(),
+                }),
+            ))
         );
     }
 }

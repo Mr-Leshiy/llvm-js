@@ -82,9 +82,7 @@ mod tests {
             ObjectExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(ObjectExpression {
                 properties: vec![(
-                    Identifier {
-                        name: "name".to_string()
-                    },
+                    "name".to_string().into(),
                     VariableExpression::VariableValue(VariableValue::Number(12_f64))
                 ),]
                 .into_iter()
@@ -98,15 +96,11 @@ mod tests {
             Ok(ObjectExpression {
                 properties: vec![
                     (
-                        Identifier {
-                            name: "name".to_string()
-                        },
+                        "name".to_string().into(),
                         VariableExpression::VariableValue(VariableValue::Number(12_f64))
                     ),
                     (
-                        Identifier {
-                            name: "age".to_string()
-                        },
+                        "age".to_string().into(),
                         VariableExpression::VariableValue(VariableValue::Boolean(false))
                     )
                 ]
@@ -123,24 +117,18 @@ mod tests {
             Ok(ObjectExpression {
                 properties: vec![
                     (
-                        Identifier {
-                            name: "name".to_string()
-                        },
+                        "name".to_string().into(),
                         VariableExpression::VariableValue(VariableValue::ObjectExpression(
                             ObjectExpression {
                                 properties: vec![
                                     (
-                                        Identifier {
-                                            name: "name".to_string()
-                                        },
+                                        "name".to_string().into(),
                                         VariableExpression::VariableValue(VariableValue::String(
                                             "Alex".to_string()
                                         ))
                                     ),
                                     (
-                                        Identifier {
-                                            name: "surname".to_string()
-                                        },
+                                        "surname".to_string().into(),
                                         VariableExpression::VariableValue(VariableValue::String(
                                             "Pozhilenkov".to_string()
                                         ))
@@ -152,9 +140,7 @@ mod tests {
                         ))
                     ),
                     (
-                        Identifier {
-                            name: "age".to_string()
-                        },
+                        "age".to_string().into(),
                         VariableExpression::VariableValue(VariableValue::Boolean(false))
                     )
                 ]

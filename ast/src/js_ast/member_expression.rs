@@ -124,7 +124,7 @@ impl Property {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct MemberExpression {
-    pub variable_name: Identifier,
+    pub object: Box<VariableExpression>,
     pub property: Box<Property>,
 }
 
@@ -133,11 +133,11 @@ impl MemberExpression {
         cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, LexerError> {
-        let variable_name = Identifier::parse(cur_token, reader)?;
+        let object = VariableExpression::parse(cur_token, reader)?.into();
         let next_token = reader.next_token()?;
         if let Some(property) = Property::parse(&next_token, reader)? {
             Ok(Self {
-                variable_name,
+                object,
                 property: property.into(),
             })
         } else {
@@ -149,12 +149,7 @@ impl MemberExpression {
         self,
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::MemberExpression, PrecompilerError> {
-        let index = precompiler.get_variable(self.variable_name.clone())?;
-        let object =
-            llvm_ast::VariableExpression::VariableValue(llvm_ast::VariableValue::Identifier(
-                llvm_ast::Identifier::new(self.variable_name.name, index),
-            ))
-            .into();
+        let object = self.object.precompile(precompiler)?.into();
         let property = self.property.precompile(precompiler)?.into();
         Ok(llvm_ast::MemberExpression { object, property })
     }
@@ -163,7 +158,7 @@ impl MemberExpression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::VariableValue;
+    use crate::js_ast::{ObjectExpression, VariableValue};
 
     #[test]
     fn parse_member_expression_test() {
@@ -171,7 +166,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::Identifier("name".to_string().into()),
                     property: None
@@ -184,7 +182,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::Identifier("name".to_string().into()),
                     property: Some(
@@ -203,7 +204,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::Identifier("name".to_string().into()),
                     property: Some(
@@ -231,7 +235,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::FunctionCall(FunctionCall {
                         name: "name".to_string().into(),
@@ -247,7 +254,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::FunctionCall(FunctionCall {
                         name: "name".to_string().into(),
@@ -272,7 +282,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::FunctionCall(FunctionCall {
                         name: "name".to_string().into(),
@@ -304,13 +317,67 @@ mod tests {
     }
 
     #[test]
-    #[allow(clippy::too_many_lines)]
     fn parse_member_expression_test3() {
+        let mut reader = TokenReader::new(r#"{name: "Alex"}.name()"#.as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: VariableExpression::VariableValue(VariableValue::ObjectExpression(
+                    ObjectExpression {
+                        properties: vec![(
+                            "name".to_string().into(),
+                            VariableExpression::VariableValue(VariableValue::String(
+                                "Alex".to_string()
+                            ))
+                        )]
+                        .into_iter()
+                        .collect()
+                    }
+                ))
+                .into(),
+                property: Property {
+                    object: PropertyType::FunctionCall(FunctionCall {
+                        name: "name".to_string().into(),
+                        args: vec![]
+                    }),
+                    property: None
+                }
+                .into()
+            }),
+        );
+
+        let mut reader = TokenReader::new("name().name()".as_bytes());
+        assert_eq!(
+            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(MemberExpression {
+                object: VariableExpression::FunctionCall(FunctionCall {
+                    name: "name".to_string().into(),
+                    args: vec![]
+                })
+                .into(),
+                property: Property {
+                    object: PropertyType::FunctionCall(FunctionCall {
+                        name: "name".to_string().into(),
+                        args: vec![]
+                    }),
+                    property: None
+                }
+                .into()
+            }),
+        );
+    }
+
+    #[test]
+    #[allow(clippy::too_many_lines)]
+    fn parse_member_expression_test4() {
         let mut reader = TokenReader::new("name[name]".as_bytes());
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::VariableExpression(VariableExpression::VariableValue(
                         VariableValue::Identifier("name".to_string().into())
@@ -325,7 +392,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::VariableExpression(VariableExpression::VariableValue(
                         VariableValue::Identifier("name".to_string().into())
@@ -350,7 +420,10 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                ))
+                .into(),
                 property: Property {
                     object: PropertyType::VariableExpression(VariableExpression::VariableValue(
                         VariableValue::Identifier("name".to_string().into())
@@ -367,7 +440,12 @@ mod tests {
                                     object: PropertyType::VariableExpression(
                                         VariableExpression::VariableValue(
                                             VariableValue::MemberExpression(MemberExpression {
-                                                variable_name: "name".to_string().into(),
+                                                object: VariableExpression::VariableValue(
+                                                    VariableValue::Identifier(
+                                                        "name".to_string().into()
+                                                    )
+                                                )
+                                                .into(),
                                                 property: Property {
                                                     object: PropertyType::Identifier(
                                                         "name".to_string().into()
@@ -395,7 +473,7 @@ mod tests {
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
+                object: VariableExpression::VariableValue(VariableValue::Identifier("name".to_string().into())).into(),
                 property:
                     Property {
                         object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::Identifier("name".to_string().into()))),
@@ -406,7 +484,7 @@ mod tests {
                                     Property {
                                         object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::MemberExpression(
                                             MemberExpression {
-                                                variable_name: "name".to_string().into(),
+                                                object: VariableExpression::VariableValue(VariableValue::Identifier("name".to_string().into())).into(),
                                                 property: Property {
                                                         object: PropertyType::Identifier("name".to_string().into()),
                                                         property: None
@@ -418,7 +496,7 @@ mod tests {
                                             Property {
                                                 object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::MemberExpression(
                                                     MemberExpression {
-                                                        variable_name: "name".to_string().into(),
+                                                        object: VariableExpression::VariableValue(VariableValue::Identifier("name".to_string().into())).into(),
                                                         property: Property {
                                                                 object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::String("name".to_string()))),
                                                                 property: Some(
