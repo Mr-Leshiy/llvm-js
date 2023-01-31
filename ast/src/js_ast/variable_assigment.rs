@@ -1,11 +1,11 @@
-use super::{MemberExpression, VariableExpression};
+use super::VariableExpression;
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Token, TokenReader};
 use std::io::Read;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct VariableAssigment {
-    pub left: MemberExpression,
+    pub left: VariableExpression,
     pub right: VariableExpression,
 }
 
@@ -14,7 +14,7 @@ impl VariableAssigment {
         cur_token: Token,
         reader: &mut TokenReader<R>,
     ) -> Result<Self, LexerError> {
-        let left = MemberExpression::parse(cur_token, reader)?;
+        let left = VariableExpression::parse(cur_token, reader)?;
         match reader.next_token()? {
             Token::Assign => {
                 let right = VariableExpression::parse(reader.next_token()?, reader)?;
@@ -39,7 +39,10 @@ impl VariableAssigment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, VariableExpression, VariableValue};
+    use crate::js_ast::{
+        BinaryExpType, BinaryExpression, FunctionCall, MemberExpression, VariableExpression,
+        VariableValue,
+    };
 
     #[test]
     fn parse_assigment_expression_test() {
@@ -47,10 +50,12 @@ mod tests {
         assert_eq!(
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "name".to_string().into(),
-                    property: None
-                },
+                left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                    MemberExpression {
+                        variable_name: "name".to_string().into(),
+                        property: None
+                    }
+                )),
                 right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             })
         );
@@ -59,10 +64,50 @@ mod tests {
         assert_eq!(
             VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "name1".to_string().into(),
-                    property: None
-                },
+                left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                    MemberExpression {
+                        variable_name: "name1".to_string().into(),
+                        property: None
+                    }
+                )),
+                right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                    MemberExpression {
+                        variable_name: "name2".to_string().into(),
+                        property: None
+                    }
+                ))
+            })
+        );
+
+        let mut reader = TokenReader::new("foo() = name2;".as_bytes());
+        assert_eq!(
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableAssigment {
+                left: VariableExpression::FunctionCall(FunctionCall {
+                    name: "foo".to_string().into(),
+                    args: vec![]
+                }),
+                right: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                    MemberExpression {
+                        variable_name: "name2".to_string().into(),
+                        property: None
+                    }
+                ))
+            })
+        );
+
+        let mut reader = TokenReader::new("(1 + 2) = name2;".as_bytes());
+        assert_eq!(
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableAssigment {
+                left: VariableExpression::BinaryExpression(
+                    BinaryExpression {
+                        left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                        right: VariableExpression::VariableValue(VariableValue::Number(2_f64)),
+                        exp_type: BinaryExpType::Add,
+                    }
+                    .into()
+                ),
                 right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                     MemberExpression {
                         variable_name: "name2".to_string().into(),
@@ -79,20 +124,24 @@ mod tests {
         precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
-            left: MemberExpression {
-                variable_name: "name_1".to_string().into(),
-                property: None,
-            },
+            left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
+                    variable_name: "name_1".to_string().into(),
+                    property: None,
+                },
+            )),
             right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         };
 
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                left: llvm_ast::MemberExpression {
-                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                    property: None,
-                },
+                left: llvm_ast::VariableExpression::VariableValue(
+                    llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
+                        variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                        property: None,
+                    })
+                ),
                 right: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::FloatNumber(64_f64)
                 ),
@@ -108,10 +157,12 @@ mod tests {
         precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
-            left: MemberExpression {
-                variable_name: "name_1".to_string().into(),
-                property: None,
-            },
+            left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
+                    variable_name: "name_1".to_string().into(),
+                    property: None,
+                },
+            )),
             right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                 MemberExpression {
                     variable_name: "name_2".to_string().into(),
@@ -123,10 +174,12 @@ mod tests {
         assert_eq!(
             variable_assigment.precompile(&mut precompiler),
             Ok(llvm_ast::VariableAssigment {
-                left: llvm_ast::MemberExpression {
-                    variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
-                    property: None
-                },
+                left: llvm_ast::VariableExpression::VariableValue(
+                    llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
+                        variable_name: llvm_ast::Identifier::new("name_1".to_string(), 0),
+                        property: None
+                    })
+                ),
                 right: llvm_ast::VariableExpression::VariableValue(
                     llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
                         variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
@@ -143,10 +196,12 @@ mod tests {
         let mut precompiler = Precompiler::new(std::iter::empty());
 
         let variable_assigment = VariableAssigment {
-            left: MemberExpression {
-                variable_name: "name_1".to_string().into(),
-                property: None,
-            },
+            left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
+                    variable_name: "name_1".to_string().into(),
+                    property: None,
+                },
+            )),
             right: VariableExpression::VariableValue(VariableValue::Number(64_f64)),
         };
 
@@ -164,10 +219,12 @@ mod tests {
         precompiler.insert_variable("name_1".to_string().into());
 
         let variable_assigment = VariableAssigment {
-            left: MemberExpression {
-                variable_name: "name_1".to_string().into(),
-                property: None,
-            },
+            left: VariableExpression::VariableValue(VariableValue::MemberExpression(
+                MemberExpression {
+                    variable_name: "name_1".to_string().into(),
+                    property: None,
+                },
+            )),
             right: VariableExpression::VariableValue(VariableValue::MemberExpression(
                 MemberExpression {
                     variable_name: "name_2".to_string().into(),
