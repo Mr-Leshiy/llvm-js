@@ -31,18 +31,6 @@ impl Expression {
             Token::Keyword(Keyword::Var | Keyword::Let) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Ident(_) => {
-                reader.start_saving();
-                if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
-                    reader.reset_saving();
-                    Ok(Self::VariableAssigment(res))
-                } else {
-                    reader.stop_saving();
-                    Ok(Self::VariableExpression(VariableExpression::parse(
-                        cur_token, reader,
-                    )?))
-                }
-            }
             Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
                 BlockStatement::parse(cur_token, reader)?,
             )),
@@ -58,9 +46,18 @@ impl Expression {
             Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
                 cur_token, reader,
             )?)),
-            cur_token => Ok(Expression::VariableExpression(VariableExpression::parse(
-                cur_token, reader,
-            )?)),
+            cur_token => {
+                reader.start_saving();
+                if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    Ok(Self::VariableAssigment(res))
+                } else {
+                    reader.stop_saving();
+                    Ok(Self::VariableExpression(VariableExpression::parse(
+                        cur_token, reader,
+                    )?))
+                }
+            }
         }
     }
 }
@@ -291,6 +288,27 @@ mod tests {
                     .into()
                 })
             ))
+        );
+    }
+
+    #[test]
+    fn parse_expression_test7() {
+        let mut reader = TokenReader::new("(1 + 2) = name2;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(Expression::VariableAssigment(VariableAssigment {
+                left: VariableExpression::BinaryExpression(
+                    BinaryExpression {
+                        left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                        right: VariableExpression::VariableValue(VariableValue::Number(2_f64)),
+                        exp_type: BinaryExpType::Add,
+                    }
+                    .into()
+                ),
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
+            }))
         );
     }
 }
