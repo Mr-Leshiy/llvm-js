@@ -157,11 +157,8 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
-                left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                    MemberExpression {
-                        variable_name: "name".to_string().into(),
-                        property: None
-                    }
+                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
                 )),
                 right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             })
@@ -181,17 +178,11 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name1".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name1".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name2".to_string().into(),
-                            property: None,
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name2".to_string().into()
                     ))
                 })]
             })
@@ -205,47 +196,29 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name1".to_string().into(),
-                                property: None
-                            }
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name1".to_string().into()
                         )),
-                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name2".to_string().into(),
-                                property: None
-                            }
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name2".to_string().into()
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name1".to_string().into(),
-                                        property: None
-                                    })
-                                ),
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name1".to_string().into(),
-                                        property: None
-                                    })
-                                ),
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                         ]
@@ -280,17 +253,11 @@ mod tests {
             Expression::VariableExpression(VariableExpression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None,
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     ))
                 ]
             }))
@@ -298,11 +265,8 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableAssigment(VariableAssigment {
-                left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                    MemberExpression {
-                        variable_name: "a".to_string().into(),
-                        property: None
-                    }
+                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "a".to_string().into()
                 )),
                 right: VariableExpression::VariableValue(VariableValue::Number(6_f64))
             }))
@@ -317,16 +281,14 @@ mod tests {
             Expression::VariableExpression(VariableExpression::VariableValue(
                 VariableValue::MemberExpression(MemberExpression {
                     variable_name: "name".to_string().into(),
-                    property: Some(
-                        Property {
-                            object: PropertyType::FunctionCall(FunctionCall {
-                                name: "name".to_string().into(),
-                                args: vec![]
-                            }),
-                            property: None
-                        }
-                        .into()
-                    )
+                    property: Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "name".to_string().into(),
+                            args: vec![]
+                        }),
+                        property: None
+                    }
+                    .into()
                 })
             ))
         );

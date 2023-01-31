@@ -125,7 +125,7 @@ impl Property {
 #[derive(Clone, Debug, PartialEq)]
 pub struct MemberExpression {
     pub variable_name: Identifier,
-    pub property: Option<Box<Property>>,
+    pub property: Box<Property>,
 }
 
 impl MemberExpression {
@@ -134,19 +134,14 @@ impl MemberExpression {
         reader: &mut TokenReader<R>,
     ) -> Result<Self, LexerError> {
         let variable_name = Identifier::parse(cur_token, reader)?;
-        reader.start_saving();
-        if let Some(property) = Property::parse(&reader.next_token()?, reader)? {
-            reader.reset_saving();
+        let next_token = reader.next_token()?;
+        if let Some(property) = Property::parse(&next_token, reader)? {
             Ok(Self {
                 variable_name,
-                property: Some(property),
+                property: property.into(),
             })
         } else {
-            reader.stop_saving();
-            Ok(Self {
-                variable_name,
-                property: None,
-            })
+            Err(LexerError::UnexpectedToken(next_token))
         }
     }
 
@@ -160,12 +155,7 @@ impl MemberExpression {
                 llvm_ast::Identifier::new(self.variable_name.name, index),
             ))
             .into();
-        let property = if let Some(property) = self.property {
-            Some(property.precompile(precompiler)?.into())
-        } else {
-            None
-        };
-
+        let property = self.property.precompile(precompiler)?.into();
         Ok(llvm_ast::MemberExpression { object, property })
     }
 }
@@ -177,27 +167,16 @@ mod tests {
 
     #[test]
     fn parse_member_expression_test() {
-        let mut reader = TokenReader::new("name".as_bytes());
-        assert_eq!(
-            MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(MemberExpression {
-                variable_name: "name".to_string().into(),
-                property: None
-            }),
-        );
-
         let mut reader = TokenReader::new("name.name".as_bytes());
         assert_eq!(
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::Identifier("name".to_string().into()),
-                        property: None
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::Identifier("name".to_string().into()),
+                    property: None
+                }
+                .into()
             }),
         );
 
@@ -206,19 +185,17 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::Identifier("name".to_string().into()),
-                        property: Some(
-                            Property {
-                                object: PropertyType::Identifier("name".to_string().into()),
-                                property: None
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::Identifier("name".to_string().into()),
+                    property: Some(
+                        Property {
+                            object: PropertyType::Identifier("name".to_string().into()),
+                            property: None
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
 
@@ -227,25 +204,23 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::Identifier("name".to_string().into()),
-                        property: Some(
-                            Property {
-                                object: PropertyType::Identifier("name".to_string().into()),
-                                property: Some(
-                                    Property {
-                                        object: PropertyType::Identifier("name".to_string().into()),
-                                        property: None
-                                    }
-                                    .into()
-                                )
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::Identifier("name".to_string().into()),
+                    property: Some(
+                        Property {
+                            object: PropertyType::Identifier("name".to_string().into()),
+                            property: Some(
+                                Property {
+                                    object: PropertyType::Identifier("name".to_string().into()),
+                                    property: None
+                                }
+                                .into()
+                            )
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
     }
@@ -257,16 +232,14 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::FunctionCall(FunctionCall {
-                            name: "name".to_string().into(),
-                            args: vec![]
-                        }),
-                        property: None
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::FunctionCall(FunctionCall {
+                        name: "name".to_string().into(),
+                        args: vec![]
+                    }),
+                    property: None
+                }
+                .into()
             }),
         );
 
@@ -275,25 +248,23 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::FunctionCall(FunctionCall {
-                            name: "name".to_string().into(),
-                            args: vec![]
-                        }),
-                        property: Some(
-                            Property {
-                                object: PropertyType::FunctionCall(FunctionCall {
-                                    name: "name".to_string().into(),
-                                    args: vec![]
-                                }),
-                                property: None
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::FunctionCall(FunctionCall {
+                        name: "name".to_string().into(),
+                        args: vec![]
+                    }),
+                    property: Some(
+                        Property {
+                            object: PropertyType::FunctionCall(FunctionCall {
+                                name: "name".to_string().into(),
+                                args: vec![]
+                            }),
+                            property: None
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
 
@@ -302,34 +273,32 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::FunctionCall(FunctionCall {
-                            name: "name".to_string().into(),
-                            args: vec![]
-                        }),
-                        property: Some(
-                            Property {
-                                object: PropertyType::FunctionCall(FunctionCall {
-                                    name: "name".to_string().into(),
-                                    args: vec![]
-                                }),
-                                property: Some(
-                                    Property {
-                                        object: PropertyType::FunctionCall(FunctionCall {
-                                            name: "name".to_string().into(),
-                                            args: vec![]
-                                        }),
-                                        property: None
-                                    }
-                                    .into()
-                                )
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::FunctionCall(FunctionCall {
+                        name: "name".to_string().into(),
+                        args: vec![]
+                    }),
+                    property: Some(
+                        Property {
+                            object: PropertyType::FunctionCall(FunctionCall {
+                                name: "name".to_string().into(),
+                                args: vec![]
+                            }),
+                            property: Some(
+                                Property {
+                                    object: PropertyType::FunctionCall(FunctionCall {
+                                        name: "name".to_string().into(),
+                                        args: vec![]
+                                    }),
+                                    property: None
+                                }
+                                .into()
+                            )
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
     }
@@ -342,20 +311,13 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::VariableExpression(
-                            VariableExpression::VariableValue(VariableValue::MemberExpression(
-                                MemberExpression {
-                                    variable_name: "name".to_string().into(),
-                                    property: None
-                                },
-                            ))
-                        ),
-                        property: None
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::VariableExpression(VariableExpression::VariableValue(
+                        VariableValue::Identifier("name".to_string().into())
+                    )),
+                    property: None
+                }
+                .into()
             }),
         );
 
@@ -364,30 +326,23 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::VariableExpression(
-                            VariableExpression::VariableValue(VariableValue::MemberExpression(
-                                MemberExpression {
-                                    variable_name: "name".to_string().into(),
-                                    property: None
-                                },
-                            ))
-                        ),
-                        property: Some(
-                            Property {
-                                object: PropertyType::VariableExpression(
-                                    VariableExpression::VariableValue(VariableValue::String(
-                                        "name".to_string()
-                                    ))
-                                ),
-                                property: None
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                property: Property {
+                    object: PropertyType::VariableExpression(VariableExpression::VariableValue(
+                        VariableValue::Identifier("name".to_string().into())
+                    )),
+                    property: Some(
+                        Property {
+                            object: PropertyType::VariableExpression(
+                                VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                ))
+                            ),
+                            property: None
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
 
@@ -396,51 +351,42 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
-                    Property {
-                        object: PropertyType::VariableExpression(
-                            VariableExpression::VariableValue(VariableValue::MemberExpression(
-                                MemberExpression {
-                                    variable_name: "name".to_string().into(),
+                property: Property {
+                    object: PropertyType::VariableExpression(VariableExpression::VariableValue(
+                        VariableValue::Identifier("name".to_string().into())
+                    )),
+                    property: Some(
+                        Property {
+                            object: PropertyType::VariableExpression(
+                                VariableExpression::VariableValue(VariableValue::String(
+                                    "name".to_string()
+                                ))
+                            ),
+                            property: Some(
+                                Property {
+                                    object: PropertyType::VariableExpression(
+                                        VariableExpression::VariableValue(
+                                            VariableValue::MemberExpression(MemberExpression {
+                                                variable_name: "name".to_string().into(),
+                                                property: Property {
+                                                    object: PropertyType::Identifier(
+                                                        "name".to_string().into()
+                                                    ),
+                                                    property: None
+                                                }
+                                                .into()
+                                            },)
+                                        )
+                                    ),
                                     property: None
-                                },
-                            ))
-                        ),
-                        property: Some(
-                            Property {
-                                object: PropertyType::VariableExpression(
-                                    VariableExpression::VariableValue(VariableValue::String(
-                                        "name".to_string()
-                                    ))
-                                ),
-                                property: Some(
-                                    Property {
-                                        object: PropertyType::VariableExpression(
-                                            VariableExpression::VariableValue(
-                                                VariableValue::MemberExpression(MemberExpression {
-                                                    variable_name: "name".to_string().into(),
-                                                    property: Some(
-                                                        Property {
-                                                            object: PropertyType::Identifier(
-                                                                "name".to_string().into()
-                                                            ),
-                                                            property: None
-                                                        }
-                                                        .into()
-                                                    )
-                                                },)
-                                            )
-                                        ),
-                                        property: None
-                                    }
-                                    .into()
-                                )
-                            }
-                            .into()
-                        )
-                    }
-                    .into()
-                )
+                                }
+                                .into()
+                            )
+                        }
+                        .into()
+                    )
+                }
+                .into()
             }),
         );
 
@@ -450,14 +396,9 @@ mod tests {
             MemberExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(MemberExpression {
                 variable_name: "name".to_string().into(),
-                property: Some(
+                property:
                     Property {
-                        object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name".to_string().into(),
-                                property: None
-                            },
-                        ))),
+                        object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::Identifier("name".to_string().into()))),
                         property: Some(
                             Property {
                                 object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::String("name".to_string()))),
@@ -466,13 +407,11 @@ mod tests {
                                         object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::MemberExpression(
                                             MemberExpression {
                                                 variable_name: "name".to_string().into(),
-                                                property: Some(
-                                                    Property {
+                                                property: Property {
                                                         object: PropertyType::Identifier("name".to_string().into()),
                                                         property: None
                                                     }
                                                     .into()
-                                                )
                                             },
                                         ))),
                                         property: Some(
@@ -480,8 +419,7 @@ mod tests {
                                                 object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::MemberExpression(
                                                     MemberExpression {
                                                         variable_name: "name".to_string().into(),
-                                                        property: Some(
-                                                            Property {
+                                                        property: Property {
                                                                 object: PropertyType::VariableExpression(VariableExpression::VariableValue(VariableValue::String("name".to_string()))),
                                                                 property: Some(
                                                                     Property {
@@ -492,7 +430,6 @@ mod tests {
                                                                 )
                                                             }
                                                             .into()
-                                                        )
                                                     },
                                                 ))),
                                                 property: None
@@ -507,7 +444,6 @@ mod tests {
                         )
                     }
                     .into()
-                )
             }),
         );
     }

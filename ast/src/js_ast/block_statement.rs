@@ -63,8 +63,8 @@ impl BlockStatement {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        FunctionDeclaration, MemberExpression, VariableAssigment, VariableDeclaration,
-        VariableExpression, VariableValue,
+        FunctionDeclaration, VariableAssigment, VariableDeclaration, VariableExpression,
+        VariableValue,
     };
 
     #[test]
@@ -80,17 +80,11 @@ mod tests {
             BlockStatement::parse(reader.next_token().unwrap(), &mut reader),
             Ok(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name1".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name1".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name2".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name2".to_string().into()
                     ))
                 })]
             })
@@ -104,47 +98,29 @@ mod tests {
             Ok(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name1".to_string().into(),
-                                property: None
-                            }
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name1".to_string().into()
                         )),
-                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name2".to_string().into(),
-                                property: None
-                            }
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name2".to_string().into()
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name1".to_string().into(),
-                                        property: None
-                                    })
-                                ),
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name1".to_string().into(),
-                                        property: None
-                                    })
-                                ),
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                         ]

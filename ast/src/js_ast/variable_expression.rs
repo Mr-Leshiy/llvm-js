@@ -195,7 +195,6 @@ impl VariableExpression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::MemberExpression;
 
     #[test]
     fn parse_not_logical_expression_test() {
@@ -226,11 +225,8 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
                 UnaryExpression {
-                    exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: UnaryExpType::Not,
                 }
@@ -258,11 +254,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::And,
                 }
@@ -274,17 +267,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::And,
                 }
@@ -312,11 +299,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Or,
                 }
@@ -328,17 +312,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Or,
                 }
@@ -366,11 +344,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Eq,
                 }
@@ -382,17 +357,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Eq,
                 }
@@ -420,11 +389,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Ne,
                 }
@@ -436,17 +402,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Ne,
                 }
@@ -474,11 +434,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Gt,
                 }
@@ -490,17 +447,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Gt,
                 }
@@ -528,11 +479,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Ge,
                 }
@@ -544,17 +492,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Ge,
                 }
@@ -582,11 +524,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Lt,
                 }
@@ -598,17 +537,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Lt,
                 }
@@ -636,11 +569,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Le,
                 }
@@ -652,17 +582,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Le,
                 }
@@ -690,11 +614,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Add,
                 }
@@ -706,17 +627,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Add,
                 }
@@ -744,11 +659,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Sub,
                 }
@@ -760,17 +672,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Sub,
                 }
@@ -798,11 +704,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Div,
                 }
@@ -814,17 +717,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None,
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Div,
                 }
@@ -852,11 +749,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::VariableValue(VariableValue::Boolean(false)),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: BinaryExpType::Mul,
                 }
@@ -868,17 +762,11 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     exp_type: BinaryExpType::Mul,
                 }
@@ -894,28 +782,19 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                        exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "a".to_string().into(),
-                                property: None
-                            }
+                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "a".to_string().into()
                         )),
                         exp_type: UnaryExpType::Not,
                     })),
                     right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                        left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "b".to_string().into(),
-                                property: None
-                            }
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
                         )),
                         right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                            exp: VariableExpression::VariableValue(
-                                VariableValue::MemberExpression(MemberExpression {
-                                    variable_name: "c".to_string().into(),
-                                    property: None,
-                                })
-                            ),
+                            exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "c".to_string().into()
+                            )),
                             exp_type: UnaryExpType::Not,
                         })),
                         exp_type: BinaryExpType::And,
@@ -933,12 +812,9 @@ mod tests {
                     exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                         exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
                             exp: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                                exp: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "a".to_string().into(),
-                                        property: None
-                                    })
-                                ),
+                                exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "a".to_string().into()
+                                )),
                                 exp_type: UnaryExpType::Not
                             })),
                             exp_type: UnaryExpType::Not,
@@ -959,11 +835,8 @@ mod tests {
             Ok(VariableExpression::BinaryExpression(Box::new(
                 BinaryExpression {
                     left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                        exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "a".to_string().into(),
-                                property: None
-                            }
+                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "a".to_string().into()
                         )),
                         exp_type: UnaryExpType::Not,
                     })),
@@ -972,18 +845,12 @@ mod tests {
                             left: VariableExpression::BinaryExpression(Box::new(
                                 BinaryExpression {
                                     left: VariableExpression::VariableValue(
-                                        VariableValue::MemberExpression(MemberExpression {
-                                            variable_name: "b".to_string().into(),
-                                            property: None
-                                        })
+                                        VariableValue::Identifier("b".to_string().into())
                                     ),
                                     right: VariableExpression::UnaryExpression(Box::new(
                                         UnaryExpression {
                                             exp: VariableExpression::VariableValue(
-                                                VariableValue::MemberExpression(MemberExpression {
-                                                    variable_name: "c".to_string().into(),
-                                                    property: None
-                                                })
+                                                VariableValue::Identifier("c".to_string().into())
                                             ),
                                             exp_type: UnaryExpType::Not,
                                         }
@@ -991,19 +858,13 @@ mod tests {
                                     exp_type: BinaryExpType::And,
                                 }
                             )),
-                            right: VariableExpression::VariableValue(
-                                VariableValue::MemberExpression(MemberExpression {
-                                    variable_name: "d".to_string().into(),
-                                    property: None
-                                })
-                            ),
+                            right: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "d".to_string().into()
+                            )),
                             exp_type: BinaryExpType::And,
                         })),
-                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "g".to_string().into(),
-                                property: None
-                            }
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "g".to_string().into()
                         )),
                         exp_type: BinaryExpType::And,
                     })),
@@ -1017,11 +878,8 @@ mod tests {
             VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(VariableExpression::UnaryExpression(Box::new(
                 UnaryExpression {
-                    exp: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
                     exp_type: UnaryExpType::Not
                 }
@@ -1037,17 +895,11 @@ mod tests {
             Ok(VariableExpression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     VariableExpression::VariableValue(VariableValue::String("val".to_string())),
                     VariableExpression::VariableValue(VariableValue::Number(5_f64)),

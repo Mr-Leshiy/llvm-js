@@ -32,9 +32,16 @@ impl VariableValue {
             Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
-            Token::Ident(_) => Ok(Self::MemberExpression(MemberExpression::parse(
-                cur_token, reader,
-            )?)),
+            Token::Ident(_) => {
+                reader.start_saving();
+                if let Ok(member_expression) = MemberExpression::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    Ok(Self::MemberExpression(member_expression))
+                } else {
+                    reader.stop_saving();
+                    Ok(Self::Identifier(Identifier::parse(cur_token, reader)?))
+                }
+            }
             // negative
             Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
                 Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
@@ -47,7 +54,9 @@ impl VariableValue {
             Token::Separator(Separator::OpenSquareBracket) => Ok(Self::ArrayExpression(
                 ArrayExpression::parse(cur_token, reader)?,
             )),
-            token => Err(LexerError::UnexpectedToken(token)),
+            cur_token => Ok(Self::MemberExpression(MemberExpression::parse(
+                cur_token, reader,
+            )?)),
         }
     }
 }

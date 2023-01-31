@@ -63,7 +63,7 @@ impl FunctionCall {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, VariableValue};
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_function_call_test() {
@@ -73,17 +73,11 @@ mod tests {
             Ok(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     )),
                     VariableExpression::VariableValue(VariableValue::String("val".to_string())),
                     VariableExpression::VariableValue(VariableValue::Number(5_f64)),
@@ -103,17 +97,11 @@ mod tests {
             name: "name_1".to_string().into(),
 
             args: vec![
-                VariableExpression::VariableValue(VariableValue::MemberExpression(
-                    MemberExpression {
-                        variable_name: "a".to_string().into(),
-                        property: None,
-                    },
+                VariableExpression::VariableValue(VariableValue::Identifier(
+                    "a".to_string().into(),
                 )),
-                VariableExpression::VariableValue(VariableValue::MemberExpression(
-                    MemberExpression {
-                        variable_name: "b".to_string().into(),
-                        property: None,
-                    },
+                VariableExpression::VariableValue(VariableValue::Identifier(
+                    "b".to_string().into(),
                 )),
                 VariableExpression::VariableValue(VariableValue::String("val".to_string())),
                 VariableExpression::VariableValue(VariableValue::Number(5_f64)),
@@ -126,28 +114,16 @@ mod tests {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 args: vec![
                     llvm_ast::VariableExpression::VariableValue(
-                        llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                            object: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                                    "a".to_string(),
-                                    0
-                                ))
-                            )
-                            .into(),
-                            property: None
-                        })
+                        llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                            "a".to_string(),
+                            0
+                        ))
                     ),
                     llvm_ast::VariableExpression::VariableValue(
-                        llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                            object: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
-                                    "b".to_string(),
-                                    0
-                                ))
-                            )
-                            .into(),
-                            property: None
-                        })
+                        llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                            "b".to_string(),
+                            0
+                        ))
                     ),
                     llvm_ast::VariableExpression::VariableValue(llvm_ast::VariableValue::String(
                         "val".to_string()

@@ -52,7 +52,7 @@ impl ArrayExpression {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, VariableValue};
+    use crate::js_ast::VariableValue;
 
     #[test]
     fn parse_array_expression_test() {
@@ -70,11 +70,8 @@ mod tests {
                     VariableExpression::VariableValue(VariableValue::Number(1_f64)),
                     VariableExpression::VariableValue(VariableValue::String("name".to_string())),
                     VariableExpression::VariableValue(VariableValue::Boolean(true)),
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name".to_string().into()
                     )),
                 ]
             })

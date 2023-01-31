@@ -95,9 +95,7 @@ impl FunctionDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{
-        Expression, MemberExpression, VariableAssigment, VariableExpression, VariableValue,
-    };
+    use crate::js_ast::{Expression, VariableAssigment, VariableExpression, VariableValue};
 
     #[test]
     fn parse_function_declaration_test() {
@@ -109,17 +107,11 @@ mod tests {
                 args: vec!["a".to_string().into(), "b".to_string().into()],
                 body: BlockStatement {
                     body: vec![Expression::VariableAssigment(VariableAssigment {
-                        left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "a".to_string().into(),
-                                property: None
-                            }
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "a".to_string().into()
                         )),
-                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "b".to_string().into(),
-                                property: None
-                            }
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "b".to_string().into()
                         )),
                     })]
                 }
@@ -136,17 +128,11 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        },
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into(),
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None,
-                        },
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
                     )),
                 })],
             },
@@ -164,30 +150,16 @@ mod tests {
                     body: vec![llvm_ast::Expression::VariableAssigment(
                         llvm_ast::VariableAssigment {
                             left: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::MemberExpression(
-                                    llvm_ast::MemberExpression {
-                                        object: llvm_ast::VariableExpression::VariableValue(
-                                            llvm_ast::VariableValue::Identifier(
-                                                llvm_ast::Identifier::new("a".to_string(), 0)
-                                            )
-                                        )
-                                        .into(),
-                                        property: None
-                                    }
-                                )
+                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                    "a".to_string(),
+                                    0
+                                ))
                             ),
                             right: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::MemberExpression(
-                                    llvm_ast::MemberExpression {
-                                        object: llvm_ast::VariableExpression::VariableValue(
-                                            llvm_ast::VariableValue::Identifier(
-                                                llvm_ast::Identifier::new("b".to_string(), 0)
-                                            )
-                                        )
-                                        .into(),
-                                        property: None
-                                    }
-                                )
+                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                    "b".to_string(),
+                                    0
+                                ))
                             )
                         }
                     )]
@@ -213,17 +185,11 @@ mod tests {
             args: vec!["a".to_string().into(), "b".to_string().into()],
             body: BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None,
-                        },
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into(),
                     )),
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None,
-                        },
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into(),
                     )),
                 })],
             },
@@ -241,30 +207,16 @@ mod tests {
                     body: vec![llvm_ast::Expression::VariableAssigment(
                         llvm_ast::VariableAssigment {
                             left: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::MemberExpression(
-                                    llvm_ast::MemberExpression {
-                                        object: llvm_ast::VariableExpression::VariableValue(
-                                            llvm_ast::VariableValue::Identifier(
-                                                llvm_ast::Identifier::new("a".to_string(), 1)
-                                            )
-                                        )
-                                        .into(),
-                                        property: None
-                                    }
-                                )
+                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                    "a".to_string(),
+                                    1
+                                ))
                             ),
                             right: llvm_ast::VariableExpression::VariableValue(
-                                llvm_ast::VariableValue::MemberExpression(
-                                    llvm_ast::MemberExpression {
-                                        object: llvm_ast::VariableExpression::VariableValue(
-                                            llvm_ast::VariableValue::Identifier(
-                                                llvm_ast::Identifier::new("b".to_string(), 1)
-                                            )
-                                        )
-                                        .into(),
-                                        property: None
-                                    }
-                                )
+                                llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                                    "b".to_string(),
+                                    1
+                                ))
                             )
                         }
                     )]
