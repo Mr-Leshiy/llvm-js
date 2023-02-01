@@ -31,9 +31,25 @@ impl Expression {
             Token::Keyword(Keyword::Var | Keyword::Let) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
-                BlockStatement::parse(cur_token, reader)?,
-            )),
+            Token::Separator(Separator::OpenCurlyBrace) => {
+                reader.start_saving();
+                if let Ok(res) = BlockStatement::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    Ok(Self::BlockStatement(res))
+                } else {
+                    reader.stop_saving();
+                    reader.start_saving();
+                    if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
+                        reader.reset_saving();
+                        Ok(Self::VariableAssigment(res))
+                    } else {
+                        reader.stop_saving();
+                        Ok(Self::VariableExpression(VariableExpression::parse(
+                            cur_token, reader,
+                        )?))
+                    }
+                }
+            }
             Token::Keyword(Keyword::If) => Ok(Self::IfElseStatement(IfElseStatement::parse(
                 cur_token, reader,
             )?)),
@@ -117,20 +133,20 @@ mod tests {
     use super::*;
     use crate::js_ast::{
         member_expression::PropertyType, BinaryExpType, BinaryExpression, FunctionCall,
-        MemberExpression, Property, VariableExpression, VariableValue,
+        MemberExpression, ObjectExpression, Property, VariableExpression, VariableValue,
     };
 
     #[test]
     fn parse_expression_test1() {
         let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration {
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
                 name: "name".to_string().into(),
                 value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
     }
 
@@ -138,13 +154,13 @@ mod tests {
     fn parse_expression_test2() {
         let mut reader = TokenReader::new("let name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration {
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
                 name: "name".to_string().into(),
                 value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
     }
 
@@ -335,6 +351,28 @@ mod tests {
                 }
                 .into(),
             ))
+        );
+
+        let mut reader = TokenReader::new(r#"{name: "Alex"} = name2;"#.as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableAssigment(VariableAssigment {
+                left: VariableExpression::VariableValue(VariableValue::ObjectExpression(
+                    ObjectExpression {
+                        properties: vec![(
+                            "name".to_string().into(),
+                            VariableExpression::VariableValue(VariableValue::String(
+                                "Alex".to_string()
+                            ))
+                        )]
+                        .into_iter()
+                        .collect(),
+                    }
+                )),
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
+            })
         );
     }
 }

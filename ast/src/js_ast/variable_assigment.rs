@@ -40,39 +40,40 @@ impl VariableAssigment {
 mod tests {
     use super::*;
     use crate::js_ast::{
-        BinaryExpType, BinaryExpression, FunctionCall, VariableExpression, VariableValue,
+        BinaryExpType, BinaryExpression, FunctionCall, ObjectExpression, VariableExpression,
+        VariableValue,
     };
 
     #[test]
     fn parse_assigment_expression_test() {
         let mut reader = TokenReader::new("name = 12;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableAssigment {
                 left: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name".to_string().into()
                 )),
                 right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
-            })
+            }
         );
 
         let mut reader = TokenReader::new("name1 = name2;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableAssigment {
                 left: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name1".to_string().into()
                 )),
                 right: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name2".to_string().into()
                 ))
-            })
+            }
         );
 
         let mut reader = TokenReader::new("foo() = name2;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableAssigment {
                 left: VariableExpression::FunctionCall(FunctionCall {
                     name: "foo".to_string().into(),
                     args: vec![]
@@ -80,13 +81,13 @@ mod tests {
                 right: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name2".to_string().into()
                 ))
-            })
+            }
         );
 
         let mut reader = TokenReader::new("(1 + 2) = name2;".as_bytes());
         assert_eq!(
-            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableAssigment {
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableAssigment {
                 left: VariableExpression::BinaryExpression(
                     BinaryExpression {
                         left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
@@ -98,7 +99,29 @@ mod tests {
                 right: VariableExpression::VariableValue(VariableValue::Identifier(
                     "name2".to_string().into()
                 ))
-            })
+            }
+        );
+
+        let mut reader = TokenReader::new(r#"{name: "Alex"} = name2;"#.as_bytes());
+        assert_eq!(
+            VariableAssigment::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableAssigment {
+                left: VariableExpression::VariableValue(VariableValue::ObjectExpression(
+                    ObjectExpression {
+                        properties: vec![(
+                            "name".to_string().into(),
+                            VariableExpression::VariableValue(VariableValue::String(
+                                "Alex".to_string()
+                            ))
+                        )]
+                        .into_iter()
+                        .collect(),
+                    }
+                )),
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
+            }
         );
     }
 
