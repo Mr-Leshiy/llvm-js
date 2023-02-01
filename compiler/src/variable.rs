@@ -160,14 +160,9 @@ impl<'ctx> Variable<'ctx> {
     }
 
     #[must_use]
-    pub fn get_property_by_str<T>(
-        &self,
-        compiler: &Compiler<'ctx, T>,
-        key: &str,
-        allocate: bool,
-    ) -> Self {
+    pub fn get_property_by_str<T>(&self, compiler: &Compiler<'ctx, T>, key: &str) -> Self {
         let get_property_fn = compiler.predefined_functions().get_property_by_str();
-        get_property_fn.call(compiler, self, key, allocate)
+        get_property_fn.call(compiler, self, key)
     }
 
     #[must_use]
@@ -175,10 +170,9 @@ impl<'ctx> Variable<'ctx> {
         &self,
         compiler: &Compiler<'ctx, T>,
         key: &Variable<'ctx>,
-        allocate: bool,
     ) -> Self {
         let get_property_fn = compiler.predefined_functions().get_property_by_var();
-        get_property_fn.call(compiler, self, key, allocate)
+        get_property_fn.call(compiler, self, key)
     }
 
     pub fn remove_property<T>(&self, compiler: &Compiler<'ctx, T>, key: &str) {

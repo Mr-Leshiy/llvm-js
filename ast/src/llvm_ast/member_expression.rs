@@ -20,11 +20,10 @@ impl Property {
         self,
         compiler: &mut Compiler<'ctx>,
         variable: &Variable<'ctx>,
-        allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let variable = match self.object {
             PropertyType::Identifier(identifier) => {
-                variable.get_property_by_str(compiler, String::from(identifier).as_str(), allocate)
+                variable.get_property_by_str(compiler, String::from(identifier).as_str())
             }
             PropertyType::FunctionCall(function_call) => {
                 let mut args = Vec::new();
@@ -38,11 +37,8 @@ impl Property {
                     args.push(arg);
                 }
 
-                let var = variable.get_property_by_str(
-                    compiler,
-                    String::from(function_call.name).as_str(),
-                    allocate,
-                );
+                let var = variable
+                    .get_property_by_str(compiler, String::from(function_call.name).as_str());
                 let ret = var.function_call(compiler, &args);
 
                 // deallocate arguments
@@ -53,7 +49,7 @@ impl Property {
             }
             PropertyType::VariableExpression(variable_expression) => {
                 let key = variable_expression.compile(compiler)?;
-                let res = variable.get_property_by_var(compiler, &key, allocate);
+                let res = variable.get_property_by_var(compiler, &key);
                 if key.is_tmp() {
                     key.deallocate(compiler);
                 }
@@ -61,7 +57,7 @@ impl Property {
             }
         };
         if let Some(property) = self.property {
-            property.compile(compiler, &variable, allocate)
+            property.compile(compiler, &variable)
         } else {
             Ok(variable)
         }
@@ -78,11 +74,10 @@ impl MemberExpression {
     pub fn compile<'ctx>(
         self,
         compiler: &mut Compiler<'ctx>,
-        allocate: bool,
     ) -> Result<Variable<'ctx>, CompilerError> {
         let variable = compiler.get_variable(self.variable_name)?;
         if let Some(property) = self.property {
-            property.compile(compiler, &variable, allocate)
+            property.compile(compiler, &variable)
         } else {
             Ok(variable)
         }
