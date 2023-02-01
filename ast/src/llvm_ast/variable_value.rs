@@ -33,7 +33,7 @@ impl VariableValue {
             Self::String(string) => Ok(Variable::new_string(compiler, &string, true)),
             Self::FloatNumber(number) => Ok(Variable::new_number(compiler, number, true)),
             Self::Identifier(identifier) => compiler.get_variable(identifier),
-            Self::MemberExpression(member_expression) => member_expression.compile(compiler, false),
+            Self::MemberExpression(member_expression) => member_expression.compile(compiler),
             Self::ObjectExpression(object_expression) => object_expression.compile(compiler),
             Self::ArrayExpression(array_expression) => array_expression.compile(compiler),
         }
