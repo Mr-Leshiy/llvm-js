@@ -123,7 +123,7 @@ void add_property_by_var(Variable *self, Variable *key, Variable *val)
     self->add_property(*key, val);
 }
 
-Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
+Variable *get_property_by_str(Variable *self, const char *key)
 {
     ASSERT(self != nullptr);
     ASSERT(key != nullptr);
@@ -131,7 +131,7 @@ Variable *get_property_by_str(Variable *self, const char *key, uint8_t allocate)
     return self->get_property(std::string(key));
 }
 
-Variable *get_property_by_var(Variable *self, Variable *key, uint8_t allocate)
+Variable *get_property_by_var(Variable *self, Variable *key)
 {
     ASSERT(self != nullptr);
     ASSERT(key != nullptr);

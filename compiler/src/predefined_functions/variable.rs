@@ -702,11 +702,7 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
             .context
             .i8_type()
             .ptr_type(AddressSpace::from(0));
-        let boolean_type = inkwell_context.context.bool_type();
-        let function_type = var_type.fn_type(
-            &[var_type.into(), string_type.into(), boolean_type.into()],
-            false,
-        );
+        let function_type = var_type.fn_type(&[var_type.into(), string_type.into()], false);
         let func =
             inkwell_context
                 .module
@@ -719,7 +715,6 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &str,
-        allocate: bool,
     ) -> Variable<'ctx> {
         let key = compiler
             .inkwell_context
@@ -729,20 +724,7 @@ impl<'ctx> GetPropertyByStrFn<'ctx> {
         let value = compiler
             .inkwell_context
             .builder
-            .build_call(
-                self.func,
-                &[
-                    val.value.into(),
-                    key.into(),
-                    compiler
-                        .inkwell_context
-                        .context
-                        .bool_type()
-                        .const_int(allocate.into(), false)
-                        .into(),
-                ],
-                "",
-            )
+            .build_call(self.func, &[val.value.into(), key.into()], "")
             .try_as_basic_value()
             .left()
             .unwrap()
@@ -764,11 +746,7 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
 
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
-        let boolean_type = inkwell_context.context.bool_type();
-        let function_type = var_type.fn_type(
-            &[var_type.into(), var_type.into(), boolean_type.into()],
-            false,
-        );
+        let function_type = var_type.fn_type(&[var_type.into(), var_type.into()], false);
         let func =
             inkwell_context
                 .module
@@ -781,25 +759,11 @@ impl<'ctx> GetPropertyByVarFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &Variable<'ctx>,
-        allocate: bool,
     ) -> Variable<'ctx> {
         let value = compiler
             .inkwell_context
             .builder
-            .build_call(
-                self.func,
-                &[
-                    val.value.into(),
-                    key.value.into(),
-                    compiler
-                        .inkwell_context
-                        .context
-                        .bool_type()
-                        .const_int(allocate.into(), false)
-                        .into(),
-                ],
-                "",
-            )
+            .build_call(self.func, &[val.value.into(), key.value.into()], "")
             .try_as_basic_value()
             .left()
             .unwrap()
