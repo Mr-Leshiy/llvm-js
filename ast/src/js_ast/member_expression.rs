@@ -20,7 +20,7 @@ impl Property {
     pub fn parse<R: Read>(
         cur_token: &Token,
         reader: &mut TokenReader<R>,
-    ) -> Result<Option<Box<Self>>, LexerError> {
+    ) -> Result<Option<Self>, LexerError> {
         match cur_token {
             Token::Separator(Separator::Dot) => {
                 reader.start_saving();
@@ -34,22 +34,16 @@ impl Property {
                 reader.start_saving();
                 if let Some(property) = Self::parse(&reader.next_token()?, reader)? {
                     reader.reset_saving();
-                    Ok(Some(
-                        Self {
-                            object,
-                            property: Some(property),
-                        }
-                        .into(),
-                    ))
+                    Ok(Some(Self {
+                        object,
+                        property: Some(property.into()),
+                    }))
                 } else {
                     reader.stop_saving();
-                    Ok(Some(
-                        Self {
-                            object,
-                            property: None,
-                        }
-                        .into(),
-                    ))
+                    Ok(Some(Self {
+                        object,
+                        property: None,
+                    }))
                 }
             }
             Token::Separator(Separator::OpenSquareBracket) => {
@@ -62,22 +56,16 @@ impl Property {
                         reader.start_saving();
                         if let Some(property) = Self::parse(&reader.next_token()?, reader)? {
                             reader.reset_saving();
-                            Ok(Some(
-                                Self {
-                                    object,
-                                    property: Some(property),
-                                }
-                                .into(),
-                            ))
+                            Ok(Some(Self {
+                                object,
+                                property: Some(property.into()),
+                            }))
                         } else {
                             reader.stop_saving();
-                            Ok(Some(
-                                Self {
-                                    object,
-                                    property: None,
-                                }
-                                .into(),
-                            ))
+                            Ok(Some(Self {
+                                object,
+                                property: None,
+                            }))
                         }
                     }
                     token => Err(LexerError::UnexpectedToken(token)),
@@ -125,7 +113,7 @@ impl Property {
 #[derive(Clone, Debug, PartialEq)]
 pub struct MemberExpression {
     pub object: VariableExpression,
-    pub property: Box<Property>,
+    pub property: Property,
 }
 
 impl MemberExpression {
@@ -134,7 +122,7 @@ impl MemberExpression {
         precompiler: &mut Precompiler,
     ) -> Result<llvm_ast::MemberExpression, PrecompilerError> {
         let object = self.object.precompile(precompiler)?.into();
-        let property = self.property.precompile(precompiler)?.into();
+        let property = self.property.precompile(precompiler)?;
         Ok(llvm_ast::MemberExpression { object, property })
     }
 }
@@ -158,7 +146,6 @@ mod tests {
                         object: PropertyType::Identifier("name".to_string().into()),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -182,7 +169,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -212,7 +198,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -236,7 +221,6 @@ mod tests {
                         }),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -266,7 +250,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -305,7 +288,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -338,7 +320,6 @@ mod tests {
                         }),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -360,7 +341,6 @@ mod tests {
                         }),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -386,7 +366,6 @@ mod tests {
                         ),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -418,7 +397,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -461,7 +439,6 @@ mod tests {
                                                         ),
                                                         property: None
                                                     }
-                                                    .into()
                                                 }
                                                 .into()
                                             )
@@ -474,7 +451,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
                 }
                 .into()
             ),
@@ -501,7 +477,6 @@ mod tests {
                                                         object: PropertyType::Identifier("name".to_string().into()),
                                                         property: None
                                                     }
-                                                    .into()
                                             }.into()
                                         )),
                                         property: Some(
@@ -519,7 +494,6 @@ mod tests {
                                                                     .into()
                                                                 )
                                                             }
-                                                            .into()
                                                     }.into(),
                                                 )),
                                                 property: None
@@ -533,7 +507,6 @@ mod tests {
                             .into()
                         )
                     }
-                    .into()
             }.into()),
         );
     }

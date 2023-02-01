@@ -93,6 +93,7 @@ impl VariableExpression {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn parse_impl<R: Read>(
         cur_token: Token,
         reader: &mut TokenReader<R>,
@@ -343,8 +344,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -356,8 +356,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -424,8 +423,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -437,8 +435,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -505,8 +502,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -518,8 +514,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -586,8 +581,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -599,8 +593,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -667,8 +660,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -680,8 +672,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -748,8 +739,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -761,8 +751,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -829,8 +818,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -842,8 +830,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -910,8 +897,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -923,8 +909,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -991,8 +976,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1004,8 +988,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1072,8 +1055,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1085,8 +1067,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1153,8 +1134,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1166,8 +1146,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1234,8 +1213,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("a".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1247,8 +1225,7 @@ mod tests {
                             property: Property {
                                 object: PropertyType::Identifier("b".to_string().into()),
                                 property: None
-                            }
-                            .into(),
+                            },
                         }
                         .into()
                     ),
@@ -1374,8 +1351,7 @@ mod tests {
                         property: Property {
                             object: PropertyType::Identifier("a".to_string().into()),
                             property: None
-                        }
-                        .into(),
+                        },
                     }
                     .into()
                 ),

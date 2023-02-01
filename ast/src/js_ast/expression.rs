@@ -303,7 +303,6 @@ mod tests {
                         }),
                         property: None
                     }
-                    .into()
                 }
                 .into()
             ))
@@ -347,7 +346,6 @@ mod tests {
                         }),
                         property: None,
                     }
-                    .into(),
                 }
                 .into(),
             ))

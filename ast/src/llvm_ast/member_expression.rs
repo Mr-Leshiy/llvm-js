@@ -67,7 +67,7 @@ impl Property {
 #[derive(Debug, Clone, PartialEq)]
 pub struct MemberExpression {
     pub object: Box<VariableExpression>,
-    pub property: Box<Property>,
+    pub property: Property,
 }
 
 impl MemberExpression {
