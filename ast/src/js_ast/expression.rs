@@ -31,21 +31,25 @@ impl Expression {
             Token::Keyword(Keyword::Var | Keyword::Let) => Ok(Self::VariableDeclaration(
                 VariableDeclaration::parse(cur_token, reader)?,
             )),
-            Token::Ident(_) => {
+            Token::Separator(Separator::OpenCurlyBrace) => {
                 reader.start_saving();
-                if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
+                if let Ok(res) = BlockStatement::parse(cur_token.clone(), reader) {
                     reader.reset_saving();
-                    Ok(Self::VariableAssigment(res))
+                    Ok(Self::BlockStatement(res))
                 } else {
                     reader.stop_saving();
-                    Ok(Self::VariableExpression(VariableExpression::parse(
-                        cur_token, reader,
-                    )?))
+                    reader.start_saving();
+                    if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
+                        reader.reset_saving();
+                        Ok(Self::VariableAssigment(res))
+                    } else {
+                        reader.stop_saving();
+                        Ok(Self::VariableExpression(VariableExpression::parse(
+                            cur_token, reader,
+                        )?))
+                    }
                 }
             }
-            Token::Separator(Separator::OpenCurlyBrace) => Ok(Self::BlockStatement(
-                BlockStatement::parse(cur_token, reader)?,
-            )),
             Token::Keyword(Keyword::If) => Ok(Self::IfElseStatement(IfElseStatement::parse(
                 cur_token, reader,
             )?)),
@@ -58,9 +62,18 @@ impl Expression {
             Token::Keyword(Keyword::Return) => Ok(Self::ReturnStatement(ReturnStatement::parse(
                 cur_token, reader,
             )?)),
-            cur_token => Ok(Expression::VariableExpression(VariableExpression::parse(
-                cur_token, reader,
-            )?)),
+            cur_token => {
+                reader.start_saving();
+                if let Ok(res) = VariableAssigment::parse(cur_token.clone(), reader) {
+                    reader.reset_saving();
+                    Ok(Self::VariableAssigment(res))
+                } else {
+                    reader.stop_saving();
+                    Ok(Self::VariableExpression(VariableExpression::parse(
+                        cur_token, reader,
+                    )?))
+                }
+            }
         }
     }
 }
@@ -120,20 +133,20 @@ mod tests {
     use super::*;
     use crate::js_ast::{
         member_expression::PropertyType, BinaryExpType, BinaryExpression, FunctionCall,
-        MemberExpression, Property, VariableExpression, VariableValue,
+        MemberExpression, ObjectExpression, Property, VariableExpression, VariableValue,
     };
 
     #[test]
     fn parse_expression_test1() {
         let mut reader = TokenReader::new("var name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration {
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
                 name: "name".to_string().into(),
                 value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
     }
 
@@ -141,13 +154,13 @@ mod tests {
     fn parse_expression_test2() {
         let mut reader = TokenReader::new("let name = 12;".as_bytes());
         assert_eq!(
-            Expression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(Expression::VariableDeclaration(VariableDeclaration {
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableDeclaration(VariableDeclaration {
                 name: "name".to_string().into(),
                 value: Some(VariableExpression::VariableValue(VariableValue::Number(
                     12_f64
                 )))
-            }))
+            })
         );
     }
 
@@ -157,10 +170,9 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::VariableAssigment(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "name".to_string().into(),
-                    property: None
-                },
+                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name".to_string().into()
+                )),
                 right: VariableExpression::VariableValue(VariableValue::Number(12_f64))
             })
         );
@@ -179,15 +191,11 @@ mod tests {
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
             Expression::BlockStatement(BlockStatement {
                 body: vec![Expression::VariableAssigment(VariableAssigment {
-                    left: MemberExpression {
-                        variable_name: "name1".to_string().into(),
-                        property: None
-                    },
-                    right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "name2".to_string().into(),
-                            property: None,
-                        }
+                    left: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name1".to_string().into()
+                    )),
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name2".to_string().into()
                     ))
                 })]
             })
@@ -201,41 +209,29 @@ mod tests {
             Expression::BlockStatement(BlockStatement {
                 body: vec![
                     Expression::VariableAssigment(VariableAssigment {
-                        left: MemberExpression {
-                            variable_name: "name1".to_string().into(),
-                            property: None
-                        },
-                        right: VariableExpression::VariableValue(VariableValue::MemberExpression(
-                            MemberExpression {
-                                variable_name: "name2".to_string().into(),
-                                property: None
-                            }
+                        left: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name1".to_string().into()
+                        )),
+                        right: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "name2".to_string().into()
                         ))
                     }),
                     Expression::BlockStatement(BlockStatement {
                         body: vec![
                             Expression::VariableAssigment(VariableAssigment {
-                                left: MemberExpression {
-                                    variable_name: "name1".to_string().into(),
-                                    property: None
-                                },
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                             Expression::VariableAssigment(VariableAssigment {
-                                left: MemberExpression {
-                                    variable_name: "name1".to_string().into(),
-                                    property: None
-                                },
+                                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "name1".to_string().into()
+                                )),
                                 right: VariableExpression::VariableValue(
-                                    VariableValue::MemberExpression(MemberExpression {
-                                        variable_name: "name2".to_string().into(),
-                                        property: None
-                                    })
+                                    VariableValue::Identifier("name2".to_string().into())
                                 )
                             }),
                         ]
@@ -270,17 +266,11 @@ mod tests {
             Expression::VariableExpression(VariableExpression::FunctionCall(FunctionCall {
                 name: "foo".to_string().into(),
                 args: vec![
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "a".to_string().into(),
-                            property: None
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
                     )),
-                    VariableExpression::VariableValue(VariableValue::MemberExpression(
-                        MemberExpression {
-                            variable_name: "b".to_string().into(),
-                            property: None,
-                        }
+                    VariableExpression::VariableValue(VariableValue::Identifier(
+                        "b".to_string().into()
                     ))
                 ]
             }))
@@ -288,10 +278,9 @@ mod tests {
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader),
             Ok(Expression::VariableAssigment(VariableAssigment {
-                left: MemberExpression {
-                    variable_name: "a".to_string().into(),
-                    property: None
-                },
+                left: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "a".to_string().into()
+                )),
                 right: VariableExpression::VariableValue(VariableValue::Number(6_f64))
             }))
         );
@@ -302,21 +291,86 @@ mod tests {
         let mut reader = TokenReader::new("name.name()".as_bytes());
         assert_eq!(
             Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
-            Expression::VariableExpression(VariableExpression::VariableValue(
-                VariableValue::MemberExpression(MemberExpression {
-                    variable_name: "name".to_string().into(),
-                    property: Some(
-                        Property {
-                            object: PropertyType::FunctionCall(FunctionCall {
-                                name: "name".to_string().into(),
-                                args: vec![]
-                            }),
-                            property: None
-                        }
-                        .into()
-                    )
-                })
+            Expression::VariableExpression(VariableExpression::MemberExpression(
+                MemberExpression {
+                    object: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "name".to_string().into()
+                    )),
+                    property: Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "name".to_string().into(),
+                            args: vec![]
+                        }),
+                        property: None
+                    }
+                }
+                .into()
             ))
+        );
+
+        let mut reader = TokenReader::new("(1 + 2) = name2;".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableAssigment(VariableAssigment {
+                left: VariableExpression::BinaryExpression(
+                    BinaryExpression {
+                        left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                        right: VariableExpression::VariableValue(VariableValue::Number(2_f64)),
+                        exp_type: BinaryExpType::Add,
+                    }
+                    .into()
+                ),
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
+            })
+        );
+
+        let mut reader = TokenReader::new("(1 + 2).foo();".as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableExpression(VariableExpression::MemberExpression(
+                MemberExpression {
+                    object: VariableExpression::BinaryExpression(
+                        BinaryExpression {
+                            left: VariableExpression::VariableValue(VariableValue::Number(1_f64)),
+                            right: VariableExpression::VariableValue(VariableValue::Number(2_f64)),
+                            exp_type: BinaryExpType::Add,
+                        }
+                        .into(),
+                    ),
+                    property: Property {
+                        object: PropertyType::FunctionCall(FunctionCall {
+                            name: "foo".to_string().into(),
+                            args: vec![],
+                        }),
+                        property: None,
+                    }
+                }
+                .into(),
+            ))
+        );
+
+        let mut reader = TokenReader::new(r#"{name: "Alex"} = name2;"#.as_bytes());
+        assert_eq!(
+            Expression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            Expression::VariableAssigment(VariableAssigment {
+                left: VariableExpression::VariableValue(VariableValue::ObjectExpression(
+                    ObjectExpression {
+                        properties: vec![(
+                            "name".to_string().into(),
+                            VariableExpression::VariableValue(VariableValue::String(
+                                "Alex".to_string()
+                            ))
+                        )]
+                        .into_iter()
+                        .collect(),
+                    }
+                )),
+                right: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "name2".to_string().into()
+                ))
+            })
         );
     }
 }

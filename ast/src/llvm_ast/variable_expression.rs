@@ -1,4 +1,4 @@
-use super::{BinaryExpression, FunctionCall, UnaryExpression, VariableValue};
+use super::{BinaryExpression, FunctionCall, MemberExpression, UnaryExpression, VariableValue};
 use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
@@ -7,6 +7,7 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
+    MemberExpression(Box<MemberExpression>),
     FunctionCall(FunctionCall),
 }
 
@@ -19,6 +20,7 @@ impl VariableExpression {
             Self::VariableValue(value) => value.compile(compiler),
             Self::UnaryExpression(expr) => expr.compile(compiler),
             Self::BinaryExpression(expr) => expr.compile(compiler),
+            Self::MemberExpression(expr) => expr.compile(compiler),
             Self::FunctionCall(function_call) => function_call.compile(compiler),
         }
     }

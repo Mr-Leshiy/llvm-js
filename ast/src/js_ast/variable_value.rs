@@ -1,4 +1,4 @@
-use super::{ArrayExpression, MemberExpression, ObjectExpression};
+use super::{ArrayExpression, Identifier, ObjectExpression};
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Literal, Separator, Token, TokenReader};
 use std::io::Read;
@@ -13,7 +13,7 @@ pub enum VariableValue {
     Boolean(bool),
     Number(f64),
     String(String),
-    MemberExpression(MemberExpression),
+    Identifier(Identifier),
     ObjectExpression(ObjectExpression),
     ArrayExpression(ArrayExpression),
 }
@@ -31,9 +31,7 @@ impl VariableValue {
             Token::Literal(Literal::Boolean(boolean)) => Ok(Self::Boolean(boolean)),
             Token::Literal(Literal::Number(val)) => Ok(Self::Number(val)),
             Token::Literal(Literal::String(val)) => Ok(Self::String(val)),
-            Token::Ident(_) => Ok(Self::MemberExpression(MemberExpression::parse(
-                cur_token, reader,
-            )?)),
+            Token::Ident(_) => Ok(Self::Identifier(Identifier::parse(cur_token, reader)?)),
             // negative
             Token::Arithmetic(Arithmetic::Sub) => match reader.next_token()? {
                 Token::Literal(Literal::Infinity) => Ok(Self::NegInfinity),
@@ -46,7 +44,7 @@ impl VariableValue {
             Token::Separator(Separator::OpenSquareBracket) => Ok(Self::ArrayExpression(
                 ArrayExpression::parse(cur_token, reader)?,
             )),
-            token => Err(LexerError::UnexpectedToken(token)),
+            cur_token => Err(LexerError::UnexpectedToken(cur_token)),
         }
     }
 }
@@ -63,9 +61,10 @@ impl VariableValue {
             Self::Infinity => Ok(llvm_ast::VariableValue::Infinity),
             Self::NegInfinity => Ok(llvm_ast::VariableValue::NegInfinity),
             Self::Boolean(boolean) => Ok(llvm_ast::VariableValue::Boolean(boolean)),
-            Self::MemberExpression(member_expression) => {
-                Ok(llvm_ast::VariableValue::MemberExpression(
-                    member_expression.precompile(precompiler)?,
+            Self::Identifier(identifier) => {
+                let index = precompiler.get_variable(identifier.clone())?;
+                Ok(llvm_ast::VariableValue::Identifier(
+                    llvm_ast::Identifier::new(identifier.name, index),
                 ))
             }
             Self::Number(number) => Ok(llvm_ast::VariableValue::FloatNumber(number)),

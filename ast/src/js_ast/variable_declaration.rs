@@ -60,7 +60,7 @@ impl VariableDeclaration {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::js_ast::{MemberExpression, VariableExpression, VariableValue};
+    use crate::js_ast::{VariableExpression, VariableValue};
 
     #[test]
     fn parse_variable_declaration_test1() {
@@ -81,10 +81,7 @@ mod tests {
             Ok(VariableDeclaration {
                 name: "name1".to_string().into(),
                 value: Some(VariableExpression::VariableValue(
-                    VariableValue::MemberExpression(MemberExpression {
-                        variable_name: "name2".to_string().into(),
-                        property: None
-                    })
+                    VariableValue::Identifier("name2".to_string().into())
                 ))
             })
         );
@@ -118,10 +115,7 @@ mod tests {
             Ok(VariableDeclaration {
                 name: "name1".to_string().into(),
                 value: Some(VariableExpression::VariableValue(
-                    VariableValue::MemberExpression(MemberExpression {
-                        variable_name: "name2".to_string().into(),
-                        property: None
-                    })
+                    VariableValue::Identifier("name2".to_string().into())
                 ))
             })
         );
@@ -167,10 +161,7 @@ mod tests {
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
             value: Some(VariableExpression::VariableValue(
-                VariableValue::MemberExpression(MemberExpression {
-                    variable_name: "name_2".to_string().into(),
-                    property: None,
-                }),
+                VariableValue::Identifier("name_2".to_string().into()),
             )),
         };
 
@@ -179,10 +170,10 @@ mod tests {
             Ok(llvm_ast::VariableDeclaration {
                 name: llvm_ast::Identifier::new("name_1".to_string(), 0),
                 value: Some(llvm_ast::VariableExpression::VariableValue(
-                    llvm_ast::VariableValue::MemberExpression(llvm_ast::MemberExpression {
-                        variable_name: llvm_ast::Identifier::new("name_2".to_string(), 0),
-                        property: None,
-                    })
+                    llvm_ast::VariableValue::Identifier(llvm_ast::Identifier::new(
+                        "name_2".to_string(),
+                        0
+                    ))
                 )),
             })
         );
@@ -219,10 +210,7 @@ mod tests {
         let variable_declaration = VariableDeclaration {
             name: "name_1".to_string().into(),
             value: Some(VariableExpression::VariableValue(
-                VariableValue::MemberExpression(MemberExpression {
-                    variable_name: "name_2".to_string().into(),
-                    property: None,
-                }),
+                VariableValue::Identifier("name_2".to_string().into()),
             )),
         };
 

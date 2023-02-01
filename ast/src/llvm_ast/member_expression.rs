@@ -66,8 +66,8 @@ impl Property {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MemberExpression {
-    pub variable_name: Identifier,
-    pub property: Option<Box<Property>>,
+    pub object: Box<VariableExpression>,
+    pub property: Property,
 }
 
 impl MemberExpression {
@@ -75,11 +75,7 @@ impl MemberExpression {
         self,
         compiler: &mut Compiler<'ctx>,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let variable = compiler.get_variable(self.variable_name)?;
-        if let Some(property) = self.property {
-            property.compile(compiler, &variable)
-        } else {
-            Ok(variable)
-        }
+        let variable = self.object.compile(compiler)?;
+        self.property.compile(compiler, &variable)
     }
 }

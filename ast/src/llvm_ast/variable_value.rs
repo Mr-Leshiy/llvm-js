@@ -1,4 +1,4 @@
-use super::{ArrayExpression, MemberExpression, ObjectExpression};
+use super::{ArrayExpression, Identifier, ObjectExpression};
 use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
@@ -12,7 +12,7 @@ pub enum VariableValue {
     Boolean(bool),
     FloatNumber(f64),
     String(String),
-    MemberExpression(MemberExpression),
+    Identifier(Identifier),
     ObjectExpression(ObjectExpression),
     ArrayExpression(ArrayExpression),
 }
@@ -31,7 +31,7 @@ impl VariableValue {
             Self::Boolean(boolean) => Ok(Variable::new_boolean(compiler, boolean, true)),
             Self::String(string) => Ok(Variable::new_string(compiler, &string, true)),
             Self::FloatNumber(number) => Ok(Variable::new_number(compiler, number, true)),
-            Self::MemberExpression(member_expression) => member_expression.compile(compiler),
+            Self::Identifier(identifier) => compiler.get_variable(identifier),
             Self::ObjectExpression(object_expression) => object_expression.compile(compiler),
             Self::ArrayExpression(array_expression) => array_expression.compile(compiler),
         }
