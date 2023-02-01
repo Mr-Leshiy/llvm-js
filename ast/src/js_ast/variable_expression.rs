@@ -1,5 +1,6 @@
 use super::{
-    BinaryExpType, BinaryExpression, FunctionCall, UnaryExpType, UnaryExpression, VariableValue,
+    BinaryExpType, BinaryExpression, FunctionCall, MemberExpression, Property, UnaryExpType,
+    UnaryExpression, VariableValue,
 };
 use crate::{llvm_ast, LexerError, Precompiler, PrecompilerError};
 use lexer::{Arithmetic, Logical, Separator, Token, TokenReader};
@@ -15,6 +16,7 @@ pub enum VariableExpression {
     VariableValue(VariableValue),
     UnaryExpression(Box<UnaryExpression>),
     BinaryExpression(Box<BinaryExpression>),
+    MemberExpression(Box<MemberExpression>),
     FunctionCall(FunctionCall),
 }
 
@@ -25,19 +27,21 @@ impl From<OutputExpression<RpnValue, UnaryExpType, BinaryExpType>> for VariableE
             OutputExpression::Value(RpnValue::FunctionCall(function_call)) => {
                 Self::FunctionCall(function_call)
             }
-            OutputExpression::UnaryExpression(expr) => {
-                Self::UnaryExpression(Box::new(UnaryExpression {
+            OutputExpression::UnaryExpression(expr) => Self::UnaryExpression(
+                UnaryExpression {
                     exp: expr.exp.into(),
                     exp_type: expr.exp_type,
-                }))
-            }
-            OutputExpression::BinaryExpression(expr) => {
-                Self::BinaryExpression(Box::new(BinaryExpression {
+                }
+                .into(),
+            ),
+            OutputExpression::BinaryExpression(expr) => Self::BinaryExpression(
+                BinaryExpression {
                     left: expr.left.into(),
                     right: expr.right.into(),
                     exp_type: expr.exp_type,
-                }))
-            }
+                }
+                .into(),
+            ),
         }
     }
 }
@@ -66,7 +70,17 @@ impl VariableExpression {
     ) -> Result<Self, LexerError> {
         let mut rpn = RPN::new();
         Self::parse_impl(cur_token, reader, &mut rpn, false)?;
-        Ok(rpn.finish()?.evaluate().into())
+        let object = rpn.finish()?.evaluate().into();
+        reader.start_saving();
+        if let Some(property) = Property::parse(&reader.next_token()?, reader)? {
+            reader.reset_saving();
+            Ok(Self::MemberExpression(
+                MemberExpression { object, property }.into(),
+            ))
+        } else {
+            reader.stop_saving();
+            Ok(object)
+        }
     }
 
     fn parse_impl<R: Read>(
@@ -180,10 +194,13 @@ impl VariableExpression {
                 value.precompile(precompiler)?,
             )),
             Self::UnaryExpression(expr) => Ok(llvm_ast::VariableExpression::UnaryExpression(
-                Box::new(expr.precompile(precompiler)?),
+                expr.precompile(precompiler)?.into(),
             )),
             Self::BinaryExpression(expr) => Ok(llvm_ast::VariableExpression::BinaryExpression(
-                Box::new(expr.precompile(precompiler)?),
+                expr.precompile(precompiler)?.into(),
+            )),
+            Self::MemberExpression(expr) => Ok(llvm_ast::VariableExpression::MemberExpression(
+                expr.precompile(precompiler)?.into(),
             )),
             Self::FunctionCall(function_call) => Ok(llvm_ast::VariableExpression::FunctionCall(
                 function_call.precompile(precompiler)?,
