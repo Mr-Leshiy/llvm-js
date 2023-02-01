@@ -1,12 +1,8 @@
 [package]
-name = "testing"
+name = "assembler"
 version = "0.1.0"
 edition.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[dev-dependencies]
-compiler = { workspace = true }
-ast = { workspace = true }
 
-[features]
-mem-check = []
+[dependencies]

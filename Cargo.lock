@@ -12,6 +12,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "assembler"
+version = "0.1.0"
+
+[[package]]
 name = "ast"
 version = "0.1.0"
 dependencies = [

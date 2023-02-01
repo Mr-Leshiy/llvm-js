@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "assembler",
     "bin",
     "rpn",
     "compiler",
@@ -9,6 +10,9 @@ members = [
     "ast",
     "collections",
 ]
+
+[workspace.package]
+edition = "2021"
 
 [workspace.dependencies]
 
