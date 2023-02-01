@@ -27,6 +27,9 @@ impl From<OutputExpression<RpnValue, UnaryExpType, BinaryExpType>> for VariableE
             OutputExpression::Value(RpnValue::FunctionCall(function_call)) => {
                 Self::FunctionCall(function_call)
             }
+            OutputExpression::Value(RpnValue::MemberExpression(member_expression)) => {
+                Self::MemberExpression(member_expression.into())
+            }
             OutputExpression::UnaryExpression(expr) => Self::UnaryExpression(
                 UnaryExpression {
                     exp: expr.exp.into(),
@@ -48,6 +51,7 @@ impl From<OutputExpression<RpnValue, UnaryExpType, BinaryExpType>> for VariableE
 
 enum RpnValue {
     VariableValue(VariableValue),
+    MemberExpression(MemberExpression),
     FunctionCall(FunctionCall),
 }
 
@@ -60,6 +64,12 @@ impl From<FunctionCall> for RpnValue {
 impl From<VariableValue> for RpnValue {
     fn from(val: VariableValue) -> Self {
         Self::VariableValue(val)
+    }
+}
+
+impl From<MemberExpression> for RpnValue {
+    fn from(val: MemberExpression) -> Self {
+        Self::MemberExpression(val)
     }
 }
 
@@ -113,15 +123,39 @@ impl VariableExpression {
                     rpn.build(InputExpression::Value(Value::Value(function_call.into())))?;
                 } else {
                     reader.stop_saving();
-                    rpn.build(InputExpression::Value(Value::Value(
-                        VariableValue::parse(cur_token, reader)?.into(),
-                    )))?;
+                    let object = VariableValue::parse(cur_token, reader)?;
+                    reader.start_saving();
+                    if let Some(property) = Property::parse(&reader.next_token()?, reader)? {
+                        reader.reset_saving();
+                        rpn.build(InputExpression::Value(Value::Value(
+                            MemberExpression {
+                                object: VariableExpression::VariableValue(object),
+                                property,
+                            }
+                            .into(),
+                        )))?;
+                    } else {
+                        reader.stop_saving();
+                        rpn.build(InputExpression::Value(Value::Value(object.into())))?;
+                    }
                 }
             }
-            token => {
-                rpn.build(InputExpression::Value(Value::Value(
-                    VariableValue::parse(token, reader)?.into(),
-                )))?;
+            cur_token => {
+                let object = VariableValue::parse(cur_token, reader)?;
+                reader.start_saving();
+                if let Some(property) = Property::parse(&reader.next_token()?, reader)? {
+                    reader.reset_saving();
+                    rpn.build(InputExpression::Value(Value::Value(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(object),
+                            property,
+                        }
+                        .into(),
+                    )))?;
+                } else {
+                    reader.stop_saving();
+                    rpn.build(InputExpression::Value(Value::Value(object.into())))?;
+                }
             }
         }
         if !is_unary {
@@ -212,6 +246,7 @@ impl VariableExpression {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::js_ast::member_expression::PropertyType;
 
     #[test]
     fn parse_not_logical_expression_test() {
@@ -294,6 +329,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a && b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::And,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -335,6 +406,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Or,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a || b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Or,
                 }
             ))),
@@ -384,6 +491,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a == b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::Eq,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -425,6 +568,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Ne,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a != b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Ne,
                 }
             ))),
@@ -474,6 +653,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a > b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::Gt,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -515,6 +730,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Ge,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a >= b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Ge,
                 }
             ))),
@@ -564,6 +815,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a < b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::Lt,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -605,6 +892,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Le,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a <= b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Le,
                 }
             ))),
@@ -654,6 +977,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a + b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::Add,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -695,6 +1054,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Sub,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a - b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Sub,
                 }
             ))),
@@ -744,6 +1139,42 @@ mod tests {
                 }
             ))),
         );
+
+        let mut reader = TokenReader::new("a.a / b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    exp_type: BinaryExpType::Div,
+                }
+            ))),
+        );
     }
 
     #[test]
@@ -785,6 +1216,42 @@ mod tests {
                     right: VariableExpression::VariableValue(VariableValue::Identifier(
                         "b".to_string().into()
                     )),
+                    exp_type: BinaryExpType::Mul,
+                }
+            ))),
+        );
+
+        let mut reader = TokenReader::new("a.a * b.b".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
+            Ok(VariableExpression::BinaryExpression(Box::new(
+                BinaryExpression {
+                    left: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "a".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("a".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
+                    right: VariableExpression::MemberExpression(
+                        MemberExpression {
+                            object: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
+                            )),
+                            property: Property {
+                                object: PropertyType::Identifier("b".to_string().into()),
+                                property: None
+                            }
+                            .into(),
+                        }
+                        .into()
+                    ),
                     exp_type: BinaryExpType::Mul,
                 }
             ))),
@@ -848,59 +1315,72 @@ mod tests {
     fn parse_grouping_test() {
         let mut reader = TokenReader::new("(!a || (b && !c) && d && g)".as_bytes());
         assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::BinaryExpression(Box::new(
-                BinaryExpression {
-                    left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
-                        exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "a".to_string().into()
-                        )),
-                        exp_type: UnaryExpType::Not,
-                    })),
-                    right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                left: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "a".to_string().into()
+                    )),
+                    exp_type: UnaryExpType::Not,
+                })),
+                right: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
+                    left: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
                         left: VariableExpression::BinaryExpression(Box::new(BinaryExpression {
-                            left: VariableExpression::BinaryExpression(Box::new(
-                                BinaryExpression {
-                                    left: VariableExpression::VariableValue(
-                                        VariableValue::Identifier("b".to_string().into())
-                                    ),
-                                    right: VariableExpression::UnaryExpression(Box::new(
-                                        UnaryExpression {
-                                            exp: VariableExpression::VariableValue(
-                                                VariableValue::Identifier("c".to_string().into())
-                                            ),
-                                            exp_type: UnaryExpType::Not,
-                                        }
-                                    )),
-                                    exp_type: BinaryExpType::And,
-                                }
+                            left: VariableExpression::VariableValue(VariableValue::Identifier(
+                                "b".to_string().into()
                             )),
-                            right: VariableExpression::VariableValue(VariableValue::Identifier(
-                                "d".to_string().into()
-                            )),
+                            right: VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                                exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                                    "c".to_string().into()
+                                )),
+                                exp_type: UnaryExpType::Not,
+                            })),
                             exp_type: BinaryExpType::And,
                         })),
                         right: VariableExpression::VariableValue(VariableValue::Identifier(
-                            "g".to_string().into()
+                            "d".to_string().into()
                         )),
                         exp_type: BinaryExpType::And,
                     })),
-                    exp_type: BinaryExpType::Or,
-                }
-            )))
+                    right: VariableExpression::VariableValue(VariableValue::Identifier(
+                        "g".to_string().into()
+                    )),
+                    exp_type: BinaryExpType::And,
+                })),
+                exp_type: BinaryExpType::Or,
+            }))
         );
 
         let mut reader = TokenReader::new("(!(a))".as_bytes());
         assert_eq!(
-            VariableExpression::parse(reader.next_token().unwrap(), &mut reader),
-            Ok(VariableExpression::UnaryExpression(Box::new(
-                UnaryExpression {
-                    exp: VariableExpression::VariableValue(VariableValue::Identifier(
-                        "a".to_string().into()
-                    )),
-                    exp_type: UnaryExpType::Not
-                }
-            )))
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                exp: VariableExpression::VariableValue(VariableValue::Identifier(
+                    "a".to_string().into()
+                )),
+                exp_type: UnaryExpType::Not
+            }))
+        );
+
+        let mut reader = TokenReader::new("(!(a.a))".as_bytes());
+        assert_eq!(
+            VariableExpression::parse(reader.next_token().unwrap(), &mut reader).unwrap(),
+            VariableExpression::UnaryExpression(Box::new(UnaryExpression {
+                exp: VariableExpression::MemberExpression(
+                    MemberExpression {
+                        object: VariableExpression::VariableValue(VariableValue::Identifier(
+                            "a".to_string().into()
+                        )),
+                        property: Property {
+                            object: PropertyType::Identifier("a".to_string().into()),
+                            property: None
+                        }
+                        .into(),
+                    }
+                    .into()
+                ),
+                exp_type: UnaryExpType::Not
+            }))
         );
     }
 
