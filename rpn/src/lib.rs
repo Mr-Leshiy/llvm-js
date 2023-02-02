@@ -10,12 +10,11 @@ use self::input::Value;
 use input::{InputExpression, Operation, Priority};
 use output::{BinaryExpression, OutputExpression, UnaryExpression};
 use std::cmp::Ordering;
-use thiserror::Error;
 
 pub mod input;
 pub mod output;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
 pub enum Error {
     #[error("Cannot find corresponding open brace")]
     MissedOpenBrace,

@@ -11,9 +11,8 @@ use std::{
     fmt::{Debug, Display},
     hash::Hash,
 };
-use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),
