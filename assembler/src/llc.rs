@@ -1,7 +1,7 @@
 use crate::Error;
-use std::{path::PathBuf, process::Command};
+use std::{path::Path, process::Command};
 
-pub fn compile_llvm_ir(in_file_path: &PathBuf, out_file_path: &PathBuf) -> Result<(), Error> {
+pub fn compile_llvm_ir(in_file_path: &Path, out_file_path: &Path) -> Result<(), Error> {
     let out_arg = format!("-o={}", out_file_path.to_str().unwrap());
 
     let out = Command::new("llc")

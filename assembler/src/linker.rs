@@ -1,7 +1,7 @@
 use crate::{Error, CORE_LIB, FMT_LIB};
-use std::{env::current_exe, path::PathBuf, process::Command};
+use std::{env::current_exe, path::Path, process::Command};
 
-pub fn compile_binary(in_file_path: &PathBuf, out_file_path: &PathBuf) -> Result<(), Error> {
+pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), Error> {
     let out_arg = format!("-o{}", out_file_path.to_str().unwrap());
     let lib_dir_arg = format!(
         "-L{}",
