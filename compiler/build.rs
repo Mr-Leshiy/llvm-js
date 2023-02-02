@@ -5,14 +5,17 @@ fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_dir = Path::new(out_dir.as_str());
 
+    let core_lib_name = format!("lib{CORE_LIB}.a");
     let core_lib = out_dir
         .join("build")
         .join("lib")
-        .join(format!("lib{CORE_LIB}.a"));
+        .join(core_lib_name.as_str());
+
+    let fmt_lib_name = format!("lib{FMT_LIB}.a");
     let fmt_lib = out_dir
         .join("build")
         .join("lib")
-        .join(format!("lib{FMT_LIB}.a"));
+        .join(fmt_lib_name.as_str());
 
     let dest = out_dir
         .parent()
@@ -26,9 +29,9 @@ fn main() {
 
     println!("{}", cmake.display());
 
-    std::fs::File::create(dest.join(CORE_LIB)).unwrap();
-    fs::copy(core_lib, dest.join(CORE_LIB)).unwrap();
+    std::fs::File::create(dest.join(core_lib_name.as_str())).unwrap();
+    fs::copy(core_lib, dest.join(core_lib_name.as_str())).unwrap();
 
-    std::fs::File::create(dest.join(FMT_LIB)).unwrap();
-    fs::copy(fmt_lib, dest.join(FMT_LIB)).unwrap();
+    std::fs::File::create(dest.join(fmt_lib_name.as_str())).unwrap();
+    fs::copy(fmt_lib, dest.join(fmt_lib_name.as_str())).unwrap();
 }
