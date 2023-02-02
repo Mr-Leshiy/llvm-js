@@ -11,10 +11,7 @@ pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), E
     let llvm_lib_name_arg = format!("-l{CORE_LIB}");
     let fmt_lib_name_arg = format!("-l{FMT_LIB}");
 
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    let mut command = Command::new("clang++");
-
-    let out = command
+    let out = Command::new("clang++")
         .args([
             lib_dir_arg.as_str(),
             out_arg.as_str(),
@@ -26,7 +23,7 @@ pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), E
     if out.status.success() {
         Ok(())
     } else {
-        Err(Error::LinkerError(
+        Err(Error::ClangError(
             out.status,
             String::from_utf8(out.stdout).unwrap(),
             String::from_utf8(out.stderr).unwrap(),

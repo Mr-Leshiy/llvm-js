@@ -1,4 +1,4 @@
-use assembler::{linker::compile_binary, llc::compile_llvm_ir, AssemblerError};
+use assembler::{clang::compile_binary, AssemblerError};
 use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
 use compiler::predefined_functions::test::{AssertEqFn, AssertFn, PrintFn};
@@ -44,12 +44,11 @@ impl Cli {
         let file_name = self.input.file_stem().unwrap().to_str().unwrap();
 
         let ll_file_name = format!("{file_name}.ll");
-        let object_file_name = format!("{file_name}.o");
 
-        let (ll_file_path, object_file_path) = if let Some(parent) = self.input.parent() {
-            (parent.join(ll_file_name), parent.join(object_file_name))
+        let ll_file_path = if let Some(parent) = self.input.parent() {
+            parent.join(ll_file_name)
         } else {
-            (ll_file_name.into(), object_file_name.into())
+            ll_file_name.into()
         };
 
         let mut ll_file = std::fs::File::create(&ll_file_path).map_err(Error::CannotCreateFile)?;
@@ -63,11 +62,9 @@ impl Cli {
         Module::new(file_name.to_string(), in_file)?
             .precompile(extern_functions.into_iter().map(Into::into))?
             .compile_to(&mut ll_file)?;
-        compile_llvm_ir(&ll_file_path, &object_file_path)?;
-        compile_binary(&object_file_path, Path::new(&self.binary_name))?;
+        compile_binary(&ll_file_path, Path::new(&self.binary_name))?;
         if self.clean {
             remove_file(&ll_file_path).unwrap();
-            remove_file(&object_file_path).unwrap();
         }
         Ok(())
     }

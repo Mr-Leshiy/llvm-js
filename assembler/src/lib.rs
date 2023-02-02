@@ -8,8 +8,7 @@
 
 use std::process::ExitStatus;
 
-pub mod linker;
-pub mod llc;
+pub mod clang;
 
 pub type AssemblerError = Error;
 
@@ -20,8 +19,6 @@ pub const FMT_LIB: &str = "fmtd";
 pub enum Error {
     #[error("Command error: {0}")]
     CommandError(#[from] std::io::Error),
-    #[error("llc error, status code: {0}, stdout: {1}, stderr: {2}")]
-    LlcError(ExitStatus, String, String),
-    #[error("linker error, status code: {0}, stdout: {1}, stderr: {2}")]
-    LinkerError(ExitStatus, String, String),
+    #[error("clang error, status code: {0}, stdout: {1}, stderr: {2}")]
+    ClangError(ExitStatus, String, String),
 }
