@@ -15,7 +15,7 @@ members = [
 edition = "2021"
 
 [workspace.dependencies]
-
+assembler = { path = "assembler" }
 ast = { path = "ast" }
 rpn = { path = "rpn" }
 collections = { path = "collections" }

@@ -11,6 +11,8 @@ use std::process::ExitStatus;
 pub mod linker;
 pub mod llc;
 
+pub type AssemblerError = Error;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Command error: {0}")]

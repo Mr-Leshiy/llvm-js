@@ -1,8 +1,8 @@
 use crate::Error;
 use std::{path::PathBuf, process::Command};
 
-pub fn compile_binary(in_file_path: &PathBuf, out_file_name: &str) -> Result<(), Error> {
-    let out_arg = format!("-o{out_file_name}");
+pub fn compile_binary(in_file_path: &PathBuf, out_file_path: &PathBuf) -> Result<(), Error> {
+    let out_arg = format!("-o{}", out_file_path.to_str().unwrap());
     let lib_dir_arg = "-L../build/lib/".to_string();
     let llvm_lib_name_arg = "-lllvm-js".to_string();
     let fmt_lib_name_arg = "-lfmt".to_string();
