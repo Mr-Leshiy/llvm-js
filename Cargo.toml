@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "assembler",
     "bin",
     "rpn",
     "compiler",
@@ -10,8 +11,11 @@ members = [
     "collections",
 ]
 
-[workspace.dependencies]
+[workspace.package]
+edition = "2021"
 
+[workspace.dependencies]
+assembler = { path = "assembler" }
 ast = { path = "ast" }
 rpn = { path = "rpn" }
 collections = { path = "collections" }

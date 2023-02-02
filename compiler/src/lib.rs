@@ -12,7 +12,6 @@ use inkwell::{builder::Builder, module::Module, types::PointerType, AddressSpace
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
 use std::{collections::HashMap, hash::Hash, io::Write};
-use thiserror::Error;
 pub use variable::Variable;
 
 mod context;
@@ -23,7 +22,7 @@ mod main_function;
 pub mod predefined_functions;
 mod variable;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(thiserror::Error, Debug, PartialEq)]
 pub enum Error<T> {
     #[error("Undefined variable identifier {0}")]
     UndefinedVariable(T),

@@ -9,4 +9,4 @@ build
 *.o
 
 test_scripts/basic.js
-test_run
+run

@@ -1,11 +1,12 @@
 [package]
 name = "llvm-js-compiler"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+assembler = { workspace = true }
 compiler = { workspace = true }
 ast = { workspace = true }
 thiserror = { workspace = true }

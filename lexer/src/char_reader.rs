@@ -1,8 +1,7 @@
 use super::Position;
 use std::io::Read;
-use thiserror::Error;
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(thiserror::Error, Debug, PartialEq, Eq)]
 pub enum Error {
     #[error("Read error: {0}, position: {1}")]
     ReadError(String, Position),

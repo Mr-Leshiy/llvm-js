@@ -1,5 +1,5 @@
 [package]
-name = "compiler"
+name = "assembler"
 version = "0.1.0"
 edition.workspace = true
 
@@ -7,8 +7,3 @@ edition.workspace = true
 
 [dependencies]
 thiserror = { workspace = true }
-inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm14-0"] }
-
-[build-dependencies]
-cmake = "0.1"
-assembler = { workspace = true }

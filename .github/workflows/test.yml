@@ -26,11 +26,6 @@ jobs:
       with:
         version: "14.0"
 
-    - name: Build cpp lib 
-      run: |
-        cmake . -Bbuild
-        cmake --build build --parallel 2
-
     - name: Build
       uses: actions-rs/cargo@v1
       with:
@@ -57,11 +52,6 @@ jobs:
 
     - name: Install Valgrind
       run: sudo apt-get install valgrind
-    
-    - name: Build cpp lib 
-      run: |
-        cmake . -Bbuild
-        cmake --build build --parallel 2
 
     - name: Build
       uses: actions-rs/cargo@v1
