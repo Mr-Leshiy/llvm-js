@@ -13,6 +13,9 @@ pub mod llc;
 
 pub type AssemblerError = Error;
 
+pub const CORE_LIB: &str = "core";
+pub const FMT_LIB: &str = "fmtd";
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Command error: {0}")]
