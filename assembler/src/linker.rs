@@ -11,7 +11,10 @@ pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), E
     let llvm_lib_name_arg = format!("-l{CORE_LIB}");
     let fmt_lib_name_arg = format!("-l{FMT_LIB}");
 
-    let out = Command::new("clang++")
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    let mut command = Command::new("clang++");
+
+    let out = command
         .args([
             lib_dir_arg.as_str(),
             out_arg.as_str(),
