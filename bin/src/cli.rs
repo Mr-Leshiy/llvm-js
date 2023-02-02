@@ -1,8 +1,8 @@
-use assembler::{linker::compile_binary, llc::compile_llvm_ir, AssemblerError};
+use assembler::{llc::compile_llvm_ir, AssemblerError};
 use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
 use compiler::predefined_functions::test::{AssertEqFn, AssertFn, PrintFn};
-use std::path::PathBuf;
+use std::{fs::remove_file, path::PathBuf};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -30,6 +30,9 @@ pub struct Cli {
     /// Binary name
     #[clap(long)]
     binary_name: String,
+
+    #[clap(long, default_value_t = false)]
+    clean: bool,
 }
 
 impl Cli {
@@ -58,7 +61,11 @@ impl Cli {
             .precompile(extern_functions.into_iter().map(Into::into))?
             .compile_to(&mut ll_file)?;
         compile_llvm_ir(&ll_file_path, &object_file_path)?;
-        compile_binary(&object_file_path, &self.binary_name.into())?;
+        // compile_binary(&object_file_path, &self.binary_name.into())?;
+        if self.clean {
+            remove_file(&ll_file_path).unwrap();
+            remove_file(&object_file_path).unwrap();
+        }
         Ok(())
     }
 }
