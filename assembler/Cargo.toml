@@ -7,3 +7,6 @@ edition.workspace = true
 
 [dependencies]
 thiserror = { workspace = true }
+
+[build-dependencies]
+cmake = "0.1"

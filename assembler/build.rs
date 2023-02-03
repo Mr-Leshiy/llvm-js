@@ -1,5 +1,7 @@
-use assembler::{CORE_LIB, FMT_LIB};
 use std::{env, fs, path::Path};
+
+const CORE_LIB: &str = "core";
+const FMT_LIB: &str = "fmtd";
 
 fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();

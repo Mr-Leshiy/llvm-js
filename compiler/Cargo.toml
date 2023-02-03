@@ -11,4 +11,3 @@ inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", feat
 
 [build-dependencies]
 cmake = "0.1"
-assembler = { workspace = true }

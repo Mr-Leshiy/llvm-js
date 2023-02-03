@@ -1,4 +1,4 @@
-use assembler::{clang::compile_binary, AssemblerError};
+use assembler::{compile_binary, AssemblerError};
 use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
 use compiler::predefined_functions::test::{AssertEqFn, AssertFn, PrintFn};
