@@ -12,7 +12,7 @@ pub use if_else_statement::IfElseStatement;
 pub use member_expression::{MemberExpression, Property, PropertyType};
 pub use object_expression::ObjectExpression;
 pub use return_statement::ReturnStatement;
-use std::io::Write;
+use std::path::Path;
 pub use unary_expression::{UnaryExpType, UnaryExpression};
 pub use variable_assigment::VariableAssigment;
 pub use variable_declaration::VariableDeclaration;
@@ -54,7 +54,7 @@ impl Module {
         }
     }
 
-    pub fn compile_to<W: Write>(self, writer: &mut W) -> Result<(), CompilerError> {
+    pub fn compile_to(self, path: &Path) -> Result<(), CompilerError> {
         let context = Context::new();
         let compiler = &mut Compiler::new(&context, self.name.as_str());
 
@@ -63,7 +63,7 @@ impl Module {
         }
         // define main function
         MainFunction::define(compiler, self.body)?;
-        compiler.write_result_into(writer)?;
+        compiler.generate_llvm_ir(path)?;
         Ok(())
     }
 }

@@ -12,8 +12,6 @@ pub enum Error {
     #[error(transparent)]
     CannotOpenFile(std::io::Error),
     #[error(transparent)]
-    CannotCreateFile(std::io::Error),
-    #[error(transparent)]
     Lexer(#[from] LexerError),
     #[error(transparent)]
     Precompiler(#[from] PrecompilerError),
@@ -51,8 +49,6 @@ impl Cli {
             ll_file_name.into()
         };
 
-        let mut ll_file = std::fs::File::create(&ll_file_path).map_err(Error::CannotCreateFile)?;
-
         let extern_functions = vec![
             PrintFn::NAME.to_string(),
             AssertFn::NAME.to_string(),
@@ -61,7 +57,7 @@ impl Cli {
 
         Module::new(file_name.to_string(), in_file)?
             .precompile(extern_functions.into_iter().map(Into::into))?
-            .compile_to(&mut ll_file)?;
+            .compile_to(&ll_file_path)?;
         compile_binary(&ll_file_path, Path::new(&self.binary_name))?;
         if self.clean {
             remove_file(&ll_file_path).unwrap();
