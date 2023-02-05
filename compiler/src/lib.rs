@@ -11,7 +11,7 @@ pub use function::Function;
 use inkwell::{builder::Builder, module::Module, types::PointerType, AddressSpace};
 pub use main_function::MainFunction;
 use predefined_functions::PredefineFunctions;
-use std::{collections::HashMap, hash::Hash, io::Write};
+use std::{collections::HashMap, hash::Hash, path::Path};
 pub use variable::Variable;
 
 mod context;
@@ -122,11 +122,9 @@ where
         cur_function.get_variable(self, name)
     }
 
-    pub fn write_result_into<W: Write>(&self, writer: &mut W) -> Result<(), Error<T>> {
+    pub fn generate_llvm_ir(&self, path: &Path) -> Result<(), Error<T>> {
         self.verify()?;
-        writer
-            .write(self.inkwell_context.module.print_to_string().to_bytes())
-            .map_err(|e| Error::CannotWriteModule(e.to_string()))?;
+        self.inkwell_context.module.write_bitcode_to_path(path);
         Ok(())
     }
 
