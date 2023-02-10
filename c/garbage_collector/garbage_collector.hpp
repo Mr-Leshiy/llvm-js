@@ -8,6 +8,29 @@
 template <typename T>
 struct GarbageCollector;
 
+struct Counter
+{
+    Counter(uint32_t counter) : counter(counter) {}
+
+    void inc()
+    {
+        this->counter += 1;
+    }
+
+    void dec()
+    {
+        this->counter -= 1;
+    }
+
+    uint32_t get_counter() const
+    {
+        return this->counter;
+    }
+
+private:
+    uint32_t counter;
+};
+
 template <typename T>
 struct Allocator
 {
@@ -43,7 +66,7 @@ struct GarbageCollector
     T *allocate()
     {
         auto val = Allocator<T>::allocate();
-        this->memory.insert({val, 1});
+        this->memory.insert({val, Counter(1)});
         return val;
     }
 
@@ -52,8 +75,8 @@ struct GarbageCollector
         auto it = this->memory.find(val);
         if (it != this->memory.end())
         {
-            it->second -= 1;
-            if (it->second == 0)
+            it->second.dec();
+            if (it->second.get_counter() == 0)
             {
                 delete it->first;
                 this->memory.erase(val);
@@ -66,15 +89,15 @@ struct GarbageCollector
         auto it = this->memory.find(val);
         if (it != this->memory.end())
         {
-            it->second += 1;
+            it->second.inc();
         }
         else
         {
-            this->memory.insert({val, 1});
+            this->memory.insert({val, Counter(1)});
         }
     }
 
-    uint32_t get_counter(const T *val)
+    Counter get_counter(const T *val)
     {
         auto it = this->memory.find(val);
         if (it != this->memory.end())
@@ -83,7 +106,7 @@ struct GarbageCollector
         }
         else
         {
-            return 0;
+            return Counter(0);
         }
     }
 
@@ -105,7 +128,7 @@ struct GarbageCollector
 
 private:
     GarbageCollector() = default;
-    std::unordered_map<const T *, uint32_t> memory;
+    std::unordered_map<const T *, Counter> memory;
 };
 
 #endif

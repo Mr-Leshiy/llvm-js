@@ -8,17 +8,17 @@ TEST(GarbageCollector, Basic_test)
 
     auto *val1 = new uint32_t(110);
     EXPECT_EQ(*val1, 110);
-    EXPECT_EQ(gb.get_counter(val1), 0);
+    EXPECT_EQ(gb.get_counter(val1).get_counter(), 0);
 
     gb.inc_counter(val1);
-    EXPECT_EQ(gb.get_counter(val1), 1);
+    EXPECT_EQ(gb.get_counter(val1).get_counter(), 1);
 
     gb.inc_counter(val1);
-    EXPECT_EQ(gb.get_counter(val1), 2);
+    EXPECT_EQ(gb.get_counter(val1).get_counter(), 2);
 
     gb.dec_counter(val1);
-    EXPECT_EQ(gb.get_counter(val1), 1);
+    EXPECT_EQ(gb.get_counter(val1).get_counter(), 1);
 
     gb.dec_counter(val1);
-    EXPECT_EQ(gb.get_counter(val1), 0);
+    EXPECT_EQ(gb.get_counter(val1).get_counter(), 0);
 }
