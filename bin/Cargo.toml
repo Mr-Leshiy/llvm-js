@@ -11,4 +11,4 @@ compiler = { workspace = true }
 ast = { workspace = true }
 thiserror = { workspace = true }
 
-clap = { version = "4.1.4", features = ["derive"] }
+clap = { version = "4.1.6", features = ["derive"] }
