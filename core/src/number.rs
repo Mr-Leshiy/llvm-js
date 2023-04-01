@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Mul, Sub};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Number {
@@ -18,6 +18,7 @@ impl Number {
         }
     }
 
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         match self {
             Number::NaN => "NaN".to_string(),
@@ -64,17 +65,43 @@ impl Sub for &Number {
     }
 }
 
+impl Mul for &Number {
+    type Output = Number;
+    fn mul(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (&Number::NaN, _) | (_, &Number::NaN) => Number::NaN,
+            (&Number::Infinity, &Number::Infinity)
+            | (&Number::NegInfinity, &Number::NegInfinity) => Number::Infinity,
+            (&Number::Infinity, &Number::NegInfinity)
+            | (&Number::NegInfinity, &Number::Infinity) => Number::NegInfinity,
+            (&Number::Infinity, &Number::Number(a)) if a == 0.0 => Number::NaN,
+            (&Number::Infinity, &Number::Number(a)) if a > 0.0 => Number::Infinity,
+            (&Number::Infinity, &Number::Number(_)) => Number::NegInfinity,
+            (&Number::NegInfinity, &Number::Number(a)) if a == 0.0 => Number::NaN,
+            (&Number::NegInfinity, &Number::Number(a)) if a > 0.0 => Number::NegInfinity,
+            (&Number::NegInfinity, &Number::Number(_)) => Number::Infinity,
+            (&Number::Number(a), &Number::Infinity) if a == 0.0 => Number::NaN,
+            (&Number::Number(a), &Number::Infinity) if a > 0.0 => Number::Infinity,
+            (&Number::Number(_), &Number::Infinity) => Number::NegInfinity,
+            (&Number::Number(a), &Number::NegInfinity) if a == 0.0 => Number::NaN,
+            (&Number::Number(a), &Number::NegInfinity) if a > 0.0 => Number::NegInfinity,
+            (&Number::Number(_), &Number::NegInfinity) => Number::Infinity,
+            (&Number::Number(a), &Number::Number(b)) => Number::Number(a * b),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn to_boolean_test() {
-        assert_eq!(Number::NaN.to_boolean(), false);
-        assert_eq!(Number::Infinity.to_boolean(), true);
-        assert_eq!(Number::NegInfinity.to_boolean(), true);
-        assert_eq!(Number::Number(0.0).to_boolean(), false);
-        assert_eq!(Number::Number(1.0).to_boolean(), true);
+        assert!(!Number::NaN.to_boolean());
+        assert!(Number::Infinity.to_boolean());
+        assert!(Number::NegInfinity.to_boolean());
+        assert!(!Number::Number(0.0).to_boolean());
+        assert!(Number::Number(1.0).to_boolean());
     }
 
     #[test]
@@ -164,5 +191,78 @@ mod tests {
         );
         assert_eq!(&Number::Infinity - &Number::Infinity, Number::NaN);
         assert_eq!(&Number::NegInfinity - &Number::NegInfinity, Number::NaN);
+    }
+
+    #[test]
+    fn mul_test() {
+        assert_eq!(
+            &Number::Number(2.0) * &Number::Number(3.0),
+            Number::Number(6.0)
+        );
+        assert_eq!(
+            &Number::Number(2.0) * &Number::Number(0.0),
+            Number::Number(0.0)
+        );
+        assert_eq!(
+            &Number::Number(0.0) * &Number::Number(2.0),
+            Number::Number(0.0)
+        );
+        assert_eq!(
+            &Number::Number(-2.0) * &Number::Number(3.0),
+            Number::Number(-6.0)
+        );
+        assert_eq!(
+            &Number::Number(-2.5) * &Number::Number(-4.5),
+            Number::Number(11.25)
+        );
+        assert_eq!(&Number::NaN * &Number::Number(-4.5), Number::NaN);
+        assert_eq!(&Number::Number(2.0) * &Number::NaN, Number::NaN);
+        assert_eq!(&Number::Infinity * &Number::NaN, Number::NaN);
+        assert_eq!(&Number::NaN * &Number::Infinity, Number::NaN);
+        assert_eq!(&Number::NegInfinity * &Number::NaN, Number::NaN);
+        assert_eq!(&Number::NaN * &Number::NegInfinity, Number::NaN);
+        assert_eq!(&Number::Infinity * &Number::Number(1.0), Number::Infinity);
+        assert_eq!(
+            &Number::Infinity * &Number::Number(-1.0),
+            Number::NegInfinity
+        );
+        assert_eq!(&Number::Infinity * &Number::Number(0.0), Number::NaN);
+        assert_eq!(&Number::Number(1.0) * &Number::Infinity, Number::Infinity);
+        assert_eq!(
+            &Number::Number(-1.0) * &Number::Infinity,
+            Number::NegInfinity
+        );
+        assert_eq!(&Number::Number(0.0) * &Number::Infinity, Number::NaN);
+        assert_eq!(
+            &Number::NegInfinity * &Number::Number(1.0),
+            Number::NegInfinity
+        );
+        assert_eq!(
+            &Number::NegInfinity * &Number::Number(-1.0),
+            Number::Infinity
+        );
+        assert_eq!(&Number::NegInfinity * &Number::Number(0.0), Number::NaN);
+        assert_eq!(
+            &Number::Number(1.0) * &Number::NegInfinity,
+            Number::NegInfinity
+        );
+        assert_eq!(
+            &Number::Number(-1.0) * &Number::NegInfinity,
+            Number::Infinity
+        );
+        assert_eq!(&Number::Number(0.0) * &Number::NegInfinity, Number::NaN);
+        assert_eq!(&Number::Infinity * &Number::Infinity, Number::Infinity);
+        assert_eq!(
+            &Number::Infinity * &Number::NegInfinity,
+            Number::NegInfinity
+        );
+        assert_eq!(
+            &Number::NegInfinity * &Number::Infinity,
+            Number::NegInfinity
+        );
+        assert_eq!(
+            &Number::NegInfinity * &Number::NegInfinity,
+            Number::Infinity
+        );
     }
 }
