@@ -389,6 +389,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust_core"
+version = "0.1.0"
+
+[[package]]
 name = "rustix"
 version = "0.36.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
