@@ -25,4 +25,4 @@ rpn = { path = "rpn" }
 precompiler = { path = "precompiler" }
 lexer = { path = "lexer" }
 
-thiserror = { version = "1.0.39" }
+thiserror = { version = "1.0.40" }
