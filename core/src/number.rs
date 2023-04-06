@@ -1,6 +1,7 @@
 use std::ops::{Add, Div, Mul, Sub};
+use test_strategy::Arbitrary;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Arbitrary, Debug, Clone, PartialEq)]
 pub enum Number {
     NaN,
     Infinity,
@@ -14,7 +15,7 @@ impl Number {
             Number::NaN => false,
             Number::Infinity => true,
             Number::NegInfinity => true,
-            Number::Number(value) => value != &0_f64,
+            Number::Number(value) => value != &0.0,
         }
     }
 
@@ -117,52 +118,39 @@ impl Div for &Number {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_strategy::proptest;
 
-    #[test]
-    fn to_boolean_test() {
+    #[proptest]
+    fn to_boolean_test(a: f64) {
         assert!(!Number::NaN.to_boolean());
         assert!(Number::Infinity.to_boolean());
         assert!(Number::NegInfinity.to_boolean());
-        assert!(!Number::Number(0.0).to_boolean());
-        assert!(Number::Number(1.0).to_boolean());
+        assert_eq!(Number::Number(a).to_boolean(), a != 0.0);
     }
 
-    #[test]
-    fn to_string_test() {
+    #[proptest]
+    fn to_string_test(a: f64) {
         assert_eq!(Number::NaN.to_string(), "NaN".to_string());
         assert_eq!(Number::Infinity.to_string(), "Infinity".to_string());
         assert_eq!(Number::NegInfinity.to_string(), "-Infinity".to_string());
-        assert_eq!(Number::Number(0.0).to_string(), "0".to_string());
-        assert_eq!(Number::Number(1.0).to_string(), "1".to_string());
+        assert_eq!(Number::Number(a).to_string(), a.to_string());
     }
 
-    #[test]
-    fn add_test() {
+    #[proptest]
+    fn add_test(a: f64, b: f64) {
         assert_eq!(
-            &Number::Number(2.0) + &Number::Number(3.0),
-            Number::Number(5.0)
-        );
-        assert_eq!(
-            &Number::Number(0.0) + &Number::Number(2.0),
-            Number::Number(2.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.0) + &Number::Number(3.0),
-            Number::Number(1.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.5) + &Number::Number(-4.5),
-            Number::Number(-7.0)
+            &Number::Number(a) + &Number::Number(b),
+            Number::Number(a + b)
         );
 
-        assert_eq!(&Number::NaN + &Number::Number(-4.5), Number::NaN);
-        assert_eq!(&Number::Number(-4.5) + &Number::NaN, Number::NaN);
+        assert_eq!(&Number::NaN + &Number::Number(b), Number::NaN);
+        assert_eq!(&Number::Number(a) + &Number::NaN, Number::NaN);
         assert_eq!(&Number::Infinity + &Number::NaN, Number::NaN);
         assert_eq!(&Number::NegInfinity + &Number::NaN, Number::NaN);
 
-        assert_eq!(&Number::Infinity + &Number::Number(-4.5), Number::Infinity);
+        assert_eq!(&Number::Infinity + &Number::Number(b), Number::Infinity);
         assert_eq!(
-            &Number::NegInfinity + &Number::Number(-4.5),
+            &Number::NegInfinity + &Number::Number(b),
             Number::NegInfinity
         );
         assert_eq!(&Number::Infinity + &Number::NegInfinity, Number::NaN);
@@ -174,37 +162,21 @@ mod tests {
         );
     }
 
-    #[test]
-    fn sub_test() {
+    #[proptest]
+    fn sub_test(a: f64, b: f64) {
         assert_eq!(
-            &Number::Number(2.0) - &Number::Number(3.0),
-            Number::Number(-1.0)
-        );
-        assert_eq!(
-            &Number::Number(2.0) - &Number::Number(0.0),
-            Number::Number(2.0)
-        );
-        assert_eq!(
-            &Number::Number(0.0) - &Number::Number(2.0),
-            Number::Number(-2.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.0) - &Number::Number(3.0),
-            Number::Number(-5.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.5) - &Number::Number(-4.5),
-            Number::Number(2.0)
+            &Number::Number(a) - &Number::Number(b),
+            Number::Number(a - b)
         );
 
-        assert_eq!(&Number::NaN - &Number::Number(-4.5), Number::NaN);
-        assert_eq!(&Number::Number(-4.5) - &Number::NaN, Number::NaN);
+        assert_eq!(&Number::NaN - &Number::Number(b), Number::NaN);
+        assert_eq!(&Number::Number(a) - &Number::NaN, Number::NaN);
         assert_eq!(&Number::Infinity - &Number::NaN, Number::NaN);
         assert_eq!(&Number::NegInfinity - &Number::NaN, Number::NaN);
 
-        assert_eq!(&Number::Infinity - &Number::Number(-4.5), Number::Infinity);
+        assert_eq!(&Number::Infinity - &Number::Number(b), Number::Infinity);
         assert_eq!(
-            &Number::NegInfinity - &Number::Number(-4.5),
+            &Number::NegInfinity - &Number::Number(b),
             Number::NegInfinity
         );
         assert_eq!(&Number::Infinity - &Number::NegInfinity, Number::Infinity);
@@ -216,61 +188,52 @@ mod tests {
         assert_eq!(&Number::NegInfinity - &Number::NegInfinity, Number::NaN);
     }
 
-    #[test]
-    fn mul_test() {
+    #[proptest]
+    fn mul_test(#[filter(#a != 0.0)] a: f64, #[filter(#b != 0.0)] b: f64) {
         assert_eq!(
-            &Number::Number(2.0) * &Number::Number(3.0),
-            Number::Number(6.0)
+            &Number::Number(a) * &Number::Number(b),
+            Number::Number(a * b)
         );
-        assert_eq!(
-            &Number::Number(2.0) * &Number::Number(0.0),
-            Number::Number(0.0)
-        );
-        assert_eq!(
-            &Number::Number(0.0) * &Number::Number(2.0),
-            Number::Number(0.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.0) * &Number::Number(3.0),
-            Number::Number(-6.0)
-        );
-        assert_eq!(
-            &Number::Number(-2.5) * &Number::Number(-4.5),
-            Number::Number(11.25)
-        );
-        assert_eq!(&Number::NaN * &Number::Number(-4.5), Number::NaN);
-        assert_eq!(&Number::Number(2.0) * &Number::NaN, Number::NaN);
+
+        assert_eq!(&Number::NaN * &Number::Number(b), Number::NaN);
+        assert_eq!(&Number::Number(a) * &Number::NaN, Number::NaN);
         assert_eq!(&Number::Infinity * &Number::NaN, Number::NaN);
         assert_eq!(&Number::NaN * &Number::Infinity, Number::NaN);
         assert_eq!(&Number::NegInfinity * &Number::NaN, Number::NaN);
         assert_eq!(&Number::NaN * &Number::NegInfinity, Number::NaN);
-        assert_eq!(&Number::Infinity * &Number::Number(1.0), Number::Infinity);
         assert_eq!(
-            &Number::Infinity * &Number::Number(-1.0),
+            &Number::Infinity * &Number::Number(f64::abs(b)),
+            Number::Infinity
+        );
+        assert_eq!(
+            &Number::Infinity * &Number::Number(-f64::abs(b)),
             Number::NegInfinity
         );
         assert_eq!(&Number::Infinity * &Number::Number(0.0), Number::NaN);
-        assert_eq!(&Number::Number(1.0) * &Number::Infinity, Number::Infinity);
         assert_eq!(
-            &Number::Number(-1.0) * &Number::Infinity,
+            &Number::Number(f64::abs(a)) * &Number::Infinity,
+            Number::Infinity
+        );
+        assert_eq!(
+            &Number::Number(-f64::abs(a)) * &Number::Infinity,
             Number::NegInfinity
         );
         assert_eq!(&Number::Number(0.0) * &Number::Infinity, Number::NaN);
         assert_eq!(
-            &Number::NegInfinity * &Number::Number(1.0),
+            &Number::NegInfinity * &Number::Number(f64::abs(b)),
             Number::NegInfinity
         );
         assert_eq!(
-            &Number::NegInfinity * &Number::Number(-1.0),
+            &Number::NegInfinity * &Number::Number(-f64::abs(b)),
             Number::Infinity
         );
         assert_eq!(&Number::NegInfinity * &Number::Number(0.0), Number::NaN);
         assert_eq!(
-            &Number::Number(1.0) * &Number::NegInfinity,
+            &Number::Number(f64::abs(a)) * &Number::NegInfinity,
             Number::NegInfinity
         );
         assert_eq!(
-            &Number::Number(-1.0) * &Number::NegInfinity,
+            &Number::Number(-f64::abs(a)) * &Number::NegInfinity,
             Number::Infinity
         );
         assert_eq!(&Number::Number(0.0) * &Number::NegInfinity, Number::NaN);
@@ -289,52 +252,35 @@ mod tests {
         );
     }
 
-    #[test]
-    fn div_test() {
+    #[proptest]
+    fn div_test(#[filter(#a != 0.0)] a: f64, #[filter(#b != 0.0)] b: f64) {
         assert_eq!(
-            &Number::Number(6.0) / &Number::Number(3.0),
-            Number::Number(2.0)
-        );
-        assert_eq!(
-            &Number::Number(-6.0) / &Number::Number(3.0),
-            Number::Number(-2.0)
-        );
-        assert_eq!(
-            &Number::Number(6.0) / &Number::Number(-3.0),
-            Number::Number(-2.0)
-        );
-        assert_eq!(
-            &Number::Number(-6.0) / &Number::Number(-3.0),
-            Number::Number(2.0)
-        );
-        assert_eq!(
-            &Number::Number(3.0) / &Number::Number(0.0),
-            Number::Infinity
-        );
-        assert_eq!(
-            &Number::Number(-3.0) / &Number::Number(0.0),
-            Number::NegInfinity
+            &Number::Number(a) / &Number::Number(b),
+            Number::Number(a / b)
         );
 
         assert_eq!(&Number::Number(0.0) / &Number::Number(0.0), Number::NaN);
-        assert_eq!(&Number::NaN / &Number::Number(1.0), Number::NaN);
-        assert_eq!(&Number::Number(1.0) / &Number::NaN, Number::NaN);
+        assert_eq!(&Number::NaN / &Number::Number(b), Number::NaN);
+        assert_eq!(&Number::Number(a) / &Number::NaN, Number::NaN);
         assert_eq!(&Number::NaN / &Number::Infinity, Number::NaN);
         assert_eq!(&Number::Infinity / &Number::NaN, Number::NaN);
         assert_eq!(&Number::NaN / &Number::NegInfinity, Number::NaN);
         assert_eq!(&Number::NegInfinity / &Number::NaN, Number::NaN);
 
-        assert_eq!(&Number::Infinity / &Number::Number(1.0), Number::Infinity);
         assert_eq!(
-            &Number::Infinity / &Number::Number(-1.0),
+            &Number::Infinity / &Number::Number(f64::abs(b)),
+            Number::Infinity
+        );
+        assert_eq!(
+            &Number::Infinity / &Number::Number(-f64::abs(b)),
             Number::NegInfinity
         );
         assert_eq!(
-            &Number::NegInfinity / &Number::Number(1.0),
+            &Number::NegInfinity / &Number::Number(f64::abs(b)),
             Number::NegInfinity
         );
         assert_eq!(
-            &Number::NegInfinity / &Number::Number(-1.0),
+            &Number::NegInfinity / &Number::Number(-f64::abs(b)),
             Number::Infinity
         );
 
@@ -343,20 +289,9 @@ mod tests {
         assert_eq!(&Number::NegInfinity / &Number::Infinity, Number::NaN);
         assert_eq!(&Number::NegInfinity / &Number::NegInfinity, Number::NaN);
 
+        assert_eq!(&Number::Number(a) / &Number::Infinity, Number::Number(0.0));
         assert_eq!(
-            &Number::Number(1.0) / &Number::Infinity,
-            Number::Number(0.0)
-        );
-        assert_eq!(
-            &Number::Number(1.0) / &Number::NegInfinity,
-            Number::Number(0.0)
-        );
-        assert_eq!(
-            &Number::Number(-1.0) / &Number::Infinity,
-            Number::Number(0.0)
-        );
-        assert_eq!(
-            &Number::Number(-1.0) / &Number::NegInfinity,
+            &Number::Number(a) / &Number::NegInfinity,
             Number::Number(0.0)
         );
     }

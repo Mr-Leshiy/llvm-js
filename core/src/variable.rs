@@ -88,84 +88,76 @@ impl Div for &Variable {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test_strategy::proptest;
 
-    #[test]
-    fn to_boolean_test() {
+    #[proptest]
+    fn to_boolean_test(number: Number, string: String) {
         assert!(!Variable::Undefined.to_boolean());
         assert!(!Variable::Null.to_boolean());
         assert_eq!(
-            Variable::Number(Number::Number(1.0)).to_boolean(),
-            Number::Number(1.0).to_boolean()
+            Variable::Number(number.clone()).to_boolean(),
+            number.to_boolean()
         );
         assert!(Variable::Boolean(true).to_boolean());
         assert!(!Variable::Boolean(false).to_boolean());
-        assert!(Variable::String("Hello".to_string()).to_boolean());
-        assert!(!Variable::String("".to_string()).to_boolean());
+        assert_eq!(
+            Variable::String(string.clone()).to_boolean(),
+            !string.is_empty()
+        );
     }
 
-    #[test]
-    fn to_number_test() {
+    #[proptest]
+    fn to_number_test(number: Number, string: String) {
         assert_eq!(Variable::Undefined.to_number(), Number::NaN);
         assert_eq!(Variable::Null.to_number(), Number::Number(0.0));
-        assert_eq!(
-            Variable::Number(Number::Number(1.0)).to_number(),
-            Number::Number(1.0)
-        );
+        assert_eq!(Variable::Number(number.clone()).to_number(), number);
         assert_eq!(Variable::Boolean(true).to_number(), Number::Number(1.0));
         assert_eq!(Variable::Boolean(false).to_number(), Number::Number(0.0));
-        assert_eq!(
-            Variable::String("Hello".to_string()).to_number(),
-            Number::NaN
-        );
-        assert_eq!(Variable::String("".to_string()).to_number(), Number::NaN);
+        assert_eq!(Variable::String(string).to_number(), Number::NaN);
     }
 
-    #[test]
-    fn to_string_test() {
+    #[proptest]
+    fn to_string_test(number: Number, string: String) {
         assert_eq!(Variable::Undefined.to_string(), "undefined".to_string());
         assert_eq!(Variable::Null.to_string(), "null".to_string());
         assert_eq!(
-            Variable::Number(Number::Number(1.0)).to_string(),
-            Number::Number(1.0).to_string()
+            Variable::Number(number.clone()).to_string(),
+            number.to_string()
         );
         assert_eq!(Variable::Boolean(true).to_string(), "true".to_string());
         assert_eq!(Variable::Boolean(false).to_string(), "false".to_string());
-        assert_eq!(
-            Variable::String("Hello".to_string()).to_string(),
-            "Hello".to_string()
-        );
-        assert_eq!(Variable::String("".to_string()).to_string(), "".to_string());
+        assert_eq!(Variable::String(string.clone()).to_string(), string);
     }
 
-    #[test]
-    fn arithmetic_test() {
+    #[proptest]
+    fn arithmetic_test(number1: Number, number2: Number, string1: String, string2: String) {
         assert_eq!(
-            &Variable::String("Hello ".to_string()) + &Variable::String("world".to_string()),
-            Variable::String("Hello world".to_string())
+            &Variable::String(string1.clone()) + &Variable::String(string2.clone()),
+            Variable::String(format!("{}{}", &string1, &string2))
         );
         assert_eq!(
-            &Variable::Number(Number::Number(2.0)) + &Variable::String(" world".to_string()),
-            Variable::String("2 world".to_string())
+            &Variable::Number(number1.clone()) + &Variable::String(string2.clone()),
+            Variable::String(format!("{}{}", number1.to_string(), &string2))
         );
         assert_eq!(
-            &Variable::String("Hello ".to_string()) + &Variable::Number(Number::Number(2.0)),
-            Variable::String("Hello 2".to_string())
+            &Variable::String(string1.clone()) + &Variable::Number(number2.clone()),
+            Variable::String(format!("{}{}", &string1, number2.to_string()))
         );
         assert_eq!(
-            &Variable::Number(Number::Number(1.0)) + &Variable::Number(Number::Number(2.0)),
-            Variable::Number(Number::Number(3.0))
+            &Variable::Number(number1.clone()) + &Variable::Number(number2.clone()),
+            Variable::Number(&number1 + &number2)
         );
         assert_eq!(
-            &Variable::Number(Number::Number(1.0)) - &Variable::Number(Number::Number(2.0)),
-            Variable::Number(Number::Number(-1.0))
+            &Variable::Number(number1.clone()) - &Variable::Number(number2.clone()),
+            Variable::Number(&number1 - &number2)
         );
         assert_eq!(
-            &Variable::Number(Number::Number(1.0)) * &Variable::Number(Number::Number(2.0)),
-            Variable::Number(Number::Number(2.0))
+            &Variable::Number(number1.clone()) * &Variable::Number(number2.clone()),
+            Variable::Number(&number1 * &number2)
         );
         assert_eq!(
-            &Variable::Number(Number::Number(1.0)) / &Variable::Number(Number::Number(2.0)),
-            Variable::Number(Number::Number(0.5))
+            &Variable::Number(number1.clone()) / &Variable::Number(number2.clone()),
+            Variable::Number(&number1 / &number2)
         );
     }
 }
