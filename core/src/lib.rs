@@ -1,3 +1,3 @@
-mod interface;
+mod interfaces;
 mod number;
 mod variable;

@@ -139,6 +139,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "core"
+version = "0.1.0"
+dependencies = [
+ "proptest",
+ "test-strategy",
+]
+
+[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -562,14 +570,6 @@ name = "rpn"
 version = "0.1.0"
 dependencies = [
  "thiserror",
-]
-
-[[package]]
-name = "rust_core"
-version = "0.1.0"
-dependencies = [
- "proptest",
- "test-strategy",
 ]
 
 [[package]]

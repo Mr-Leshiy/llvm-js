@@ -1,7 +1,7 @@
 assert_eq("Hello " + "world", "Hello world");
 
-assert_eq(2 + " world", "2.000000 world");
-assert_eq("Hello " + 2, "Hello 2.000000");
+assert_eq(2 + " world", "2 world");
+assert_eq("Hello " + 2, "Hello 2");
 
 assert_eq(undefined + " world", "undefined world");
 assert_eq(false + " world", "false world");

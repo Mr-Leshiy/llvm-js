@@ -1,6 +1,5 @@
-use std::ops::{Add, Div, Mul, Sub};
-
 use crate::number::Number;
+use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {

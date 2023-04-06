@@ -15,7 +15,6 @@ use std::{
 pub type AssemblerError = Error;
 
 const CORE_LIB: &str = "core";
-const FMT_LIB: &str = "fmtd";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -33,7 +32,6 @@ pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), E
         current_exe().unwrap().parent().unwrap().to_str().unwrap()
     );
     let llvm_lib_name_arg = format!("-l{CORE_LIB}");
-    let fmt_lib_name_arg = format!("-l{FMT_LIB}");
 
     let out = Command::new("clang++")
         .args([
@@ -41,7 +39,6 @@ pub fn compile_binary(in_file_path: &Path, out_file_path: &Path) -> Result<(), E
             out_arg.as_str(),
             in_file_path.to_str().unwrap(),
             llvm_lib_name_arg.as_str(),
-            fmt_lib_name_arg.as_str(),
         ])
         .output()?;
     if out.status.success() {
