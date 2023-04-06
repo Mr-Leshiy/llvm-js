@@ -60,27 +60,21 @@ impl Add for &Variable {
 impl Sub for &Variable {
     type Output = Variable;
     fn sub(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
-            (a, b) => Variable::Number((&a.to_number()) - (&b.to_number())),
-        }
+        Variable::Number((&self.to_number()) - (&rhs.to_number()))
     }
 }
 
 impl Mul for &Variable {
     type Output = Variable;
     fn mul(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
-            (a, b) => Variable::Number((&a.to_number()) * (&b.to_number())),
-        }
+        Variable::Number((&self.to_number()) * (&rhs.to_number()))
     }
 }
 
 impl Div for &Variable {
     type Output = Variable;
     fn div(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
-            (a, b) => Variable::Number((&a.to_number()) / (&b.to_number())),
-        }
+        Variable::Number((&self.to_number()) / (&rhs.to_number()))
     }
 }
 
