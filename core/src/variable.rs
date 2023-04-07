@@ -10,6 +10,24 @@ pub enum Variable {
     String(String),
 }
 
+impl From<Number> for Variable {
+    fn from(value: Number) -> Self {
+        Self::Number(value)
+    }
+}
+
+impl From<bool> for Variable {
+    fn from(value: bool) -> Self {
+        Self::Boolean(value)
+    }
+}
+
+impl From<String> for Variable {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
 impl Variable {
     pub fn to_boolean(&self) -> bool {
         match self {
@@ -49,10 +67,10 @@ impl Add for &Variable {
     type Output = Variable;
     fn add(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
-            (Variable::String(a), Variable::String(b)) => Variable::String(format!("{a}{b}")),
-            (Variable::String(a), b) => Variable::String(format!("{a}{}", b.to_string())),
-            (a, Variable::String(b)) => Variable::String(format!("{}{b}", a.to_string())),
-            (a, b) => Variable::Number((&a.to_number()) + (&b.to_number())),
+            (Variable::String(a), Variable::String(b)) => format!("{a}{b}").into(),
+            (Variable::String(a), b) => format!("{a}{}", b.to_string()).into(),
+            (a, Variable::String(b)) => format!("{}{b}", a.to_string()).into(),
+            (a, b) => ((&a.to_number()) + (&b.to_number())).into(),
         }
     }
 }
@@ -60,21 +78,21 @@ impl Add for &Variable {
 impl Sub for &Variable {
     type Output = Variable;
     fn sub(self, rhs: Self) -> Self::Output {
-        Variable::Number((&self.to_number()) - (&rhs.to_number()))
+        ((&self.to_number()) - (&rhs.to_number())).into()
     }
 }
 
 impl Mul for &Variable {
     type Output = Variable;
     fn mul(self, rhs: Self) -> Self::Output {
-        Variable::Number((&self.to_number()) * (&rhs.to_number()))
+        ((&self.to_number()) * (&rhs.to_number())).into()
     }
 }
 
 impl Div for &Variable {
     type Output = Variable;
     fn div(self, rhs: Self) -> Self::Output {
-        Variable::Number((&self.to_number()) / (&rhs.to_number()))
+        ((&self.to_number()) / (&rhs.to_number())).into()
     }
 }
 
@@ -82,6 +100,13 @@ impl Div for &Variable {
 mod tests {
     use super::*;
     use test_strategy::proptest;
+
+    #[proptest]
+    fn from_tests(number: Number, boolean: bool, string: String) {
+        assert_eq!(Variable::Number(number.clone()), number.into());
+        assert_eq!(Variable::Boolean(boolean), boolean.into());
+        assert_eq!(Variable::String(string.clone()), string.into());
+    }
 
     #[proptest]
     fn to_boolean_test(number: Number, string: String) {
