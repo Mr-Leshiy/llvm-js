@@ -9,6 +9,20 @@ pub enum Number {
     Number(f64),
 }
 
+impl From<f64> for Number {
+    fn from(value: f64) -> Self {
+        if value == f64::INFINITY {
+            Number::Infinity
+        } else if value == f64::NEG_INFINITY {
+            Number::NegInfinity
+        } else if value.is_nan() {
+            Number::NaN
+        } else {
+            Number::Number(value)
+        }
+    }
+}
+
 impl Number {
     pub fn to_boolean(&self) -> bool {
         match self {
@@ -41,7 +55,7 @@ impl Add for &Number {
             (_, &Number::Infinity) => Number::Infinity,
             (&Number::NegInfinity, _) => Number::NegInfinity,
             (_, &Number::NegInfinity) => Number::NegInfinity,
-            (&Number::Number(a), &Number::Number(b)) => Number::Number(a + b),
+            (&Number::Number(a), &Number::Number(b)) => (a + b).into(),
         }
     }
 }
@@ -59,7 +73,7 @@ impl Sub for &Number {
             (_, &Number::Infinity) => Number::NegInfinity,
             (&Number::NegInfinity, _) => Number::NegInfinity,
             (_, &Number::NegInfinity) => Number::Infinity,
-            (&Number::Number(a), &Number::Number(b)) => Number::Number(a - b),
+            (&Number::Number(a), &Number::Number(b)) => (a - b).into(),
         }
     }
 }
@@ -85,7 +99,7 @@ impl Mul for &Number {
             (&Number::Number(a), &Number::NegInfinity) if a == 0.0 => Number::NaN,
             (&Number::Number(a), &Number::NegInfinity) if a > 0.0 => Number::NegInfinity,
             (&Number::Number(_), &Number::NegInfinity) => Number::Infinity,
-            (&Number::Number(a), &Number::Number(b)) => Number::Number(a * b),
+            (&Number::Number(a), &Number::Number(b)) => (a * b).into(),
         }
     }
 }
@@ -110,7 +124,7 @@ impl Div for &Number {
             (&Number::Number(a), &Number::Number(b)) if a == 0.0 && b == 0.0 => Number::NaN,
             (&Number::Number(a), &Number::Number(b)) if a > 0.0 && b == 0.0 => Number::Infinity,
             (&Number::Number(a), &Number::Number(b)) if a < 0.0 && b == 0.0 => Number::NegInfinity,
-            (&Number::Number(a), &Number::Number(b)) => Number::Number(a / b),
+            (&Number::Number(a), &Number::Number(b)) => (a / b).into(),
         }
     }
 }
@@ -119,6 +133,14 @@ impl Div for &Number {
 mod tests {
     use super::*;
     use test_strategy::proptest;
+
+    #[proptest]
+    fn from_f64_test(number: f64) {
+        assert_eq!(Number::Number(number), number.into());
+        assert_eq!(Number::Infinity, f64::INFINITY.into());
+        assert_eq!(Number::NegInfinity, f64::NEG_INFINITY.into());
+        assert_eq!(Number::NaN, f64::NAN.into());
+    }
 
     #[proptest]
     fn to_boolean_test(a: f64) {
