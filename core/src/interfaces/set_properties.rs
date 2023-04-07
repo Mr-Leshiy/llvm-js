@@ -56,6 +56,5 @@ pub unsafe extern "C" fn set_string(this: *mut Variable, val: *const c_char) {
 pub unsafe extern "C" fn set_variable(this: *mut Variable, val: *mut Variable) {
     let mut this = NonNull::new(this).unwrap();
     let val = NonNull::new(val).unwrap();
-
     *this.as_mut() = val.as_ref().clone();
 }

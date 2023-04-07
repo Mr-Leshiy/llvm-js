@@ -1,5 +1,4 @@
 use crate::number::Number;
-use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {
@@ -63,36 +62,52 @@ impl Variable {
     }
 }
 
-impl Add for &Variable {
-    type Output = Variable;
-    fn add(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
+// arithmetic operations
+
+impl Variable {
+    pub fn add(a: &Variable, b: &Variable) -> Variable {
+        match (a, b) {
             (Variable::String(a), Variable::String(b)) => format!("{a}{b}").into(),
             (Variable::String(a), b) => format!("{a}{}", b.to_string()).into(),
             (a, Variable::String(b)) => format!("{}{b}", a.to_string()).into(),
-            (a, b) => ((&a.to_number()) + (&b.to_number())).into(),
+            (a, b) => Number::add(&a.to_number(), &b.to_number()).into(),
         }
     }
-}
 
-impl Sub for &Variable {
-    type Output = Variable;
-    fn sub(self, rhs: Self) -> Self::Output {
-        ((&self.to_number()) - (&rhs.to_number())).into()
+    pub fn sub(a: &Variable, b: &Variable) -> Variable {
+        Number::sub(&a.to_number(), &b.to_number()).into()
+    }
+
+    pub fn mul(a: &Variable, b: &Variable) -> Variable {
+        Number::mul(&a.to_number(), &b.to_number()).into()
+    }
+
+    pub fn div(a: &Variable, b: &Variable) -> Variable {
+        Number::div(&a.to_number(), &b.to_number()).into()
     }
 }
 
-impl Mul for &Variable {
-    type Output = Variable;
-    fn mul(self, rhs: Self) -> Self::Output {
-        ((&self.to_number()) * (&rhs.to_number())).into()
-    }
-}
+// logical operations
 
-impl Div for &Variable {
-    type Output = Variable;
-    fn div(self, rhs: Self) -> Self::Output {
-        ((&self.to_number()) / (&rhs.to_number())).into()
+impl Variable {
+    pub fn not(&self) -> Variable {
+        (!self.to_boolean()).into()
+    }
+
+    pub fn and(a: &Variable, b: &Variable) -> Variable {
+        if a.to_boolean() {
+            b.clone()
+        } else {
+            a.clone()
+        }
+    }
+
+    pub fn or(a: &Variable, b: &Variable) -> Variable {
+        if a.to_boolean() {
+            a.clone()
+        } else {
+            b.clone()
+        }
     }
 }
 
@@ -150,32 +165,54 @@ mod tests {
     #[proptest]
     fn arithmetic_test(number1: Number, number2: Number, string1: String, string2: String) {
         assert_eq!(
-            &Variable::String(string1.clone()) + &Variable::String(string2.clone()),
+            Variable::add(
+                &Variable::String(string1.clone()),
+                &Variable::String(string2.clone())
+            ),
             Variable::String(format!("{}{}", &string1, &string2))
         );
         assert_eq!(
-            &Variable::Number(number1.clone()) + &Variable::String(string2.clone()),
+            Variable::add(
+                &Variable::Number(number1.clone()),
+                &Variable::String(string2.clone())
+            ),
             Variable::String(format!("{}{}", number1.to_string(), &string2))
         );
         assert_eq!(
-            &Variable::String(string1.clone()) + &Variable::Number(number2.clone()),
+            Variable::add(
+                &Variable::String(string1.clone()),
+                &Variable::Number(number2.clone())
+            ),
             Variable::String(format!("{}{}", &string1, number2.to_string()))
         );
+
         assert_eq!(
-            &Variable::Number(number1.clone()) + &Variable::Number(number2.clone()),
-            Variable::Number(&number1 + &number2)
+            Variable::add(
+                &Variable::Number(number1.clone()),
+                &Variable::Number(number2.clone())
+            ),
+            Number::add(&number1, &number2).into()
         );
         assert_eq!(
-            &Variable::Number(number1.clone()) - &Variable::Number(number2.clone()),
-            Variable::Number(&number1 - &number2)
+            Variable::sub(
+                &Variable::Number(number1.clone()),
+                &Variable::Number(number2.clone())
+            ),
+            Number::sub(&number1, &number2).into()
         );
         assert_eq!(
-            &Variable::Number(number1.clone()) * &Variable::Number(number2.clone()),
-            Variable::Number(&number1 * &number2)
+            Variable::mul(
+                &Variable::Number(number1.clone()),
+                &Variable::Number(number2.clone())
+            ),
+            Number::mul(&number1, &number2).into()
         );
         assert_eq!(
-            &Variable::Number(number1.clone()) / &Variable::Number(number2.clone()),
-            Variable::Number(&number1 / &number2)
+            Variable::div(
+                &Variable::Number(number1.clone()),
+                &Variable::Number(number2.clone())
+            ),
+            Number::div(&number1, &number2).into()
         );
     }
 }

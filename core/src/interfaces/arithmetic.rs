@@ -9,7 +9,8 @@ pub unsafe extern "C" fn arithmetic_addition(
     let val1 = NonNull::new(val1).unwrap();
     let val2 = NonNull::new(val2).unwrap();
 
-    Box::into_raw(Box::new(val1.as_ref() + val2.as_ref()))
+    let res = Variable::add(val1.as_ref(), val2.as_ref());
+    Box::into_raw(Box::new(res))
 }
 
 #[no_mangle]
@@ -20,7 +21,8 @@ pub unsafe extern "C" fn arithmetic_substraction(
     let val1 = NonNull::new(val1).unwrap();
     let val2 = NonNull::new(val2).unwrap();
 
-    Box::into_raw(Box::new(val1.as_ref() - val2.as_ref()))
+    let res = Variable::sub(val1.as_ref(), val2.as_ref());
+    Box::into_raw(Box::new(res))
 }
 
 #[no_mangle]
@@ -31,7 +33,8 @@ pub unsafe extern "C" fn arithmetic_multiplication(
     let val1 = NonNull::new(val1).unwrap();
     let val2 = NonNull::new(val2).unwrap();
 
-    Box::into_raw(Box::new(val1.as_ref() * val2.as_ref()))
+    let res = Variable::mul(val1.as_ref(), val2.as_ref());
+    Box::into_raw(Box::new(res))
 }
 
 #[no_mangle]
@@ -42,5 +45,6 @@ pub unsafe extern "C" fn arithmetic_division(
     let val1 = NonNull::new(val1).unwrap();
     let val2 = NonNull::new(val2).unwrap();
 
-    Box::into_raw(Box::new(val1.as_ref() / val2.as_ref()))
+    let res = Variable::div(val1.as_ref(), val2.as_ref());
+    Box::into_raw(Box::new(res))
 }
