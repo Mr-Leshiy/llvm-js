@@ -151,7 +151,7 @@ mod tests {
     fn add_test(a: f64, b: f64) {
         assert_eq!(
             Number::add(&Number::Number(a), &Number::Number(b)),
-            Number::Number(a + b)
+            (a + b).into()
         );
 
         assert_eq!(Number::add(&Number::NaN, &Number::Number(b)), Number::NaN);
@@ -189,7 +189,7 @@ mod tests {
     fn sub_test(a: f64, b: f64) {
         assert_eq!(
             Number::sub(&Number::Number(a), &Number::Number(b)),
-            Number::Number(a - b)
+            (a - b).into()
         );
 
         assert_eq!(Number::sub(&Number::NaN, &Number::Number(b)), Number::NaN);
@@ -227,7 +227,7 @@ mod tests {
     fn mul_test(#[filter(#a != 0.0)] a: f64, #[filter(#b != 0.0)] b: f64) {
         assert_eq!(
             Number::mul(&Number::Number(a), &Number::Number(b)),
-            Number::Number(a * b)
+            (a * b).into()
         );
 
         assert_eq!(Number::mul(&Number::NaN, &Number::Number(b)), Number::NaN);
@@ -306,7 +306,7 @@ mod tests {
     fn div_test(#[filter(#a != 0.0)] a: f64, #[filter(#b != 0.0)] b: f64) {
         assert_eq!(
             Number::div(&Number::Number(a), &Number::Number(b)),
-            Number::Number(a / b)
+            (a / b).into()
         );
 
         assert_eq!(
