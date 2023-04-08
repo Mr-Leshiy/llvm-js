@@ -1,6 +1,6 @@
 use test_strategy::Arbitrary;
 
-#[derive(Arbitrary, Debug, Clone, PartialEq)]
+#[derive(Arbitrary, Debug, Clone, PartialEq, PartialOrd)]
 pub enum Number {
     NaN,
     Infinity,
@@ -114,6 +114,60 @@ impl Number {
             (&Number::Number(a), &Number::Number(b)) if a > 0.0 && b == 0.0 => Number::Infinity,
             (&Number::Number(a), &Number::Number(b)) if a < 0.0 && b == 0.0 => Number::NegInfinity,
             (&Number::Number(a), &Number::Number(b)) => (a / b).into(),
+        }
+    }
+}
+
+impl Number {
+    pub fn gt(a: &Number, b: &Number) -> bool {
+        match (a, b) {
+            (&Number::NaN, _) => false,
+            (_, &Number::NaN) => false,
+            (&Number::Infinity, &Number::Infinity) => false,
+            (&Number::Infinity, _) => true,
+            (&Number::NegInfinity, &Number::NegInfinity) => false,
+            (_, &Number::NegInfinity) => true,
+            (&Number::Number(a), &Number::Number(b)) => a > b,
+            _ => false,
+        }
+    }
+
+    pub fn ge(a: &Number, b: &Number) -> bool {
+        match (a, b) {
+            (&Number::NaN, _) => false,
+            (_, &Number::NaN) => false,
+            (&Number::Infinity, &Number::Infinity) => true,
+            (&Number::Infinity, _) => true,
+            (&Number::NegInfinity, &Number::NegInfinity) => true,
+            (_, &Number::NegInfinity) => true,
+            (&Number::Number(a), &Number::Number(b)) => a >= b,
+            _ => false,
+        }
+    }
+
+    pub fn lt(a: &Number, b: &Number) -> bool {
+        match (a, b) {
+            (&Number::NaN, _) => false,
+            (_, &Number::NaN) => false,
+            (&Number::Infinity, &Number::Infinity) => false,
+            (&Number::Infinity, _) => false,
+            (&Number::NegInfinity, &Number::NegInfinity) => false,
+            (_, &Number::NegInfinity) => false,
+            (&Number::Number(a), &Number::Number(b)) => a < b,
+            _ => true,
+        }
+    }
+
+    pub fn le(a: &Number, b: &Number) -> bool {
+        match (a, b) {
+            (&Number::NaN, _) => false,
+            (_, &Number::NaN) => false,
+            (&Number::Infinity, &Number::Infinity) => true,
+            (&Number::Infinity, _) => false,
+            (&Number::NegInfinity, &Number::NegInfinity) => true,
+            (_, &Number::NegInfinity) => false,
+            (&Number::Number(a), &Number::Number(b)) => a <= b,
+            _ => true,
         }
     }
 }
@@ -362,5 +416,97 @@ mod tests {
             Number::div(&Number::Number(a), &Number::NegInfinity),
             Number::Number(0.0)
         );
+    }
+
+    #[proptest]
+    fn gt_test(a: f64, b: f64) {
+        assert!(!Number::gt(&Number::NaN, &Number::NaN));
+        assert!(!Number::gt(&Number::NaN, &Number::Infinity));
+        assert!(!Number::gt(&Number::NaN, &Number::NegInfinity));
+        assert!(!Number::gt(&Number::NaN, &Number::Number(b)));
+        assert!(!Number::gt(&Number::Infinity, &Number::NaN));
+        assert!(!Number::gt(&Number::NegInfinity, &Number::NaN));
+        assert!(!Number::gt(&Number::Number(a), &Number::NaN));
+
+        assert!(!Number::gt(&Number::Infinity, &Number::Infinity));
+        assert!(Number::gt(&Number::Infinity, &Number::NegInfinity));
+        assert!(Number::gt(&Number::Infinity, &Number::Number(b)));
+        assert!(!Number::gt(&Number::NegInfinity, &Number::Infinity));
+        assert!(!Number::gt(&Number::Number(a), &Number::Infinity));
+
+        assert!(!Number::gt(&Number::NegInfinity, &Number::NegInfinity));
+        assert!(!Number::gt(&Number::NegInfinity, &Number::Number(b)));
+        assert!(Number::gt(&Number::Number(a), &Number::NegInfinity));
+
+        assert_eq!(Number::gt(&Number::Number(a), &Number::Number(b)), a > b,);
+    }
+
+    #[proptest]
+    fn ge_test(a: f64, b: f64) {
+        assert!(!Number::ge(&Number::NaN, &Number::NaN));
+        assert!(!Number::ge(&Number::NaN, &Number::Infinity));
+        assert!(!Number::ge(&Number::NaN, &Number::NegInfinity));
+        assert!(!Number::ge(&Number::NaN, &Number::Number(b)));
+        assert!(!Number::ge(&Number::Infinity, &Number::NaN));
+        assert!(!Number::ge(&Number::NegInfinity, &Number::NaN));
+        assert!(!Number::ge(&Number::Number(a), &Number::NaN));
+
+        assert!(Number::ge(&Number::Infinity, &Number::Infinity));
+        assert!(Number::ge(&Number::Infinity, &Number::NegInfinity));
+        assert!(Number::ge(&Number::Infinity, &Number::Number(b)));
+        assert!(!Number::ge(&Number::NegInfinity, &Number::Infinity));
+        assert!(!Number::ge(&Number::Number(a), &Number::Infinity));
+
+        assert!(Number::ge(&Number::NegInfinity, &Number::NegInfinity));
+        assert!(!Number::ge(&Number::NegInfinity, &Number::Number(b)));
+        assert!(Number::ge(&Number::Number(a), &Number::NegInfinity));
+
+        assert_eq!(Number::ge(&Number::Number(a), &Number::Number(b)), a >= b,);
+    }
+
+    #[proptest]
+    fn lt_test(a: f64, b: f64) {
+        assert!(!Number::lt(&Number::NaN, &Number::NaN));
+        assert!(!Number::lt(&Number::NaN, &Number::Infinity));
+        assert!(!Number::lt(&Number::NaN, &Number::NegInfinity));
+        assert!(!Number::lt(&Number::NaN, &Number::Number(b)));
+        assert!(!Number::lt(&Number::Infinity, &Number::NaN));
+        assert!(!Number::lt(&Number::NegInfinity, &Number::NaN));
+        assert!(!Number::lt(&Number::Number(a), &Number::NaN));
+
+        assert!(!Number::lt(&Number::Infinity, &Number::Infinity));
+        assert!(!Number::lt(&Number::Infinity, &Number::NegInfinity));
+        assert!(!Number::lt(&Number::Infinity, &Number::Number(b)));
+        assert!(Number::lt(&Number::NegInfinity, &Number::Infinity));
+        assert!(Number::lt(&Number::Number(a), &Number::Infinity));
+
+        assert!(!Number::lt(&Number::NegInfinity, &Number::NegInfinity));
+        assert!(Number::lt(&Number::NegInfinity, &Number::Number(b)));
+        assert!(!Number::lt(&Number::Number(a), &Number::NegInfinity));
+
+        assert_eq!(Number::lt(&Number::Number(a), &Number::Number(b)), a < b,);
+    }
+
+    #[proptest]
+    fn le_test(a: f64, b: f64) {
+        assert!(!Number::le(&Number::NaN, &Number::NaN));
+        assert!(!Number::le(&Number::NaN, &Number::Infinity));
+        assert!(!Number::le(&Number::NaN, &Number::NegInfinity));
+        assert!(!Number::le(&Number::NaN, &Number::Number(b)));
+        assert!(!Number::le(&Number::Infinity, &Number::NaN));
+        assert!(!Number::le(&Number::NegInfinity, &Number::NaN));
+        assert!(!Number::le(&Number::Number(a), &Number::NaN));
+
+        assert!(Number::le(&Number::Infinity, &Number::Infinity));
+        assert!(!Number::le(&Number::Infinity, &Number::NegInfinity));
+        assert!(!Number::le(&Number::Infinity, &Number::Number(b)));
+        assert!(Number::le(&Number::NegInfinity, &Number::Infinity));
+        assert!(Number::le(&Number::Number(a), &Number::Infinity));
+
+        assert!(Number::le(&Number::NegInfinity, &Number::NegInfinity));
+        assert!(Number::le(&Number::NegInfinity, &Number::Number(b)));
+        assert!(!Number::le(&Number::Number(a), &Number::NegInfinity));
+
+        assert_eq!(Number::le(&Number::Number(a), &Number::Number(b)), a <= b,);
     }
 }

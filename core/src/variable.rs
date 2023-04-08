@@ -215,4 +215,25 @@ mod tests {
             Number::div(&number1, &number2).into()
         );
     }
+
+    #[proptest]
+    fn not_test(boolean: bool) {
+        assert_eq!(Variable::Boolean(boolean).not(), (!boolean).into());
+    }
+
+    #[proptest]
+    fn and_test(a: bool, b: bool) {
+        assert_eq!(
+            Variable::and(&Variable::Boolean(a), &Variable::Boolean(b)),
+            (a && b).into()
+        );
+    }
+
+    #[proptest]
+    fn or_test(a: bool, b: bool) {
+        assert_eq!(
+            Variable::or(&Variable::Boolean(a), &Variable::Boolean(b)),
+            (a || b).into()
+        );
+    }
 }

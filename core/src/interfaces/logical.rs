@@ -26,3 +26,21 @@ pub unsafe extern "C" fn logical_or(val1: *mut Variable, val2: *mut Variable) ->
     let res = Variable::or(val1.as_ref(), val2.as_ref());
     Box::into_raw(Box::new(res))
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn logical_eq(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
+    let val1 = NonNull::new(val1).unwrap();
+    let val2 = NonNull::new(val2).unwrap();
+
+    let res = (val1.as_ref() == val2.as_ref()).into();
+    Box::into_raw(Box::new(res))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn logical_ne(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
+    let val1 = NonNull::new(val1).unwrap();
+    let val2 = NonNull::new(val2).unwrap();
+
+    let res = (val1.as_ref() != val2.as_ref()).into();
+    Box::into_raw(Box::new(res))
+}
