@@ -43,6 +43,8 @@ impl Number {
     }
 }
 
+// arithmetic operations
+
 impl Number {
     pub fn add(a: &Number, b: &Number) -> Number {
         match (a, b) {
@@ -117,6 +119,8 @@ impl Number {
         }
     }
 }
+
+// logical operations
 
 impl Number {
     pub fn gt(a: &Number, b: &Number) -> bool {

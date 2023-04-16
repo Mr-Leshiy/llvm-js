@@ -1,7 +1,7 @@
 use crate::variable::Variable;
 
 #[no_mangle]
-pub unsafe extern "C" fn allocate() -> *mut Variable {
+pub extern "C" fn allocate() -> *mut Variable {
     let res = Variable::Undefined;
     Box::into_raw(Box::new(res))
 }

@@ -57,7 +57,7 @@ impl Variable {
             Self::Number(number) => number.to_string(),
             Self::Boolean(true) => "true".to_string(),
             Self::Boolean(false) => "false".to_string(),
-            Self::String(string) => string.clone(),
+            Self::String(string) => format!(r#""{}""#, string),
         }
     }
 }
@@ -109,6 +109,22 @@ impl Variable {
             b.clone()
         }
     }
+
+    pub fn gt(a: &Variable, b: &Variable) -> Variable {
+        Number::gt(&a.to_number(), &b.to_number()).into()
+    }
+
+    pub fn ge(a: &Variable, b: &Variable) -> Variable {
+        Number::ge(&a.to_number(), &b.to_number()).into()
+    }
+
+    pub fn lt(a: &Variable, b: &Variable) -> Variable {
+        Number::lt(&a.to_number(), &b.to_number()).into()
+    }
+
+    pub fn le(a: &Variable, b: &Variable) -> Variable {
+        Number::le(&a.to_number(), &b.to_number()).into()
+    }
 }
 
 #[cfg(test)]
@@ -159,7 +175,10 @@ mod tests {
         );
         assert_eq!(Variable::Boolean(true).to_string(), "true".to_string());
         assert_eq!(Variable::Boolean(false).to_string(), "false".to_string());
-        assert_eq!(Variable::String(string.clone()).to_string(), string);
+        assert_eq!(
+            Variable::String(string.clone()).to_string(),
+            format!(r#""{}""#, string)
+        );
     }
 
     #[proptest]
