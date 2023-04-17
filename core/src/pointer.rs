@@ -9,6 +9,10 @@ pub struct Pointer<T, A> {
 }
 
 impl<T, A> Pointer<T, A> {
+    pub fn copy(&self) -> Self {
+        Self::from_raw(self.raw).expect("should be always valid")
+    }
+
     pub fn from_raw(raw: *mut T) -> Option<Self> {
         if raw.is_null() {
             None

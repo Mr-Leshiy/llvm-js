@@ -73,6 +73,14 @@ impl Variable {
             object.add_property(property_name, property);
         }
     }
+
+    pub fn get_property(&self, property_name: String) -> Ptr<Variable> {
+        if let Self::Object(object) = self {
+            object.get_property(property_name)
+        } else {
+            Ptr::allocate(Variable::Undefined)
+        }
+    }
 }
 
 // arithmetic operations

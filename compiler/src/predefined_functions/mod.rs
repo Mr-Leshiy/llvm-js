@@ -13,7 +13,7 @@ use self::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, FunctionCallFn,
         GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn,
         SetBooleanFn, SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
-        SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        SetNumberFn, SetEmptyObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::{Compiler, InkwellContext};
@@ -31,7 +31,7 @@ pub struct PredefineFunctions<'ctx> {
     set_undefined: SetUndefinedFn<'ctx>,
     set_null: SetNullFn<'ctx>,
     set_nan: SetNaNFn<'ctx>,
-    set_object: SetObjectFn<'ctx>,
+    set_empty_object: SetEmptyObjectFn<'ctx>,
     set_array: SetArrayFn<'ctx>,
     set_infinity: SetInfinityFn<'ctx>,
     set_neginfinity: SetNegInfinityFn<'ctx>,
@@ -82,7 +82,7 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_undefined: SetUndefinedFn::declare(inkwell_context),
             set_null: SetNullFn::declare(inkwell_context),
             set_nan: SetNaNFn::declare(inkwell_context),
-            set_object: SetObjectFn::declare(inkwell_context),
+            set_empty_object: SetEmptyObjectFn::declare(inkwell_context),
             set_array: SetArrayFn::declare(inkwell_context),
             set_infinity: SetInfinityFn::declare(inkwell_context),
             set_neginfinity: SetNegInfinityFn::declare(inkwell_context),
@@ -146,8 +146,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
         &self.set_nan
     }
 
-    pub fn set_object(&self) -> &SetObjectFn<'ctx> {
-        &self.set_object
+    pub fn set_empty_object(&self) -> &SetEmptyObjectFn<'ctx> {
+        &self.set_empty_object
     }
 
     pub fn set_array(&self) -> &SetArrayFn<'ctx> {

@@ -280,6 +280,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "jsc"
+version = "0.1.0"
+dependencies = [
+ "assembler",
+ "ast",
+ "clap",
+ "compiler",
+ "thiserror",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -316,17 +327,6 @@ name = "linux-raw-sys"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d59d8c75012853d2e872fb56bc8a2e53718e2cafe1a4c823143141c6d90c322f"
-
-[[package]]
-name = "llvm-js-compiler"
-version = "0.1.0"
-dependencies = [
- "assembler",
- "ast",
- "clap",
- "compiler",
- "thiserror",
-]
 
 [[package]]
 name = "llvm-sys"

@@ -158,12 +158,12 @@ impl<'ctx> SetNaNFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct SetObjectFn<'ctx> {
+pub struct SetEmptyObjectFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> SetObjectFn<'ctx> {
-    const NAME: &'static str = "set_object";
+impl<'ctx> SetEmptyObjectFn<'ctx> {
+    const NAME: &'static str = "set_empty_object";
 
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
