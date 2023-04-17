@@ -1,4 +1,10 @@
-use crate::{number::Number, object::Object, pointer::Ptr, variable::Variable};
+use crate::{
+    function::{FuncType, Function},
+    number::Number,
+    object::Object,
+    pointer::Ptr,
+    variable::Variable,
+};
 use std::ffi::{c_char, CStr};
 
 #[no_mangle]
@@ -70,6 +76,13 @@ pub unsafe extern "C" fn set_empty_array(this: *mut Variable) {
     let mut this = Ptr::from_raw(this).unwrap();
 
     *this.get_mut_ref() = Variable::Object(Object::new_array());
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn set_function(this: *mut Variable, func: *const FuncType, args_num: u32) {
+    let mut this = Ptr::from_raw(this).unwrap();
+
+    *this.get_mut_ref() = Variable::Function(Function::new(*func, args_num));
 }
 
 #[no_mangle]

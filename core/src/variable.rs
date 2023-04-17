@@ -1,4 +1,4 @@
-use crate::{number::Number, object::Object, pointer::Ptr};
+use crate::{function::Function, number::Number, object::Object, pointer::Ptr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {
@@ -8,6 +8,7 @@ pub enum Variable {
     Boolean(bool),
     String(String),
     Object(Object),
+    Function(Function),
 }
 
 impl From<Number> for Variable {
@@ -37,6 +38,7 @@ impl Variable {
             Self::Boolean(boolean) => *boolean,
             Self::String(string) => !string.is_empty(),
             Self::Object(_) => false,
+            Self::Function(_) => true,
         }
     }
 
@@ -49,6 +51,7 @@ impl Variable {
             Self::Boolean(false) => Number::Number(0.0),
             Self::String(_) => Number::NaN,
             Self::Object(_) => Number::NaN,
+            Self::Function(_) => Number::NaN,
         }
     }
 
@@ -62,6 +65,7 @@ impl Variable {
             Self::Boolean(false) => "false".to_string(),
             Self::String(string) => format!(r#""{}""#, string),
             Self::Object(object) => object.to_string(),
+            Self::Function(function) => function.to_string(),
         }
     }
 }
@@ -77,6 +81,14 @@ impl Variable {
     pub fn get_property(&self, property_name: String) -> Ptr<Variable> {
         if let Self::Object(object) = self {
             object.get_property(property_name)
+        } else {
+            Ptr::allocate(Variable::Undefined)
+        }
+    }
+
+    pub fn function_call(&self, args: &mut [*mut Variable]) -> Ptr<Variable> {
+        if let Self::Function(function) = self {
+            function.call(args)
         } else {
             Ptr::allocate(Variable::Undefined)
         }

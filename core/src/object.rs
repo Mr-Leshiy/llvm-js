@@ -12,6 +12,7 @@ pub enum Object {
 }
 
 impl Object {
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let mut res = String::new();
         match self {
