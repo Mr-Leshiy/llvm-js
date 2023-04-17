@@ -66,6 +66,13 @@ pub unsafe extern "C" fn set_empty_object(this: *mut Variable) {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn set_empty_array(this: *mut Variable) {
+    let mut this = Ptr::from_raw(this).unwrap();
+
+    *this.get_mut_ref() = Variable::Object(Object::new_array());
+}
+
+#[no_mangle]
 pub extern "C" fn set_variable(this: *mut Variable, val: *mut Variable) {
     let mut this = Ptr::from_raw(this).unwrap();
     let val = Ptr::from_raw(val).unwrap();

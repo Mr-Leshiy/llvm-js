@@ -6,6 +6,9 @@ pub enum Object {
     Object {
         properties: HashMap<String, Ptr<Variable>>,
     },
+    Array {
+        properties: HashMap<String, Ptr<Variable>>,
+    },
 }
 
 impl Object {
@@ -21,6 +24,13 @@ impl Object {
                 }
                 res.push('}');
             }
+            Self::Array { properties } => {
+                res.push('[');
+                for (_, property) in properties {
+                    res.push_str(format!("{0}, ", property.get_ref().to_string()).as_str());
+                }
+                res.push(']');
+            }
         }
         res
     }
@@ -33,9 +43,18 @@ impl Object {
         }
     }
 
+    pub fn new_array() -> Self {
+        Self::Array {
+            properties: HashMap::new(),
+        }
+    }
+
     pub fn add_property(&mut self, property_name: String, property: Ptr<Variable>) {
         match self {
             Self::Object { properties } => {
+                properties.insert(property_name, property);
+            }
+            Self::Array { properties } => {
                 properties.insert(property_name, property);
             }
         }
@@ -44,6 +63,10 @@ impl Object {
     pub fn get_property(&self, property_name: String) -> Ptr<Variable> {
         match self {
             Self::Object { properties } => properties
+                .get(&property_name)
+                .map(|el| el.copy())
+                .unwrap_or_else(|| Ptr::allocate(Variable::Undefined)),
+            Self::Array { properties } => properties
                 .get(&property_name)
                 .map(|el| el.copy())
                 .unwrap_or_else(|| Ptr::allocate(Variable::Undefined)),

@@ -187,12 +187,12 @@ impl<'ctx> SetEmptyObjectFn<'ctx> {
 }
 
 #[derive(Clone)]
-pub struct SetArrayFn<'ctx> {
+pub struct SetEmptyArrayFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
 
-impl<'ctx> SetArrayFn<'ctx> {
-    const NAME: &'static str = "set_array";
+impl<'ctx> SetEmptyArrayFn<'ctx> {
+    const NAME: &'static str = "set_empty_array";
 
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
