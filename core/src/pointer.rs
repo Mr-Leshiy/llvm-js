@@ -1,13 +1,15 @@
 use std::marker::PhantomData;
 
+pub type Ptr<T> = Pointer<T, ()>;
+
 #[derive(Debug)]
-pub struct Ptr<T, A = ()> {
+pub struct Pointer<T, A> {
     raw: *mut T,
     _a: PhantomData<A>,
 }
 
-impl<T> Ptr<T> {
-    pub fn new(raw: *mut T) -> Option<Self> {
+impl<T, A> Pointer<T, A> {
+    pub fn from_raw(raw: *mut T) -> Option<Self> {
         if raw.is_null() {
             None
         } else {
@@ -31,7 +33,13 @@ impl<T> Ptr<T> {
     }
 }
 
-impl<T> Clone for Ptr<T, ()> {
+impl<T> Pointer<T, ()> {
+    pub fn allocate(val: T) -> Self {
+        Self::from_raw(Box::into_raw(Box::new(val))).unwrap()
+    }
+}
+
+impl<T> Clone for Pointer<T, ()> {
     fn clone(&self) -> Self {
         Self {
             raw: self.raw,
@@ -40,7 +48,7 @@ impl<T> Clone for Ptr<T, ()> {
     }
 }
 
-impl<T: PartialEq, A> PartialEq for Ptr<T, A> {
+impl<T: PartialEq, A> PartialEq for Pointer<T, A> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { (*self.raw) == (*other.raw) }
     }
@@ -52,13 +60,13 @@ mod tests {
 
     #[test]
     fn equality_test() {
-        assert_eq!(Ptr::new(&mut 5).unwrap(), Ptr::new(&mut 5).unwrap());
-        assert_ne!(Ptr::new(&mut 5).unwrap(), Ptr::new(&mut 10).unwrap());
+        assert_eq!(Pointer::allocate(5), Pointer::allocate(5));
+        assert_ne!(Pointer::allocate(5), Pointer::allocate(10));
     }
 
     #[test]
     fn basic_test() {
-        let mut ptr = Ptr::new(&mut 5).unwrap();
+        let mut ptr = Pointer::allocate(5);
 
         assert_eq!(ptr.get_ref(), &5);
         assert_eq!(ptr.get_mut_ref(), &mut 5);

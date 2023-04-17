@@ -1,82 +1,72 @@
-use crate::variable::Variable;
-use std::ptr::NonNull;
+use crate::{pointer::Ptr, variable::Variable};
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_not(val: *mut Variable) -> *mut Variable {
-    let val = NonNull::new(val).unwrap();
+    let val = Ptr::from_raw(val).unwrap();
 
-    let res = val.as_ref().not();
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(val.get_ref().not()).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_and(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::and(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::and(val1.get_ref(), val2.get_ref())).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_or(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::or(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::or(val1.get_ref(), val2.get_ref())).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_eq(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = (val1.as_ref() == val2.as_ref()).into();
-    Box::into_raw(Box::new(res))
+    Ptr::allocate((val1.get_ref() == val2.get_ref()).into()).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_ne(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = (val1.as_ref() != val2.as_ref()).into();
-    Box::into_raw(Box::new(res))
+    Ptr::allocate((val1.get_ref() != val2.get_ref()).into()).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_gt(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::gt(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::gt(val1.get_ref(), val2.get_ref())).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_ge(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::ge(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::ge(val1.get_ref(), val2.get_ref())).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_lt(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::lt(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::lt(val1.get_ref(), val2.get_ref())).get_raw()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_le(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    let res = Variable::le(val1.as_ref(), val2.as_ref());
-    Box::into_raw(Box::new(res))
+    Ptr::allocate(Variable::le(val1.get_ref(), val2.get_ref())).get_raw()
 }

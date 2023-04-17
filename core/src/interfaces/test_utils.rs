@@ -1,28 +1,28 @@
-use crate::variable::Variable;
-use std::{process::abort, ptr::NonNull};
+use crate::{pointer::Ptr, variable::Variable};
+use std::process::abort;
 
 #[no_mangle]
 pub unsafe extern "C" fn variable_assert(this: *mut Variable) {
-    let this = NonNull::new(this).unwrap();
+    let this = Ptr::from_raw(this).unwrap();
 
-    if !this.as_ref().to_boolean() {
+    if !this.get_ref().to_boolean() {
         abort();
     }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn variable_assert_eq(val1: *mut Variable, val2: *mut Variable) {
-    let val1 = NonNull::new(val1).unwrap();
-    let val2 = NonNull::new(val2).unwrap();
+    let val1 = Ptr::from_raw(val1).unwrap();
+    let val2 = Ptr::from_raw(val2).unwrap();
 
-    if val1.as_ref() != val2.as_ref() {
+    if val1.get_ref() != val2.get_ref() {
         abort();
     }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn print(this: *mut Variable) {
-    let this = NonNull::new(this).unwrap();
+    let this = Ptr::from_raw(this).unwrap();
 
-    println!("{}", this.as_ref().to_string());
+    println!("{}", this.get_ref().to_string());
 }

@@ -1,9 +1,9 @@
-use crate::variable::Variable;
+use crate::{pointer::Ptr, variable::Variable};
 
 #[no_mangle]
 pub extern "C" fn allocate() -> *mut Variable {
-    let res = Variable::Undefined;
-    Box::into_raw(Box::new(res))
+    let val = Variable::Undefined;
+    Ptr::allocate(val).get_raw()
 }
 
 #[no_mangle]

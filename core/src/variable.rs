@@ -1,4 +1,4 @@
-use crate::number::Number;
+use crate::{number::Number, object::Object, pointer::Ptr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {
@@ -7,6 +7,7 @@ pub enum Variable {
     Number(Number),
     Boolean(bool),
     String(String),
+    Object(Object),
 }
 
 impl From<Number> for Variable {
@@ -35,6 +36,7 @@ impl Variable {
             Self::Number(number) => number.to_boolean(),
             Self::Boolean(boolean) => *boolean,
             Self::String(string) => !string.is_empty(),
+            Self::Object(_) => false,
         }
     }
 
@@ -46,6 +48,7 @@ impl Variable {
             Self::Boolean(true) => Number::Number(1.0),
             Self::Boolean(false) => Number::Number(0.0),
             Self::String(_) => Number::NaN,
+            Self::Object(_) => Number::NaN,
         }
     }
 
@@ -58,6 +61,16 @@ impl Variable {
             Self::Boolean(true) => "true".to_string(),
             Self::Boolean(false) => "false".to_string(),
             Self::String(string) => format!(r#""{}""#, string),
+            Self::Object(object) => object.to_string(),
+        }
+    }
+}
+
+impl Variable {
+    pub fn add_property(&mut self, property_name: String, property: Ptr<Variable>) {
+        // TODO print runtime error message
+        if let Self::Object(object) = self {
+            object.add_property(property_name, property);
         }
     }
 }

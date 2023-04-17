@@ -1,8 +1,22 @@
 use crate::{pointer::Ptr, variable::Variable};
 use std::collections::HashMap;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Object {
     properties: HashMap<String, Ptr<Variable>>,
+}
+
+impl Object {
+    pub fn to_string(&self) -> String {
+        let mut res = "{".to_string();
+        for (property_name, property) in &self.properties {
+            res.push_str(
+                format!("{0}: {1}", property_name, property.get_ref().to_string()).as_str(),
+            );
+        }
+        res.push('}');
+        res
+    }
 }
 
 impl Object {
@@ -19,17 +33,6 @@ impl Object {
     pub fn get_property(&self, property_name: String) -> Option<&Ptr<Variable>> {
         self.properties.get(&property_name).map(|el| el)
     }
-
-    pub fn to_string(&self) -> String {
-        let mut res = "{".to_string();
-        for (property_name, property) in &self.properties {
-            res.push_str(
-                format!("{0}: {1}", property_name, property.get_ref().to_string()).as_str(),
-            );
-        }
-        res.push('}');
-        res
-    }
 }
 
 #[cfg(test)]
@@ -43,7 +46,7 @@ mod tests {
 
         assert_eq!(object.get_property("name".to_string()), None);
 
-        let prop = Ptr::new(&mut Variable::Undefined).unwrap();
+        let prop = Ptr::from_raw(&mut Variable::Undefined).unwrap();
 
         object.add_property("name".to_string(), prop.clone());
 
