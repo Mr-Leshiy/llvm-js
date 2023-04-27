@@ -1,6 +1,6 @@
 use crate::{pointer::Ptr, variable::Variable};
 
-pub type FuncType = fn(*mut *mut Variable) -> *mut Variable;
+pub type FuncType = extern "C" fn(*mut *mut Variable) -> *mut Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
@@ -15,10 +15,17 @@ impl Function {
 
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
-        format!("Function, args_num: {0}", self.args_num)
+        format!(
+            "Function, ptr: {0:?}, args_num: {1}",
+            self.func, self.args_num
+        )
     }
 
-    pub fn call(&self, args: &mut [*mut Variable]) -> Ptr<Variable> {
-        Ptr::from_raw((self.func)(args.as_mut_ptr())).expect("should be always valid")
+    pub fn call(&self, args: &mut Vec<*mut Variable>) -> Ptr<Variable> {
+        while args.len() < self.args_num as usize {
+            args.push(Ptr::allocate(Variable::Undefined).get_raw());
+        }
+        let res = (self.func)(args.as_mut_ptr());
+        Ptr::from_raw(res).expect("should be always valid")
     }
 }

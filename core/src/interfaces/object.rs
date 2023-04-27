@@ -1,8 +1,5 @@
 use crate::{pointer::Ptr, variable::Variable};
-use std::{
-    ffi::{c_char, CStr},
-    slice::from_raw_parts_mut,
-};
+use std::ffi::{c_char, CStr};
 
 #[no_mangle]
 pub unsafe extern "C" fn add_property_by_str(
@@ -62,7 +59,8 @@ pub unsafe extern "C" fn function_call(
     args_num: u32,
 ) -> *mut Variable {
     let this = Ptr::from_raw(this).unwrap();
-    let args = from_raw_parts_mut(args, args_num as usize);
+    // providing 0 capacity value because we dont want to deallocate memory for args
+    let mut args = Vec::from_raw_parts(args, args_num as usize, 0);
 
-    this.get_ref().function_call(args).get_raw()
+    this.get_ref().function_call(&mut args).get_raw()
 }

@@ -63,7 +63,7 @@ impl Variable {
             Self::Number(number) => number.to_string(),
             Self::Boolean(true) => "true".to_string(),
             Self::Boolean(false) => "false".to_string(),
-            Self::String(string) => format!(r#""{}""#, string),
+            Self::String(string) => string.clone(),
             Self::Object(object) => object.to_string(),
             Self::Function(function) => function.to_string(),
         }
@@ -86,7 +86,7 @@ impl Variable {
         }
     }
 
-    pub fn function_call(&self, args: &mut [*mut Variable]) -> Ptr<Variable> {
+    pub fn function_call(&self, args: &mut Vec<*mut Variable>) -> Ptr<Variable> {
         if let Self::Function(function) = self {
             function.call(args)
         } else {
@@ -208,10 +208,7 @@ mod tests {
         );
         assert_eq!(Variable::Boolean(true).to_string(), "true".to_string());
         assert_eq!(Variable::Boolean(false).to_string(), "false".to_string());
-        assert_eq!(
-            Variable::String(string.clone()).to_string(),
-            format!(r#""{}""#, string)
-        );
+        assert_eq!(Variable::String(string.clone()).to_string(), string);
     }
 
     #[proptest]

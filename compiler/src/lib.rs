@@ -124,7 +124,11 @@ where
 
     pub fn generate_llvm_ir(&self, path: &Path) -> Result<(), Error<T>> {
         self.verify()?;
-        self.inkwell_context.module.write_bitcode_to_path(path);
+        // self.inkwell_context.module.write_bitcode_to_path(path);
+        self.inkwell_context
+            .module
+            .print_to_file(path)
+            .map_err(|e| Error::InvalidModule(e.to_string()))?;
         Ok(())
     }
 

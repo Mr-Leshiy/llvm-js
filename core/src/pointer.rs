@@ -39,7 +39,8 @@ impl<T, A> Pointer<T, A> {
 
 impl<T> Pointer<T, ()> {
     pub fn allocate(val: T) -> Self {
-        Self::from_raw(Box::into_raw(Box::new(val))).unwrap()
+        let ptr = Box::into_raw(Box::new(val));
+        Self::from_raw(ptr).unwrap()
     }
 }
 

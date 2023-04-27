@@ -79,10 +79,10 @@ pub unsafe extern "C" fn set_empty_array(this: *mut Variable) {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn set_function(this: *mut Variable, func: *const FuncType, args_num: u32) {
+pub unsafe extern "C" fn set_function(this: *mut Variable, func: FuncType, args_num: u32) {
     let mut this = Ptr::from_raw(this).unwrap();
 
-    *this.get_mut_ref() = Variable::Function(Function::new(*func, args_num));
+    *this.get_mut_ref() = Variable::Function(Function::new(func, args_num));
 }
 
 #[no_mangle]

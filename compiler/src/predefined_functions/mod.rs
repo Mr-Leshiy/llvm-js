@@ -11,9 +11,9 @@ use self::{
     test::{AssertEqFn, AssertFn, PrintFn},
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, FunctionCallFn,
-        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetEmptyArrayFn,
-        SetBooleanFn, SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
-        SetNumberFn, SetEmptyObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetBooleanFn,
+        SetEmptyArrayFn, SetEmptyObjectFn, SetFunctionFn, SetInfinityFn, SetNaNFn,
+        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::{Compiler, InkwellContext};
