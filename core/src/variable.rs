@@ -144,19 +144,31 @@ impl Variable {
     }
 
     pub fn gt(a: &Variable, b: &Variable) -> Variable {
-        Number::gt(&a.to_number(), &b.to_number()).into()
+        match (a, b) {
+            (Variable::String(a), Variable::String(b)) => (a > b).into(),
+            (a, b) => Number::gt(&a.to_number(), &b.to_number()).into(),
+        }
     }
 
     pub fn ge(a: &Variable, b: &Variable) -> Variable {
-        Number::ge(&a.to_number(), &b.to_number()).into()
+        match (a, b) {
+            (Variable::String(a), Variable::String(b)) => (a >= b).into(),
+            (a, b) => Number::ge(&a.to_number(), &b.to_number()).into(),
+        }
     }
 
     pub fn lt(a: &Variable, b: &Variable) -> Variable {
-        Number::lt(&a.to_number(), &b.to_number()).into()
+        match (a, b) {
+            (Variable::String(a), Variable::String(b)) => (a < b).into(),
+            (a, b) => Number::lt(&a.to_number(), &b.to_number()).into(),
+        }
     }
 
     pub fn le(a: &Variable, b: &Variable) -> Variable {
-        Number::le(&a.to_number(), &b.to_number()).into()
+        match (a, b) {
+            (Variable::String(a), Variable::String(b)) => (a <= b).into(),
+            (a, b) => Number::le(&a.to_number(), &b.to_number()).into(),
+        }
     }
 }
 
@@ -283,6 +295,58 @@ mod tests {
         assert_eq!(
             Variable::or(&Variable::Boolean(a), &Variable::Boolean(b)),
             (a || b).into()
+        );
+    }
+
+    #[proptest]
+    fn gt_test(a1: String, b1: String, a2: Number, b2: Number) {
+        assert_eq!(
+            Variable::Boolean(a1 > b1),
+            Variable::gt(&Variable::String(a1), &Variable::String(b1)),
+        );
+
+        assert_eq!(
+            Variable::Boolean(Number::gt(&a2, &b2)),
+            Variable::gt(&a2.into(), &b2.into()),
+        );
+    }
+
+    #[proptest]
+    fn ge_test(a1: String, b1: String, a2: Number, b2: Number) {
+        assert_eq!(
+            Variable::Boolean(a1 >= b1),
+            Variable::ge(&Variable::String(a1), &Variable::String(b1)),
+        );
+
+        assert_eq!(
+            Variable::Boolean(Number::ge(&a2, &b2)),
+            Variable::ge(&a2.into(), &b2.into()),
+        );
+    }
+
+    #[proptest]
+    fn lt_test(a1: String, b1: String, a2: Number, b2: Number) {
+        assert_eq!(
+            Variable::Boolean(a1 < b1),
+            Variable::lt(&Variable::String(a1), &Variable::String(b1)),
+        );
+
+        assert_eq!(
+            Variable::Boolean(Number::lt(&a2, &b2)),
+            Variable::lt(&a2.into(), &b2.into()),
+        );
+    }
+
+    #[proptest]
+    fn le_test(a1: String, b1: String, a2: Number, b2: Number) {
+        assert_eq!(
+            Variable::Boolean(a1 <= b1),
+            Variable::le(&Variable::String(a1), &Variable::String(b1)),
+        );
+
+        assert_eq!(
+            Variable::Boolean(Number::le(&a2, &b2)),
+            Variable::le(&a2.into(), &b2.into()),
         );
     }
 }
