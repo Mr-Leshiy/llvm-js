@@ -9,3 +9,6 @@ assert_eq(a[name]["name"].name,  "Alex");
 
 a.name = 10;
 assert_eq(a.name, 10);
+
+a.age = 10
+assert_eq(a.age, 10);

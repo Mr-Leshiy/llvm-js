@@ -61,16 +61,16 @@ impl Object {
         }
     }
 
-    pub fn get_property(&self, property_name: String) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: String) -> Ptr<Variable> {
         match self {
             Self::Object { properties } => properties
-                .get(&property_name)
-                .map(|el| el.copy())
-                .unwrap_or_else(|| Ptr::allocate(Variable::Undefined)),
+                .entry(property_name)
+                .or_insert(Ptr::allocate(Variable::Undefined))
+                .copy(),
             Self::Array { properties } => properties
-                .get(&property_name)
-                .map(|el| el.copy())
-                .unwrap_or_else(|| Ptr::allocate(Variable::Undefined)),
+                .entry(property_name)
+                .or_insert(Ptr::allocate(Variable::Undefined))
+                .copy(),
         }
     }
 }

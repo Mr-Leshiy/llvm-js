@@ -33,10 +33,10 @@ pub unsafe extern "C" fn get_property_by_str(
     this: *mut Variable,
     property_name: *const c_char,
 ) -> *mut Variable {
-    let this = Ptr::from_raw(this).unwrap();
+    let mut this = Ptr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
 
-    this.get_ref().get_property(property_name).get_raw()
+    this.get_mut_ref().get_property(property_name).get_raw()
 }
 
 #[no_mangle]
@@ -44,10 +44,10 @@ pub extern "C" fn get_property_by_var(
     this: *mut Variable,
     property_name: *mut Variable,
 ) -> *mut Variable {
-    let this = Ptr::from_raw(this).unwrap();
+    let mut this = Ptr::from_raw(this).unwrap();
     let property_name = Ptr::from_raw(property_name).unwrap();
 
-    this.get_ref()
+    this.get_mut_ref()
         .get_property(property_name.get_ref().to_string())
         .get_raw()
 }

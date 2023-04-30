@@ -78,7 +78,7 @@ impl Variable {
         }
     }
 
-    pub fn get_property(&self, property_name: String) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: String) -> Ptr<Variable> {
         if let Self::Object(object) = self {
             object.get_property(property_name)
         } else {
