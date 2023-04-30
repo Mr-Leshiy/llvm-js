@@ -27,7 +27,7 @@ impl Object {
             }
             Self::Array { properties } => {
                 res.push('[');
-                for (_, property) in properties {
+                for property in properties.values() {
                     res.push_str(format!("{0}, ", property.get_ref().to_string()).as_str());
                 }
                 res.push(']');

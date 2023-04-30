@@ -74,7 +74,7 @@ impl<'ctx, T> Compiler<'ctx, T> {
                 .opaque_struct_type(Variable::TYPE_NAME)
                 .ptr_type(AddressSpace::from(0)),
         };
-        let predefined_functions = PredefineFunctions::declare::<T>(&inkwell_context);
+        let predefined_functions = PredefineFunctions::declare(&inkwell_context);
         Self {
             inkwell_context,
             functions: HashMap::new(),

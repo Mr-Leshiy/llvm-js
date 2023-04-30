@@ -74,7 +74,7 @@ pub struct PredefineFunctions<'ctx> {
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
-    pub(crate) fn declare<T>(inkwell_context: &InkwellContext<'ctx>) -> Self {
+    pub(crate) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         Self {
             // variable functions
             allocate: AllocateFn::declare(inkwell_context),
