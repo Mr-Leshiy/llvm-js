@@ -15,7 +15,11 @@ impl ArrayExpression {
         let res = Variable::new_array(compiler, true);
         for (i, el) in self.values.into_iter().enumerate() {
             let value = el.compile(compiler)?;
-            res.add_property_by_str(compiler, i.to_string().as_str(), &value);
+            res.add_property_by_number(
+                compiler,
+                u32::try_from(i).expect("number overflow").into(),
+                &value,
+            );
         }
         Ok(res)
     }

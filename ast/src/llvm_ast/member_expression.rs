@@ -1,4 +1,4 @@
-use super::{FunctionCall, Identifier, VariableExpression};
+use super::{FunctionCall, Identifier, VariableExpression, VariableValue};
 use crate::{Compiler, CompilerError};
 use compiler::Variable;
 
@@ -46,6 +46,24 @@ impl Property {
                     arg.deallocate(compiler);
                 }
                 ret
+            }
+            PropertyType::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::Boolean(key),
+            )) => {
+                let res = variable.get_property_by_boolean(compiler, key);
+                res
+            }
+            PropertyType::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::FloatNumber(key),
+            )) => {
+                let res = variable.get_property_by_number(compiler, key);
+                res
+            }
+            PropertyType::VariableExpression(VariableExpression::VariableValue(
+                VariableValue::String(key),
+            )) => {
+                let res = variable.get_property_by_str(compiler, &key);
+                res
             }
             PropertyType::VariableExpression(variable_expression) => {
                 let key = variable_expression.compile(compiler)?;

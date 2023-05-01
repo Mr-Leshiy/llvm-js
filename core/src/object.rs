@@ -50,25 +50,25 @@ impl Object {
         }
     }
 
-    pub fn add_property(&mut self, property_name: String, property: Ptr<Variable>) {
+    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
         match self {
             Self::Object { properties } => {
-                properties.insert(property_name, property);
+                properties.insert(property_name.to_string(), property);
             }
             Self::Array { properties } => {
-                properties.insert(property_name, property);
+                properties.insert(property_name.to_string(), property);
             }
         }
     }
 
-    pub fn get_property(&mut self, property_name: String) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
         match self {
             Self::Object { properties } => properties
-                .entry(property_name)
+                .entry(property_name.to_string())
                 .or_insert(Ptr::allocate(Variable::Undefined))
                 .copy(),
             Self::Array { properties } => properties
-                .entry(property_name)
+                .entry(property_name.to_string())
                 .or_insert(Ptr::allocate(Variable::Undefined))
                 .copy(),
         }
@@ -85,16 +85,16 @@ mod tests {
         assert_eq!(object.to_string(), "{}".to_string());
 
         assert_eq!(
-            object.get_property("name".to_string()),
+            object.get_property(&"name".to_string().into()),
             Ptr::allocate(Variable::Undefined)
         );
 
         let prop = Ptr::from_raw(&mut Variable::Undefined).unwrap();
 
-        object.add_property("name".to_string(), prop.clone());
+        object.add_property(&"name".to_string().into(), prop.clone());
 
         assert_eq!(
-            object.get_property("name".to_string()).get_raw(),
+            object.get_property(&"name".to_string().into()).get_raw(),
             prop.get_raw(),
         );
 
