@@ -12,6 +12,12 @@ pub enum Object {
 }
 
 impl Object {
+    pub fn new() -> Self {
+        Self::Object {
+            properties: HashMap::new(),
+        }
+    }
+
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let mut res = String::new();
@@ -34,20 +40,6 @@ impl Object {
             }
         }
         res
-    }
-}
-
-impl Object {
-    pub fn new_object() -> Self {
-        Self::Object {
-            properties: HashMap::new(),
-        }
-    }
-
-    pub fn new_array() -> Self {
-        Self::Array {
-            properties: HashMap::new(),
-        }
     }
 
     pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
@@ -75,13 +67,21 @@ impl Object {
     }
 }
 
+impl Object {
+    pub fn new_array() -> Self {
+        Self::Array {
+            properties: HashMap::new(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn basic_test() {
-        let mut object = Object::new_object();
+        let mut object = Object::new();
         assert_eq!(object.to_string(), "{}".to_string());
 
         assert_eq!(

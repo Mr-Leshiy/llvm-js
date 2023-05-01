@@ -68,7 +68,7 @@ pub unsafe extern "C" fn set_string(this: *mut Variable, val: *const c_char) {
 pub unsafe extern "C" fn set_empty_object(this: *mut Variable) {
     let mut this = Ptr::from_raw(this).unwrap();
 
-    *this.get_mut_ref() = Variable::Object(Object::new_object());
+    *this.get_mut_ref() = Variable::Object(Object::new());
 }
 
 #[no_mangle]

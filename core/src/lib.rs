@@ -1,3 +1,4 @@
+mod array;
 mod function;
 mod interfaces;
 mod number;
