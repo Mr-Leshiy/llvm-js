@@ -76,7 +76,7 @@ impl Variable {
 
 impl Variable {
     pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
-        // TODO print runtime error message
+        // TODO print runtime error
         match self {
             Self::Object(object) => object.add_property(property_name, property),
             Self::Array(array) => array.add_property(property_name, property),
