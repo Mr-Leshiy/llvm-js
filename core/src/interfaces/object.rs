@@ -2,6 +2,32 @@ use crate::{pointer::Ptr, variable::Variable};
 use std::ffi::{c_char, CStr};
 
 #[no_mangle]
+pub unsafe extern "C" fn add_property_by_boolean(
+    this: *mut Variable,
+    property_name: bool,
+    property: *mut Variable,
+) {
+    let mut this = Ptr::from_raw(this).unwrap();
+    let property = Ptr::from_raw(property).unwrap();
+
+    this.get_mut_ref()
+        .add_property(&property_name.into(), property);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn add_property_by_number(
+    this: *mut Variable,
+    property_name: f64,
+    property: *mut Variable,
+) {
+    let mut this = Ptr::from_raw(this).unwrap();
+    let property = Ptr::from_raw(property).unwrap();
+
+    this.get_mut_ref()
+        .add_property(&Variable::Number(property_name.into()), property);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn add_property_by_str(
     this: *mut Variable,
     property_name: *const c_char,

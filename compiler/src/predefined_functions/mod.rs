@@ -10,7 +10,8 @@ use self::{
         LogicalNotFn, LogicalOrFn,
     },
     object::{
-        AddPropertyByStrFn, AddPropertyByVarFn, FunctionCallFn, GetPropertyByStrFn,
+        AddPropertyByBooleanFn, AddPropertyByNumberFn, AddPropertyByStrFn, AddPropertyByVarFn,
+        FunctionCallFn, GetPropertyByBooleanFn, GetPropertyByNumberFn, GetPropertyByStrFn,
         GetPropertyByVarFn, RemovePropertyFn,
     },
     test_utils::{AssertEqFn, AssertFn, PrintFn},
@@ -49,8 +50,12 @@ pub struct PredefineFunctions<'ctx> {
     get_boolean: GetBooleanFn<'ctx>,
     function_call: FunctionCallFn<'ctx>,
     // object functions
+    add_property_by_boolean: AddPropertyByBooleanFn<'ctx>,
+    add_property_by_number: AddPropertyByNumberFn<'ctx>,
     add_property_by_str: AddPropertyByStrFn<'ctx>,
     add_property_by_var: AddPropertyByVarFn<'ctx>,
+    get_property_by_boolean: GetPropertyByBooleanFn<'ctx>,
+    get_property_by_number: GetPropertyByNumberFn<'ctx>,
     get_property_by_str: GetPropertyByStrFn<'ctx>,
     get_property_by_var: GetPropertyByVarFn<'ctx>,
     remove_property: RemovePropertyFn<'ctx>,
@@ -100,8 +105,12 @@ impl<'ctx> PredefineFunctions<'ctx> {
             get_boolean: GetBooleanFn::declare(inkwell_context),
             function_call: FunctionCallFn::declare(inkwell_context),
             // object functions
+            add_property_by_boolean: AddPropertyByBooleanFn::declare(inkwell_context),
+            add_property_by_number: AddPropertyByNumberFn::declare(inkwell_context),
             add_property_by_str: AddPropertyByStrFn::declare(inkwell_context),
             add_property_by_var: AddPropertyByVarFn::declare(inkwell_context),
+            get_property_by_boolean: GetPropertyByBooleanFn::declare(inkwell_context),
+            get_property_by_number: GetPropertyByNumberFn::declare(inkwell_context),
             get_property_by_str: GetPropertyByStrFn::declare(inkwell_context),
             get_property_by_var: GetPropertyByVarFn::declare(inkwell_context),
             remove_property: RemovePropertyFn::declare(inkwell_context),
@@ -197,12 +206,28 @@ impl<'ctx> PredefineFunctions<'ctx> {
     }
 
     // object functions
+    pub fn add_property_by_boolean(&self) -> &AddPropertyByBooleanFn<'ctx> {
+        &self.add_property_by_boolean
+    }
+
+    pub fn add_property_by_number(&self) -> &AddPropertyByNumberFn<'ctx> {
+        &self.add_property_by_number
+    }
+
     pub fn add_property_by_str(&self) -> &AddPropertyByStrFn<'ctx> {
         &self.add_property_by_str
     }
 
     pub fn add_property_by_var(&self) -> &AddPropertyByVarFn<'ctx> {
         &self.add_property_by_var
+    }
+
+    pub fn get_property_by_boolean(&self) -> &GetPropertyByBooleanFn<'ctx> {
+        &self.get_property_by_boolean
+    }
+
+    pub fn get_property_by_number(&self) -> &GetPropertyByNumberFn<'ctx> {
+        &self.get_property_by_number
     }
 
     pub fn get_property_by_str(&self) -> &GetPropertyByStrFn<'ctx> {

@@ -154,9 +154,46 @@ impl<'ctx> Variable<'ctx> {
 }
 
 impl<'ctx> Variable<'ctx> {
+    pub fn add_property_by_boolean<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: bool,
+        value: &Self,
+    ) {
+        let add_property_fn = compiler.predefined_functions().add_property_by_boolean();
+        add_property_fn.call(compiler, self, key, value);
+    }
+
+    pub fn add_property_by_number<T>(&self, compiler: &Compiler<'ctx, T>, key: f64, value: &Self) {
+        let add_property_fn = compiler.predefined_functions().add_property_by_number();
+        add_property_fn.call(compiler, self, key, value);
+    }
+
     pub fn add_property_by_str<T>(&self, compiler: &Compiler<'ctx, T>, key: &str, value: &Self) {
         let add_property_fn = compiler.predefined_functions().add_property_by_str();
         add_property_fn.call(compiler, self, key, value);
+    }
+
+    pub fn add_property_by_var<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &Variable<'ctx>,
+        value: &Self,
+    ) {
+        let add_property_fn = compiler.predefined_functions().add_property_by_var();
+        add_property_fn.call(compiler, self, key, value);
+    }
+
+    #[must_use]
+    pub fn get_property_by_boolean<T>(&self, compiler: &Compiler<'ctx, T>, key: bool) -> Self {
+        let get_property_fn = compiler.predefined_functions().get_property_by_boolean();
+        get_property_fn.call(compiler, self, key)
+    }
+
+    #[must_use]
+    pub fn get_property_by_number<T>(&self, compiler: &Compiler<'ctx, T>, key: f64) -> Self {
+        let get_property_fn = compiler.predefined_functions().get_property_by_number();
+        get_property_fn.call(compiler, self, key)
     }
 
     #[must_use]

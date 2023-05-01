@@ -3,6 +3,98 @@ use crate::{InkwellContext, Variable};
 use inkwell::{module::Linkage, values::FunctionValue, AddressSpace};
 
 #[derive(Clone)]
+pub struct AddPropertyByBooleanFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> AddPropertyByBooleanFn<'ctx> {
+    const NAME: &'static str = "add_property_by_boolean";
+
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let boolean_type = inkwell_context.context.bool_type();
+        let function_type = inkwell_context.context.void_type().fn_type(
+            &[var_type.into(), boolean_type.into(), var_type.into()],
+            false,
+        );
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: bool,
+        prop: &Variable<'ctx>,
+    ) {
+        compiler.inkwell_context.builder.build_call(
+            self.func,
+            &[
+                val.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .bool_type()
+                    .const_int(key.into(), false)
+                    .into(),
+                prop.value.into(),
+            ],
+            "",
+        );
+    }
+}
+
+#[derive(Clone)]
+pub struct AddPropertyByNumberFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> AddPropertyByNumberFn<'ctx> {
+    const NAME: &'static str = "add_property_by_number";
+
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let number_type = inkwell_context.context.f64_type();
+        let function_type = inkwell_context.context.void_type().fn_type(
+            &[var_type.into(), number_type.into(), var_type.into()],
+            false,
+        );
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: f64,
+        prop: &Variable<'ctx>,
+    ) {
+        compiler.inkwell_context.builder.build_call(
+            self.func,
+            &[
+                val.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .f64_type()
+                    .const_float(key)
+                    .into(),
+                prop.value.into(),
+            ],
+            "",
+        );
+    }
+}
+
+#[derive(Clone)]
 pub struct AddPropertyByStrFn<'ctx> {
     func: FunctionValue<'ctx>,
 }
@@ -81,6 +173,110 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
             &[val.value.into(), key.value.into(), value.value.into()],
             "",
         );
+    }
+}
+
+#[derive(Clone)]
+pub struct GetPropertyByBooleanFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> GetPropertyByBooleanFn<'ctx> {
+    const NAME: &'static str = "get_property_by_boolean";
+
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let boolean_type = inkwell_context.context.bool_type();
+        let function_type = var_type.fn_type(&[var_type.into(), boolean_type.into()], false);
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: bool,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .inkwell_context
+            .builder
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    compiler
+                        .inkwell_context
+                        .context
+                        .bool_type()
+                        .const_int(key.into(), false)
+                        .into(),
+                ],
+                "",
+            )
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable {
+            value,
+            is_tmp: false,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct GetPropertyByNumberFn<'ctx> {
+    func: FunctionValue<'ctx>,
+}
+
+impl<'ctx> GetPropertyByNumberFn<'ctx> {
+    const NAME: &'static str = "get_property_by_number";
+
+    pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
+        let var_type = inkwell_context.variable_type;
+        let number_type = inkwell_context.context.f64_type();
+        let function_type = var_type.fn_type(&[var_type.into(), number_type.into()], false);
+        let func =
+            inkwell_context
+                .module
+                .add_function(Self::NAME, function_type, Some(Linkage::External));
+        Self { func }
+    }
+
+    pub(crate) fn call<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        val: &Variable<'ctx>,
+        key: f64,
+    ) -> Variable<'ctx> {
+        let value = compiler
+            .inkwell_context
+            .builder
+            .build_call(
+                self.func,
+                &[
+                    val.value.into(),
+                    compiler
+                        .inkwell_context
+                        .context
+                        .f64_type()
+                        .const_float(key)
+                        .into(),
+                ],
+                "",
+            )
+            .try_as_basic_value()
+            .left()
+            .unwrap()
+            .into_pointer_value();
+        Variable {
+            value,
+            is_tmp: false,
+        }
     }
 }
 
