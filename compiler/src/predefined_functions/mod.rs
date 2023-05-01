@@ -1,4 +1,5 @@
 use self::{
+    alloc::{AllocateFn, DeallocateFn},
     arithmetic::{
         ArithmeticAdditionFn, ArithmeticDivisionFn, ArithmeticMultiplicationFn,
         ArithmeticSubstractionFn,
@@ -8,20 +9,25 @@ use self::{
         LogicalAndFn, LogicalEqFn, LogicalGeFn, LogicalGtFn, LogicalLeFn, LogicalLtFn, LogicalNeFn,
         LogicalNotFn, LogicalOrFn,
     },
-    test::{AssertEqFn, AssertFn, PrintFn},
+    object::{
+        AddPropertyByStrFn, AddPropertyByVarFn, FunctionCallFn, GetPropertyByStrFn,
+        GetPropertyByVarFn, RemovePropertyFn,
+    },
+    test_utils::{AssertEqFn, AssertFn, PrintFn},
     variable::{
-        AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, FunctionCallFn,
-        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetBooleanFn,
-        SetEmptyArrayFn, SetEmptyObjectFn, SetFunctionFn, SetInfinityFn, SetNaNFn,
-        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        GetBooleanFn, SetBooleanFn, SetEmptyArrayFn, SetEmptyObjectFn, SetFunctionFn,
+        SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn,
+        SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::{Compiler, InkwellContext};
 
+pub mod alloc;
 pub mod arithmetic;
 pub mod convert;
 pub mod logical;
-pub mod test;
+pub mod object;
+pub mod test_utils;
 pub mod variable;
 
 pub struct PredefineFunctions<'ctx> {

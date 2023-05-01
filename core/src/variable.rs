@@ -71,14 +71,14 @@ impl Variable {
 }
 
 impl Variable {
-    pub fn add_property(&mut self, property_name: String, property: Ptr<Variable>) {
+    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
         // TODO print runtime error message
         if let Self::Object(object) = self {
             object.add_property(property_name, property);
         }
     }
 
-    pub fn get_property(&mut self, property_name: String) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
         if let Self::Object(object) = self {
             object.get_property(property_name)
         } else {

@@ -11,7 +11,8 @@ pub unsafe extern "C" fn add_property_by_str(
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
     let property = Ptr::from_raw(property).unwrap();
 
-    this.get_mut_ref().add_property(property_name, property);
+    this.get_mut_ref()
+        .add_property(&property_name.into(), property);
 }
 
 #[no_mangle]
@@ -25,7 +26,31 @@ pub extern "C" fn add_property_by_var(
     let property = Ptr::from_raw(property).unwrap();
 
     this.get_mut_ref()
-        .add_property(property_name.get_ref().to_string(), property);
+        .add_property(property_name.get_ref(), property);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn get_property_by_boolean(
+    this: *mut Variable,
+    property_name: bool,
+) -> *mut Variable {
+    let mut this = Ptr::from_raw(this).unwrap();
+
+    this.get_mut_ref()
+        .get_property(&property_name.into())
+        .get_raw()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn get_property_by_number(
+    this: *mut Variable,
+    property_name: f64,
+) -> *mut Variable {
+    let mut this = Ptr::from_raw(this).unwrap();
+
+    this.get_mut_ref()
+        .get_property(&Variable::Number(property_name.into()))
+        .get_raw()
 }
 
 #[no_mangle]
@@ -36,7 +61,9 @@ pub unsafe extern "C" fn get_property_by_str(
     let mut this = Ptr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
 
-    this.get_mut_ref().get_property(property_name).get_raw()
+    this.get_mut_ref()
+        .get_property(&property_name.into())
+        .get_raw()
 }
 
 #[no_mangle]
@@ -48,7 +75,7 @@ pub extern "C" fn get_property_by_var(
     let property_name = Ptr::from_raw(property_name).unwrap();
 
     this.get_mut_ref()
-        .get_property(property_name.get_ref().to_string())
+        .get_property(property_name.get_ref())
         .get_raw()
 }
 
