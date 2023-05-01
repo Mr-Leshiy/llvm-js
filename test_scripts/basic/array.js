@@ -10,3 +10,6 @@ a[4] = 14;
 assert_eq(a[4], 14);
 
 assert_eq(a[10], undefined);
+
+a.name = "John";
+assert_eq(a.name, "John");
