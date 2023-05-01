@@ -1,4 +1,5 @@
 use crate::{
+    array::Array,
     function::{FuncType, Function},
     number::Number,
     object::Object,
@@ -75,7 +76,7 @@ pub unsafe extern "C" fn set_empty_object(this: *mut Variable) {
 pub unsafe extern "C" fn set_empty_array(this: *mut Variable) {
     let mut this = Ptr::from_raw(this).unwrap();
 
-    *this.get_mut_ref() = Variable::Object(Object::new_array());
+    *this.get_mut_ref() = Variable::Array(Array::new());
 }
 
 #[no_mangle]

@@ -2,18 +2,13 @@ use crate::{pointer::Ptr, variable::Variable};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Object {
-    Object {
-        properties: HashMap<String, Ptr<Variable>>,
-    },
-    Array {
-        properties: HashMap<String, Ptr<Variable>>,
-    },
+pub struct Object {
+    properties: HashMap<String, Ptr<Variable>>,
 }
 
 impl Object {
     pub fn new() -> Self {
-        Self::Object {
+        Self {
             properties: HashMap::new(),
         }
     }
@@ -21,57 +16,25 @@ impl Object {
     #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         let mut res = String::new();
-        match self {
-            Self::Object { properties } => {
-                res.push('{');
-                for (property_name, property) in properties {
-                    res.push_str(
-                        format!("{0}: {1}", property_name, property.get_ref().to_string()).as_str(),
-                    );
-                }
-                res.push('}');
-            }
-            Self::Array { properties } => {
-                res.push('[');
-                for property in properties.values() {
-                    res.push_str(format!("{0}, ", property.get_ref().to_string()).as_str());
-                }
-                res.push(']');
-            }
+        res.push('{');
+        for (property_name, property) in &self.properties {
+            res.push_str(
+                format!("{0}: {1}, ", property_name, property.get_ref().to_string()).as_str(),
+            );
         }
+        res.push('}');
         res
     }
 
     pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
-        match self {
-            Self::Object { properties } => {
-                properties.insert(property_name.to_string(), property);
-            }
-            Self::Array { properties } => {
-                properties.insert(property_name.to_string(), property);
-            }
-        }
+        self.properties.insert(property_name.to_string(), property);
     }
 
     pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
-        match self {
-            Self::Object { properties } => properties
-                .entry(property_name.to_string())
-                .or_insert(Ptr::allocate(Variable::Undefined))
-                .copy(),
-            Self::Array { properties } => properties
-                .entry(property_name.to_string())
-                .or_insert(Ptr::allocate(Variable::Undefined))
-                .copy(),
-        }
-    }
-}
-
-impl Object {
-    pub fn new_array() -> Self {
-        Self::Array {
-            properties: HashMap::new(),
-        }
+        self.properties
+            .entry(property_name.to_string())
+            .or_insert(Ptr::allocate(Variable::Undefined))
+            .copy()
     }
 }
 
@@ -80,24 +43,51 @@ mod tests {
     use super::*;
 
     #[test]
-    fn basic_test() {
+    fn to_string_test() {
         let mut object = Object::new();
-        assert_eq!(object.to_string(), "{}".to_string());
 
+        assert_eq!(object.to_string(), "{}");
+
+        object
+            .properties
+            .insert("key".to_string(), Ptr::allocate(Variable::Undefined));
+        assert_eq!(object.to_string(), "{key: undefined, }");
+    }
+
+    #[test]
+    fn add_property_test() {
+        let mut object = Object::new();
+
+        assert_eq!(object.properties.len(), 0);
+
+        object.add_property(&Variable::Null, Ptr::allocate(Variable::Undefined));
+        assert_eq!(object.properties.len(), 1);
         assert_eq!(
-            object.get_property(&"name".to_string().into()),
-            Ptr::allocate(Variable::Undefined)
+            object
+                .properties
+                .get(&Variable::Null.to_string())
+                .unwrap()
+                .get_ref(),
+            Ptr::allocate(Variable::Undefined).get_ref()
         );
+    }
 
-        let prop = Ptr::from_raw(&mut Variable::Undefined).unwrap();
+    #[test]
+    fn get_property_test() {
+        let mut object = Object::new();
 
-        object.add_property(&"name".to_string().into(), prop.clone());
+        assert_eq!(object.properties.len(), 0);
 
+        let val = object.get_property(&Variable::Null);
+        assert_eq!(object.properties.len(), 1);
         assert_eq!(
-            object.get_property(&"name".to_string().into()).get_raw(),
-            prop.get_raw(),
+            object
+                .properties
+                .get(&Variable::Null.to_string())
+                .unwrap()
+                .get_ref(),
+            &Variable::Undefined
         );
-
-        assert_eq!(object.to_string(), r#"{name: undefined}"#.to_string());
+        assert_eq!(val.get_ref(), &Variable::Undefined);
     }
 }

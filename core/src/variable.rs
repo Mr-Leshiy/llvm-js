@@ -1,4 +1,4 @@
-use crate::{function::Function, number::Number, object::Object, pointer::Ptr};
+use crate::{array::Array, function::Function, number::Number, object::Object, pointer::Ptr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {
@@ -8,6 +8,7 @@ pub enum Variable {
     Boolean(bool),
     String(String),
     Object(Object),
+    Array(Array),
     Function(Function),
 }
 
@@ -38,6 +39,7 @@ impl Variable {
             Self::Boolean(boolean) => *boolean,
             Self::String(string) => !string.is_empty(),
             Self::Object(_) => false,
+            Self::Array(_) => false,
             Self::Function(_) => true,
         }
     }
@@ -51,6 +53,7 @@ impl Variable {
             Self::Boolean(false) => Number::Number(0.0),
             Self::String(_) => Number::NaN,
             Self::Object(_) => Number::NaN,
+            Self::Array(_) => Number::NaN,
             Self::Function(_) => Number::NaN,
         }
     }
@@ -65,6 +68,7 @@ impl Variable {
             Self::Boolean(false) => "false".to_string(),
             Self::String(string) => string.clone(),
             Self::Object(object) => object.to_string(),
+            Self::Array(array) => array.to_string(),
             Self::Function(function) => function.to_string(),
         }
     }
@@ -73,16 +77,18 @@ impl Variable {
 impl Variable {
     pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
         // TODO print runtime error message
-        if let Self::Object(object) = self {
-            object.add_property(property_name, property);
+        match self {
+            Self::Object(object) => object.add_property(property_name, property),
+            Self::Array(array) => array.add_property(property_name, property),
+            _ => {}
         }
     }
 
     pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
-        if let Self::Object(object) = self {
-            object.get_property(property_name)
-        } else {
-            Ptr::allocate(Variable::Undefined)
+        match self {
+            Self::Object(object) => object.get_property(property_name),
+            Self::Array(array) => array.get_property(property_name),
+            _ => Ptr::allocate(Variable::Undefined),
         }
     }
 
