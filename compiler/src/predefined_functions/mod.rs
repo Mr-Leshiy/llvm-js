@@ -11,9 +11,9 @@ use self::{
     test::{AssertEqFn, AssertFn, PrintFn},
     variable::{
         AddPropertyByStrFn, AddPropertyByVarFn, AllocateFn, DeallocateFn, FunctionCallFn,
-        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetArrayFn,
-        SetBooleanFn, SetFunctionFn, SetInfinityFn, SetNaNFn, SetNegInfinityFn, SetNullFn,
-        SetNumberFn, SetObjectFn, SetStringFn, SetUndefinedFn, SetVariableFn,
+        GetBooleanFn, GetPropertyByStrFn, GetPropertyByVarFn, RemovePropertyFn, SetBooleanFn,
+        SetEmptyArrayFn, SetEmptyObjectFn, SetFunctionFn, SetInfinityFn, SetNaNFn,
+        SetNegInfinityFn, SetNullFn, SetNumberFn, SetStringFn, SetUndefinedFn, SetVariableFn,
     },
 };
 use crate::{Compiler, InkwellContext};
@@ -31,8 +31,8 @@ pub struct PredefineFunctions<'ctx> {
     set_undefined: SetUndefinedFn<'ctx>,
     set_null: SetNullFn<'ctx>,
     set_nan: SetNaNFn<'ctx>,
-    set_object: SetObjectFn<'ctx>,
-    set_array: SetArrayFn<'ctx>,
+    set_empty_object: SetEmptyObjectFn<'ctx>,
+    set_empty_array: SetEmptyArrayFn<'ctx>,
     set_infinity: SetInfinityFn<'ctx>,
     set_neginfinity: SetNegInfinityFn<'ctx>,
     set_number: SetNumberFn<'ctx>,
@@ -74,7 +74,7 @@ pub struct PredefineFunctions<'ctx> {
 }
 
 impl<'ctx> PredefineFunctions<'ctx> {
-    pub(crate) fn declare<T>(inkwell_context: &InkwellContext<'ctx>) -> Self {
+    pub(crate) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         Self {
             // variable functions
             allocate: AllocateFn::declare(inkwell_context),
@@ -82,8 +82,8 @@ impl<'ctx> PredefineFunctions<'ctx> {
             set_undefined: SetUndefinedFn::declare(inkwell_context),
             set_null: SetNullFn::declare(inkwell_context),
             set_nan: SetNaNFn::declare(inkwell_context),
-            set_object: SetObjectFn::declare(inkwell_context),
-            set_array: SetArrayFn::declare(inkwell_context),
+            set_empty_object: SetEmptyObjectFn::declare(inkwell_context),
+            set_empty_array: SetEmptyArrayFn::declare(inkwell_context),
             set_infinity: SetInfinityFn::declare(inkwell_context),
             set_neginfinity: SetNegInfinityFn::declare(inkwell_context),
             set_number: SetNumberFn::declare(inkwell_context),
@@ -146,12 +146,12 @@ impl<'ctx> PredefineFunctions<'ctx> {
         &self.set_nan
     }
 
-    pub fn set_object(&self) -> &SetObjectFn<'ctx> {
-        &self.set_object
+    pub fn set_empty_object(&self) -> &SetEmptyObjectFn<'ctx> {
+        &self.set_empty_object
     }
 
-    pub fn set_array(&self) -> &SetArrayFn<'ctx> {
-        &self.set_array
+    pub fn set_empty_array(&self) -> &SetEmptyArrayFn<'ctx> {
+        &self.set_empty_array
     }
 
     pub fn set_infinity(&self) -> &SetInfinityFn<'ctx> {
