@@ -1,14 +1,15 @@
 [workspace]
 members = [
     "assembler",
+    "ast",
     "bin",
-    "rpn",
     "compiler",
+    "core",
+    "collections",
+    "rpn",
     "precompiler",
     "testing",
     "lexer",
-    "ast",
-    "collections",
 ]
 
 [workspace.package]
@@ -17,10 +18,14 @@ edition = "2021"
 [workspace.dependencies]
 assembler = { path = "assembler" }
 ast = { path = "ast" }
-rpn = { path = "rpn" }
-collections = { path = "collections" }
-precompiler = { path = "precompiler" }
 compiler = { path = "compiler" }
+core = { path = "core" }
+collections = { path = "collections" }
+rpn = { path = "rpn" }
+precompiler = { path = "precompiler" }
 lexer = { path = "lexer" }
 
 thiserror = { version = "1.0.40" }
+
+proptest = { version = "1.1" }
+test-strategy = { version = "0.3" }

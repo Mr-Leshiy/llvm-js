@@ -1,5 +1,5 @@
 [package]
-name = "llvm-js-compiler"
+name = "jsc"
 version = "0.1.0"
 edition.workspace = true
 

@@ -25,3 +25,7 @@ Run tests
 ```
 cargo test
 ```
+Run
+```
+jsc --input=test_scripts/basic.js --binary-name=run --clean
+```

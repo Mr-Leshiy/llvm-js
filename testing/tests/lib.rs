@@ -39,7 +39,7 @@ impl CompileSuite {
     }
 
     pub fn compile(&self) -> Result<(), String> {
-        let out = Command::new("../target/debug/llvm-js-compiler")
+        let out = Command::new("../target/debug/jsc")
             .args([
                 format!("--input={}", &self.source_code_path),
                 format!("--binary-name={}", &self.binary_out_file),

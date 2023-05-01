@@ -58,16 +58,16 @@ impl<'ctx> Variable<'ctx> {
 
     pub fn new_object<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Self {
         let mut variable = Self::new(compiler);
-        let set_object_fn = compiler.predefined_functions().set_object();
-        set_object_fn.call(compiler, &variable);
+        let set_empty_object_fn = compiler.predefined_functions().set_empty_object();
+        set_empty_object_fn.call(compiler, &variable);
         variable.is_tmp = is_tmp;
         variable
     }
 
     pub fn new_array<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Self {
         let mut variable = Self::new(compiler);
-        let set_array_fn = compiler.predefined_functions().set_array();
-        set_array_fn.call(compiler, &variable);
+        let set_empty_array_fn = compiler.predefined_functions().set_empty_array();
+        set_empty_array_fn.call(compiler, &variable);
         variable.is_tmp = is_tmp;
         variable
     }
