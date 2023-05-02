@@ -14,7 +14,7 @@ impl ArrayExpression {
     ) -> Result<Variable<'ctx>, CompilerError> {
         let res = Variable::new_array(compiler, true);
         for (i, el) in self.values.into_iter().enumerate() {
-            let value = el.compile(compiler)?;
+            let value = el.compile_get_variable(compiler)?;
             res.add_property_by_number(
                 compiler,
                 u32::try_from(i).expect("number overflow").into(),

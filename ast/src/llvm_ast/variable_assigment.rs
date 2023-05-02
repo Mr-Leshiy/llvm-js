@@ -9,14 +9,10 @@ pub struct VariableAssigment {
 
 impl VariableAssigment {
     pub fn compile(self, compiler: &mut Compiler) -> Result<(), CompilerError> {
-        let left = self.left.compile(compiler)?;
-        let right = self.right.compile(compiler)?;
-        left.assign_variable(compiler, &right);
+        let right = self.right.compile_get_variable(compiler)?;
+        self.left.compile_update_variable(compiler, &right)?;
         if right.is_tmp() {
             right.deallocate(compiler);
-        }
-        if left.is_tmp() {
-            left.deallocate(compiler);
         }
         Ok(())
     }

@@ -13,7 +13,7 @@ impl VariableDeclaration {
         let var = Variable::new_undefined(compiler, false);
 
         if let Some(value) = self.value {
-            let value = value.compile(compiler)?;
+            let value = value.compile_get_variable(compiler)?;
             var.assign_variable(compiler, &value);
             if value.is_tmp() {
                 value.deallocate(compiler);
