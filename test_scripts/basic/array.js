@@ -12,6 +12,7 @@ assert_eq(a[4], 14);
 assert_eq(a.length, 5);
 
 assert_eq(a[10], undefined);
+assert_eq(a.length, 5);
 
 a.name = "John";
 assert_eq(a.name, "John");

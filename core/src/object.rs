@@ -32,9 +32,8 @@ impl Object {
 
     pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
         self.properties
-            .entry(property_name.to_string())
-            .or_insert(Ptr::allocate(Variable::Undefined))
-            .copy()
+            .get(&property_name.to_string())
+            .map_or(Ptr::allocate(Variable::Undefined), |val| val.copy())
     }
 }
 
@@ -79,15 +78,7 @@ mod tests {
         assert_eq!(object.properties.len(), 0);
 
         let val = object.get_property(&Variable::Null);
-        assert_eq!(object.properties.len(), 1);
-        assert_eq!(
-            object
-                .properties
-                .get(&Variable::Null.to_string())
-                .unwrap()
-                .get_ref(),
-            &Variable::Undefined
-        );
+        assert_eq!(object.properties.len(), 0);
         assert_eq!(val.get_ref(), &Variable::Undefined);
     }
 }
