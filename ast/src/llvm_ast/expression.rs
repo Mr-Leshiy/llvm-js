@@ -37,7 +37,9 @@ impl Compile<Identifier> for Expression {
                 Ok(false)
             }
             Self::VariableExpression(variable_expression) => {
-                variable_expression.compile(compiler)?.deallocate(compiler);
+                variable_expression
+                    .compile_get_variable(compiler)?
+                    .deallocate(compiler);
                 Ok(false)
             }
             Self::DeallocateExpression(deallocate_expression) => {

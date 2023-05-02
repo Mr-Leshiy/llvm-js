@@ -12,3 +12,8 @@ assert_eq(a.name, 10);
 
 a.age = 10
 assert_eq(a.age, 10);
+
+var b = a.some;
+assert_eq(b, undefined);
+b = 5;
+assert_eq(a.some, undefined);

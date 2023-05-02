@@ -36,10 +36,9 @@ impl Array {
     }
 
     fn get_value(&mut self, index: usize) -> Ptr<Variable> {
-        while index >= self.values.len() {
-            self.values.push(Ptr::allocate(Variable::Undefined));
-        }
-        self.values[index].copy()
+        self.values
+            .get(index)
+            .map_or(Ptr::allocate(Variable::Undefined), |val| val.copy())
     }
 
     pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
@@ -67,9 +66,8 @@ impl Array {
                     Ptr::allocate(Variable::Number(Number::Number(self.values.len() as f64)))
                 } else {
                     self.properties
-                        .entry(property_name)
-                        .or_insert(Ptr::allocate(Variable::Undefined))
-                        .copy()
+                        .get(&property_name)
+                        .map_or(Ptr::allocate(Variable::Undefined), |val| val.copy())
                 }
             }
         }
@@ -124,17 +122,13 @@ mod tests {
         assert_eq!(array.properties.len(), 0);
 
         let val = array.get_value(0);
-        assert_eq!(array.values.len(), 1);
+        assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(array.values[0].get_ref(), &Variable::Undefined);
         assert_eq!(val.get_ref(), &Variable::Undefined);
 
         let val = array.get_value(3);
-        assert_eq!(array.values.len(), 4);
+        assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        for el in array.values.iter() {
-            assert_eq!(el.get_ref(), &Variable::Undefined);
-        }
         assert_eq!(val.get_ref(), &Variable::Undefined);
     }
 
@@ -187,26 +181,17 @@ mod tests {
 
         let val = array.get_property(&Variable::Null);
         assert_eq!(array.values.len(), 0);
-        assert_eq!(array.properties.len(), 1);
-        assert_eq!(
-            array
-                .properties
-                .get(&Variable::Null.to_string())
-                .unwrap()
-                .get_ref(),
-            &Variable::Undefined
-        );
+        assert_eq!(array.properties.len(), 0);
         assert_eq!(val.get_ref(), &Variable::Undefined);
 
         let val = array.get_property(&Variable::Number(Number::Number(0.0)));
-        assert_eq!(array.values.len(), 1);
-        assert_eq!(array.properties.len(), 1);
-        assert_eq!(array.values[0].get_ref(), &Variable::Undefined);
+        assert_eq!(array.values.len(), 0);
+        assert_eq!(array.properties.len(), 0);
         assert_eq!(val.get_ref(), &Variable::Undefined);
 
         let val = array.get_property(&Variable::String(Array::LENGTH_PROPERTY.to_string()));
-        assert_eq!(array.values.len(), 1);
-        assert_eq!(array.properties.len(), 1);
-        assert_eq!(val.get_ref(), &Variable::Number(Number::Number(1.0)));
+        assert_eq!(array.values.len(), 0);
+        assert_eq!(array.properties.len(), 0);
+        assert_eq!(val.get_ref(), &Variable::Number(Number::Number(0.0)));
     }
 }

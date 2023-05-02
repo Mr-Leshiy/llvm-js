@@ -11,7 +11,7 @@ pub struct IfElseStatement {
 
 impl IfElseStatement {
     pub fn compile(self, compiler: &mut Compiler) -> Result<bool, CompilerError> {
-        let condition = self.condition.compile(compiler)?;
+        let condition = self.condition.compile_get_variable(compiler)?;
 
         generate_if_else(compiler, &condition, self.if_clause, self.else_clause)
     }
