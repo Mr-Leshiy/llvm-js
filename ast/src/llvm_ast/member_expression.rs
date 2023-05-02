@@ -113,7 +113,7 @@ impl Property {
 
                     let var = variable
                         .get_property_by_str(compiler, String::from(function_call.name).as_str());
-                    let _ = var.function_call(compiler, &args);
+                    let _: Variable = var.function_call(compiler, &args);
 
                     // deallocate arguments
                     for arg in args {
