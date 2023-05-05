@@ -21,8 +21,12 @@ impl Array {
     pub fn to_string(&self) -> String {
         let mut res = String::new();
         res.push('[');
-        for property in &self.values {
-            res.push_str(format!("{0}, ", property.get_ref().to_string()).as_str());
+        let mut values_iter = self.values.iter();
+        if let Some(value) = values_iter.next() {
+            res.push_str(format!("{0}", value.get_ref().to_string()).as_str());
+            for property in values_iter {
+                res.push_str(format!(", {0}", property.get_ref().to_string()).as_str());
+            }
         }
         res.push(']');
         res
@@ -88,7 +92,10 @@ mod tests {
         array
             .properties
             .insert("key".to_string(), Ptr::allocate(Variable::Undefined));
-        assert_eq!(array.to_string(), "[undefined, ]");
+        assert_eq!(array.to_string(), "[undefined]");
+
+        array.values.push(Ptr::allocate(Variable::Undefined));
+        assert_eq!(array.to_string(), "[undefined, undefined]");
     }
 
     #[test]

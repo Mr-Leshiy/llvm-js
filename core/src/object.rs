@@ -17,10 +17,16 @@ impl Object {
     pub fn to_string(&self) -> String {
         let mut res = String::new();
         res.push('{');
-        for (property_name, property) in &self.properties {
+        let mut properties_iter = self.properties.iter();
+        if let Some((property_name, property)) = properties_iter.next() {
             res.push_str(
-                format!("{0}: {1}, ", property_name, property.get_ref().to_string()).as_str(),
+                format!("{0}: {1}", property_name, property.get_ref().to_string()).as_str(),
             );
+            for (property_name, property) in properties_iter {
+                res.push_str(
+                    format!(", {0}: {1}", property_name, property.get_ref().to_string()).as_str(),
+                );
+            }
         }
         res.push('}');
         res
@@ -49,8 +55,8 @@ mod tests {
 
         object
             .properties
-            .insert("key".to_string(), Ptr::allocate(Variable::Undefined));
-        assert_eq!(object.to_string(), "{key: undefined, }");
+            .insert("key1".to_string(), Ptr::allocate(Variable::Undefined));
+        assert_eq!(object.to_string(), "{key1: undefined}");
     }
 
     #[test]
