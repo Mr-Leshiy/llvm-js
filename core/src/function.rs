@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 
 pub type FuncType = extern "C" fn(*mut *mut Variable) -> *mut Variable;
 

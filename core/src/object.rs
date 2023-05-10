@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]

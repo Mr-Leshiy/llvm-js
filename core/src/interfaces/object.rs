@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 use std::ffi::{c_char, CStr};
 
 #[no_mangle]

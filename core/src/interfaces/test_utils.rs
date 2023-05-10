@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 use std::process::abort;
 
 #[no_mangle]

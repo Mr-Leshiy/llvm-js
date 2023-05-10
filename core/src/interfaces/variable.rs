@@ -3,7 +3,7 @@ use crate::{
     function::{FuncType, Function},
     number::Number,
     object::Object,
-    pointer::Ptr,
+    ptr::Ptr,
     variable::Variable,
 };
 use std::ffi::{c_char, CStr};

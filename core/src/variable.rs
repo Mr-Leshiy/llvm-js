@@ -1,4 +1,4 @@
-use crate::{array::Array, function::Function, number::Number, object::Object, pointer::Ptr};
+use crate::{array::Array, function::Function, number::Number, object::Object, ptr::Ptr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {

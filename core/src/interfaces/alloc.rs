@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 
 #[no_mangle]
 pub extern "C" fn allocate() -> *mut Variable {

@@ -1,4 +1,4 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::Ptr, variable::Variable};
 
 #[no_mangle]
 pub extern "C" fn arithmetic_addition(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {
