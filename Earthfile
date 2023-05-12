@@ -9,10 +9,7 @@ install-deps:
 install-llvm:
    FROM +install-deps
    RUN git clone --branch release/14.x https://github.com/llvm/llvm-project.git
-   RUN cd llvm-project
-   RUN cmake -S llvm -B build
-   RUN cmake --build build
-   RUN cmake --install build
+   RUN cd llvm-project && cmake -S llvm -B build && cmake --build build && cmake --install build
    SAVE ARTIFACT build
 
 install-chef:
