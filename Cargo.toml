@@ -1,29 +1,29 @@
 [workspace]
 members = [
-    "assembler",
-    "ast",
-    "bin",
-    "compiler",
-    "core",
-    "collections",
-    "rpn",
-    "precompiler",
+    "crates/assembler",
+    "crates/ast",
+    "crates/bin",
+    "crates/compiler",
+    "crates/core",
+    "crates/collections",
+    "crates/rpn",
+    "crates/precompiler",
+    "crates/lexer",
     "testing",
-    "lexer",
 ]
 
 [workspace.package]
 edition = "2021"
 
 [workspace.dependencies]
-assembler = { path = "assembler" }
-ast = { path = "ast" }
-compiler = { path = "compiler" }
-core = { path = "core" }
-collections = { path = "collections" }
-rpn = { path = "rpn" }
-precompiler = { path = "precompiler" }
-lexer = { path = "lexer" }
+assembler = { path = "crates/assembler" }
+ast = { path = "crates/ast" }
+compiler = { path = "crates/compiler" }
+core = { path = "crates/core" }
+collections = { path = "crates/collections" }
+rpn = { path = "crates/rpn" }
+precompiler = { path = "crates/precompiler" }
+lexer = { path = "crates/lexer" }
 
 thiserror = { version = "1.0.40" }
 
