@@ -2,7 +2,7 @@ use super::{Identifier, VariableExpression};
 use crate::{Compiler, CompilerError};
 use compiler::{
     self,
-    predefined_functions::test::{AssertEqFn, AssertFn, PrintFn},
+    predefined_functions::test_utils::{AssertEqFn, AssertFn, PrintFn},
     Variable,
 };
 
@@ -19,7 +19,7 @@ impl FunctionCall {
     ) -> Result<Variable<'ctx>, CompilerError> {
         let mut args = Vec::new();
         for arg in self.args {
-            let value = arg.compile(compiler)?;
+            let value = arg.compile_get_variable(compiler)?;
             let arg = Variable::new_undefined(compiler, true);
             arg.assign_variable(compiler, &value);
             if value.is_tmp() {

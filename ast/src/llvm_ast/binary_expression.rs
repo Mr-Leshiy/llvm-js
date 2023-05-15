@@ -40,8 +40,8 @@ impl BinaryExpression {
         compiler: &mut Compiler<'ctx>,
         call: F,
     ) -> Result<Variable<'ctx>, CompilerError> {
-        let var1 = self.left.compile(compiler)?;
-        let var2 = self.right.compile(compiler)?;
+        let var1 = self.left.compile_get_variable(compiler)?;
+        let var2 = self.right.compile_get_variable(compiler)?;
         let ret = call(compiler, &var1, &var2)?;
         if var1.is_tmp() {
             var1.deallocate(compiler);

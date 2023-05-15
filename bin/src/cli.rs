@@ -1,7 +1,7 @@
 use assembler::{compile_binary, AssemblerError};
 use ast::{js_ast::Module, CompilerError, LexerError, PrecompilerError};
 use clap::Parser;
-use compiler::predefined_functions::test::{AssertEqFn, AssertFn, PrintFn};
+use compiler::predefined_functions::test_utils::{AssertEqFn, AssertFn, PrintFn};
 use std::{
     fs::remove_file,
     path::{Path, PathBuf},
