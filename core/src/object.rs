@@ -1,9 +1,9 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::VariableValue};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
-    properties: HashMap<String, Ptr<Variable>>,
+    properties: HashMap<String, RawPtr<VariableValue>>,
 }
 
 impl Object {
@@ -17,29 +17,32 @@ impl Object {
     pub fn to_string(&self) -> String {
         let mut res = String::new();
         res.push('{');
-        for (property_name, property) in &self.properties {
-            res.push_str(
-                format!("{0}: {1}, ", property_name, property.get_ref().to_string()).as_str(),
-            );
+        let mut properties_iter = self.properties.iter();
+        if let Some((property_name, property)) = properties_iter.next() {
+            res.push_str(format!("{0}: {1}", property_name, property.to_string()).as_str());
+            for (property_name, property) in properties_iter {
+                res.push_str(format!(", {0}: {1}", property_name, property.to_string()).as_str());
+            }
         }
         res.push('}');
         res
     }
 
-    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
         self.properties.insert(property_name.to_string(), property);
     }
 
-    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
         self.properties
             .get(&property_name.to_string())
-            .map_or(Ptr::allocate(Variable::Undefined), |val| val.copy())
+            .map_or(RawPtr::allocate(VariableValue::Undefined), |val| val.copy())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ops::Deref;
 
     #[test]
     fn to_string_test() {
@@ -47,10 +50,11 @@ mod tests {
 
         assert_eq!(object.to_string(), "{}");
 
-        object
-            .properties
-            .insert("key".to_string(), Ptr::allocate(Variable::Undefined));
-        assert_eq!(object.to_string(), "{key: undefined, }");
+        object.properties.insert(
+            "key1".to_string(),
+            RawPtr::allocate(VariableValue::Undefined),
+        );
+        assert_eq!(object.to_string(), "{key1: undefined}");
     }
 
     #[test]
@@ -59,15 +63,17 @@ mod tests {
 
         assert_eq!(object.properties.len(), 0);
 
-        object.add_property(&Variable::Null, Ptr::allocate(Variable::Undefined));
+        object.add_property(
+            &VariableValue::Null,
+            RawPtr::allocate(VariableValue::Undefined),
+        );
         assert_eq!(object.properties.len(), 1);
         assert_eq!(
             object
                 .properties
-                .get(&Variable::Null.to_string())
-                .unwrap()
-                .get_ref(),
-            Ptr::allocate(Variable::Undefined).get_ref()
+                .get(&VariableValue::Null.to_string())
+                .unwrap(),
+            &RawPtr::allocate(VariableValue::Undefined)
         );
     }
 
@@ -77,8 +83,8 @@ mod tests {
 
         assert_eq!(object.properties.len(), 0);
 
-        let val = object.get_property(&Variable::Null);
+        let val = object.get_property(&VariableValue::Null);
         assert_eq!(object.properties.len(), 0);
-        assert_eq!(val.get_ref(), &Variable::Undefined);
+        assert_eq!(val.deref(), &VariableValue::Undefined);
     }
 }

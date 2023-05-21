@@ -1,10 +1,10 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::VariableValue};
 
 #[no_mangle]
-pub extern "C" fn allocate() -> *mut Variable {
-    let val = Variable::Undefined;
-    Ptr::allocate(val).get_raw()
+pub extern "C" fn allocate() -> *mut VariableValue {
+    let val = VariableValue::Undefined;
+    RawPtr::allocate(val).get_raw()
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn deallocate(_this: *mut Variable) {}
+pub unsafe extern "C" fn deallocate(_this: *mut VariableValue) {}

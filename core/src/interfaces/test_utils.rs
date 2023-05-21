@@ -1,28 +1,28 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::VariableValue};
 use std::process::abort;
 
 #[no_mangle]
-pub unsafe extern "C" fn variable_assert(this: *mut Variable) {
-    let this = Ptr::from_raw(this).unwrap();
+pub unsafe extern "C" fn variable_assert(this: *mut VariableValue) {
+    let this = RawPtr::from_raw(this).unwrap();
 
-    if !this.get_ref().to_boolean() {
+    if !this.to_boolean() {
         abort();
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn variable_assert_eq(val1: *mut Variable, val2: *mut Variable) {
-    let val1 = Ptr::from_raw(val1).unwrap();
-    let val2 = Ptr::from_raw(val2).unwrap();
+pub unsafe extern "C" fn variable_assert_eq(val1: *mut VariableValue, val2: *mut VariableValue) {
+    let val1 = RawPtr::from_raw(val1).unwrap();
+    let val2 = RawPtr::from_raw(val2).unwrap();
 
-    if val1.get_ref() != val2.get_ref() {
+    if val1 != val2 {
         abort();
     }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn print(this: *mut Variable) {
-    let this = Ptr::from_raw(this).unwrap();
+pub unsafe extern "C" fn print(this: *mut VariableValue) {
+    let this = RawPtr::from_raw(this).unwrap();
 
-    println!("{}", this.get_ref().to_string());
+    println!("{}", this.to_string());
 }

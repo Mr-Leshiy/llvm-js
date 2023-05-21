@@ -1,22 +1,22 @@
-use crate::{pointer::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::VariableValue};
 
 #[no_mangle]
-pub extern "C" fn convert_to_number(this: *mut Variable) -> *mut Variable {
-    let this = Ptr::from_raw(this).unwrap();
+pub extern "C" fn convert_to_number(this: *mut VariableValue) -> *mut VariableValue {
+    let this = RawPtr::from_raw(this).unwrap();
 
-    Ptr::allocate(this.get_ref().to_number().into()).get_raw()
+    RawPtr::allocate(VariableValue::from(this.to_number())).get_raw()
 }
 
 #[no_mangle]
-pub extern "C" fn convert_to_boolean(this: *mut Variable) -> *mut Variable {
-    let this = Ptr::from_raw(this).unwrap();
+pub extern "C" fn convert_to_boolean(this: *mut VariableValue) -> *mut VariableValue {
+    let this = RawPtr::from_raw(this).unwrap();
 
-    Ptr::allocate(this.get_ref().to_boolean().into()).get_raw()
+    RawPtr::allocate(VariableValue::from(this.to_boolean())).get_raw()
 }
 
 #[no_mangle]
-pub extern "C" fn convert_to_string(this: *mut Variable) -> *mut Variable {
-    let this = Ptr::from_raw(this).unwrap();
+pub extern "C" fn convert_to_string(this: *mut VariableValue) -> *mut VariableValue {
+    let this = RawPtr::from_raw(this).unwrap();
 
-    Ptr::allocate(this.get_ref().to_string().into()).get_raw()
+    RawPtr::allocate(VariableValue::from(this.to_string())).get_raw()
 }

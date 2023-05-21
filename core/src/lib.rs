@@ -3,5 +3,5 @@ mod function;
 mod interfaces;
 mod number;
 mod object;
-mod pointer;
+mod ptr;
 mod variable;

@@ -1,7 +1,7 @@
-use crate::{array::Array, function::Function, number::Number, object::Object, pointer::Ptr};
+use crate::{array::Array, function::Function, number::Number, object::Object, ptr::RawPtr};
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Variable {
+pub enum VariableValue {
     Undefined,
     Null,
     Number(Number),
@@ -12,25 +12,25 @@ pub enum Variable {
     Function(Function),
 }
 
-impl From<Number> for Variable {
+impl From<Number> for VariableValue {
     fn from(value: Number) -> Self {
         Self::Number(value)
     }
 }
 
-impl From<bool> for Variable {
+impl From<bool> for VariableValue {
     fn from(value: bool) -> Self {
         Self::Boolean(value)
     }
 }
 
-impl From<String> for Variable {
+impl From<String> for VariableValue {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl Variable {
+impl VariableValue {
     pub fn to_boolean(&self) -> bool {
         match self {
             Self::Undefined => false,
@@ -74,8 +74,8 @@ impl Variable {
     }
 }
 
-impl Variable {
-    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
+impl VariableValue {
+    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
         // TODO print runtime error
         match self {
             Self::Object(object) => object.add_property(property_name, property),
@@ -84,56 +84,56 @@ impl Variable {
         }
     }
 
-    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
         match self {
             Self::Object(object) => object.get_property(property_name),
             Self::Array(array) => array.get_property(property_name),
-            _ => Ptr::allocate(Variable::Undefined),
+            _ => RawPtr::allocate(VariableValue::Undefined),
         }
     }
 
-    pub fn function_call(&self, args: &mut Vec<*mut Variable>) -> Ptr<Variable> {
+    pub fn function_call(&self, args: &mut Vec<*mut VariableValue>) -> RawPtr<VariableValue> {
         if let Self::Function(function) = self {
             function.call(args)
         } else {
-            Ptr::allocate(Variable::Undefined)
+            RawPtr::allocate(VariableValue::Undefined)
         }
     }
 }
 
 // arithmetic operations
 
-impl Variable {
-    pub fn add(a: &Variable, b: &Variable) -> Variable {
+impl VariableValue {
+    pub fn add(a: &VariableValue, b: &VariableValue) -> VariableValue {
         match (a, b) {
-            (Variable::String(a), Variable::String(b)) => format!("{a}{b}").into(),
-            (Variable::String(a), b) => format!("{a}{}", b.to_string()).into(),
-            (a, Variable::String(b)) => format!("{}{b}", a.to_string()).into(),
+            (VariableValue::String(a), VariableValue::String(b)) => format!("{a}{b}").into(),
+            (VariableValue::String(a), b) => format!("{a}{}", b.to_string()).into(),
+            (a, VariableValue::String(b)) => format!("{}{b}", a.to_string()).into(),
             (a, b) => Number::add(&a.to_number(), &b.to_number()).into(),
         }
     }
 
-    pub fn sub(a: &Variable, b: &Variable) -> Variable {
+    pub fn sub(a: &VariableValue, b: &VariableValue) -> VariableValue {
         Number::sub(&a.to_number(), &b.to_number()).into()
     }
 
-    pub fn mul(a: &Variable, b: &Variable) -> Variable {
+    pub fn mul(a: &VariableValue, b: &VariableValue) -> VariableValue {
         Number::mul(&a.to_number(), &b.to_number()).into()
     }
 
-    pub fn div(a: &Variable, b: &Variable) -> Variable {
+    pub fn div(a: &VariableValue, b: &VariableValue) -> VariableValue {
         Number::div(&a.to_number(), &b.to_number()).into()
     }
 }
 
 // logical operations
 
-impl Variable {
-    pub fn not(&self) -> Variable {
+impl VariableValue {
+    pub fn not(&self) -> VariableValue {
         (!self.to_boolean()).into()
     }
 
-    pub fn and(a: &Variable, b: &Variable) -> Variable {
+    pub fn and(a: &VariableValue, b: &VariableValue) -> VariableValue {
         if a.to_boolean() {
             b.clone()
         } else {
@@ -141,7 +141,7 @@ impl Variable {
         }
     }
 
-    pub fn or(a: &Variable, b: &Variable) -> Variable {
+    pub fn or(a: &VariableValue, b: &VariableValue) -> VariableValue {
         if a.to_boolean() {
             a.clone()
         } else {
@@ -149,30 +149,30 @@ impl Variable {
         }
     }
 
-    pub fn gt(a: &Variable, b: &Variable) -> Variable {
+    pub fn gt(a: &VariableValue, b: &VariableValue) -> VariableValue {
         match (a, b) {
-            (Variable::String(a), Variable::String(b)) => (a > b).into(),
+            (VariableValue::String(a), VariableValue::String(b)) => (a > b).into(),
             (a, b) => Number::gt(&a.to_number(), &b.to_number()).into(),
         }
     }
 
-    pub fn ge(a: &Variable, b: &Variable) -> Variable {
+    pub fn ge(a: &VariableValue, b: &VariableValue) -> VariableValue {
         match (a, b) {
-            (Variable::String(a), Variable::String(b)) => (a >= b).into(),
+            (VariableValue::String(a), VariableValue::String(b)) => (a >= b).into(),
             (a, b) => Number::ge(&a.to_number(), &b.to_number()).into(),
         }
     }
 
-    pub fn lt(a: &Variable, b: &Variable) -> Variable {
+    pub fn lt(a: &VariableValue, b: &VariableValue) -> VariableValue {
         match (a, b) {
-            (Variable::String(a), Variable::String(b)) => (a < b).into(),
+            (VariableValue::String(a), VariableValue::String(b)) => (a < b).into(),
             (a, b) => Number::lt(&a.to_number(), &b.to_number()).into(),
         }
     }
 
-    pub fn le(a: &Variable, b: &Variable) -> Variable {
+    pub fn le(a: &VariableValue, b: &VariableValue) -> VariableValue {
         match (a, b) {
-            (Variable::String(a), Variable::String(b)) => (a <= b).into(),
+            (VariableValue::String(a), VariableValue::String(b)) => (a <= b).into(),
             (a, b) => Number::le(&a.to_number(), &b.to_number()).into(),
         }
     }
@@ -185,99 +185,111 @@ mod tests {
 
     #[proptest]
     fn from_tests(number: Number, boolean: bool, string: String) {
-        assert_eq!(Variable::Number(number.clone()), number.into());
-        assert_eq!(Variable::Boolean(boolean), boolean.into());
-        assert_eq!(Variable::String(string.clone()), string.into());
+        assert_eq!(VariableValue::Number(number.clone()), number.into());
+        assert_eq!(VariableValue::Boolean(boolean), boolean.into());
+        assert_eq!(VariableValue::String(string.clone()), string.into());
     }
 
     #[proptest]
     fn to_boolean_test(number: Number, string: String) {
-        assert!(!Variable::Undefined.to_boolean());
-        assert!(!Variable::Null.to_boolean());
+        assert!(!VariableValue::Undefined.to_boolean());
+        assert!(!VariableValue::Null.to_boolean());
         assert_eq!(
-            Variable::Number(number.clone()).to_boolean(),
+            VariableValue::Number(number.clone()).to_boolean(),
             number.to_boolean()
         );
-        assert!(Variable::Boolean(true).to_boolean());
-        assert!(!Variable::Boolean(false).to_boolean());
+        assert!(VariableValue::Boolean(true).to_boolean());
+        assert!(!VariableValue::Boolean(false).to_boolean());
         assert_eq!(
-            Variable::String(string.clone()).to_boolean(),
+            VariableValue::String(string.clone()).to_boolean(),
             !string.is_empty()
         );
     }
 
     #[proptest]
     fn to_number_test(number: Number, string: String) {
-        assert_eq!(Variable::Undefined.to_number(), Number::NaN);
-        assert_eq!(Variable::Null.to_number(), Number::Number(0.0));
-        assert_eq!(Variable::Number(number.clone()).to_number(), number);
-        assert_eq!(Variable::Boolean(true).to_number(), Number::Number(1.0));
-        assert_eq!(Variable::Boolean(false).to_number(), Number::Number(0.0));
-        assert_eq!(Variable::String(string).to_number(), Number::NaN);
+        assert_eq!(VariableValue::Undefined.to_number(), Number::NaN);
+        assert_eq!(VariableValue::Null.to_number(), Number::Number(0.0));
+        assert_eq!(VariableValue::Number(number.clone()).to_number(), number);
+        assert_eq!(
+            VariableValue::Boolean(true).to_number(),
+            Number::Number(1.0)
+        );
+        assert_eq!(
+            VariableValue::Boolean(false).to_number(),
+            Number::Number(0.0)
+        );
+        assert_eq!(VariableValue::String(string).to_number(), Number::NaN);
     }
 
     #[proptest]
     fn to_string_test(number: Number, string: String) {
-        assert_eq!(Variable::Undefined.to_string(), "undefined".to_string());
-        assert_eq!(Variable::Null.to_string(), "null".to_string());
         assert_eq!(
-            Variable::Number(number.clone()).to_string(),
+            VariableValue::Undefined.to_string(),
+            "undefined".to_string()
+        );
+        assert_eq!(VariableValue::Null.to_string(), "null".to_string());
+        assert_eq!(
+            VariableValue::Number(number.clone()).to_string(),
             number.to_string()
         );
-        assert_eq!(Variable::Boolean(true).to_string(), "true".to_string());
-        assert_eq!(Variable::Boolean(false).to_string(), "false".to_string());
-        assert_eq!(Variable::String(string.clone()).to_string(), string);
+        assert_eq!(VariableValue::Boolean(true).to_string(), "true".to_string());
+        assert_eq!(
+            VariableValue::Boolean(false).to_string(),
+            "false".to_string()
+        );
+        assert_eq!(VariableValue::String(string.clone()).to_string(), string);
     }
 
     #[proptest]
     fn arithmetic_test(number1: Number, number2: Number, string1: String, string2: String) {
         assert_eq!(
-            Variable::add(
-                &Variable::String(string1.clone()),
-                &Variable::String(string2.clone())
+            VariableValue::add(
+                &VariableValue::String(string1.clone()),
+                &VariableValue::String(string2.clone())
             ),
-            Variable::String(format!("{}{}", &string1, &string2))
+            VariableValue::String(format!("{}{}", &string1, &string2))
         );
         assert_eq!(
-            Variable::add(
-                &Variable::Number(number1.clone()),
-                &Variable::String(string2.clone())
+            VariableValue::add(
+                &VariableValue::Number(number1.clone()),
+                &VariableValue::String(string2.clone())
             ),
-            Variable::String(format!("{}{}", number1.to_string(), &string2))
+            VariableValue::String(format!("{}{}", number1.to_string(), &string2))
         );
         assert_eq!(
-            Variable::add(
-                &Variable::String(string1.clone()),
-                &Variable::Number(number2.clone())
+            VariableValue::add(
+                &VariableValue::String(string1.clone()),
+                &VariableValue::Number(number2.clone())
             ),
-            Variable::String(format!("{}{}", &string1, number2.to_string()))
+            VariableValue::String(format!("{}{}", &string1, number2.to_string()))
         );
 
         assert_eq!(
-            Variable::add(
-                &Variable::Number(number1.clone()),
-                &Variable::Number(number2.clone())
+            VariableValue::add(
+                &VariableValue::Number(number1.clone()),
+                &VariableValue::Number(number2.clone())
             ),
             Number::add(&number1, &number2).into()
         );
         assert_eq!(
-            Variable::sub(
-                &Variable::Number(number1.clone()),
-                &Variable::Number(number2.clone())
+            VariableValue::sub(
+                &VariableValue::Number(number1.clone()),
+                &VariableValue::Number(number2.clone())
             ),
             Number::sub(&number1, &number2).into()
         );
         assert_eq!(
-            Variable::mul(
-                &Variable::Number(number1.clone()),
-                &Variable::Number(number2.clone())
+            VariableValue::mul(
+                &VariableValue::Number(number1.clone()),
+                &VariableValue::Number(number2.clone())
             ),
             Number::mul(&number1, &number2).into()
         );
         assert_eq!(
-            Variable::div(
-                &Variable::Number(number1.clone()),
-                &Variable::Number(number2.clone())
+            VariableValue::div(
+                &VariableValue::Number(number1.clone()),
+                &VariableValue::Number(number2.clone())
             ),
             Number::div(&number1, &number2).into()
         );
@@ -285,13 +297,13 @@ mod tests {
 
     #[proptest]
     fn not_test(boolean: bool) {
-        assert_eq!(Variable::Boolean(boolean).not(), (!boolean).into());
+        assert_eq!(VariableValue::Boolean(boolean).not(), (!boolean).into());
     }
 
     #[proptest]
     fn and_test(a: bool, b: bool) {
         assert_eq!(
-            Variable::and(&Variable::Boolean(a), &Variable::Boolean(b)),
+            VariableValue::and(&VariableValue::Boolean(a), &VariableValue::Boolean(b)),
             (a && b).into()
         );
     }
@@ -299,7 +311,7 @@ mod tests {
     #[proptest]
     fn or_test(a: bool, b: bool) {
         assert_eq!(
-            Variable::or(&Variable::Boolean(a), &Variable::Boolean(b)),
+            VariableValue::or(&VariableValue::Boolean(a), &VariableValue::Boolean(b)),
             (a || b).into()
         );
     }
@@ -307,52 +319,52 @@ mod tests {
     #[proptest]
     fn gt_test(a1: String, b1: String, a2: Number, b2: Number) {
         assert_eq!(
-            Variable::Boolean(a1 > b1),
-            Variable::gt(&Variable::String(a1), &Variable::String(b1)),
+            VariableValue::Boolean(a1 > b1),
+            VariableValue::gt(&VariableValue::String(a1), &VariableValue::String(b1)),
         );
 
         assert_eq!(
-            Variable::Boolean(Number::gt(&a2, &b2)),
-            Variable::gt(&a2.into(), &b2.into()),
+            VariableValue::Boolean(Number::gt(&a2, &b2)),
+            VariableValue::gt(&a2.into(), &b2.into()),
         );
     }
 
     #[proptest]
     fn ge_test(a1: String, b1: String, a2: Number, b2: Number) {
         assert_eq!(
-            Variable::Boolean(a1 >= b1),
-            Variable::ge(&Variable::String(a1), &Variable::String(b1)),
+            VariableValue::Boolean(a1 >= b1),
+            VariableValue::ge(&VariableValue::String(a1), &VariableValue::String(b1)),
         );
 
         assert_eq!(
-            Variable::Boolean(Number::ge(&a2, &b2)),
-            Variable::ge(&a2.into(), &b2.into()),
+            VariableValue::Boolean(Number::ge(&a2, &b2)),
+            VariableValue::ge(&a2.into(), &b2.into()),
         );
     }
 
     #[proptest]
     fn lt_test(a1: String, b1: String, a2: Number, b2: Number) {
         assert_eq!(
-            Variable::Boolean(a1 < b1),
-            Variable::lt(&Variable::String(a1), &Variable::String(b1)),
+            VariableValue::Boolean(a1 < b1),
+            VariableValue::lt(&VariableValue::String(a1), &VariableValue::String(b1)),
         );
 
         assert_eq!(
-            Variable::Boolean(Number::lt(&a2, &b2)),
-            Variable::lt(&a2.into(), &b2.into()),
+            VariableValue::Boolean(Number::lt(&a2, &b2)),
+            VariableValue::lt(&a2.into(), &b2.into()),
         );
     }
 
     #[proptest]
     fn le_test(a1: String, b1: String, a2: Number, b2: Number) {
         assert_eq!(
-            Variable::Boolean(a1 <= b1),
-            Variable::le(&Variable::String(a1), &Variable::String(b1)),
+            VariableValue::Boolean(a1 <= b1),
+            VariableValue::le(&VariableValue::String(a1), &VariableValue::String(b1)),
         );
 
         assert_eq!(
-            Variable::Boolean(Number::le(&a2, &b2)),
-            Variable::le(&a2.into(), &b2.into()),
+            VariableValue::Boolean(Number::le(&a2, &b2)),
+            VariableValue::le(&a2.into(), &b2.into()),
         );
     }
 }
