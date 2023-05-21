@@ -1,6 +1,5 @@
-use std::ops::Deref;
-
 use crate::{ptr::RawPtr, variable::Variable};
+use std::ops::Deref;
 
 #[no_mangle]
 pub extern "C" fn arithmetic_addition(val1: *mut Variable, val2: *mut Variable) -> *mut Variable {

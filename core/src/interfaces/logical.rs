@@ -1,6 +1,5 @@
-use std::ops::Deref;
-
 use crate::{ptr::RawPtr, variable::Variable};
+use std::ops::Deref;
 
 #[no_mangle]
 pub unsafe extern "C" fn logical_not(val: *mut Variable) -> *mut Variable {

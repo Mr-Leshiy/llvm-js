@@ -23,7 +23,7 @@ impl Array {
         res.push('[');
         let mut values_iter = self.values.iter();
         if let Some(value) = values_iter.next() {
-            res.push_str(format!("{0}", value.to_string()).as_str());
+            res.push_str(value.to_string().as_str());
             for property in values_iter {
                 res.push_str(format!(", {0}", property.to_string()).as_str());
             }
