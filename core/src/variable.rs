@@ -12,6 +12,12 @@ pub enum VariableValue {
     Function(Function),
 }
 
+impl Default for VariableValue {
+    fn default() -> Self {
+        Self::Undefined
+    }
+}
+
 impl From<Number> for VariableValue {
     fn from(value: Number) -> Self {
         Self::Number(value)
@@ -88,7 +94,7 @@ impl VariableValue {
         match self {
             Self::Object(object) => object.get_property(property_name),
             Self::Array(array) => array.get_property(property_name),
-            _ => RawPtr::allocate(VariableValue::Undefined),
+            _ => RawPtr::default(),
         }
     }
 
@@ -96,7 +102,7 @@ impl VariableValue {
         if let Self::Function(function) = self {
             function.call(args)
         } else {
-            RawPtr::allocate(VariableValue::Undefined)
+            RawPtr::default()
         }
     }
 }

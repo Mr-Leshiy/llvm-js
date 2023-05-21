@@ -35,7 +35,7 @@ impl Object {
     pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
         self.properties
             .get(&property_name.to_string())
-            .map_or(RawPtr::allocate(VariableValue::Undefined), |val| val.copy())
+            .map_or(RawPtr::default(), |val| val.copy())
     }
 }
 
@@ -50,10 +50,9 @@ mod tests {
 
         assert_eq!(object.to_string(), "{}");
 
-        object.properties.insert(
-            "key1".to_string(),
-            RawPtr::allocate(VariableValue::Undefined),
-        );
+        object
+            .properties
+            .insert("key1".to_string(), RawPtr::from(VariableValue::Undefined));
         assert_eq!(object.to_string(), "{key1: undefined}");
     }
 
@@ -63,17 +62,14 @@ mod tests {
 
         assert_eq!(object.properties.len(), 0);
 
-        object.add_property(
-            &VariableValue::Null,
-            RawPtr::allocate(VariableValue::Undefined),
-        );
+        object.add_property(&VariableValue::Null, RawPtr::from(VariableValue::Undefined));
         assert_eq!(object.properties.len(), 1);
         assert_eq!(
             object
                 .properties
                 .get(&VariableValue::Null.to_string())
                 .unwrap(),
-            &RawPtr::allocate(VariableValue::Undefined)
+            &RawPtr::from(VariableValue::Undefined)
         );
     }
 

@@ -3,7 +3,7 @@ use crate::{ptr::RawPtr, variable::VariableValue};
 #[no_mangle]
 pub extern "C" fn allocate() -> *mut VariableValue {
     let val = VariableValue::Undefined;
-    RawPtr::allocate(val).get_raw()
+    RawPtr::from(val).get_raw()
 }
 
 #[no_mangle]

@@ -5,7 +5,7 @@ use std::ops::Deref;
 pub unsafe extern "C" fn logical_not(val: *mut VariableValue) -> *mut VariableValue {
     let val = RawPtr::from_raw(val).unwrap();
 
-    RawPtr::allocate(val.not()).get_raw()
+    RawPtr::from(val.not()).get_raw()
 }
 
 #[no_mangle]
@@ -16,7 +16,7 @@ pub unsafe extern "C" fn logical_and(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::and(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::and(val1.deref(), val2.deref())).get_raw()
 }
 
 #[no_mangle]
@@ -27,7 +27,7 @@ pub unsafe extern "C" fn logical_or(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::or(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::or(val1.deref(), val2.deref())).get_raw()
 }
 
 #[no_mangle]
@@ -38,7 +38,7 @@ pub unsafe extern "C" fn logical_eq(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::from(val1 == val2)).get_raw()
+    RawPtr::from(VariableValue::from(val1 == val2)).get_raw()
 }
 
 #[no_mangle]
@@ -49,7 +49,7 @@ pub unsafe extern "C" fn logical_ne(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::from(val1 != val2)).get_raw()
+    RawPtr::from(VariableValue::from(val1 != val2)).get_raw()
 }
 
 #[no_mangle]
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn logical_gt(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::gt(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::gt(val1.deref(), val2.deref())).get_raw()
 }
 
 #[no_mangle]
@@ -71,7 +71,7 @@ pub unsafe extern "C" fn logical_ge(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::ge(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::ge(val1.deref(), val2.deref())).get_raw()
 }
 
 #[no_mangle]
@@ -82,7 +82,7 @@ pub unsafe extern "C" fn logical_lt(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::lt(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::lt(val1.deref(), val2.deref())).get_raw()
 }
 
 #[no_mangle]
@@ -93,5 +93,5 @@ pub unsafe extern "C" fn logical_le(
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    RawPtr::allocate(VariableValue::le(val1.deref(), val2.deref())).get_raw()
+    RawPtr::from(VariableValue::le(val1.deref(), val2.deref())).get_raw()
 }

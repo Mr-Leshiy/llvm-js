@@ -23,7 +23,7 @@ impl Function {
 
     pub fn call(&self, args: &mut Vec<*mut VariableValue>) -> RawPtr<VariableValue> {
         while args.len() < self.args_num as usize {
-            args.push(RawPtr::allocate(VariableValue::Undefined).get_raw());
+            args.push(RawPtr::from(VariableValue::Undefined).get_raw());
         }
         let res = (self.func)(args.as_mut_ptr());
         RawPtr::from_raw(res).expect("should be always valid")
