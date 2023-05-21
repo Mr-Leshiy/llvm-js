@@ -1,4 +1,4 @@
-use crate::{ptr::RawPtr, variable::VariableValue};
+use crate::{ptr::RawPtr, variable::{VariableValue, Variable}};
 use std::{
     ffi::{c_char, CStr},
     ops::Deref,
@@ -6,9 +6,9 @@ use std::{
 
 #[no_mangle]
 pub unsafe extern "C" fn add_property_by_boolean(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: bool,
-    property: *mut VariableValue,
+    property: *mut Variable,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
@@ -18,9 +18,9 @@ pub unsafe extern "C" fn add_property_by_boolean(
 
 #[no_mangle]
 pub unsafe extern "C" fn add_property_by_number(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: f64,
-    property: *mut VariableValue,
+    property: *mut Variable,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
@@ -30,9 +30,9 @@ pub unsafe extern "C" fn add_property_by_number(
 
 #[no_mangle]
 pub unsafe extern "C" fn add_property_by_str(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: *const c_char,
-    property: *mut VariableValue,
+    property: *mut Variable,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
@@ -43,9 +43,9 @@ pub unsafe extern "C" fn add_property_by_str(
 
 #[no_mangle]
 pub extern "C" fn add_property_by_var(
-    this: *mut VariableValue,
-    property_name: *mut VariableValue,
-    property: *mut VariableValue,
+    this: *mut Variable,
+    property_name: *mut Variable,
+    property: *mut Variable,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = RawPtr::from_raw(property_name).unwrap();
@@ -56,9 +56,9 @@ pub extern "C" fn add_property_by_var(
 
 #[no_mangle]
 pub unsafe extern "C" fn get_property_by_boolean(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: bool,
-) -> *mut VariableValue {
+) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
 
     this.get_property(&property_name.into()).get_raw()
@@ -66,9 +66,9 @@ pub unsafe extern "C" fn get_property_by_boolean(
 
 #[no_mangle]
 pub unsafe extern "C" fn get_property_by_number(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: f64,
-) -> *mut VariableValue {
+) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
 
     this.get_property(&VariableValue::Number(property_name.into()))
@@ -77,9 +77,9 @@ pub unsafe extern "C" fn get_property_by_number(
 
 #[no_mangle]
 pub unsafe extern "C" fn get_property_by_str(
-    this: *mut VariableValue,
+    this: *mut Variable,
     property_name: *const c_char,
-) -> *mut VariableValue {
+) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
 
@@ -88,9 +88,9 @@ pub unsafe extern "C" fn get_property_by_str(
 
 #[no_mangle]
 pub extern "C" fn get_property_by_var(
-    this: *mut VariableValue,
-    property_name: *mut VariableValue,
-) -> *mut VariableValue {
+    this: *mut Variable,
+    property_name: *mut Variable,
+) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = RawPtr::from_raw(property_name).unwrap();
 
@@ -99,10 +99,10 @@ pub extern "C" fn get_property_by_var(
 
 #[no_mangle]
 pub unsafe extern "C" fn function_call(
-    this: *mut VariableValue,
-    args: *mut *mut VariableValue,
+    this: *mut Variable,
+    args: *mut *mut Variable,
     args_num: u32,
-) -> *mut VariableValue {
+) -> *mut Variable {
     let this = RawPtr::from_raw(this).unwrap();
     // providing 0 capacity value because we dont want to deallocate memory for args
     let mut args = Vec::from_raw_parts(args, args_num as usize, 0);

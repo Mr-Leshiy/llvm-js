@@ -1,4 +1,12 @@
-use crate::{array::Array, function::Function, number::Number, object::Object, ptr::RawPtr};
+use crate::{
+    array::Array,
+    function::Function,
+    number::Number,
+    object::Object,
+    ptr::{RawPtr, SmartPtr},
+};
+
+pub type Variable = SmartPtr<VariableValue>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VariableValue {
@@ -81,7 +89,7 @@ impl VariableValue {
 }
 
 impl VariableValue {
-    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<Variable>) {
         // TODO print runtime error
         match self {
             Self::Object(object) => object.add_property(property_name, property),
@@ -90,7 +98,7 @@ impl VariableValue {
         }
     }
 
-    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
+    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<Variable> {
         match self {
             Self::Object(object) => object.get_property(property_name),
             Self::Array(array) => array.get_property(property_name),
@@ -98,7 +106,7 @@ impl VariableValue {
         }
     }
 
-    pub fn function_call(&self, args: &mut Vec<*mut VariableValue>) -> RawPtr<VariableValue> {
+    pub fn function_call(&self, args: &mut Vec<*mut Variable>) -> RawPtr<Variable> {
         if let Self::Function(function) = self {
             function.call(args)
         } else {

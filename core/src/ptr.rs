@@ -81,6 +81,12 @@ impl<T> SmartPtr<T> {
     }
 }
 
+impl<T: Default> Default for SmartPtr<T> {
+    fn default() -> Self {
+        Self::allocate(T::default())
+    }
+}
+
 impl<T> Clone for SmartPtr<T> {
     fn clone(&self) -> Self {
         Self { raw: self.raw }

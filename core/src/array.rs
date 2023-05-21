@@ -1,10 +1,14 @@
-use crate::{number::Number, ptr::RawPtr, variable::VariableValue};
+use crate::{
+    number::Number,
+    ptr::RawPtr,
+    variable::{Variable, VariableValue},
+};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Array {
-    values: Vec<RawPtr<VariableValue>>,
-    properties: HashMap<String, RawPtr<VariableValue>>,
+    values: Vec<RawPtr<Variable>>,
+    properties: HashMap<String, RawPtr<Variable>>,
 }
 
 impl Array {
@@ -32,20 +36,20 @@ impl Array {
         res
     }
 
-    fn add_value(&mut self, index: usize, value: RawPtr<VariableValue>) {
+    fn add_value(&mut self, index: usize, value: RawPtr<Variable>) {
         while index >= self.values.len() {
             self.values.push(RawPtr::default());
         }
         self.values[index] = value;
     }
 
-    fn get_value(&mut self, index: usize) -> RawPtr<VariableValue> {
+    fn get_value(&mut self, index: usize) -> RawPtr<Variable> {
         self.values
             .get(index)
             .map_or(RawPtr::default(), |val| val.copy())
     }
 
-    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<Variable>) {
         match property_name {
             VariableValue::Number(Number::Number(index)) => {
                 self.add_value(*index as usize, property);
@@ -61,15 +65,15 @@ impl Array {
         }
     }
 
-    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
+    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<Variable> {
         match property_name {
             VariableValue::Number(Number::Number(index)) => self.get_value(*index as usize),
             property_name => {
                 let property_name = property_name.to_string();
                 if property_name == Array::LENGTH_PROPERTY {
-                    RawPtr::from(VariableValue::Number(Number::Number(
-                        self.values.len() as f64
-                    )))
+                    RawPtr::from(Variable::allocate(VariableValue::Number(Number::Number(
+                        self.values.len() as f64,
+                    ))))
                 } else {
                     self.properties
                         .get(&property_name)
@@ -91,13 +95,18 @@ mod tests {
 
         assert_eq!(array.to_string(), "[]");
 
-        array.values.push(RawPtr::from(VariableValue::Undefined));
         array
-            .properties
-            .insert("key".to_string(), RawPtr::from(VariableValue::Undefined));
+            .values
+            .push(RawPtr::from(Variable::allocate(VariableValue::Undefined)));
+        array.properties.insert(
+            "key".to_string(),
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(array.to_string(), "[undefined]");
 
-        array.values.push(RawPtr::from(VariableValue::Undefined));
+        array
+            .values
+            .push(RawPtr::from(Variable::allocate(VariableValue::Undefined)));
         assert_eq!(array.to_string(), "[undefined, undefined]");
     }
 
@@ -108,19 +117,28 @@ mod tests {
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
 
-        array.add_value(0, RawPtr::from(VariableValue::Undefined));
+        array.add_value(
+            0,
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(array.values.len(), 1);
-        assert_eq!(array.values[0].deref(), &VariableValue::Undefined);
+        assert_eq!(
+            array.values[0].deref(),
+            &Variable::allocate(VariableValue::Undefined)
+        );
         assert_eq!(array.properties.len(), 0);
 
-        array.add_value(1, RawPtr::from(VariableValue::Undefined));
+        array.add_value(
+            1,
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(array.values.len(), 2);
-        assert_eq!(array.values[1].deref(), &VariableValue::Undefined);
+        assert_eq!(array.values[1].deref().deref(), &VariableValue::Undefined);
         assert_eq!(array.properties.len(), 0);
 
-        array.add_value(0, RawPtr::from(VariableValue::Null));
+        array.add_value(0, RawPtr::from(Variable::allocate(VariableValue::Null)));
         assert_eq!(array.values.len(), 2);
-        assert_eq!(array.values[0].deref(), &VariableValue::Null);
+        assert_eq!(array.values[0].deref().deref(), &VariableValue::Null);
         assert_eq!(array.properties.len(), 0);
     }
 
@@ -134,12 +152,12 @@ mod tests {
         let val = array.get_value(0);
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Undefined);
+        assert_eq!(val.deref().deref(), &VariableValue::Undefined);
 
         let val = array.get_value(3);
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Undefined);
+        assert_eq!(val.deref().deref(), &VariableValue::Undefined);
     }
 
     #[test]
@@ -149,7 +167,10 @@ mod tests {
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
 
-        array.add_property(&VariableValue::Null, RawPtr::from(VariableValue::Undefined));
+        array.add_property(
+            &VariableValue::Null,
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(array.properties.len(), 1);
         assert_eq!(array.values.len(), 0);
         assert_eq!(
@@ -157,12 +178,12 @@ mod tests {
                 .properties
                 .get(&VariableValue::Null.to_string())
                 .unwrap(),
-            &RawPtr::from(VariableValue::Undefined)
+            &RawPtr::from(Variable::allocate(VariableValue::Undefined))
         );
 
         array.add_property(
             &VariableValue::Number(Number::Number(0.0)),
-            RawPtr::from(VariableValue::Undefined),
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
         );
         assert_eq!(array.properties.len(), 1);
         assert_eq!(array.values.len(), 1);
@@ -171,7 +192,7 @@ mod tests {
                 .properties
                 .get(&VariableValue::Null.to_string())
                 .unwrap(),
-            &RawPtr::from(VariableValue::Undefined)
+            &RawPtr::from(Variable::allocate(VariableValue::Undefined))
         );
     }
 
@@ -185,21 +206,27 @@ mod tests {
         let val = array.get_property(&VariableValue::String(Array::LENGTH_PROPERTY.to_string()));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Number(Number::Number(0.0)));
+        assert_eq!(
+            val.deref().deref(),
+            &VariableValue::Number(Number::Number(0.0))
+        );
 
         let val = array.get_property(&VariableValue::Null);
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Undefined);
+        assert_eq!(val.deref().deref(), &VariableValue::Undefined);
 
         let val = array.get_property(&VariableValue::Number(Number::Number(0.0)));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Undefined);
+        assert_eq!(val.deref().deref(), &VariableValue::Undefined);
 
         let val = array.get_property(&VariableValue::String(Array::LENGTH_PROPERTY.to_string()));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Number(Number::Number(0.0)));
+        assert_eq!(
+            val.deref().deref(),
+            &VariableValue::Number(Number::Number(0.0))
+        );
     }
 }

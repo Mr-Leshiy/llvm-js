@@ -1,6 +1,6 @@
-use crate::{ptr::RawPtr, variable::VariableValue};
+use crate::{ptr::RawPtr, variable::Variable};
 
-pub type FuncType = extern "C" fn(*mut *mut VariableValue) -> *mut VariableValue;
+pub type FuncType = extern "C" fn(*mut *mut Variable) -> *mut Variable;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Function {
@@ -21,9 +21,9 @@ impl Function {
         )
     }
 
-    pub fn call(&self, args: &mut Vec<*mut VariableValue>) -> RawPtr<VariableValue> {
+    pub fn call(&self, args: &mut Vec<*mut Variable>) -> RawPtr<Variable> {
         while args.len() < self.args_num as usize {
-            args.push(RawPtr::from(VariableValue::Undefined).get_raw());
+            args.push(RawPtr::<Variable>::default().get_raw());
         }
         let res = (self.func)(args.as_mut_ptr());
         RawPtr::from_raw(res).expect("should be always valid")

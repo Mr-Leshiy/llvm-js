@@ -1,9 +1,12 @@
-use crate::{ptr::RawPtr, variable::VariableValue};
+use crate::{
+    ptr::RawPtr,
+    variable::{Variable, VariableValue},
+};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
-    properties: HashMap<String, RawPtr<VariableValue>>,
+    properties: HashMap<String, RawPtr<Variable>>,
 }
 
 impl Object {
@@ -28,11 +31,11 @@ impl Object {
         res
     }
 
-    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<Variable>) {
         self.properties.insert(property_name.to_string(), property);
     }
 
-    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
+    pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<Variable> {
         self.properties
             .get(&property_name.to_string())
             .map_or(RawPtr::default(), |val| val.copy())
@@ -50,9 +53,10 @@ mod tests {
 
         assert_eq!(object.to_string(), "{}");
 
-        object
-            .properties
-            .insert("key1".to_string(), RawPtr::from(VariableValue::Undefined));
+        object.properties.insert(
+            "key1".to_string(),
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(object.to_string(), "{key1: undefined}");
     }
 
@@ -62,14 +66,17 @@ mod tests {
 
         assert_eq!(object.properties.len(), 0);
 
-        object.add_property(&VariableValue::Null, RawPtr::from(VariableValue::Undefined));
+        object.add_property(
+            &VariableValue::Null,
+            RawPtr::from(Variable::allocate(VariableValue::Undefined)),
+        );
         assert_eq!(object.properties.len(), 1);
         assert_eq!(
             object
                 .properties
                 .get(&VariableValue::Null.to_string())
                 .unwrap(),
-            &RawPtr::from(VariableValue::Undefined)
+            &RawPtr::from(Variable::allocate(VariableValue::Undefined))
         );
     }
 
@@ -81,6 +88,6 @@ mod tests {
 
         let val = object.get_property(&VariableValue::Null);
         assert_eq!(object.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Undefined);
+        assert_eq!(val.deref().deref(), &VariableValue::Undefined);
     }
 }
