@@ -1,22 +1,8 @@
 use std::ops::{Deref, DerefMut};
 
-trait Deallocate {
-    fn deallocate(&self) -> bool;
-}
-
 #[derive(Debug)]
 pub struct RawPtr<T> {
     raw: *mut T,
-}
-
-impl<T: Deallocate> RawPtr<T> {
-    pub fn deallocate(&mut self) {
-        unsafe {
-            if (&*self.raw).deallocate() {
-                self.raw.drop_in_place();
-            }
-        }
-    }
 }
 
 impl<T> RawPtr<T> {
@@ -67,70 +53,6 @@ impl<T> DerefMut for RawPtr<T> {
     }
 }
 
-#[derive(Debug)]
-pub struct SmartPtr<T> {
-    raw: *mut T,
-    counter: usize,
-    weak_counter: usize,
-}
-
-impl<T> Deallocate for SmartPtr<T> {
-    fn deallocate(&self) -> bool {
-        // unsafe {
-        //     self.raw.drop_in_place();
-        // }
-        false
-    }
-}
-
-impl<T> SmartPtr<T> {
-    pub fn allocate(val: T) -> Self {
-        let raw = Box::into_raw(Box::new(val));
-        Self {
-            raw,
-            counter: 1,
-            weak_counter: 0,
-        }
-    }
-
-    pub fn copy(&self) -> Self {
-        Self {
-            raw: self.raw,
-            counter: self.counter,
-            weak_counter: self.weak_counter,
-        }
-    }
-}
-
-impl<T> Clone for SmartPtr<T> {
-    fn clone(&self) -> Self {
-        Self {
-            raw: self.raw,
-            counter: self.counter,
-            weak_counter: self.weak_counter,
-        }
-    }
-}
-
-impl<T: PartialEq> PartialEq for SmartPtr<T> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { (*self.raw) == (*other.raw) }
-    }
-}
-
-impl<T> Deref for SmartPtr<T> {
-    type Target = T;
-    fn deref(&self) -> &Self::Target {
-        unsafe { &*self.raw }
-    }
-}
-
-impl<T> DerefMut for SmartPtr<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe { &mut *self.raw }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -150,18 +72,5 @@ mod tests {
         unsafe {
             assert_eq!(*ptr.get_raw(), 5);
         }
-    }
-
-    #[test]
-    fn smart_ptr_eq_test() {
-        assert_eq!(SmartPtr::allocate(5), SmartPtr::allocate(5));
-        assert_ne!(SmartPtr::allocate(5), SmartPtr::allocate(10));
-    }
-
-    #[test]
-    fn smart_ptr_test() {
-        let ptr = SmartPtr::allocate(5);
-
-        ptr.deallocate();
     }
 }
