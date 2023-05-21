@@ -1,8 +1,22 @@
 use std::ops::{Deref, DerefMut};
 
+trait Deallocate {
+    fn deallocate(&self) -> bool;
+}
+
 #[derive(Debug)]
 pub struct RawPtr<T> {
     raw: *mut T,
+}
+
+impl<T: Deallocate> RawPtr<T> {
+    pub fn deallocate(&mut self) {
+        unsafe {
+            if (&*self.raw).deallocate() {
+                self.raw.drop_in_place();
+            }
+        }
+    }
 }
 
 impl<T> RawPtr<T> {
@@ -60,6 +74,15 @@ pub struct SmartPtr<T> {
     weak_counter: usize,
 }
 
+impl<T> Deallocate for SmartPtr<T> {
+    fn deallocate(&self) -> bool {
+        // unsafe {
+        //     self.raw.drop_in_place();
+        // }
+        false
+    }
+}
+
 impl<T> SmartPtr<T> {
     pub fn allocate(val: T) -> Self {
         let raw = Box::into_raw(Box::new(val));
@@ -70,25 +93,11 @@ impl<T> SmartPtr<T> {
         }
     }
 
-    fn deallocate(&mut self) {
-        unsafe {
-            self.raw.drop_in_place();
-        }
-    }
-
     pub fn copy(&self) -> Self {
         Self {
             raw: self.raw,
             counter: self.counter,
             weak_counter: self.weak_counter,
-        }
-    }
-
-    pub fn weak_clone(&self) -> Self {
-        Self {
-            raw: self.raw,
-            counter: self.counter,
-            weak_counter: self.weak_counter + 1,
         }
     }
 }
@@ -97,7 +106,7 @@ impl<T> Clone for SmartPtr<T> {
     fn clone(&self) -> Self {
         Self {
             raw: self.raw,
-            counter: self.counter + 1,
+            counter: self.counter,
             weak_counter: self.weak_counter,
         }
     }
@@ -106,6 +115,19 @@ impl<T> Clone for SmartPtr<T> {
 impl<T: PartialEq> PartialEq for SmartPtr<T> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { (*self.raw) == (*other.raw) }
+    }
+}
+
+impl<T> Deref for SmartPtr<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*self.raw }
+    }
+}
+
+impl<T> DerefMut for SmartPtr<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { &mut *self.raw }
     }
 }
 
@@ -138,7 +160,7 @@ mod tests {
 
     #[test]
     fn smart_ptr_test() {
-        let mut ptr = SmartPtr::allocate(5);
+        let ptr = SmartPtr::allocate(5);
 
         ptr.deallocate();
     }
