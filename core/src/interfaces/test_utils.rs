@@ -5,7 +5,7 @@ use std::process::abort;
 pub unsafe extern "C" fn variable_assert(this: *mut Variable) {
     let this = RawPtr::from_raw(this).unwrap();
 
-    if !this.get_ref().to_boolean() {
+    if !this.to_boolean() {
         abort();
     }
 }
@@ -15,7 +15,7 @@ pub unsafe extern "C" fn variable_assert_eq(val1: *mut Variable, val2: *mut Vari
     let val1 = RawPtr::from_raw(val1).unwrap();
     let val2 = RawPtr::from_raw(val2).unwrap();
 
-    if val1.get_ref() != val2.get_ref() {
+    if val1 != val2 {
         abort();
     }
 }
@@ -24,5 +24,5 @@ pub unsafe extern "C" fn variable_assert_eq(val1: *mut Variable, val2: *mut Vari
 pub unsafe extern "C" fn print(this: *mut Variable) {
     let this = RawPtr::from_raw(this).unwrap();
 
-    println!("{}", this.get_ref().to_string());
+    println!("{}", this.to_string());
 }

@@ -19,13 +19,9 @@ impl Object {
         res.push('{');
         let mut properties_iter = self.properties.iter();
         if let Some((property_name, property)) = properties_iter.next() {
-            res.push_str(
-                format!("{0}: {1}", property_name, property.get_ref().to_string()).as_str(),
-            );
+            res.push_str(format!("{0}: {1}", property_name, property.to_string()).as_str());
             for (property_name, property) in properties_iter {
-                res.push_str(
-                    format!(", {0}: {1}", property_name, property.get_ref().to_string()).as_str(),
-                );
+                res.push_str(format!(", {0}: {1}", property_name, property.to_string()).as_str());
             }
         }
         res.push('}');
@@ -46,6 +42,7 @@ impl Object {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ops::Deref;
 
     #[test]
     fn to_string_test() {
@@ -68,12 +65,8 @@ mod tests {
         object.add_property(&Variable::Null, RawPtr::allocate(Variable::Undefined));
         assert_eq!(object.properties.len(), 1);
         assert_eq!(
-            object
-                .properties
-                .get(&Variable::Null.to_string())
-                .unwrap()
-                .get_ref(),
-            RawPtr::allocate(Variable::Undefined).get_ref()
+            object.properties.get(&Variable::Null.to_string()).unwrap(),
+            &RawPtr::allocate(Variable::Undefined)
         );
     }
 
@@ -85,6 +78,6 @@ mod tests {
 
         let val = object.get_property(&Variable::Null);
         assert_eq!(object.properties.len(), 0);
-        assert_eq!(val.get_ref(), &Variable::Undefined);
+        assert_eq!(val.deref(), &Variable::Undefined);
     }
 }

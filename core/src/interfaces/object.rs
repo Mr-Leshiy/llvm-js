@@ -1,5 +1,8 @@
 use crate::{ptr::RawPtr, variable::Variable};
-use std::ffi::{c_char, CStr};
+use std::{
+    ffi::{c_char, CStr},
+    ops::Deref,
+};
 
 #[no_mangle]
 pub unsafe extern "C" fn add_property_by_boolean(
@@ -10,8 +13,7 @@ pub unsafe extern "C" fn add_property_by_boolean(
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
 
-    this.get_mut_ref()
-        .add_property(&property_name.into(), property);
+    this.add_property(&property_name.into(), property);
 }
 
 #[no_mangle]
@@ -23,8 +25,7 @@ pub unsafe extern "C" fn add_property_by_number(
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
 
-    this.get_mut_ref()
-        .add_property(&Variable::Number(property_name.into()), property);
+    this.add_property(&Variable::Number(property_name.into()), property);
 }
 
 #[no_mangle]
@@ -37,8 +38,7 @@ pub unsafe extern "C" fn add_property_by_str(
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
     let property = RawPtr::from_raw(property).unwrap();
 
-    this.get_mut_ref()
-        .add_property(&property_name.into(), property);
+    this.add_property(&property_name.into(), property);
 }
 
 #[no_mangle]
@@ -51,8 +51,7 @@ pub extern "C" fn add_property_by_var(
     let property_name = RawPtr::from_raw(property_name).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
 
-    this.get_mut_ref()
-        .add_property(property_name.get_ref(), property);
+    this.add_property(property_name.deref(), property);
 }
 
 #[no_mangle]
@@ -62,9 +61,7 @@ pub unsafe extern "C" fn get_property_by_boolean(
 ) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
 
-    this.get_mut_ref()
-        .get_property(&property_name.into())
-        .get_raw()
+    this.get_property(&property_name.into()).get_raw()
 }
 
 #[no_mangle]
@@ -74,8 +71,7 @@ pub unsafe extern "C" fn get_property_by_number(
 ) -> *mut Variable {
     let mut this = RawPtr::from_raw(this).unwrap();
 
-    this.get_mut_ref()
-        .get_property(&Variable::Number(property_name.into()))
+    this.get_property(&Variable::Number(property_name.into()))
         .get_raw()
 }
 
@@ -87,9 +83,7 @@ pub unsafe extern "C" fn get_property_by_str(
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
 
-    this.get_mut_ref()
-        .get_property(&property_name.into())
-        .get_raw()
+    this.get_property(&property_name.into()).get_raw()
 }
 
 #[no_mangle]
@@ -100,9 +94,7 @@ pub extern "C" fn get_property_by_var(
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = RawPtr::from_raw(property_name).unwrap();
 
-    this.get_mut_ref()
-        .get_property(property_name.get_ref())
-        .get_raw()
+    this.get_property(property_name.deref()).get_raw()
 }
 
 #[no_mangle]
@@ -115,5 +107,5 @@ pub unsafe extern "C" fn function_call(
     // providing 0 capacity value because we dont want to deallocate memory for args
     let mut args = Vec::from_raw_parts(args, args_num as usize, 0);
 
-    this.get_ref().function_call(&mut args).get_raw()
+    this.function_call(&mut args).get_raw()
 }

@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 #[derive(Debug)]
 pub struct RawPtr<T> {
     raw: *mut T,
@@ -24,14 +26,6 @@ impl<T> RawPtr<T> {
     pub fn get_raw(&self) -> *mut T {
         self.raw
     }
-
-    pub fn get_ref(&self) -> &T {
-        unsafe { &*self.raw }
-    }
-
-    pub fn get_mut_ref(&mut self) -> &mut T {
-        unsafe { &mut *self.raw }
-    }
 }
 
 impl<T> Clone for RawPtr<T> {
@@ -43,6 +37,19 @@ impl<T> Clone for RawPtr<T> {
 impl<T: PartialEq> PartialEq for RawPtr<T> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { (*self.raw) == (*other.raw) }
+    }
+}
+
+impl<T> Deref for RawPtr<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*self.raw }
+    }
+}
+
+impl<T> DerefMut for RawPtr<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { &mut *self.raw }
     }
 }
 
@@ -116,8 +123,8 @@ mod tests {
     fn raw_ptr_test() {
         let mut ptr = RawPtr::allocate(5);
 
-        assert_eq!(ptr.get_ref(), &5);
-        assert_eq!(ptr.get_mut_ref(), &mut 5);
+        assert_eq!(ptr.deref(), &5);
+        assert_eq!(ptr.deref_mut(), &mut 5);
         unsafe {
             assert_eq!(*ptr.get_raw(), 5);
         }
