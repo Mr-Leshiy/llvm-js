@@ -1,4 +1,4 @@
-use crate::{ptr::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::Variable};
 
 pub type FuncType = extern "C" fn(*mut *mut Variable) -> *mut Variable;
 
@@ -21,11 +21,11 @@ impl Function {
         )
     }
 
-    pub fn call(&self, args: &mut Vec<*mut Variable>) -> Ptr<Variable> {
+    pub fn call(&self, args: &mut Vec<*mut Variable>) -> RawPtr<Variable> {
         while args.len() < self.args_num as usize {
-            args.push(Ptr::allocate(Variable::Undefined).get_raw());
+            args.push(RawPtr::allocate(Variable::Undefined).get_raw());
         }
         let res = (self.func)(args.as_mut_ptr());
-        Ptr::from_raw(res).expect("should be always valid")
+        RawPtr::from_raw(res).expect("should be always valid")
     }
 }

@@ -1,11 +1,12 @@
 #[derive(Debug)]
-pub struct Ptr<T> {
+pub struct RawPtr<T> {
     raw: *mut T,
 }
 
-impl<T> Ptr<T> {
-    pub fn copy(&self) -> Self {
-        Self::from_raw(self.raw).expect("should be always valid")
+impl<T> RawPtr<T> {
+    pub fn allocate(val: T) -> Self {
+        let ptr = Box::into_raw(Box::new(val));
+        Self::from_raw(ptr).unwrap()
     }
 
     pub fn from_raw(raw: *mut T) -> Option<Self> {
@@ -14,6 +15,10 @@ impl<T> Ptr<T> {
         } else {
             Some(Self { raw })
         }
+    }
+
+    pub fn copy(&self) -> Self {
+        Self::from_raw(self.raw).expect("should be always valid")
     }
 
     pub fn get_raw(&self) -> *mut T {
@@ -29,20 +34,69 @@ impl<T> Ptr<T> {
     }
 }
 
-impl<T> Ptr<T> {
-    pub fn allocate(val: T) -> Self {
-        let ptr = Box::into_raw(Box::new(val));
-        Self::from_raw(ptr).unwrap()
-    }
-}
-
-impl<T> Clone for Ptr<T> {
+impl<T> Clone for RawPtr<T> {
     fn clone(&self) -> Self {
         Self { raw: self.raw }
     }
 }
 
-impl<T: PartialEq> PartialEq for Ptr<T> {
+impl<T: PartialEq> PartialEq for RawPtr<T> {
+    fn eq(&self, other: &Self) -> bool {
+        unsafe { (*self.raw) == (*other.raw) }
+    }
+}
+
+#[derive(Debug)]
+pub struct SmartPtr<T> {
+    raw: *mut T,
+    counter: usize,
+    weak_counter: usize,
+}
+
+impl<T> SmartPtr<T> {
+    pub fn allocate(val: T) -> Self {
+        let raw = Box::into_raw(Box::new(val));
+        Self {
+            raw,
+            counter: 1,
+            weak_counter: 0,
+        }
+    }
+
+    fn deallocate(&mut self) {
+        unsafe {
+            self.raw.drop_in_place();
+        }
+    }
+
+    pub fn copy(&self) -> Self {
+        Self {
+            raw: self.raw,
+            counter: self.counter,
+            weak_counter: self.weak_counter,
+        }
+    }
+
+    pub fn weak_clone(&self) -> Self {
+        Self {
+            raw: self.raw,
+            counter: self.counter,
+            weak_counter: self.weak_counter + 1,
+        }
+    }
+}
+
+impl<T> Clone for SmartPtr<T> {
+    fn clone(&self) -> Self {
+        Self {
+            raw: self.raw,
+            counter: self.counter + 1,
+            weak_counter: self.weak_counter,
+        }
+    }
+}
+
+impl<T: PartialEq> PartialEq for SmartPtr<T> {
     fn eq(&self, other: &Self) -> bool {
         unsafe { (*self.raw) == (*other.raw) }
     }
@@ -53,19 +107,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn equality_test() {
-        assert_eq!(Ptr::allocate(5), Ptr::allocate(5));
-        assert_ne!(Ptr::allocate(5), Ptr::allocate(10));
+    fn raw_ptr_eq_test() {
+        assert_eq!(RawPtr::allocate(5), RawPtr::allocate(5));
+        assert_ne!(RawPtr::allocate(5), RawPtr::allocate(10));
     }
 
     #[test]
-    fn basic_test() {
-        let mut ptr = Ptr::allocate(5);
+    fn raw_ptr_test() {
+        let mut ptr = RawPtr::allocate(5);
 
         assert_eq!(ptr.get_ref(), &5);
         assert_eq!(ptr.get_mut_ref(), &mut 5);
         unsafe {
             assert_eq!(*ptr.get_raw(), 5);
         }
+    }
+
+    #[test]
+    fn smart_ptr_eq_test() {
+        assert_eq!(SmartPtr::allocate(5), SmartPtr::allocate(5));
+        assert_ne!(SmartPtr::allocate(5), SmartPtr::allocate(10));
+    }
+
+    #[test]
+    fn smart_ptr_test() {
+        let mut ptr = SmartPtr::allocate(5);
+
+        ptr.deallocate();
     }
 }

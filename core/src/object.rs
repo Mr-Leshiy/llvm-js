@@ -1,9 +1,9 @@
-use crate::{ptr::Ptr, variable::Variable};
+use crate::{ptr::RawPtr, variable::Variable};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
-    properties: HashMap<String, Ptr<Variable>>,
+    properties: HashMap<String, RawPtr<Variable>>,
 }
 
 impl Object {
@@ -32,14 +32,14 @@ impl Object {
         res
     }
 
-    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
+    pub fn add_property(&mut self, property_name: &Variable, property: RawPtr<Variable>) {
         self.properties.insert(property_name.to_string(), property);
     }
 
-    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &Variable) -> RawPtr<Variable> {
         self.properties
             .get(&property_name.to_string())
-            .map_or(Ptr::allocate(Variable::Undefined), |val| val.copy())
+            .map_or(RawPtr::allocate(Variable::Undefined), |val| val.copy())
     }
 }
 
@@ -55,7 +55,7 @@ mod tests {
 
         object
             .properties
-            .insert("key1".to_string(), Ptr::allocate(Variable::Undefined));
+            .insert("key1".to_string(), RawPtr::allocate(Variable::Undefined));
         assert_eq!(object.to_string(), "{key1: undefined}");
     }
 
@@ -65,7 +65,7 @@ mod tests {
 
         assert_eq!(object.properties.len(), 0);
 
-        object.add_property(&Variable::Null, Ptr::allocate(Variable::Undefined));
+        object.add_property(&Variable::Null, RawPtr::allocate(Variable::Undefined));
         assert_eq!(object.properties.len(), 1);
         assert_eq!(
             object
@@ -73,7 +73,7 @@ mod tests {
                 .get(&Variable::Null.to_string())
                 .unwrap()
                 .get_ref(),
-            Ptr::allocate(Variable::Undefined).get_ref()
+            RawPtr::allocate(Variable::Undefined).get_ref()
         );
     }
 

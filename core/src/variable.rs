@@ -1,4 +1,4 @@
-use crate::{array::Array, function::Function, number::Number, object::Object, ptr::Ptr};
+use crate::{array::Array, function::Function, number::Number, object::Object, ptr::RawPtr};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Variable {
@@ -75,7 +75,7 @@ impl Variable {
 }
 
 impl Variable {
-    pub fn add_property(&mut self, property_name: &Variable, property: Ptr<Variable>) {
+    pub fn add_property(&mut self, property_name: &Variable, property: RawPtr<Variable>) {
         // TODO print runtime error
         match self {
             Self::Object(object) => object.add_property(property_name, property),
@@ -84,19 +84,19 @@ impl Variable {
         }
     }
 
-    pub fn get_property(&mut self, property_name: &Variable) -> Ptr<Variable> {
+    pub fn get_property(&mut self, property_name: &Variable) -> RawPtr<Variable> {
         match self {
             Self::Object(object) => object.get_property(property_name),
             Self::Array(array) => array.get_property(property_name),
-            _ => Ptr::allocate(Variable::Undefined),
+            _ => RawPtr::allocate(Variable::Undefined),
         }
     }
 
-    pub fn function_call(&self, args: &mut Vec<*mut Variable>) -> Ptr<Variable> {
+    pub fn function_call(&self, args: &mut Vec<*mut Variable>) -> RawPtr<Variable> {
         if let Self::Function(function) = self {
             function.call(args)
         } else {
-            Ptr::allocate(Variable::Undefined)
+            RawPtr::allocate(Variable::Undefined)
         }
     }
 }
