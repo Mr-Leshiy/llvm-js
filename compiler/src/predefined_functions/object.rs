@@ -14,7 +14,12 @@ impl<'ctx> AddPropertyByBooleanFn<'ctx> {
         let var_type = inkwell_context.variable_type;
         let boolean_type = inkwell_context.context.bool_type();
         let function_type = inkwell_context.context.void_type().fn_type(
-            &[var_type.into(), boolean_type.into(), var_type.into()],
+            &[
+                var_type.into(),
+                boolean_type.into(),
+                var_type.into(),
+                boolean_type.into(),
+            ],
             false,
         );
         let func =
@@ -30,6 +35,7 @@ impl<'ctx> AddPropertyByBooleanFn<'ctx> {
         val: &Variable<'ctx>,
         key: bool,
         prop: &Variable<'ctx>,
+        move_prop: bool,
     ) {
         compiler.inkwell_context.builder.build_call(
             self.func,
@@ -42,6 +48,12 @@ impl<'ctx> AddPropertyByBooleanFn<'ctx> {
                     .const_int(key.into(), false)
                     .into(),
                 prop.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .bool_type()
+                    .const_int(move_prop.into(), false)
+                    .into(),
             ],
             "",
         );
@@ -59,8 +71,14 @@ impl<'ctx> AddPropertyByNumberFn<'ctx> {
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
         let number_type = inkwell_context.context.f64_type();
+        let boolean_type = inkwell_context.context.bool_type();
         let function_type = inkwell_context.context.void_type().fn_type(
-            &[var_type.into(), number_type.into(), var_type.into()],
+            &[
+                var_type.into(),
+                number_type.into(),
+                var_type.into(),
+                boolean_type.into(),
+            ],
             false,
         );
         let func =
@@ -76,6 +94,7 @@ impl<'ctx> AddPropertyByNumberFn<'ctx> {
         val: &Variable<'ctx>,
         key: f64,
         prop: &Variable<'ctx>,
+        move_prop: bool,
     ) {
         compiler.inkwell_context.builder.build_call(
             self.func,
@@ -88,6 +107,12 @@ impl<'ctx> AddPropertyByNumberFn<'ctx> {
                     .const_float(key)
                     .into(),
                 prop.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .bool_type()
+                    .const_int(move_prop.into(), false)
+                    .into(),
             ],
             "",
         );
@@ -108,8 +133,14 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
             .context
             .i8_type()
             .ptr_type(AddressSpace::from(0));
+        let boolean_type = inkwell_context.context.bool_type();
         let function_type = inkwell_context.context.void_type().fn_type(
-            &[var_type.into(), string_type.into(), var_type.into()],
+            &[
+                var_type.into(),
+                string_type.into(),
+                var_type.into(),
+                boolean_type.into(),
+            ],
             false,
         );
         let func =
@@ -124,7 +155,8 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &str,
-        value: &Variable<'ctx>,
+        prop: &Variable<'ctx>,
+        move_prop: bool,
     ) {
         let key = compiler
             .inkwell_context
@@ -133,7 +165,17 @@ impl<'ctx> AddPropertyByStrFn<'ctx> {
             .as_pointer_value();
         compiler.inkwell_context.builder.build_call(
             self.func,
-            &[val.value.into(), key.into(), value.value.into()],
+            &[
+                val.value.into(),
+                key.into(),
+                prop.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .bool_type()
+                    .const_int(move_prop.into(), false)
+                    .into(),
+            ],
             "",
         );
     }
@@ -149,10 +191,16 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
 
     pub(super) fn declare(inkwell_context: &InkwellContext<'ctx>) -> Self {
         let var_type = inkwell_context.variable_type;
-        let function_type = inkwell_context
-            .context
-            .void_type()
-            .fn_type(&[var_type.into(), var_type.into(), var_type.into()], false);
+        let boolean_type = inkwell_context.context.bool_type();
+        let function_type = inkwell_context.context.void_type().fn_type(
+            &[
+                var_type.into(),
+                var_type.into(),
+                var_type.into(),
+                boolean_type.into(),
+            ],
+            false,
+        );
         let func =
             inkwell_context
                 .module
@@ -160,17 +208,27 @@ impl<'ctx> AddPropertyByVarFn<'ctx> {
         Self { func }
     }
 
-    #[allow(dead_code)]
     pub(crate) fn call<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         val: &Variable<'ctx>,
         key: &Variable<'ctx>,
-        value: &Variable<'ctx>,
+        prop: &Variable<'ctx>,
+        move_prop: bool,
     ) {
         compiler.inkwell_context.builder.build_call(
             self.func,
-            &[val.value.into(), key.value.into(), value.value.into()],
+            &[
+                val.value.into(),
+                key.value.into(),
+                prop.value.into(),
+                compiler
+                    .inkwell_context
+                    .context
+                    .bool_type()
+                    .const_int(move_prop.into(), false)
+                    .into(),
+            ],
             "",
         );
     }

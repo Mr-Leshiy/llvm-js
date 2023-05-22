@@ -97,6 +97,7 @@ impl Property {
                         compiler,
                         String::from(identifier).as_str(),
                         new_value,
+                        true,
                     );
                 }
                 PropertyType::FunctionCall(function_call) => {
@@ -123,21 +124,21 @@ impl Property {
                 PropertyType::VariableExpression(VariableExpression::VariableValue(
                     VariableValue::Boolean(key),
                 )) => {
-                    variable.add_property_by_boolean(compiler, key, new_value);
+                    variable.add_property_by_boolean(compiler, key, new_value, true);
                 }
                 PropertyType::VariableExpression(VariableExpression::VariableValue(
                     VariableValue::FloatNumber(key),
                 )) => {
-                    variable.add_property_by_number(compiler, key, new_value);
+                    variable.add_property_by_number(compiler, key, new_value, true);
                 }
                 PropertyType::VariableExpression(VariableExpression::VariableValue(
                     VariableValue::String(key),
                 )) => {
-                    variable.add_property_by_str(compiler, &key, new_value);
+                    variable.add_property_by_str(compiler, &key, new_value, true);
                 }
                 PropertyType::VariableExpression(variable_expression) => {
                     let key = variable_expression.compile_get_variable(compiler)?;
-                    variable.add_property_by_var(compiler, &key, new_value);
+                    variable.add_property_by_var(compiler, &key, new_value, true);
                     if key.is_tmp() {
                         key.deallocate(compiler);
                     }

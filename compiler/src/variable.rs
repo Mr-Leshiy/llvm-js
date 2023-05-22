@@ -158,30 +158,44 @@ impl<'ctx> Variable<'ctx> {
         &self,
         compiler: &Compiler<'ctx, T>,
         key: bool,
-        value: &Self,
+        prop: &Self,
+        move_prop: bool,
     ) {
         let add_property_fn = compiler.predefined_functions().add_property_by_boolean();
-        add_property_fn.call(compiler, self, key, value);
+        add_property_fn.call(compiler, self, key, prop, move_prop);
     }
 
-    pub fn add_property_by_number<T>(&self, compiler: &Compiler<'ctx, T>, key: f64, value: &Self) {
+    pub fn add_property_by_number<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: f64,
+        prop: &Self,
+        move_prop: bool,
+    ) {
         let add_property_fn = compiler.predefined_functions().add_property_by_number();
-        add_property_fn.call(compiler, self, key, value);
+        add_property_fn.call(compiler, self, key, prop, move_prop);
     }
 
-    pub fn add_property_by_str<T>(&self, compiler: &Compiler<'ctx, T>, key: &str, value: &Self) {
+    pub fn add_property_by_str<T>(
+        &self,
+        compiler: &Compiler<'ctx, T>,
+        key: &str,
+        prop: &Self,
+        move_prop: bool,
+    ) {
         let add_property_fn = compiler.predefined_functions().add_property_by_str();
-        add_property_fn.call(compiler, self, key, value);
+        add_property_fn.call(compiler, self, key, prop, move_prop);
     }
 
     pub fn add_property_by_var<T>(
         &self,
         compiler: &Compiler<'ctx, T>,
         key: &Variable<'ctx>,
-        value: &Self,
+        prop: &Self,
+        move_prop: bool,
     ) {
         let add_property_fn = compiler.predefined_functions().add_property_by_var();
-        add_property_fn.call(compiler, self, key, value);
+        add_property_fn.call(compiler, self, key, prop, move_prop);
     }
 
     #[must_use]

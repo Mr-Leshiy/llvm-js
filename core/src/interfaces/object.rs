@@ -1,4 +1,7 @@
-use crate::{ptr::RawPtr, variable::{VariableValue, Variable}};
+use crate::{
+    ptr::RawPtr,
+    variable::{Variable, VariableValue},
+};
 use std::{
     ffi::{c_char, CStr},
     ops::Deref,
@@ -9,6 +12,7 @@ pub unsafe extern "C" fn add_property_by_boolean(
     this: *mut Variable,
     property_name: bool,
     property: *mut Variable,
+    _move_property: bool,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
@@ -21,6 +25,7 @@ pub unsafe extern "C" fn add_property_by_number(
     this: *mut Variable,
     property_name: f64,
     property: *mut Variable,
+    _move_property: bool,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property = RawPtr::from_raw(property).unwrap();
@@ -33,6 +38,7 @@ pub unsafe extern "C" fn add_property_by_str(
     this: *mut Variable,
     property_name: *const c_char,
     property: *mut Variable,
+    _move_property: bool,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = CStr::from_ptr(property_name).to_str().unwrap().to_string();
@@ -46,6 +52,7 @@ pub extern "C" fn add_property_by_var(
     this: *mut Variable,
     property_name: *mut Variable,
     property: *mut Variable,
+    _move_property: bool,
 ) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let property_name = RawPtr::from_raw(property_name).unwrap();

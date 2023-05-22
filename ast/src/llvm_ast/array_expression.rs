@@ -19,6 +19,7 @@ impl ArrayExpression {
                 compiler,
                 u32::try_from(i).expect("number overflow").into(),
                 &value,
+                true,
             );
         }
         Ok(res)

@@ -16,7 +16,7 @@ impl ObjectExpression {
         let res = Variable::new_object(compiler, true);
         for (key, value) in self.properties {
             let value = value.compile_get_variable(compiler)?;
-            res.add_property_by_str(compiler, &String::from(key), &value);
+            res.add_property_by_str(compiler, &String::from(key), &value, true);
         }
         Ok(res)
     }
