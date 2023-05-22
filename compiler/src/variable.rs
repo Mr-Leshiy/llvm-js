@@ -27,19 +27,6 @@ impl<'ctx> Variable<'ctx> {
         deallocate_fn.call(compiler, self);
     }
 
-    pub fn declare_global<T>(compiler: &Compiler<'ctx, T>) -> Self {
-        let var_type = compiler.inkwell_context.variable_type;
-        let value = compiler
-            .inkwell_context
-            .module
-            .add_global(var_type, None, "")
-            .as_pointer_value();
-        Self {
-            value,
-            is_tmp: false,
-        }
-    }
-
     pub fn new_undefined<T>(compiler: &Compiler<'ctx, T>, is_tmp: bool) -> Self {
         let mut variable = Self::new(compiler);
         let set_undefined_fn = compiler.predefined_functions().set_undefined();

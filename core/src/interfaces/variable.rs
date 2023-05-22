@@ -90,6 +90,7 @@ pub unsafe extern "C" fn set_function(this: *mut Variable, func: FuncType, args_
 pub extern "C" fn set_variable(this: *mut Variable, val: *mut Variable) {
     let mut this = RawPtr::from_raw(this).unwrap();
     let val = RawPtr::from_raw(val).unwrap();
+    println!("set_variable, {this:?}, {val:?}");
 
     **this = (**val).clone();
 }

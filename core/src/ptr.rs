@@ -1,4 +1,7 @@
-use std::ops::{Deref, DerefMut};
+use std::{
+    fmt::Debug,
+    ops::{Deref, DerefMut},
+};
 
 #[derive(Debug)]
 pub struct RawPtr<T> {
@@ -20,6 +23,16 @@ impl<T> RawPtr<T> {
 
     pub fn get_raw(&self) -> *mut T {
         self.raw
+    }
+}
+
+impl<T: Debug> RawPtr<SmartPtr<T>> {
+    pub fn deallocate(&mut self) {
+        if self.deref_mut().deallocate() {
+            unsafe {
+                self.raw.drop_in_place();
+            }
+        }
     }
 }
 
@@ -64,9 +77,10 @@ impl<T> DerefMut for RawPtr<T> {
 #[derive(Debug)]
 pub struct SmartPtr<T> {
     raw: *mut T,
+    counter: u32,
 }
 
-impl<T> SmartPtr<T> {
+impl<T: Debug> SmartPtr<T> {
     pub fn allocate(val: T) -> Self {
         let ptr = Box::into_raw(Box::new(val));
         Self::from_raw(ptr).unwrap()
@@ -76,12 +90,28 @@ impl<T> SmartPtr<T> {
         if raw.is_null() {
             None
         } else {
-            Some(Self { raw })
+            Some(Self { raw, counter: 1 })
+        }
+    }
+
+    pub fn inc_counter(&mut self) {
+        self.counter += 1;
+    }
+
+    pub fn deallocate(&mut self) -> bool {
+        self.counter -= 1;
+        if self.counter == 0 {
+            unsafe {
+                self.raw.drop_in_place();
+            }
+            true
+        } else {
+            false
         }
     }
 }
 
-impl<T: Default> Default for SmartPtr<T> {
+impl<T: Default + Debug> Default for SmartPtr<T> {
     fn default() -> Self {
         Self::allocate(T::default())
     }
@@ -89,7 +119,10 @@ impl<T: Default> Default for SmartPtr<T> {
 
 impl<T> Clone for SmartPtr<T> {
     fn clone(&self) -> Self {
-        Self { raw: self.raw }
+        Self {
+            raw: self.raw,
+            counter: self.counter + 1,
+        }
     }
 }
 

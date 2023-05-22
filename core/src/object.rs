@@ -31,7 +31,8 @@ impl Object {
         res
     }
 
-    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<Variable>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, mut property: RawPtr<Variable>) {
+        property.inc_counter();
         self.properties.insert(property_name.to_string(), property);
     }
 

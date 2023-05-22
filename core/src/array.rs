@@ -36,7 +36,8 @@ impl Array {
         res
     }
 
-    fn add_value(&mut self, index: usize, value: RawPtr<Variable>) {
+    fn add_value(&mut self, index: usize, mut value: RawPtr<Variable>) {
+        value.inc_counter();
         while index >= self.values.len() {
             self.values.push(RawPtr::default());
         }
@@ -49,7 +50,8 @@ impl Array {
             .map_or(RawPtr::default(), |val| val.copy())
     }
 
-    pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<Variable>) {
+    pub fn add_property(&mut self, property_name: &VariableValue, mut property: RawPtr<Variable>) {
+        property.inc_counter();
         match property_name {
             VariableValue::Number(Number::Number(index)) => {
                 self.add_value(*index as usize, property);
