@@ -8,7 +8,6 @@ pub extern "C" fn allocate() -> *mut Variable {
 #[no_mangle]
 pub unsafe extern "C" fn deallocate(this: *mut Variable) {
     let mut this = RawPtr::from_raw(this).unwrap();
-    println!("deallocate, {this:?}");
 
     this.deallocate();
 }
