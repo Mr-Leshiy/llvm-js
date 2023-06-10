@@ -30,7 +30,7 @@ impl<T: Debug> RawPtr<SmartPtr<T>> {
     pub fn deallocate(&mut self) {
         if self.deref_mut().deallocate() {
             unsafe {
-                self.raw.drop_in_place();
+                drop(Box::from_raw(self.raw));
             }
         }
     }
@@ -102,7 +102,7 @@ impl<T: Debug> SmartPtr<T> {
         self.counter -= 1;
         if self.counter == 0 {
             unsafe {
-                self.raw.drop_in_place();
+                drop(Box::from_raw(self.raw));
             }
             true
         } else {
