@@ -1,30 +1,30 @@
 [workspace]
 resolver = "2"
 members = [
-    "assembler",
-    "ast",
-    "bin",
-    "compiler",
-    "core",
-    "collections",
-    "rpn",
-    "precompiler",
+    "src/assembler",
+    "src/ast",
+    "src/bin",
+    "src/compiler",
+    "src/core",
+    "src/collections",
+    "src/rpn",
+    "src/precompiler",
     "testing",
-    "lexer",
+    "src/lexer",
 ]
 
 [workspace.package]
 edition = "2021"
 
 [workspace.dependencies]
-assembler = { path = "assembler" }
-ast = { path = "ast" }
-compiler = { path = "compiler" }
-core = { path = "core" }
-collections = { path = "collections" }
-rpn = { path = "rpn" }
-precompiler = { path = "precompiler" }
-lexer = { path = "lexer" }
+assembler = { path = "src/assembler" }
+ast = { path = "src/ast" }
+compiler = { path = "src/compiler" }
+core = { path = "src/core" }
+collections = { path = "src/collections" }
+rpn = { path = "src/rpn" }
+precompiler = { path = "src/precompiler" }
+lexer = { path = "src/lexer" }
 
 thiserror = { version = "1.0.40" }
 
