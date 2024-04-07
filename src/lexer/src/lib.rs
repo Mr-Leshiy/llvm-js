@@ -487,10 +487,7 @@ impl<R: Read> TokenReader<R> {
             self.saved_flag -= 1;
             let saved = self.saved_tokens.pop().unwrap();
             if self.saved_flag != 0 && !saved.is_empty() {
-                self.saved_tokens
-                    .last_mut()
-                    .unwrap()
-                    .extend(saved.into_iter());
+                self.saved_tokens.last_mut().unwrap().extend(saved);
             }
         }
     }
@@ -523,13 +520,13 @@ impl<R: Read> TokenReader<R> {
     fn read_token(&mut self) -> Result<Token, Error> {
         match self.char_reader.get_char() {
             Ok(char) => self.try_skip(char)?.token_or_continue(|char| {
-                self.try_read_identifier(char)?.token_or_continue(|_| {
-                    self.try_read_number(char)?.token_or_continue(|_| {
-                        self.try_read_logical(char)?.token_or_continue(|_| {
-                            Self::try_read_arithmetic(char).token_or_continue(|_| {
-                                Self::try_read_assign_operator(char).token_or_continue(|_| {
-                                    Self::try_read_separator(char).token_or_continue(|_| {
-                                        self.try_read_string(char)?.token_or_continue(|_| {
+                self.try_read_identifier(char)?.token_or_continue(|()| {
+                    self.try_read_number(char)?.token_or_continue(|()| {
+                        self.try_read_logical(char)?.token_or_continue(|()| {
+                            Self::try_read_arithmetic(char).token_or_continue(|()| {
+                                Self::try_read_assign_operator(char).token_or_continue(|()| {
+                                    Self::try_read_separator(char).token_or_continue(|()| {
+                                        self.try_read_string(char)?.token_or_continue(|()| {
                                             Err(Error::UnexpectedSymbol(
                                                 char,
                                                 self.char_reader.get_position().clone(),

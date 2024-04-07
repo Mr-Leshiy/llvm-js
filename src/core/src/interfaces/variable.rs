@@ -47,7 +47,7 @@ pub extern "C" fn set_neginfinity(this: *mut VariableValue) {
 pub extern "C" fn set_number(this: *mut VariableValue, val: f64) {
     let mut this = RawPtr::from_raw(this).unwrap();
 
-    *this = VariableValue::Number(Number::Number(val));
+    *this = VariableValue::Number(Number::Num(val));
 }
 
 #[no_mangle]

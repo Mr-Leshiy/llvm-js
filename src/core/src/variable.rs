@@ -47,10 +47,10 @@ impl VariableValue {
     pub fn to_number(&self) -> Number {
         match self {
             Self::Undefined => Number::NaN,
-            Self::Null => Number::Number(0.0),
+            Self::Null => Number::Num(0.0),
             Self::Number(number) => number.clone(),
-            Self::Boolean(true) => Number::Number(1.0),
-            Self::Boolean(false) => Number::Number(0.0),
+            Self::Boolean(true) => Number::Num(1.0),
+            Self::Boolean(false) => Number::Num(0.0),
             Self::String(_) => Number::NaN,
             Self::Object(_) => Number::NaN,
             Self::Array(_) => Number::NaN,
@@ -209,16 +209,10 @@ mod tests {
     #[proptest]
     fn to_number_test(number: Number, string: String) {
         assert_eq!(VariableValue::Undefined.to_number(), Number::NaN);
-        assert_eq!(VariableValue::Null.to_number(), Number::Number(0.0));
+        assert_eq!(VariableValue::Null.to_number(), Number::Num(0.0));
         assert_eq!(VariableValue::Number(number.clone()).to_number(), number);
-        assert_eq!(
-            VariableValue::Boolean(true).to_number(),
-            Number::Number(1.0)
-        );
-        assert_eq!(
-            VariableValue::Boolean(false).to_number(),
-            Number::Number(0.0)
-        );
+        assert_eq!(VariableValue::Boolean(true).to_number(), Number::Num(1.0));
+        assert_eq!(VariableValue::Boolean(false).to_number(), Number::Num(0.0));
         assert_eq!(VariableValue::String(string).to_number(), Number::NaN);
     }
 

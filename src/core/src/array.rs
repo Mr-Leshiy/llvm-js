@@ -47,7 +47,7 @@ impl Array {
 
     pub fn add_property(&mut self, property_name: &VariableValue, property: RawPtr<VariableValue>) {
         match property_name {
-            VariableValue::Number(Number::Number(index)) => {
+            VariableValue::Number(Number::Num(index)) => {
                 self.add_value(*index as usize, property);
             }
             property_name => {
@@ -63,13 +63,11 @@ impl Array {
 
     pub fn get_property(&mut self, property_name: &VariableValue) -> RawPtr<VariableValue> {
         match property_name {
-            VariableValue::Number(Number::Number(index)) => self.get_value(*index as usize),
+            VariableValue::Number(Number::Num(index)) => self.get_value(*index as usize),
             property_name => {
                 let property_name = property_name.to_string();
                 if property_name == Array::LENGTH_PROPERTY {
-                    RawPtr::allocate(VariableValue::Number(Number::Number(
-                        self.values.len() as f64
-                    )))
+                    RawPtr::allocate(VariableValue::Number(Number::Num(self.values.len() as f64)))
                 } else {
                     self.properties
                         .get(&property_name)
@@ -169,7 +167,7 @@ mod tests {
         );
 
         array.add_property(
-            &VariableValue::Number(Number::Number(0.0)),
+            &VariableValue::Number(Number::Num(0.0)),
             RawPtr::allocate(VariableValue::Undefined),
         );
         assert_eq!(array.properties.len(), 1);
@@ -193,14 +191,14 @@ mod tests {
         let val = array.get_property(&VariableValue::String(Array::LENGTH_PROPERTY.to_string()));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Number(Number::Number(0.0)));
+        assert_eq!(val.deref(), &VariableValue::Number(Number::Num(0.0)));
 
         let val = array.get_property(&VariableValue::Null);
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
         assert_eq!(val.deref(), &VariableValue::Undefined);
 
-        let val = array.get_property(&VariableValue::Number(Number::Number(0.0)));
+        let val = array.get_property(&VariableValue::Number(Number::Num(0.0)));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
         assert_eq!(val.deref(), &VariableValue::Undefined);
@@ -208,6 +206,6 @@ mod tests {
         let val = array.get_property(&VariableValue::String(Array::LENGTH_PROPERTY.to_string()));
         assert_eq!(array.values.len(), 0);
         assert_eq!(array.properties.len(), 0);
-        assert_eq!(val.deref(), &VariableValue::Number(Number::Number(0.0)));
+        assert_eq!(val.deref(), &VariableValue::Number(Number::Num(0.0)));
     }
 }
