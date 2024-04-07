@@ -42,7 +42,11 @@ where
             .position_at_end(basic_block);
 
         // args
-        let args = function.get_params().get(0).expect("").into_pointer_value();
+        let args = function
+            .get_params()
+            .first()
+            .expect("")
+            .into_pointer_value();
         let args = compiler
             .inkwell_context
             .builder

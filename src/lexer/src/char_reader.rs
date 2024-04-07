@@ -34,7 +34,7 @@ impl<R: Read> CharReader<R> {
                 Ok(char)
             }
             None => match self.reader.read(&mut self.buf) {
-                Ok(read_bytes) if read_bytes == 0 => Err(Error::Eof),
+                Ok(0) => Err(Error::Eof),
                 Ok(_) => {
                     self.position.inc_line();
                     if self.buf[0] as char == '\n' {
